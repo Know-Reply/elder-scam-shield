@@ -12,8 +12,7 @@ Publishes `message.classified` events via A2A for downstream agents.
 import json
 from datetime import datetime, timezone
 
-from google.adk.agents import Agent
-from google.adk.tools import tool
+from google.adk import Agent
 from google.cloud import firestore
 
 db = firestore.Client()
@@ -78,7 +77,7 @@ Always extract facts. A message saying 「大阪で元気にしてるよ」 is s
 extract claimed_location: "大阪". The Behavioral Analyzer needs every stated fact."""
 
 
-@tool
+
 def read_contact_list(user_id: str) -> dict:
     """Read user's known contacts from Memory Bank for sender verification."""
     doc = db.collection("users").document(user_id).get()
@@ -88,7 +87,7 @@ def read_contact_list(user_id: str) -> dict:
     return {"contacts": [], "blocklist": []}
 
 
-@tool
+
 def write_classification(user_id: str, sender_id: str, message_id: str,
                          classification_result: str) -> dict:
     """Write extracted facts and classification to Memory Bank (Firestore)."""
@@ -109,7 +108,7 @@ def write_classification(user_id: str, sender_id: str, message_id: str,
     return {"status": "written", "message_id": message_id}
 
 
-@tool
+
 def publish_classified_event(sender_id: str, classification: str,
                              confidence: float, extracted_facts: str,
                              detected_signals: str) -> dict:

@@ -2,14 +2,17 @@
 # Hackathon submission for Google for Startups AI Agents Challenge
 
 # ADK (Agent Development Kit) 2.0 — multi-agent orchestration
-google-adk>=2.0.0
+google-adk>=2.0.0,<3.0.0
 
 # Firestore — longitudinal sender profiles and audit log
-google-cloud-firestore
+google-cloud-firestore>=2.19.0,<3.0.0
 
 # FastAPI + Uvicorn — web server and REST API
-fastapi
-uvicorn[standard]
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.32.0,<1.0.0
 
 # Vertex AI — Gemini model access on Google Cloud
-google-cloud-aiplatform
+google-cloud-aiplatform>=1.74.0,<2.0.0
+
+# Testing
+pytest>=8.0.0,<9.0.0

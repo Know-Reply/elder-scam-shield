@@ -12,8 +12,7 @@ surfaced. Elderly users act on emotional content even when warned.
 import hashlib
 from datetime import datetime, timezone
 
-from google.adk.agents import Agent
-from google.adk.tools import tool
+from google.adk import Agent
 from google.cloud import firestore
 
 db = firestore.Client()
@@ -36,7 +35,7 @@ def _compound_risk(signals: list[str], sender_risk: float) -> float:
     return min(min(score / 2.0, 1.0) * max(sender_risk, 0.5), 1.0)
 
 
-@tool
+
 def check_sender_risk(sender_id: str) -> dict:
     """Read sender risk score and recent inbound context from Memory Bank."""
     doc = PROFILES.document(sender_id).get()
@@ -51,14 +50,14 @@ def check_sender_risk(sender_id: str) -> dict:
     return {"sender_id": sender_id, "risk_score": 0.0, "risk_factors": []}
 
 
-@tool
+
 def check_known_payee(recipient_id: str, user_id: str) -> dict:
     """Check whether recipient is a known payee for this user."""
     doc = KNOWN_PAYEES.document(f"{user_id}_{recipient_id}").get()
     return {"known": doc.exists, "recipient_id": recipient_id}
 
 
-@tool
+
 def hold_outbound(
     user_id: str, held_action: str, recipient_id: str,
     content: str, signals: list[str], sender_risk: float, reason: str,
@@ -82,7 +81,7 @@ def hold_outbound(
     return {"hold": record, "a2a_publish": a2a}
 
 
-@tool
+
 def release_outbound(hold_id: str, reason: str) -> dict:
     """Release a previously held outbound action."""
     HOLDS.document(hold_id).update({"resolution": "released", "release_reason": reason})

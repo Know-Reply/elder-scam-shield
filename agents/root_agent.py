@@ -7,8 +7,7 @@ A2A event chain:
   message.classified → sender.risk_updated → outbound.held → alert.delivered
 """
 
-from google.adk.agents import Agent
-from google.adk.tools import tool
+from google.adk import Agent
 from google.cloud import firestore
 
 from .inbound_classifier import inbound_classifier
@@ -19,7 +18,7 @@ from .family_alerter import family_alerter
 db = firestore.Client()
 
 
-@tool
+
 def route_classified_event(event: dict) -> dict:
     """Route a message.classified event to the Behavioral Analyzer.
 
@@ -34,7 +33,7 @@ def route_classified_event(event: dict) -> dict:
     }
 
 
-@tool
+
 def route_risk_event(event: dict) -> dict:
     """Route a sender.risk_updated event to downstream agents.
 
@@ -52,7 +51,7 @@ def route_risk_event(event: dict) -> dict:
     }
 
 
-@tool
+
 def route_hold_event(event: dict) -> dict:
     """Route an outbound.held event to the Family Alerter.
 

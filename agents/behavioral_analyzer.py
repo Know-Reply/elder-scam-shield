@@ -9,8 +9,7 @@ Signals: LG-1..LG-10 (longitudinal), CM-1 (cross-modal)
 
 from datetime import date, datetime, timezone
 
-from google.adk.agents import Agent
-from google.adk.tools import tool
+from google.adk import Agent
 from google.cloud import firestore
 
 SIGNAL_WEIGHTS = {
@@ -87,21 +86,21 @@ def _empty_profile(sender_email: str) -> dict:
     }
 
 
-@tool
+
 def load_sender_profile(sender_email: str) -> dict:
     """Load or initialize the sender's longitudinal profile from Memory Bank."""
     doc = PROFILES.document(sender_email).get()
     return doc.to_dict() if doc.exists else _empty_profile(sender_email)
 
 
-@tool
+
 def load_user_contacts(user_id: str) -> dict:
     """Load the user's verified contact list for cross-reference."""
     doc = CONTACTS.document(user_id).get()
     return doc.to_dict() if doc.exists else {"contacts": []}
 
 
-@tool
+
 def update_sender_profile(sender_email: str, profile: dict) -> dict:
     """Write updated sender profile back to Memory Bank (Firestore)."""
     profile["last_updated"] = datetime.now(timezone.utc).isoformat()
@@ -109,7 +108,7 @@ def update_sender_profile(sender_email: str, profile: dict) -> dict:
     return profile
 
 
-@tool
+
 def compute_risk_score(detected_signals: list[str]) -> dict:
     """Compute weighted risk score from detected longitudinal signal codes.
 
@@ -130,7 +129,7 @@ def compute_risk_score(detected_signals: list[str]) -> dict:
     return {"risk_score": round(score, 3), "recommendation": rec}
 
 
-@tool
+
 def publish_risk_assessment(
     sender_id: str,
     risk_score: float,

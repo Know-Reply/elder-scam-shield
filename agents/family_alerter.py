@@ -13,8 +13,7 @@ A2A publishes:  alert.delivered
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from google.adk.agents import Agent
-from google.adk.tools import tool
+from google.adk import Agent
 from google.cloud import firestore
 
 JST = timezone(timedelta(hours=9))
@@ -31,7 +30,7 @@ TEMPLATES: dict[str, dict[str, Any]] = {
 }
 # fmt: on
 
-@tool
+
 def generate_alert(
     alert_type: str,
     user_id: str,
