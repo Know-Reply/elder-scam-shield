@@ -311,7 +311,7 @@
     <div class="scene-header">
       <span class="scene-label">Scene 3</span>
       <h2>Outbound Interception</h2>
-      <p class="scene-subtitle">Catching the victim before they send money</p>
+      <p class="scene-subtitle">Catching the compliance signal before grandma goes to the bank</p>
     </div>
 
     <div class="scene-content scene3-layout">
@@ -319,11 +319,12 @@
         <div class="message-card outbound-message">
           <div class="msg-header">
             <span class="msg-sender outbound-sender">User (Grandmother) &rarr; kenji_tanaka@gmail.com</span>
-            <span class="msg-badge badge-outbound">Outbound</span>
+            <span class="msg-badge badge-outbound">Outbound Reply</span>
           </div>
           <div class="msg-body">
-            <p class="msg-text japanese-large">"健二、大丈夫？すぐ送るわね。口座番号は <span class="redacted-text">三菱UFJ銀行 普通 1234567</span>"</p>
-            <p class="msg-translation">"Kenji, are you okay? I'll send it right away. The account is <span class="redacted-text">MUFG Bank, savings, 1234567</span>"</p>
+            <p class="msg-text japanese-large">"健二、わかりました。明日朝一番に銀行に行って振り込みますね。50万円で足りますか？心配しないでね。お父さんには言いませんから。早く元気になってね。"</p>
+            <p class="msg-translation">"Kenji, understood. I'll go to the bank first thing tomorrow morning and transfer it. Is &yen;500,000 enough? Don't worry. I won't tell your father. Get well soon."</p>
+            <p class="msg-note"><em>Note: In real ore-ore sagi, the scammer provides their bank details. Grandma goes to an ATM or bank branch to transfer cash. The system never sees the transaction &mdash; but it sees this reply.</em></p>
           </div>
         </div>
 
@@ -333,26 +334,27 @@
           <div class="agent-badge"><span class="agent-icon oi-icon">OI</span> Outbound Interceptor</div>
           <div class="result-row">
             <span class="result-label">Decision</span>
-            <span class="verdict-hold">HARD HOLD</span>
+            <span class="verdict-hold">HOLD</span>
           </div>
           <div class="result-row">
-            <span class="result-label">Detected</span>
+            <span class="result-label">Detected Signals</span>
             <div class="flag-list">
-              <span class="flag flag-danger">OB-2: Bank account details in message body</span>
-              <span class="flag flag-danger">Recipient sender_risk = 0.94</span>
-              <span class="flag flag-warn">Financial amount implied (&yen;500,000)</span>
+              <span class="flag flag-danger">OB-4: Replying to flagged sender (risk 0.88)</span>
+              <span class="flag flag-danger">OB-5: Compliance language &mdash; わかりました, 振り込みます</span>
+              <span class="flag flag-warn">OB-3: Transfer intent &mdash; 銀行に行って振り込みます</span>
+              <span class="flag flag-warn">OB-5: Secrecy compliance &mdash; お父さんには言いません</span>
             </div>
           </div>
           <div class="result-row">
             <span class="result-label">Compound Risk</span>
             <div class="risk-gauge">
-              <div class="risk-fill risk-critical" style="width:98%"></div>
-              <span class="risk-value">0.98</span>
+              <div class="risk-fill risk-critical" style="width:92%"></div>
+              <span class="risk-value">0.92</span>
             </div>
           </div>
           <div class="result-row">
             <span class="result-label">Action</span>
-            <span class="hold-action">Message quarantined. Not delivered.</span>
+            <span class="hold-action">Reply held. Family alerted before grandma goes to the bank.</span>
           </div>
         </div>
 
@@ -366,17 +368,18 @@
           </div>
           <div class="alert-preview">
             <div class="alert-msg">
-              <p class="alert-title">【Elder Scam Shield】お母様の送信をブロックしました</p>
-              <p class="alert-body">お母様が「kenji_tanaka@gmail.com」宛に銀行口座情報を含むメッセージを送信しようとしました。</p>
-              <p class="alert-body">この送信者は過去7日間で以下の矛盾が検出されています：</p>
+              <p class="alert-title">【Elder Scam Shield】至急：お母さまが不審な送金を予定しています</p>
+              <p class="alert-body">お母さまが不審な相手への返信で、明日銀行に行き50万円を振り込む意思を示されています。</p>
+              <p class="alert-body">この送信者は過去7日間で以下の問題が検出されています：</p>
               <ul class="alert-evidence">
-                <li>お孫さんの名前が「健二」と名乗っていますが、連絡先には「武」と登録されています</li>
-                <li>3日目に「大阪」と言い、5日目に「東京の病院」に変わっています</li>
-                <li>7日目に50万円の送金を要求しています</li>
+                <li>3日目に「大阪で仕事」と言い、5日目に「東京の病院に入院」に変わっています</li>
+                <li>「お父さんには言わないで」と秘密を要求しています</li>
+                <li>7日目に50万円の緊急送金を要求しています</li>
+                <li>リスクスコア：0.88</li>
               </ul>
-              <p class="alert-body alert-action-line">対応が必要です。メッセージは保留中です。</p>
+              <p class="alert-body alert-action-line">至急お電話でご確認ください。銀行に行く前にお話しされることをお勧めします。</p>
               <p class="alert-translation">
-                [We blocked your mother's outgoing message to kenji_tanaka@gmail.com containing bank account details. This sender has 2 contradictions detected over 7 days: name mismatch (claims Kenji, contacts say Takeshi), location change (Osaka to Tokyo hospital). Money request of &yen;500,000 on Day 7. Action required &mdash; message is held.]
+                [Your mother replied to a flagged contact indicating she will go to the bank tomorrow to transfer &yen;500,000. The sender has contradictions over 7 days (location: Osaka&rarr;Tokyo, secrecy demands) with risk score 0.88. Please call her before she goes to the bank.]
               </p>
             </div>
           </div>
@@ -385,7 +388,7 @@
     </div>
 
     <div class="scene-caption">
-      <p>"We catch the victim sending money out &mdash; the gap banks and email providers can't cover."</p>
+      <p>"We intercept at the communication layer &mdash; the moment between conversation and transaction. Banks see money move. We see the intent to move it."</p>
     </div>
 
     <div class="scene-nav">

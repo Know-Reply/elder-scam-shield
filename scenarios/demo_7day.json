@@ -204,19 +204,45 @@
   ],
 
   "outbound_interception": {
-    "description": "The protected user attempts to reply with bank details before Day 7 is blocked.",
-    "trigger": "User drafts a reply after receiving Day 6 message",
-    "outbound_content": "健二くん、大変でしたね。少しですがお力になりたいです。私の口座から振り込みますね。\n\nゆうちょ銀行 記号10040 番号12345678\n暗証番号は変えたばかりで3946です。\nお大事にしてくださいね。",
-    "outbound_content_en": "Kenji-kun, that sounds terrible. I want to help a little. I'll transfer from my account.\n\nJapan Post Bank, Symbol 10040, Number 12345678\nI just changed my PIN — it's 3946.\nPlease take care of yourself.",
+    "description": "The protected user replies confirming she will go to the bank to transfer money. In real ore-ore sagi, the SCAMMER provides bank details and the victim transfers at an ATM/bank branch — Faxi never sees the transaction. The interception catches the COMPLIANCE SIGNAL in the outgoing reply.",
+    "trigger": "User drafts a reply after receiving Day 7 message with scammer's bank details",
+    "outbound_content": "健二、わかりました。明日朝一番に銀行に行って振り込みますね。50万円で足りますか？心配しないでね。お父さんには言いませんから。早く元気になってね。",
+    "outbound_content_en": "Kenji, understood. I'll go to the bank first thing tomorrow morning and transfer it. Is 500,000 yen enough? Don't worry. I won't tell your father. Get well soon.",
+    "interceptor_analysis": {
+      "key_insight": "Grandma is not sending bank details — she is confirming she will physically go to the bank to send money to the scammer's account. The system cannot block the bank transfer, but it CAN hold this reply and alert the family BEFORE she goes to the bank.",
+      "detected_signals": [
+        {"signal": "OB-4", "detail": "response_to_flagged_sender — replying to sender with risk_score 0.88"},
+        {"signal": "OB-5", "detail": "compliance_language — わかりました (understood/will comply)"},
+        {"signal": "OB-3", "detail": "transfer_instruction — 振り込みます (will transfer), 銀行に行って (going to the bank)"},
+        {"signal": "OB-5", "detail": "secrecy_compliance — お父さんには言いません (won't tell father, mirroring scammer's demand)"}
+      ],
+      "compound_risk": 0.92,
+      "risk_calculation": "sender_risk(0.88) × content_signals(OB-3+OB-4+OB-5) × amount_context(¥500,000 mentioned in thread)"
+    },
     "interceptor_result": {
       "action": "HELD",
-      "detected_sensitive_data": [
-        "bank_account_number",
-        "pin_code"
-      ],
-      "risk_context": "Recipient risk_score is 0.88 (suspicious). Outbound message contains bank account number AND PIN code.",
-      "notification_sent_to": "yamada_yuki@gmail.com",
-      "notification_content_summary": "Your family member attempted to send bank account details and a PIN code to a contact flagged as suspicious (risk score: 0.88). The message has been held for your review."
+      "reason": "Compliance confirmation to flagged sender. User is about to physically go to the bank to transfer ¥500,000. Reply held to buy time for family intervention.",
+      "content_not_stored": true,
+      "content_hash": "sha256:a7f3b2...",
+      "notification_sent_to": "yamada_yuki@gmail.com"
+    },
+    "family_alert": {
+      "severity": "critical",
+      "subject_ja": "至急：お母さまが不審な送金を予定しています",
+      "subject_en": "Urgent: Your mother is planning a suspicious bank transfer",
+      "body_ja": "お母さまのメールアカウントで、当システムが不審と判断した相手への返信を検出しました。お母さまは明日銀行に行き、50万円を振り込む意思を示されています。相手は過去7日間で矛盾した情報を提供しており、リスクスコアは0.88です。至急お電話でご確認ください。",
+      "body_en": "We detected a reply from your mother to a contact our system has flagged as suspicious. She has indicated she will go to the bank tomorrow to transfer ¥500,000. The contact has provided contradictory information over 7 days and has a risk score of 0.88. Please call her immediately.",
+      "action_ja": "至急お電話でご本人にご確認ください。銀行に行く前にお話しされることをお勧めします。",
+      "action_en": "Please call and confirm with her directly. We recommend speaking with her before she goes to the bank.",
+      "evidence_summary": {
+        "sender_risk_score": 0.88,
+        "contradictions": 1,
+        "days_of_contact": 7,
+        "amount_mentioned": "¥500,000",
+        "key_risk_factors": ["location_contradiction", "secrecy_demand", "financial_request_after_trust_building", "verification_paths_blocked"]
+      },
+      "content_redacted": true,
+      "response_deadline_hours": 4
     }
   },
 

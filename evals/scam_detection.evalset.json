@@ -109,20 +109,20 @@
           "invocation_id": "inv-outbound-001",
           "user_content": {
             "role": "user",
-            "parts": [{"text": "送信メッセージを確認してください。宛先: flagged_sender_0x4b2c, ユーザーID: user_tanaka_001\n\n「けんじさん、口座番号をお伝えします。三菱UFJ銀行 目黒支店 普通 1234567 田中花子です。暗証番号は9876です。50万円をすぐにお送りしますね。」"}]
+            "parts": [{"text": "送信メッセージを確認してください。宛先: flagged_sender_0x4b2c, ユーザーID: user_tanaka_001\n\n「健二、わかりました。明日朝一番に銀行に行って振り込みますね。50万円で足りますか？心配しないでね。お父さんには言いませんから。早く元気になってね。」"}]
           },
           "final_response": {
             "role": "model",
-            "parts": [{"text": "{\"action\": \"HARD_HOLD\", \"signals\": [\"OB-2\", \"OB-3\", \"OB-4\", \"CM-4\"], \"compound_risk\": 0.98, \"reason\": \"Bank account, PIN, and transfer instruction to flagged sender. Hard hold. Content hashed, not stored.\"}"}]
+            "parts": [{"text": "{\"action\": \"HOLD\", \"signals\": [\"OB-3\", \"OB-4\", \"OB-5\"], \"compound_risk\": 0.92, \"reason\": \"Compliance confirmation to flagged sender (risk 0.88). User confirms intent to go to bank and transfer ¥500,000. Compliance language detected. Reply held to buy time for family intervention.\"}"}]
           },
           "intermediate_data": {
             "tool_uses": [
               {"name": "check_sender_risk", "args": {"sender_id": "flagged_sender_0x4b2c"}},
               {"name": "check_known_payee", "args": {"recipient_id": "flagged_sender_0x4b2c", "user_id": "user_tanaka_001"}},
-              {"name": "hold_outbound", "args": {"user_id": "user_tanaka_001", "held_action": "message", "recipient_id": "flagged_sender_0x4b2c", "content": "[REDACTED]", "signals": ["OB-2", "OB-3", "OB-4", "CM-4"], "sender_risk": 0.94, "reason": "Bank details + PIN to flagged sender"}}
+              {"name": "hold_outbound", "args": {"user_id": "user_tanaka_001", "held_action": "message", "recipient_id": "flagged_sender_0x4b2c", "content": "[REDACTED]", "signals": ["OB-3", "OB-4", "OB-5"], "sender_risk": 0.88, "reason": "Compliance confirmation to flagged sender — user intends to transfer ¥500,000 at bank"}}
             ],
             "tool_responses": [
-              {"name": "check_sender_risk", "response": {"sender_id": "flagged_sender_0x4b2c", "risk_score": 0.94}},
+              {"name": "check_sender_risk", "response": {"sender_id": "flagged_sender_0x4b2c", "risk_score": 0.88}},
               {"name": "check_known_payee", "response": {"known": false, "recipient_id": "flagged_sender_0x4b2c"}},
               {"name": "hold_outbound", "response": {"hold": {"resolution": "pending"}, "a2a_publish": {"event": "outbound.held"}}}
             ]
