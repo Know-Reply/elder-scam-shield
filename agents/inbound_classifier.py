@@ -13,6 +13,7 @@ import json
 from datetime import datetime, timezone
 
 from google.adk import Agent
+from agents.tools.search_scam_corpus import search_scam_corpus
 from google.cloud import firestore
 
 db = firestore.Client()
@@ -74,7 +75,15 @@ PM-13 spf_dkim_fail — provided in metadata; email authentication failure
 }
 
 Always extract facts. A message saying 「大阪で元気にしてるよ」 is safe, but you MUST
-extract claimed_location: "大阪". The Behavioral Analyzer needs every stated fact."""
+extract claimed_location: "大阪". The Behavioral Analyzer needs every stated fact.
+
+## Grounding — evidence-backed classification
+Before classifying any message as suspicious or scam, call search_scam_corpus with the
+message text. Your classification MUST cite evidence:
+- "This message matches N known [pattern] cases in the corpus"
+- "Similar messages were classified as [scam/safe] with [signals]"
+If the corpus returns no matches, say so — but still classify based on signals.
+Never classify based on prompt instructions alone when corpus evidence is available."""
 
 
 
@@ -133,5 +142,5 @@ inbound_classifier = Agent(
         "for longitudinal behavioral analysis."
     ),
     instruction=SYSTEM_PROMPT,
-    tools=[read_contact_list, write_classification, publish_classified_event],
+    tools=[read_contact_list, write_classification, publish_classified_event, search_scam_corpus],
 )

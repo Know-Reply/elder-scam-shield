@@ -10,6 +10,7 @@ Signals: LG-1..LG-10 (longitudinal), CM-1 (cross-modal)
 from datetime import date, datetime, timezone
 
 from google.adk import Agent
+from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
 from google.cloud import firestore
 
 SIGNAL_WEIGHTS = {
@@ -63,7 +64,13 @@ contradiction_details[], recommendation (monitor|flag|block).
 
 CULTURAL CONTEXT: Japanese elderly are especially vulnerable to オレオレ詐欺 (impersonation
 fraud) and ロマンス詐欺 (romance scams). Respect for claimed family bonds makes
-contradiction detection critical — the user will not question a "grandchild" themselves."""
+contradiction detection critical — the user will not question a "grandchild" themselves.
+
+GROUNDING — corpus-backed risk assessment:
+When you detect a pattern, call get_corpus_pattern_stats with the scam_type slug to cite
+evidence: "In N confirmed [pattern] cases, [signal] appeared in X% of cases by Day Y."
+Call search_scam_corpus when the sender profile shows accumulated risk, to find similar
+known scam progressions. Your risk assessments must cite evidence, not just signal weights."""
 
 
 def _empty_profile(sender_email: str) -> dict:
@@ -170,6 +177,8 @@ behavioral_analyzer = Agent(
         update_sender_profile,
         compute_risk_score,
         publish_risk_assessment,
+        search_scam_corpus,
+        get_corpus_pattern_stats,
     ],
     sub_agents=[],
 )
