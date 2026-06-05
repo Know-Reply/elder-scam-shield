@@ -1,0 +1,36 @@
+{
+  "eval_config_id": "elder_scam_shield_v1",
+  "name": "Elder Scam Shield Evaluation Config",
+  "description": "Evaluation criteria for scam detection accuracy, tool trajectory correctness, and response quality.",
+  "criteria": {
+    "tool_trajectory_avg_score": {
+      "metric": "tool_trajectory",
+      "threshold": 0.8,
+      "description": "Average tool trajectory match. Allows minor tool ordering flexibility (e.g., read_contact_list and write_classification may interleave) but requires all expected tools to be called."
+    },
+    "response_match_score": {
+      "metric": "response_match",
+      "threshold": 0.6,
+      "description": "Content similarity between expected and actual final response. Lower threshold because Japanese text similarity can vary with phrasing while preserving meaning."
+    },
+    "final_response_match_v2": {
+      "metric": "llm_as_judge",
+      "threshold": 0.7,
+      "judge_model": "gemini-2.5-flash",
+      "rubric": "Judge whether the agent's response correctly identifies the classification (safe/suspicious/scam/spam), detects the relevant signals, and extracts stated facts. Award full marks if classification and key signals match. Deduct for missed signals or incorrect classification. Japanese-language responses are acceptable.",
+      "description": "LLM-as-judge semantic correctness using Gemini 2.5 Flash. Evaluates whether classification, signal detection, and fact extraction are semantically correct regardless of exact wording."
+    },
+    "scam_detection_recall": {
+      "metric": "custom",
+      "threshold": 0.95,
+      "description": "Scam cases (obvious_scam_billing, romance_scam_day5) must be classified as scam or suspicious. Target: 95%+ recall on malicious content."
+    },
+    "false_positive_rate": {
+      "metric": "custom",
+      "threshold": 0.02,
+      "description": "Safe cases (safe_grandchild_message, safe_clinic_appointment) must NOT be classified as scam or suspicious. Target: <2% false positive rate."
+    }
+  },
+  "num_runs": 3,
+  "agent_module": "agents"
+}
