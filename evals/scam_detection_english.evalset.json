@@ -1,0 +1,688 @@
+{
+  "eval_set_id": "scam_detection_english_v1",
+  "name": "Elder Scam Shield — English Evaluation Suite",
+  "description": "20 English test cases covering 10 scam, 5 legitimate (tricky negatives), and 5 edge cases. Targets Inbound Classifier accuracy for English-language elder fraud patterns.",
+  "eval_cases": [
+
+    {
+      "eval_id": "en_nigerian_419",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-001",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0x91a3, UserID: user_smith_001\n\n\"Dear Beloved Friend, I am Prince Abubakar Tafawa, the only surviving son of the late King of a West African nation. Due to political turmoil, I have $47.5 million USD in a secured account that I need to transfer to a safe foreign account. I am contacting you because of your trustworthy reputation. If you can help me transfer these funds, I will give you 30% as compensation. Please reply urgently with your full name, bank account number, and phone number so we can begin the process immediately. God bless you. — Prince Abubakar\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.97, \"detected_signals\": [\"PM-1\", \"PM-3\", \"PM-7\", \"PM-12\"], \"extracted_facts\": {\"claimed_name\": \"Prince Abubakar Tafawa\", \"claimed_relationship\": null, \"claimed_location\": \"West Africa\", \"claimed_institution\": null, \"financial_mention\": {\"amount\": \"47,500,000\", \"urgency\": \"high\"}, \"other_facts\": [\"requests bank account number\", \"advance fee scheme\", \"unsolicited contact\"]}, \"reasoning\": \"Classic Nigerian 419 advance fee fraud. Unsolicited contact from unknown sender claiming royalty, offering a share of millions in exchange for personal banking details. Urgency language, financial solicitation, credential solicitation, and excessive flattery all present.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0x91a3", "message_id": "msg_en_001", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x91a3", "classification": "scam", "confidence": 0.97, "extracted_facts": "{\"claimed_name\": \"Prince Abubakar Tafawa\"}", "detected_signals": "[\"PM-1\", \"PM-3\", \"PM-7\", \"PM-12\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_romance_scam_investment",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-002",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: new_contact_michael_h, UserID: user_smith_001\n\n\"Dear Mary, I have been thinking about you all day. Our conversations over the past three weeks have meant so much to me. You are the most wonderful woman I have ever known. I want to share something special with you — my financial advisor introduced me to an incredible cryptocurrency investment platform that has been giving me 40% monthly returns. I put in $5,000 and already made $12,000! I would love for you to try it too so we can build our future together. Here is the link to get started: crypto-wealth-now.xyz/invest. You just need to deposit $2,000 to open your account. I will guide you through every step. All my love, Michael\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.94, \"detected_signals\": [\"PM-3\", \"PM-5\", \"PM-12\"], \"extracted_facts\": {\"claimed_name\": \"Michael\", \"claimed_relationship\": \"romantic interest\", \"claimed_location\": null, \"claimed_institution\": \"crypto-wealth-now.xyz\", \"financial_mention\": {\"amount\": \"2,000\", \"urgency\": \"medium\"}, \"other_facts\": [\"claims 40% monthly returns\", \"suspicious domain\", \"pig butchering pattern\", \"3 weeks of trust building\"]}, \"reasoning\": \"Romance scam with investment fraud overlay (pig butchering). Excessive flattery followed by financial solicitation to deposit funds on a suspicious cryptocurrency platform. Unrealistic return claims. Unusual payment method via unknown crypto platform.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "new_contact_michael_h", "message_id": "msg_en_002", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "new_contact_michael_h", "classification": "scam", "confidence": 0.94, "extracted_facts": "{\"claimed_name\": \"Michael\"}", "detected_signals": "[\"PM-3\", \"PM-5\", \"PM-12\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "Emily", "relationship": "granddaughter"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_irs_impersonation",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-003",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0x7b2f, UserID: user_smith_001\n\n\"URGENT NOTICE FROM THE INTERNAL REVENUE SERVICE. Case #IRS-2026-4481903. Dear Taxpayer, our records indicate that you owe $14,328.00 in back taxes from fiscal years 2023-2025. Failure to resolve this matter within 24 hours will result in the issuance of an arrest warrant and seizure of your property. To avoid legal action, call our Tax Resolution Department immediately at (202) 555-0147 and arrange payment via gift cards or wire transfer. This is your FINAL WARNING. Do not ignore this notice. — IRS Collections Division\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.98, \"detected_signals\": [\"PM-1\", \"PM-3\", \"PM-4\", \"PM-5\", \"PM-6\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": \"Internal Revenue Service\", \"financial_mention\": {\"amount\": \"14,328\", \"urgency\": \"high\"}, \"other_facts\": [\"threatens arrest warrant\", \"demands gift card payment\", \"24-hour deadline\", \"fake case number\"]}, \"reasoning\": \"IRS impersonation scam. The real IRS never demands immediate payment via gift cards or wire transfer, never threatens arrest over the phone or text, and always initiates contact by mail. Multiple strong signals: urgency, financial solicitation, authority claim, unusual payment method, and legal threat.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0x7b2f", "message_id": "msg_en_003", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x7b2f", "classification": "scam", "confidence": 0.98, "extracted_facts": "{\"claimed_institution\": \"Internal Revenue Service\"}", "detected_signals": "[\"PM-1\", \"PM-3\", \"PM-4\", \"PM-5\", \"PM-6\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_tech_support_scam",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-004",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0x44ce, UserID: user_smith_001\n\n\"CRITICAL SECURITY ALERT — Microsoft Windows Defender has detected a Trojan virus (Win32.Backdoor.Agent) on your computer. Your personal files, banking information, and passwords are at risk of being stolen. DO NOT turn off your computer. Call Microsoft Certified Technicians immediately at 1-888-555-0199 to remove the virus and protect your data. If you do not call within 1 hour, your computer will be permanently locked. Reference ticket: MS-SEC-90821. This is an automated message from Microsoft Security Center.\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.97, \"detected_signals\": [\"PM-1\", \"PM-4\", \"PM-6\", \"PM-10\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": \"Microsoft Security Center\", \"financial_mention\": null, \"other_facts\": [\"fake virus alert\", \"fake support number\", \"1-hour deadline\", \"fake ticket number\", \"threatens permanent lock\"]}, \"reasoning\": \"Tech support scam impersonating Microsoft. Real security software does not send text messages demanding phone calls. Urgency language, false authority claim, emotional crisis framing (data at risk), and threat of permanent lockout are all classic tech support fraud indicators.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0x44ce", "message_id": "msg_en_004", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x44ce", "classification": "scam", "confidence": 0.97, "extracted_facts": "{\"claimed_institution\": \"Microsoft Security Center\"}", "detected_signals": "[\"PM-1\", \"PM-4\", \"PM-6\", \"PM-10\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_bank_phishing",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-005",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0x5d91, UserID: user_smith_001\n\n\"Dear Valued Customer, We have detected unusual login activity on your Wells Fargo account ending in **4782. For your security, your account has been temporarily limited. If you do not verify your identity within 12 hours, your account will be permanently suspended and all funds will be frozen. Click here to verify now: wellsfarg0-secure-login.com/verify?id=8827301. You will need to confirm your Social Security number, date of birth, and online banking password. — Wells Fargo Security Team\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.96, \"detected_signals\": [\"PM-1\", \"PM-4\", \"PM-6\", \"PM-7\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": \"Wells Fargo\", \"financial_mention\": null, \"other_facts\": [\"misspelled domain: wellsfarg0\", \"requests SSN and password\", \"12-hour deadline\", \"threatens account suspension\"]}, \"reasoning\": \"Bank phishing scam. The domain is a misspelling of Wells Fargo (zero instead of 'o'). Requests highly sensitive credentials including SSN and banking password. Real banks never ask for full passwords or SSN via text. Urgency, authority impersonation, legal/suspension threat, and credential solicitation all present.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0x5d91", "message_id": "msg_en_005", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x5d91", "classification": "scam", "confidence": 0.96, "extracted_facts": "{\"claimed_institution\": \"Wells Fargo\"}", "detected_signals": "[\"PM-1\", \"PM-4\", \"PM-6\", \"PM-7\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_lottery_prize_scam",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-006",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0x2ea7, UserID: user_smith_001\n\n\"CONGRATULATIONS!!! You have been selected as the winner of the Microsoft International Email Lottery Program 2026! Your email address was randomly drawn from a pool of 2.5 million entries. You have won a cash prize of $750,000.00 USD. To claim your winnings, you must pay a one-time processing and insurance fee of $1,500 via Western Union to our Claims Agent, Mr. David Thompson, in London, UK. Please send your full name, address, phone number, and date of birth to begin the claims process. Sincerely, Microsoft Lottery Promotions Board\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.99, \"detected_signals\": [\"PM-3\", \"PM-4\", \"PM-5\", \"PM-7\", \"PM-8\"], \"extracted_facts\": {\"claimed_name\": \"David Thompson\", \"claimed_relationship\": null, \"claimed_location\": \"London, UK\", \"claimed_institution\": \"Microsoft\", \"financial_mention\": {\"amount\": \"1,500\", \"urgency\": \"medium\"}, \"other_facts\": [\"claims prize of $750,000\", \"requires processing fee\", \"Western Union payment\", \"requests personal information\", \"Microsoft does not run lotteries\"]}, \"reasoning\": \"Classic lottery/prize scam. Microsoft does not operate any lottery program. Unsolicited prize notification requiring upfront fee payment via Western Union — a hallmark of advance fee fraud. Requests personal identifying information. Multiple strong signals present.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0x2ea7", "message_id": "msg_en_006", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x2ea7", "classification": "scam", "confidence": 0.99, "extracted_facts": "{\"claimed_institution\": \"Microsoft\"}", "detected_signals": "[\"PM-3\", \"PM-4\", \"PM-5\", \"PM-7\", \"PM-8\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_grandparent_scam",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-007",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0x83bf, UserID: user_smith_001\n\n\"Grandma? Grandma, it's me! Please don't tell Mom or Dad. I'm in so much trouble. I was driving to my friend's house and I got into a car accident and the police arrested me because they said I was at fault. I'm in jail right now and I need bail money. My lawyer says I need $8,500 in cash bail posted today or I have to stay here over the weekend. Can you please go to the store and buy Google Play gift cards for $8,500 and read me the numbers on the back? My lawyer said that's the fastest way. Please hurry Grandma, I'm so scared. Don't tell anyone please, I'm so embarrassed.\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.97, \"detected_signals\": [\"PM-1\", \"PM-2\", \"PM-3\", \"PM-5\", \"PM-10\", \"PM-11\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": \"grandchild\", \"claimed_location\": \"jail\", \"claimed_institution\": null, \"financial_mention\": {\"amount\": \"8,500\", \"urgency\": \"high\"}, \"other_facts\": [\"claims car accident and arrest\", \"demands gift card payment for bail\", \"demands secrecy from parents\", \"no name given\"]}, \"reasoning\": \"Classic grandparent scam. Caller claims to be a grandchild in legal trouble, demands immediate cash via gift cards (no legitimate bail system accepts gift cards), insists on secrecy. The lack of a specific name (just 'it's me') is a hallmark technique. Urgency, secrecy demand, financial solicitation, unusual payment method, emotional crisis, and identity claim all triggered.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0x83bf", "message_id": "msg_en_007", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x83bf", "classification": "scam", "confidence": 0.97, "extracted_facts": "{\"claimed_relationship\": \"grandchild\"}", "detected_signals": "[\"PM-1\", \"PM-2\", \"PM-3\", \"PM-5\", \"PM-10\", \"PM-11\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "Emily", "relationship": "granddaughter"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_fake_police_ssn",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-008",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0x19d4, UserID: user_smith_001\n\n\"This is Special Agent Robert Chen, badge number FD-7734, calling from the Federal Bureau of Investigation, Washington D.C. field office. Your Social Security number ending in 4891 has been linked to criminal activity including money laundering and identity theft across state lines. A federal warrant has been issued for your arrest. However, you can resolve this matter and avoid arrest by cooperating with our investigation. You will need to verify your identity by providing your full Social Security number and transferring your liquid assets to a secure government-protected account while we investigate. Wire the funds to account number provided below. Failure to comply within 4 hours will result in immediate arrest by local law enforcement. Case file: FBI-DC-2026-00447.\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.99, \"detected_signals\": [\"PM-1\", \"PM-3\", \"PM-4\", \"PM-6\", \"PM-7\"], \"extracted_facts\": {\"claimed_name\": \"Robert Chen\", \"claimed_relationship\": null, \"claimed_location\": \"Washington D.C.\", \"claimed_institution\": \"FBI\", \"financial_mention\": {\"amount\": null, \"urgency\": \"high\"}, \"other_facts\": [\"fake badge number\", \"threatens arrest\", \"requests SSN\", \"demands wire transfer to government account\", \"4-hour deadline\", \"fake case file number\"]}, \"reasoning\": \"FBI impersonation scam. The FBI does not call citizens to demand wire transfers or threaten immediate arrest over the phone. Requests full SSN and asset transfer. Multiple strong signals: extreme urgency, financial solicitation, authority claim, legal threat, and credential solicitation.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0x19d4", "message_id": "msg_en_008", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x19d4", "classification": "scam", "confidence": 0.99, "extracted_facts": "{\"claimed_institution\": \"FBI\"}", "detected_signals": "[\"PM-1\", \"PM-3\", \"PM-4\", \"PM-6\", \"PM-7\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_fake_invoice_subscription",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-009",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0xab42, UserID: user_smith_001\n\n\"Order Confirmation — Thank you for your purchase! Your subscription to Norton LifeLock Ultimate Plus has been successfully renewed. Amount charged: $499.99. This charge will appear on your bank statement within 24 hours. If you did not authorize this transaction, you must call our billing department immediately at 1-844-555-0388 to cancel and receive a full refund. Please have your bank card ready for verification. Our support hours are 24/7. Invoice #NLL-2026-99102. — Norton Billing Department\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.95, \"detected_signals\": [\"PM-1\", \"PM-3\", \"PM-4\", \"PM-7\", \"PM-9\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": \"Norton LifeLock\", \"financial_mention\": {\"amount\": \"499.99\", \"urgency\": \"high\"}, \"other_facts\": [\"fake invoice for unwanted subscription\", \"requests bank card details\", \"refund lure to extract payment info\", \"fake invoice number\"]}, \"reasoning\": \"Fake invoice scam. Creates panic over a large unauthorized charge to get the victim to call and provide bank card details for a supposed refund. The refund process is the attack vector — they collect card information during the 'cancellation' call. Urgency, financial solicitation, authority impersonation, credential solicitation, and refund lure all present.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0xab42", "message_id": "msg_en_009", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0xab42", "classification": "scam", "confidence": 0.95, "extracted_facts": "{\"claimed_institution\": \"Norton LifeLock\"}", "detected_signals": "[\"PM-1\", \"PM-3\", \"PM-4\", \"PM-7\", \"PM-9\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_charity_scam_disaster",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-010",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0x66f1, UserID: user_smith_001\n\n\"URGENT APPEAL — Hurricane Relief Fund for Victims. Dear Compassionate Friend, As you may have seen on the news, Hurricane Marlena has devastated the Gulf Coast, leaving thousands homeless and without food or clean water. The American Hurricane Relief Foundation needs your immediate help. Every dollar counts. Please donate NOW before it's too late — families are suffering tonight. Send your tax-deductible donation via Zelle, Venmo, or gift cards to our emergency coordinator at relief.donations2026@gmail.com. Donations over $100 receive a free prayer blanket. Act now — every minute you wait, a child goes hungry. God bless your generous heart.\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.93, \"detected_signals\": [\"PM-1\", \"PM-3\", \"PM-5\", \"PM-12\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": \"Gulf Coast\", \"claimed_institution\": \"American Hurricane Relief Foundation\", \"financial_mention\": {\"amount\": null, \"urgency\": \"high\"}, \"other_facts\": [\"unverifiable charity name\", \"gmail address for donations\", \"requests gift card or peer-to-peer payment\", \"emotional manipulation\", \"incentive gift for donation\"]}, \"reasoning\": \"Charity scam exploiting a disaster. Red flags: unverifiable organization name, donations collected via personal Gmail address, acceptance of gift cards and peer-to-peer payments (legitimate charities use established payment processors), extreme urgency pressure, emotional manipulation, and flattery. Legitimate disaster relief organizations do not solicit via unsolicited messages to Gmail-based collection points.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0x66f1", "message_id": "msg_en_010", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x66f1", "classification": "scam", "confidence": 0.93, "extracted_facts": "{\"claimed_institution\": \"American Hurricane Relief Foundation\"}", "detected_signals": "[\"PM-1\", \"PM-3\", \"PM-5\", \"PM-12\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_legit_bank_fraud_alert",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-011",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: contact_chase_bank, UserID: user_smith_001\n\n\"Chase Fraud Alert: Did you authorize a $127.43 charge at BEST BUY #0542 on 06/04? Reply YES if you recognize this transaction or NO if you do not. If fraud is confirmed, we will block your card and send a replacement. Do not share your PIN or password with anyone. For questions call the number on the back of your card. Msg&Data rates may apply. Reply STOP to opt out.\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.92, \"detected_signals\": [], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": \"Best Buy #0542\", \"claimed_institution\": \"Chase Bank\", \"financial_mention\": {\"amount\": \"127.43\", \"urgency\": \"low\"}, \"other_facts\": [\"standard fraud alert format\", \"does not request credentials\", \"directs to card-back number\", \"includes opt-out\", \"known contact\"]}, \"reasoning\": \"Legitimate bank fraud alert. Message follows standard Chase fraud notification format: simple YES/NO response, no links or credential requests, explicitly warns not to share PIN or password, directs customer to the number on their card. Sender is a known contact. No scam signals present.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "contact_chase_bank", "message_id": "msg_en_011", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_chase_bank", "classification": "safe", "confidence": 0.92, "extracted_facts": "{\"claimed_institution\": \"Chase Bank\"}", "detected_signals": "[]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "Chase Bank", "relationship": "bank"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_legit_grandchild_textbook",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-012",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: contact_emily_granddaughter, UserID: user_smith_001\n\n\"Hi Grandma! Hope you're doing well. I just wanted to let you know that my fall semester textbook list came out and they're SO expensive this year — $340 for just the biology and chemistry books. I'm going to try to find used copies online but if I can't find them cheaper, would it be okay if I asked for a little help? No rush at all, classes don't start until September. Love you! Emily\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.95, \"detected_signals\": [\"PM-11\"], \"extracted_facts\": {\"claimed_name\": \"Emily\", \"claimed_relationship\": \"granddaughter\", \"claimed_location\": null, \"claimed_institution\": null, \"financial_mention\": {\"amount\": \"340\", \"urgency\": \"low\"}, \"other_facts\": [\"textbook costs for fall semester\", \"no urgency\", \"trying alternatives first\", \"known contact\"]}, \"reasoning\": \"Legitimate message from known granddaughter. Identity matches contacts. Financial mention is incidental and non-urgent — she is exploring alternatives first and classes are months away. No pressure, no secrecy demand, no unusual payment method. Only PM-11 triggered as a neutral identity claim from a verified contact.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "contact_emily_granddaughter", "message_id": "msg_en_012", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_emily_granddaughter", "classification": "safe", "confidence": 0.95, "extracted_facts": "{\"claimed_name\": \"Emily\"}", "detected_signals": "[\"PM-11\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "Emily", "relationship": "granddaughter"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_legit_gofundme_friend",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-013",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: contact_barbara_neighbor, UserID: user_smith_001\n\n\"Hi Mary, it's Barbara from next door. I don't know if you heard, but the Hendersons' house on Oak Street had that terrible kitchen fire last week. Thank goodness no one was hurt, but they lost a lot. Some of us in the neighborhood set up a GoFundMe to help them replace their appliances and some of the kids' things. Here's the link if you'd like to contribute: gofundme.com/f/henderson-family-fire-recovery. No pressure at all — even just sharing it would help. Hope you're having a good week! — Barbara\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.90, \"detected_signals\": [], \"extracted_facts\": {\"claimed_name\": \"Barbara\", \"claimed_relationship\": \"neighbor\", \"claimed_location\": \"Oak Street\", \"claimed_institution\": \"GoFundMe\", \"financial_mention\": null, \"other_facts\": [\"Henderson family kitchen fire\", \"legitimate GoFundMe domain\", \"no pressure language\", \"known contact\", \"neighborhood context\"]}, \"reasoning\": \"Legitimate message from a known neighbor sharing a GoFundMe for a local family affected by a fire. Sender is in contacts, the GoFundMe link uses the legitimate domain, there is no urgency pressure, no request for personal information, and the context is a verifiable local event. No scam signals triggered.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "contact_barbara_neighbor", "message_id": "msg_en_013", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_barbara_neighbor", "classification": "safe", "confidence": 0.90, "extracted_facts": "{\"claimed_name\": \"Barbara\"}", "detected_signals": "[]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "Barbara", "relationship": "neighbor"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_legit_irs_notice",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-014",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: contact_irs_gov, UserID: user_smith_001\n\n\"Dear Mary Smith, This message is to inform you that your 2025 federal tax return (Form 1040) has been received and is currently being processed. Your expected refund of $1,247.00 is estimated to be direct deposited into your account ending in **3901 within 21 days. You can check the status of your refund at irs.gov/refunds using your Social Security number, filing status, and exact refund amount. If you have questions, call 1-800-829-1040. — Internal Revenue Service\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.88, \"detected_signals\": [], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": \"Internal Revenue Service\", \"financial_mention\": {\"amount\": \"1,247\", \"urgency\": \"low\"}, \"other_facts\": [\"tax return processing notification\", \"directs to official irs.gov domain\", \"provides official IRS phone number\", \"known contact\", \"no credential request in message\"]}, \"reasoning\": \"Legitimate IRS notification. Message is informational — confirms receipt of tax return and provides refund timeline. Directs to official irs.gov website and the real IRS phone number. Does not request payment, does not threaten, does not demand urgency, and does not ask for credentials in the message itself. Sender is a known contact. No scam signals present.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "contact_irs_gov", "message_id": "msg_en_014", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_irs_gov", "classification": "safe", "confidence": 0.88, "extracted_facts": "{\"claimed_institution\": \"Internal Revenue Service\"}", "detected_signals": "[]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "IRS", "relationship": "government"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_legit_password_reset",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-015",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: contact_google_noreply, UserID: user_smith_001\n\n\"Your Google Account mary.smith47@gmail.com: Someone just used your password to try to sign in to your account from a Windows device in Chicago, IL. Google blocked this sign-in attempt. If this wasn't you, someone else knows your password. Please review your account activity at myaccount.google.com/security. You can also sign in and change your password at myaccount.google.com. — The Google Accounts Team\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.90, \"detected_signals\": [], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": \"Chicago, IL\", \"claimed_institution\": \"Google\", \"financial_mention\": null, \"other_facts\": [\"security notification about sign-in attempt\", \"directs to official google.com domain\", \"does not request credentials in message\", \"known contact sender\", \"informational tone\"]}, \"reasoning\": \"Legitimate Google security notification. The message reports a blocked sign-in attempt and directs the user to official Google domains (myaccount.google.com). It does not include any links to third-party sites, does not request credentials within the message, and uses an informational rather than threatening tone. Sender is a known contact. No scam signals present.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "contact_google_noreply", "message_id": "msg_en_015", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_google_noreply", "classification": "safe", "confidence": 0.90, "extracted_facts": "{\"claimed_institution\": \"Google\"}", "detected_signals": "[]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "Google", "relationship": "service"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_edge_sophisticated_419",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-016",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0xc3a8, UserID: user_smith_001\n\n\"Dear Mrs. Smith, I hope this message finds you well. My name is Dr. Adaeze Okonkwo, and I am a senior compliance officer at First Continental Bank in Lagos, Nigeria. I am reaching out regarding an unclaimed estate deposit of $3.2 million USD belonging to a deceased account holder who shares your surname. Under Nigerian banking regulations (CBN Circular BSD/DIR/GEN/CIR/04/015), unclaimed funds held for more than 10 years are subject to government appropriation unless a qualified next-of-kin claim is filed. My due diligence research identified you as a potential beneficiary. I must emphasize that this is a strictly confidential matter governed by our bank's internal compliance protocols. If you are interested in exploring this claim, I would need you to provide identification documents and a nominal legal processing fee of $2,800 to initiate the probate filing. I assure you this is fully legitimate and can provide verifiable references. Please respond at your earliest convenience. Kind regards, Dr. Adaeze Okonkwo, MSc, CFE\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.95, \"detected_signals\": [\"PM-2\", \"PM-3\", \"PM-7\"], \"extracted_facts\": {\"claimed_name\": \"Dr. Adaeze Okonkwo\", \"claimed_relationship\": null, \"claimed_location\": \"Lagos, Nigeria\", \"claimed_institution\": \"First Continental Bank\", \"financial_mention\": {\"amount\": \"2,800\", \"urgency\": \"medium\"}, \"other_facts\": [\"claims $3.2M unclaimed estate\", \"cites fake banking regulation\", \"requests ID documents and processing fee\", \"emphasizes confidentiality\", \"sophisticated language and credentials\"]}, \"reasoning\": \"Sophisticated 419 advance fee scam. Despite polished language, proper grammar, and professional credentials, the core structure is identical to classic Nigerian advance fee fraud: unsolicited contact about unclaimed millions, request for upfront fee, demand for identity documents, and secrecy demand. The cited CBN circular number is fabricated. No legitimate bank contacts strangers about unclaimed estates via unsolicited messages.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0xc3a8", "message_id": "msg_en_016", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0xc3a8", "classification": "scam", "confidence": 0.95, "extracted_facts": "{\"claimed_name\": \"Dr. Adaeze Okonkwo\"}", "detected_signals": "[\"PM-2\", \"PM-3\", \"PM-7\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_edge_legit_friend_borrow",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-017",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: contact_janet_friend, UserID: user_smith_001\n\n\"Hi Mary, I hate to ask but I'm in a bit of a bind. My car broke down yesterday — the transmission went out — and the repair shop quoted me $1,800. I wasn't expecting that at all and I'm short about $600 until my pension check comes in on the 15th. Would you be able to lend me $600 until then? I'll pay you back the day my check comes in, I promise. I can write you a check or do whatever's easiest. I'm so sorry to ask, you know I wouldn't if I didn't have to. — Janet\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.82, \"detected_signals\": [\"PM-3\"], \"extracted_facts\": {\"claimed_name\": \"Janet\", \"claimed_relationship\": \"friend\", \"claimed_location\": null, \"claimed_institution\": null, \"financial_mention\": {\"amount\": \"600\", \"urgency\": \"medium\"}, \"other_facts\": [\"car transmission repair\", \"offers standard repayment method\", \"specific repayment date\", \"known contact\", \"apologetic tone\"]}, \"reasoning\": \"Message from a known friend requesting a loan for car repair. While PM-3 (financial solicitation) is present, the context strongly suggests legitimacy: sender is a known contact, provides specific and verifiable details (transmission repair, $1,800 quote), offers standard repayment by check, names a specific repayment date, and shows embarrassment rather than pressure. No urgency manipulation, no unusual payment method, no secrecy demand.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "contact_janet_friend", "message_id": "msg_en_017", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_janet_friend", "classification": "safe", "confidence": 0.82, "extracted_facts": "{\"claimed_name\": \"Janet\"}", "detected_signals": "[\"PM-3\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "Janet", "relationship": "friend"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_edge_english_to_japanese_scam",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-018",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: unknown_0xd5e9, UserID: user_smith_001\n\n\"Hello dear customer, we are contact you from your internet service provider about important security matter on your account. Your account has been compromise and someone is using your internet for illegal downloading. You must pay fine immediately or your service will be disconnect and police will be contact. Please send $500 in Apple gift card to resolve. otoiawase shimasu: 0120-XXX-XXX. okane wo haratte kudasai. keisatsu ni renraku shimasu.\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.96, \"detected_signals\": [\"PM-1\", \"PM-3\", \"PM-4\", \"PM-5\", \"PM-6\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": \"internet service provider\", \"financial_mention\": {\"amount\": \"500\", \"urgency\": \"high\"}, \"other_facts\": [\"language switch from English to romanized Japanese\", \"grammatical errors throughout\", \"demands Apple gift card payment\", \"threatens police and service disconnection\", \"unidentified ISP\"]}, \"reasoning\": \"Multi-language scam starting in broken English and switching to romanized Japanese. Classic tech/ISP impersonation with multiple strong signals: urgency, financial solicitation via gift cards (unusual payment method), authority claim, and legal/police threat. The language switch mid-message is an additional red flag suggesting a mass-targeted scam campaign. No legitimate ISP demands gift card payment.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "unknown_0xd5e9", "message_id": "msg_en_018", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0xd5e9", "classification": "scam", "confidence": 0.96, "extracted_facts": "{}", "detected_signals": "[\"PM-1\", \"PM-3\", \"PM-4\", \"PM-5\", \"PM-6\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_edge_legit_red_cross",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-019",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: contact_redcross_alerts, UserID: user_smith_001\n\n\"American Red Cross: Devastating floods in the Midwest have left thousands in need of emergency shelter, food, and medical care. Your donation can make a difference right now. Give today at redcross.org/donate or text FLOODS to 90999 to donate $10. 100% of your donation supports disaster relief. The Red Cross responds to an average of 60,000+ disasters per year. Thank you for your generosity. Reply STOP to unsubscribe.\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.91, \"detected_signals\": [\"PM-1\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": \"Midwest\", \"claimed_institution\": \"American Red Cross\", \"financial_mention\": {\"amount\": \"10\", \"urgency\": \"medium\"}, \"other_facts\": [\"official redcross.org domain\", \"standard text-to-donate short code\", \"includes unsubscribe option\", \"known contact\", \"established charity\"]}, \"reasoning\": \"Legitimate Red Cross disaster relief appeal. While urgency language is present (PM-1), it is appropriate for disaster relief communications. The message directs to the official redcross.org domain and uses a standard text-to-donate short code. Sender is a known contact, includes an unsubscribe option, and does not request personal information or unusual payment methods. The urgency is contextually appropriate, not manipulative.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "contact_redcross_alerts", "message_id": "msg_en_019", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_redcross_alerts", "classification": "safe", "confidence": 0.91, "extracted_facts": "{\"claimed_institution\": \"American Red Cross\"}", "detected_signals": "[\"PM-1\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "Red Cross", "relationship": "charity"}], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    },
+
+    {
+      "eval_id": "en_edge_romance_early_stage",
+      "conversation": [
+        {
+          "invocation_id": "inv-en-020",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Analyze this inbound message. Sender: new_contact_james_w, UserID: user_smith_001\n\n\"Hello Mary, I hope you don't mind me reaching out. We matched on the Silver Singles website and I thought I would say hello. My name is James and I'm a retired civil engineer living in Portland, Oregon. I lost my wife three years ago and my daughter encouraged me to try meeting new people. I enjoy woodworking, fishing, and volunteering at the local food bank on weekends. I see from your profile that you enjoy gardening — I'd love to hear about what you're growing this summer. I hope to hear from you. Best wishes, James\""}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.72, \"detected_signals\": [\"PM-12\"], \"extracted_facts\": {\"claimed_name\": \"James\", \"claimed_relationship\": null, \"claimed_location\": \"Portland, Oregon\", \"claimed_institution\": \"Silver Singles\", \"financial_mention\": null, \"other_facts\": [\"retired civil engineer\", \"widower\", \"matched on dating platform\", \"no financial request\", \"no urgency\", \"mentions daughter\"]}, \"reasoning\": \"Early-stage contact from a dating platform. No financial solicitation, no urgency, no credential requests. Mild flattery (PM-12) is contextually normal for a first dating message. While romance scams begin with trust-building messages like this, there are no actionable scam signals in this specific message. Classification is safe with lower confidence to reflect the inherently uncertain nature of new dating contacts. Should be monitored for escalation patterns in future messages.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "read_contact_list", "args": {"user_id": "user_smith_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_smith_001", "sender_id": "new_contact_james_w", "message_id": "msg_en_020", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "new_contact_james_w", "classification": "safe", "confidence": 0.72, "extracted_facts": "{\"claimed_name\": \"James\"}", "detected_signals": "[\"PM-12\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_smith_001",
+        "state": {"user_name": "Mary Smith"}
+      }
+    }
+
+  ]
+}
