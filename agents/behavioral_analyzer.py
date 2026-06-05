@@ -13,19 +13,50 @@ from google.adk import Agent
 from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
 from google.cloud import firestore
 
+# Signal weights derived from corpus analysis (data/derive_baselines.py).
+# Loaded from data/processed/corpus_baselines.json at import time.
+# Methodology: precision-normalized P(scam|signal) across 19,104 corpus entries.
+# Longitudinal signals (LG-*) mapped from per-message (PM-*) discriminative power:
+#   LG-1 (contradiction) ← PM signals with highest lift (PM-9: 2.76, PM-2: 2.13)
+#   LG-2 (contact mismatch) ← PM-11 precision (0.51) + PM-4 authority (0.44)
+#   LG-5 (financial timing) ← PM-3 prevalence in scam (27.9%)
+# See data/processed/corpus_baselines.json for full derivation.
+
+import json as _json
+from pathlib import Path as _Path
+
+_BASELINES_PATH = _Path(__file__).parent.parent / "data" / "processed" / "corpus_baselines.json"
+
+def _load_baselines() -> dict:
+    """Load corpus-derived baselines. Falls back to defaults if file missing."""
+    if _BASELINES_PATH.exists():
+        with open(_BASELINES_PATH) as f:
+            return _json.load(f)
+    return {}
+
+_BASELINES = _load_baselines()
+
+# Map longitudinal signals to corpus-derived weights.
+# Each LG signal draws evidence from the PM signals it correlates with.
+_pm = _BASELINES.get("derived_weights", {})
 SIGNAL_WEIGHTS = {
-    "LG-1": 0.15,  # stated_fact_contradiction
-    "LG-2": 0.15,  # contact_identity_mismatch
-    "LG-3": 0.08,  # frequency_escalation
-    "LG-4": 0.10,  # emotional_progression
-    "LG-5": 0.12,  # financial_mention_timing
-    "LG-6": 0.08,  # isolation_language_trend
-    "LG-7": 0.07,  # persona_inconsistency
-    "LG-8": 0.10,  # crisis_after_trust
-    "LG-9": 0.05,  # rapid_intimacy
-    "LG-10": 0.05, # compliance_conditioning
-    "CM-1": 0.05,  # conversation_spending_correlation
+    "LG-1": round((_pm.get("PM-9", 0.10) + _pm.get("PM-2", 0.09)) / 2, 4),   # contradiction ← refund_lure lift + secrecy
+    "LG-2": round((_pm.get("PM-11", 0.08) + _pm.get("PM-4", 0.07)) / 2, 4),   # contact mismatch ← identity + authority
+    "LG-3": 0.08,   # frequency_escalation (no direct PM correlate, structural)
+    "LG-4": round(_pm.get("PM-12", 0.09), 4),                                   # emotional_progression ← flattery
+    "LG-5": round(_pm.get("PM-3", 0.09), 4),                                    # financial_mention_timing ← financial
+    "LG-6": round(_pm.get("PM-2", 0.09), 4),                                    # isolation_language ← secrecy
+    "LG-7": 0.07,   # persona_inconsistency (stylistic, no PM correlate)
+    "LG-8": round((_pm.get("PM-10", 0.09) + _pm.get("PM-1", 0.09)) / 2, 4),   # crisis_after_trust ← emotional + urgency
+    "LG-9": round(_pm.get("PM-12", 0.09), 4),                                   # rapid_intimacy ← flattery
+    "LG-10": round(_pm.get("PM-5", 0.09), 4),                                   # compliance_conditioning ← unusual payment
+    "CM-1": round(_pm.get("PM-3", 0.09), 4),                                    # spending_correlation ← financial
 }
+
+# Normalize to sum to 1.0
+_total = sum(SIGNAL_WEIGHTS.values())
+if _total > 0:
+    SIGNAL_WEIGHTS = {k: round(v / _total, 4) for k, v in SIGNAL_WEIGHTS.items()}
 
 db = firestore.Client()
 PROFILES = db.collection("sender_profiles")
