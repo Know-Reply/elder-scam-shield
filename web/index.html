@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elder Scam Shield — Interactive Demo</title>
+  <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <svg class="shield-icon" viewBox="0 0 32 40" width="28" height="35">
+        <path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/>
+        <path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <span class="logo-text">Elder Scam Shield</span>
+        <span class="logo-sub">Multi-Agent Fraud Protection</span>
+      </div>
+    </div>
+    <nav class="nav-dots" aria-label="Scene navigation">
+      <button class="nav-dot active" data-scene="1" aria-label="Scene 1">1</button>
+      <button class="nav-dot" data-scene="2" aria-label="Scene 2">2</button>
+      <button class="nav-dot" data-scene="3" aria-label="Scene 3">3</button>
+      <button class="nav-dot" data-scene="4" aria-label="Scene 4">4</button>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- ===== SCENE 1: The Obvious Scam ===== -->
+  <section class="scene scene-active" id="scene-1">
+    <div class="scene-header">
+      <span class="scene-label">Scene 1</span>
+      <h2>The Obvious Scam</h2>
+      <p class="scene-subtitle">A fake invoice from an unknown sender</p>
+    </div>
+
+    <div class="scene-content scene1-layout">
+      <div class="message-card scam-message">
+        <div class="msg-header">
+          <span class="msg-sender unknown-sender">unknown_billing@prize-center.co.jp</span>
+          <span class="msg-badge badge-unknown">Unknown Sender</span>
+        </div>
+        <div class="msg-body">
+          <p class="msg-subject">件名: 未払い料金のお知らせ【至急】</p>
+          <p class="msg-text">有料コンテンツの利用料金が未払いです。本日中にお支払いいただけない場合、法的措置を取らせていただきます。下記の口座にお振込みください。</p>
+          <p class="msg-translation">Subject: Notice of Unpaid Charges [URGENT]<br>Your usage fees for premium content are unpaid. If not paid today, legal action will be taken. Please transfer to the account below.</p>
+        </div>
+      </div>
+
+      <div class="arrow-down"><svg viewBox="0 0 24 40" width="24" height="40"><path d="M12 0 L12 32 M4 24 L12 34 L20 24" stroke="#94a3b8" stroke-width="2" fill="none"/></svg></div>
+
+      <div class="agent-result result-blocked">
+        <div class="agent-badge">
+          <span class="agent-icon">IC</span>
+          Inbound Classifier
+        </div>
+        <div class="result-row">
+          <span class="result-label">Verdict</span>
+          <span class="verdict-blocked">BLOCKED</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Confidence</span>
+          <span class="confidence-bar"><span class="confidence-fill" style="width:97%">97%</span></span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Classification</span>
+          <span class="tag tag-scam">scam</span>
+          <span class="tag tag-pattern">架空請求 (fictitious billing)</span>
+        </div>
+        <div class="signals-detected">
+          <span class="result-label">Signals Detected</span>
+          <div class="signal-list">
+            <span class="signal"><strong>PM-3</strong> Extreme urgency &mdash; "today" deadline</span>
+            <span class="signal"><strong>PM-5</strong> Legal threat to compel action</span>
+            <span class="signal"><strong>PM-6</strong> Payment to unknown account</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scene-caption">
+      <p>"Every spam filter does this."</p>
+    </div>
+
+    <div class="scene-nav">
+      <button class="btn btn-next" data-goto="2">Next: The Dangerous Scam &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ===== SCENE 2: The Dangerous Scam ===== -->
+  <section class="scene" id="scene-2">
+    <div class="scene-header">
+      <span class="scene-label">Scene 2</span>
+      <h2>The Dangerous Scam</h2>
+      <p class="scene-subtitle">A 7-day grandchild impersonation &mdash; click each day</p>
+    </div>
+
+    <div class="scene-content scene2-layout">
+      <!-- Timeline -->
+      <div class="timeline-bar">
+        <button class="timeline-day active" data-day="1">Day 1</button>
+        <button class="timeline-day" data-day="3">Day 3</button>
+        <button class="timeline-day" data-day="5">Day 5</button>
+        <button class="timeline-day" data-day="7">Day 7</button>
+      </div>
+
+      <div class="scene2-panels">
+        <!-- Left: Message + Agent Result -->
+        <div class="scene2-left">
+          <!-- Day panels (only one visible at a time) -->
+          <div class="day-panel day-panel-active" id="day-1">
+            <div class="message-card safe-message">
+              <div class="msg-header">
+                <span class="msg-sender">kenji_tanaka@gmail.com</span>
+                <span class="msg-badge badge-new">New Sender</span>
+              </div>
+              <div class="msg-body">
+                <p class="msg-text japanese-large">"おばあちゃん、健二だよ。久しぶり！"</p>
+                <p class="msg-translation">"Grandma, it's Kenji. Long time no see!"</p>
+              </div>
+            </div>
+            <div class="agent-result result-safe">
+              <div class="agent-badge"><span class="agent-icon">IC</span> Inbound Classifier</div>
+              <div class="result-row">
+                <span class="result-label">Verdict</span>
+                <span class="verdict-safe">SAFE</span>
+              </div>
+              <div class="result-row">
+                <span class="result-label">Extracted Facts</span>
+                <div class="fact-tags">
+                  <span class="fact-tag">name = Kenji (健二)</span>
+                  <span class="fact-tag">relationship = grandson</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="day-panel" id="day-3">
+            <div class="message-card safe-message">
+              <div class="msg-header">
+                <span class="msg-sender">kenji_tanaka@gmail.com</span>
+                <span class="msg-badge badge-returning">Returning</span>
+              </div>
+              <div class="msg-body">
+                <p class="msg-text japanese-large">"大阪で新しい仕事を始めたんだ。元気にしてる？"</p>
+                <p class="msg-translation">"I started a new job in Osaka. How are you doing?"</p>
+              </div>
+            </div>
+            <div class="agent-result result-safe">
+              <div class="agent-badge"><span class="agent-icon">IC</span> Inbound Classifier</div>
+              <div class="result-row">
+                <span class="result-label">Verdict</span>
+                <span class="verdict-safe">SAFE</span>
+              </div>
+              <div class="result-row">
+                <span class="result-label">Extracted Facts</span>
+                <div class="fact-tags">
+                  <span class="fact-tag">location = Osaka (大阪)</span>
+                  <span class="fact-tag">context = new job</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="day-panel" id="day-5">
+            <div class="message-card warn-message">
+              <div class="msg-header">
+                <span class="msg-sender">kenji_tanaka@gmail.com</span>
+                <span class="msg-badge badge-returning">Returning</span>
+              </div>
+              <div class="msg-body">
+                <p class="msg-text japanese-large">"事故に遭って東京の病院にいるんだ。大変なことになって..."</p>
+                <p class="msg-translation">"I was in an accident and I'm in a hospital in Tokyo. Things have gotten serious..."</p>
+              </div>
+            </div>
+            <div class="agent-result result-warn">
+              <div class="agent-badge"><span class="agent-icon ba-icon">BA</span> Behavioral Analyzer</div>
+              <div class="result-row">
+                <span class="result-label">Risk Score</span>
+                <div class="risk-gauge">
+                  <div class="risk-fill risk-medium" style="width:72%"></div>
+                  <span class="risk-value">0.72</span>
+                </div>
+              </div>
+              <div class="result-row">
+                <span class="result-label">Flags</span>
+                <div class="flag-list">
+                  <span class="flag flag-warn">Location contradiction: Osaka &rarr; Tokyo in 48h</span>
+                  <span class="flag flag-warn">Contact mismatch: grandson is Takeshi, not Kenji</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="day-panel" id="day-7">
+            <div class="message-card danger-message">
+              <div class="msg-header">
+                <span class="msg-sender">kenji_tanaka@gmail.com</span>
+                <span class="msg-badge badge-danger">High Risk Sender</span>
+              </div>
+              <div class="msg-body">
+                <p class="msg-text japanese-large">"50万円必要なんだ。今日中に振り込んでくれない？口座番号送るから。"</p>
+                <p class="msg-translation">"I need 500,000 yen. Can you transfer it today? I'll send the account number."</p>
+              </div>
+            </div>
+            <div class="agent-result result-blocked">
+              <div class="agent-badge"><span class="agent-icon ba-icon">BA</span> Behavioral Analyzer</div>
+              <div class="result-row">
+                <span class="result-label">Risk Score</span>
+                <div class="risk-gauge">
+                  <div class="risk-fill risk-critical" style="width:94%"></div>
+                  <span class="risk-value">0.94</span>
+                </div>
+              </div>
+              <div class="result-row">
+                <span class="result-label">Verdict</span>
+                <span class="verdict-blocked">BLOCKED</span>
+              </div>
+              <div class="result-row">
+                <span class="result-label">Signals</span>
+                <div class="flag-list">
+                  <span class="flag flag-danger">Money request: &yen;500,000 with "today" urgency</span>
+                  <span class="flag flag-danger">Accumulated contradictions (2)</span>
+                  <span class="flag flag-danger">Contact mismatch confirmed</span>
+                  <span class="flag flag-warn">Frequency escalation over 7 days</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Sender Profile + Reasoning Trace -->
+        <div class="scene2-right">
+          <div class="panel sender-profile-panel">
+            <h3 class="panel-title">Sender Profile</h3>
+            <div class="profile-field">
+              <span class="pf-label">Email</span>
+              <span class="pf-value">kenji_tanaka@gmail.com</span>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">First Seen</span>
+              <span class="pf-value" id="pf-first-seen">Day 1</span>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">Messages</span>
+              <span class="pf-value" id="pf-messages">1</span>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">Claimed Name</span>
+              <span class="pf-value" id="pf-name">Kenji (健二)</span>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">Claimed Relation</span>
+              <span class="pf-value" id="pf-relation">Grandson</span>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">Locations</span>
+              <div class="pf-value" id="pf-locations">&mdash;</div>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">Contact Match</span>
+              <span class="pf-value" id="pf-contact-match">&mdash;</span>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">Contradictions</span>
+              <span class="pf-value" id="pf-contradictions">0</span>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">Financial Requests</span>
+              <span class="pf-value" id="pf-financial">&mdash;</span>
+            </div>
+            <div class="profile-field">
+              <span class="pf-label">Risk Score</span>
+              <div class="mini-risk-bar">
+                <div class="mini-risk-fill" id="pf-risk-fill" style="width:8%"></div>
+              </div>
+              <span class="pf-value pf-risk-val" id="pf-risk-val">0.08</span>
+            </div>
+          </div>
+
+          <details class="trace-panel" id="trace-panel">
+            <summary class="trace-title">Agent Reasoning Trace</summary>
+            <div class="trace-content" id="trace-content">
+              <div class="trace-entry">
+                <span class="trace-agent">Inbound Classifier</span>
+                <span class="trace-detail">Classification: <strong>safe</strong>. No known scam patterns matched. Extracted: name=Kenji, relationship=grandson.</span>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <div class="scene-caption">
+      <p>"A single classifier saw <strong>1</strong> dangerous message out of 7.<br>Our system caught all <strong>7</strong> building toward fraud."</p>
+    </div>
+
+    <div class="scene-nav">
+      <button class="btn btn-prev" data-goto="1">&larr; Scene 1</button>
+      <button class="btn btn-next" data-goto="3">Next: Outbound Interception &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ===== SCENE 3: Outbound Interception ===== -->
+  <section class="scene" id="scene-3">
+    <div class="scene-header">
+      <span class="scene-label">Scene 3</span>
+      <h2>Outbound Interception</h2>
+      <p class="scene-subtitle">Catching the victim before they send money</p>
+    </div>
+
+    <div class="scene-content scene3-layout">
+      <div class="scene3-flow">
+        <div class="message-card outbound-message">
+          <div class="msg-header">
+            <span class="msg-sender outbound-sender">User (Grandmother) &rarr; kenji_tanaka@gmail.com</span>
+            <span class="msg-badge badge-outbound">Outbound</span>
+          </div>
+          <div class="msg-body">
+            <p class="msg-text japanese-large">"健二、大丈夫？すぐ送るわね。口座番号は <span class="redacted-text">三菱UFJ銀行 普通 1234567</span>"</p>
+            <p class="msg-translation">"Kenji, are you okay? I'll send it right away. The account is <span class="redacted-text">MUFG Bank, savings, 1234567</span>"</p>
+          </div>
+        </div>
+
+        <div class="arrow-down"><svg viewBox="0 0 24 40" width="24" height="40"><path d="M12 0 L12 32 M4 24 L12 34 L20 24" stroke="#dc2626" stroke-width="2" fill="none"/></svg></div>
+
+        <div class="agent-result result-hold">
+          <div class="agent-badge"><span class="agent-icon oi-icon">OI</span> Outbound Interceptor</div>
+          <div class="result-row">
+            <span class="result-label">Decision</span>
+            <span class="verdict-hold">HARD HOLD</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Detected</span>
+            <div class="flag-list">
+              <span class="flag flag-danger">OB-2: Bank account details in message body</span>
+              <span class="flag flag-danger">Recipient sender_risk = 0.94</span>
+              <span class="flag flag-warn">Financial amount implied (&yen;500,000)</span>
+            </div>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Compound Risk</span>
+            <div class="risk-gauge">
+              <div class="risk-fill risk-critical" style="width:98%"></div>
+              <span class="risk-value">0.98</span>
+            </div>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Action</span>
+            <span class="hold-action">Message quarantined. Not delivered.</span>
+          </div>
+        </div>
+
+        <div class="arrow-down"><svg viewBox="0 0 24 40" width="24" height="40"><path d="M12 0 L12 32 M4 24 L12 34 L20 24" stroke="#f59e0b" stroke-width="2" fill="none"/></svg></div>
+
+        <div class="agent-result result-alert">
+          <div class="agent-badge"><span class="agent-icon fa-icon">FA</span> Family Alerter</div>
+          <div class="result-row">
+            <span class="result-label">Alert Sent To</span>
+            <span class="pf-value">田中 美咲 (daughter) &mdash; misaki.tanaka@gmail.com</span>
+          </div>
+          <div class="alert-preview">
+            <div class="alert-msg">
+              <p class="alert-title">【Elder Scam Shield】お母様の送信をブロックしました</p>
+              <p class="alert-body">お母様が「kenji_tanaka@gmail.com」宛に銀行口座情報を含むメッセージを送信しようとしました。</p>
+              <p class="alert-body">この送信者は過去7日間で以下の矛盾が検出されています：</p>
+              <ul class="alert-evidence">
+                <li>お孫さんの名前が「健二」と名乗っていますが、連絡先には「武」と登録されています</li>
+                <li>3日目に「大阪」と言い、5日目に「東京の病院」に変わっています</li>
+                <li>7日目に50万円の送金を要求しています</li>
+              </ul>
+              <p class="alert-body alert-action-line">対応が必要です。メッセージは保留中です。</p>
+              <p class="alert-translation">
+                [We blocked your mother's outgoing message to kenji_tanaka@gmail.com containing bank account details. This sender has 2 contradictions detected over 7 days: name mismatch (claims Kenji, contacts say Takeshi), location change (Osaka to Tokyo hospital). Money request of &yen;500,000 on Day 7. Action required &mdash; message is held.]
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scene-caption">
+      <p>"We catch the victim sending money out &mdash; the gap banks and email providers can't cover."</p>
+    </div>
+
+    <div class="scene-nav">
+      <button class="btn btn-prev" data-goto="2">&larr; Scene 2</button>
+      <button class="btn btn-next" data-goto="4">Next: The Results &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ===== SCENE 4: The Metric ===== -->
+  <section class="scene" id="scene-4">
+    <div class="scene-header">
+      <span class="scene-label">Scene 4</span>
+      <h2>The Results</h2>
+      <p class="scene-subtitle">Single classifier vs. multi-agent system</p>
+    </div>
+
+    <div class="scene-content scene4-layout">
+      <div class="metrics-comparison">
+        <div class="metric-card metric-before">
+          <h3>Before</h3>
+          <p class="metric-subtitle">Single Classifier</p>
+          <div class="metric-big-number">
+            <span class="metric-num">1</span><span class="metric-denom">/7</span>
+          </div>
+          <p class="metric-desc">dangerous messages detected</p>
+          <div class="metric-bar-row">
+            <span class="metric-bar-label">Detection</span>
+            <div class="metric-bar"><div class="metric-bar-fill before-fill" style="width:14%"></div></div>
+            <span class="metric-bar-pct">14%</span>
+          </div>
+          <p class="metric-note">Only the final message with explicit money request was flagged. Days 1&ndash;6 classified as safe.</p>
+        </div>
+        <div class="metric-card metric-after">
+          <h3>After</h3>
+          <p class="metric-subtitle">Multi-Agent System</p>
+          <div class="metric-big-number">
+            <span class="metric-num highlight-num">7</span><span class="metric-denom">/7</span>
+          </div>
+          <p class="metric-desc">dangerous messages detected</p>
+          <div class="metric-bar-row">
+            <span class="metric-bar-label">Detection</span>
+            <div class="metric-bar"><div class="metric-bar-fill after-fill" style="width:100%"></div></div>
+            <span class="metric-bar-pct">100%</span>
+          </div>
+          <div class="metric-bar-row">
+            <span class="metric-bar-label">False Positives</span>
+            <div class="metric-bar"><div class="metric-bar-fill fp-fill" style="width:0%"></div></div>
+            <span class="metric-bar-pct">0 / 50</span>
+          </div>
+          <p class="metric-note">Zero false positives on 50 legitimate family emails.</p>
+        </div>
+      </div>
+
+      <!-- Architecture Diagram -->
+      <div class="architecture">
+        <h3 class="arch-title">System Architecture &mdash; A2A Event Flow</h3>
+        <div class="arch-diagram">
+          <div class="arch-row arch-row-top">
+            <div class="arch-box arch-inbound">
+              <div class="arch-box-icon">IC</div>
+              <div class="arch-box-label">Inbound<br>Classifier</div>
+              <div class="arch-box-prim">SENSE</div>
+            </div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-box arch-analyzer">
+              <div class="arch-box-icon">BA</div>
+              <div class="arch-box-label">Behavioral<br>Analyzer</div>
+              <div class="arch-box-prim">INTERPRET + JUDGE</div>
+            </div>
+          </div>
+          <div class="arch-row arch-row-mid">
+            <div class="arch-connector-down"></div>
+            <div class="arch-memory">
+              <span>Memory Bank</span>
+              <span class="arch-memory-sub">Sender Profiles &bull; Contact Book &bull; Risk History</span>
+            </div>
+            <div class="arch-connector-down"></div>
+          </div>
+          <div class="arch-row arch-row-bottom">
+            <div class="arch-box arch-interceptor">
+              <div class="arch-box-icon">OI</div>
+              <div class="arch-box-label">Outbound<br>Interceptor</div>
+              <div class="arch-box-prim">JUDGE</div>
+            </div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-box arch-alerter">
+              <div class="arch-box-icon">FA</div>
+              <div class="arch-box-label">Family<br>Alerter</div>
+              <div class="arch-box-prim">CREATE</div>
+            </div>
+          </div>
+          <div class="arch-flow-labels">
+            <span class="arch-flow-label">Classification events + facts</span>
+            <span class="arch-flow-label">Risk assessments + holds</span>
+            <span class="arch-flow-label">Family notifications</span>
+          </div>
+        </div>
+        <div class="arch-powered">
+          Built with Google ADK &bull; Gemini API &bull; A2A Protocol &bull; Cloud Run &bull; Firestore
+        </div>
+      </div>
+    </div>
+
+    <div class="scene-caption">
+      <p>"Protecting &yen;324 billion in annual losses &mdash; one conversation at a time."</p>
+    </div>
+
+    <div class="scene-nav">
+      <button class="btn btn-prev" data-goto="3">&larr; Scene 3</button>
+      <button class="btn btn-restart" data-goto="1">Restart Demo</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>Elder Scam Shield &mdash; Google for Startups AI Agents Challenge &bull; Track 2: Optimize</p>
+</footer>
+
+<script src="static/demo.js"></script>
+</body>
+</html>

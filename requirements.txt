@@ -1,0 +1,15 @@
+# Elder Scam Shield — Python dependencies
+# Hackathon submission for Google for Startups AI Agents Challenge
+
+# ADK (Agent Development Kit) 2.0 — multi-agent orchestration
+google-adk>=2.0.0
+
+# Firestore — longitudinal sender profiles and audit log
+google-cloud-firestore
+
+# FastAPI + Uvicorn — web server and REST API
+fastapi
+uvicorn[standard]
+
+# Vertex AI — Gemini model access on Google Cloud
+google-cloud-aiplatform

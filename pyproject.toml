@@ -1,0 +1,13 @@
+[project]
+name = "elder-scam-shield"
+version = "0.1.0"
+description = "Multi-agent scam protection for elderly Japanese users"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+dependencies = [
+    "google-adk>=2.0.0",
+    "google-cloud-firestore",
+    "fastapi",
+    "uvicorn[standard]",
+    "google-cloud-aiplatform",
+]

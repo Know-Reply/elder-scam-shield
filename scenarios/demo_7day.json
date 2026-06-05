@@ -1,0 +1,266 @@
+{
+  "scenario": {
+    "name": "ore_ore_sagi_7day",
+    "description": "7-day social engineering attack against an elderly Japanese user, demonstrating gradual trust-building followed by contradiction detection and scam blocking.",
+    "protected_user": {
+      "name": "Yamada Hanako",
+      "age": 78,
+      "location": "Saitama, Japan",
+      "family_contact": "yamada_yuki@gmail.com"
+    },
+    "attacker": {
+      "claimed_identity": "Tanaka Kenji (old friend's son)",
+      "email": "kenji_tanaka@gmail.com"
+    }
+  },
+
+  "messages": [
+    {
+      "day": 1,
+      "timestamp": "2025-06-01T10:30:00+09:00",
+      "sender": "kenji_tanaka@gmail.com",
+      "content": "山田のおばさま、ご無沙汰しております。田中健二です。父の田中太郎の息子です。父がいつもお世話になっていると申しておりました。お元気でいらっしゃいますか？",
+      "content_en": "Yamada-san, it's been a long time. I'm Tanaka Kenji, son of Tanaka Taro. My father always says how grateful he is for your kindness. How are you doing?",
+      "extracted_facts": {
+        "claimed_name": "Tanaka Kenji",
+        "claimed_relation": "son of Tanaka Taro",
+        "claimed_connection": "father knows the protected user"
+      },
+      "classification": "safe",
+      "risk_score": 0.05,
+      "detected_signals": [],
+      "reasoning": "Polite greeting establishing a claimed connection. No requests, no pressure. Common pattern for legitimate reconnection.",
+      "sender_profile_snapshot": {
+        "messages_received": 1,
+        "facts_stored": ["name: Tanaka Kenji", "relation: son of Tanaka Taro"],
+        "contradictions": 0,
+        "risk_score": 0.05,
+        "risk_label": "safe"
+      }
+    },
+    {
+      "day": 2,
+      "timestamp": "2025-06-02T14:15:00+09:00",
+      "sender": "kenji_tanaka@gmail.com",
+      "content": "お返事ありがとうございます！嬉しいです。最近は天気が良くなってきましたね。おばさまのお庭の紫陽花はもう咲きましたか？父がいつもおばさまの庭の花を褒めていました。",
+      "content_en": "Thank you for your reply! I'm so happy. The weather has been nice lately. Have the hydrangeas in your garden bloomed yet? My father always praised the flowers in your garden.",
+      "extracted_facts": {
+        "topic": "weather, garden, hydrangeas",
+        "claimed_knowledge": "father mentioned user's garden flowers"
+      },
+      "classification": "safe",
+      "risk_score": 0.08,
+      "detected_signals": [],
+      "reasoning": "Small talk about seasonal topics. Mentions garden details that could be generic (hydrangeas are common in Saitama). Building rapport but nothing suspicious yet.",
+      "sender_profile_snapshot": {
+        "messages_received": 2,
+        "facts_stored": ["name: Tanaka Kenji", "relation: son of Tanaka Taro", "knows about: user's garden"],
+        "contradictions": 0,
+        "risk_score": 0.08,
+        "risk_label": "safe"
+      }
+    },
+    {
+      "day": 3,
+      "timestamp": "2025-06-03T11:00:00+09:00",
+      "sender": "kenji_tanaka@gmail.com",
+      "content": "実は今、大阪で仕事をしています。IT関係の会社に勤めていまして、もう5年になります。父も元気にしておりますよ。今度東京に出張があるので、ぜひお会いできればと思っています。",
+      "content_en": "Actually, I'm working in Osaka now. I work at an IT company, been there 5 years. Father is doing well too. I have a business trip to Tokyo coming up, so I'd love to meet you if possible.",
+      "extracted_facts": {
+        "claimed_location": "Osaka",
+        "claimed_job": "IT company, 5 years",
+        "claimed_father_status": "doing well",
+        "planned_visit": "business trip to Tokyo"
+      },
+      "classification": "safe",
+      "risk_score": 0.12,
+      "detected_signals": ["personal_detail_volunteering"],
+      "reasoning": "Volunteering personal details to build credibility. Establishing Osaka as home base. Mentioning a future Tokyo visit creates a narrative thread. Slightly elevated score for detail-seeding pattern.",
+      "sender_profile_snapshot": {
+        "messages_received": 3,
+        "facts_stored": ["name: Tanaka Kenji", "relation: son of Tanaka Taro", "location: Osaka", "job: IT company (5yr)", "father: well"],
+        "contradictions": 0,
+        "risk_score": 0.12,
+        "risk_label": "safe"
+      }
+    },
+    {
+      "day": 4,
+      "timestamp": "2025-06-04T16:45:00+09:00",
+      "sender": "kenji_tanaka@gmail.com",
+      "content": "おばさまは最近お体の調子はいかがですか？一人暮らしは大変ではないですか？ゆきさんはお忙しいでしょうから、何かあったらいつでも私に連絡してくださいね。父も心配しておりますので。",
+      "content_en": "How is your health lately, Yamada-san? Isn't it hard living alone? Yuki-san must be busy, so please contact me anytime if you need anything. My father worries about you too.",
+      "extracted_facts": {
+        "asks_about": "health, living situation",
+        "knows_family_member": "Yuki (family contact name)",
+        "offers_help": true,
+        "isolation_probe": true
+      },
+      "classification": "safe",
+      "risk_score": 0.25,
+      "detected_signals": ["health_inquiry", "isolation_probe", "help_positioning"],
+      "reasoning": "Asking about health and living situation. Mentions family member by name (could be found on social media). Subtly positions himself as available while suggesting family is too busy. Classic grooming pattern but each element is individually normal.",
+      "sender_profile_snapshot": {
+        "messages_received": 4,
+        "facts_stored": ["name: Tanaka Kenji", "relation: son of Tanaka Taro", "location: Osaka", "job: IT company (5yr)", "father: well", "knows: Yuki"],
+        "contradictions": 0,
+        "risk_score": 0.25,
+        "risk_label": "safe"
+      }
+    },
+    {
+      "day": 5,
+      "timestamp": "2025-06-05T09:20:00+09:00",
+      "sender": "kenji_tanaka@gmail.com",
+      "content": "おばさま、大変なことになりました。実は東京出張中に交通事故に遭ってしまい、今、東京の病院に入院しています。頭を打って検査を受けているのですが、会社には連絡できない状況で…。父にもまだ言えていません。",
+      "content_en": "Yamada-san, something terrible has happened. I was in a traffic accident during my Tokyo business trip, and I'm hospitalized in Tokyo now. I hit my head and they're running tests, but I can't contact my company... I haven't told my father yet either.",
+      "extracted_facts": {
+        "claimed_incident": "traffic accident in Tokyo",
+        "claimed_location_now": "Tokyo hospital",
+        "communication_restriction": "can't contact company",
+        "secrecy_request": "hasn't told father"
+      },
+      "classification": "suspicious",
+      "risk_score": 0.72,
+      "detected_signals": [
+        "location_contradiction",
+        "urgency_introduction",
+        "secrecy_request",
+        "isolation_from_verification"
+      ],
+      "reasoning": "CONTRADICTION DETECTED: Day 3 established Osaka as home/work base. Now claims to be in Tokyo hospital during a 'business trip' — but the trip was framed as future, not current. Secrecy request ('don't tell father') blocks the natural verification path. Classic ore-ore sagi pivot from rapport to crisis.",
+      "sender_profile_snapshot": {
+        "messages_received": 5,
+        "facts_stored": ["name: Tanaka Kenji", "relation: son of Tanaka Taro", "location: Osaka→Tokyo (CONTRADICTION?)", "job: IT company (5yr)", "incident: hospitalized"],
+        "contradictions": 1,
+        "contradiction_details": ["Day 3: 'working in Osaka, business trip to Tokyo coming up' vs Day 5: 'during my Tokyo business trip' — timeline compressed, location shifted without transition"],
+        "risk_score": 0.72,
+        "risk_label": "suspicious"
+      }
+    },
+    {
+      "day": 6,
+      "timestamp": "2025-06-06T08:05:00+09:00",
+      "sender": "kenji_tanaka@gmail.com",
+      "content": "おばさま、昨日はご心配おかけしてすみません。検査の結果は大丈夫そうなのですが、入院費が思ったより高くて困っています。保険証を大阪の家に置いてきてしまって…。会社の同僚に頼むと出張中の事故だと問題になるので…。本当に情けないのですが、少しだけお力を借りることはできないでしょうか。",
+      "content_en": "I'm sorry for worrying you yesterday. The test results seem OK, but the hospital bill is higher than expected. I left my insurance card at home in Osaka... If I ask a colleague, the accident during a business trip would cause problems at work... I'm so ashamed, but could I possibly borrow a small amount?",
+      "extracted_facts": {
+        "financial_request": "implicit, asks to 'borrow a small amount'",
+        "excuse_for_no_insurance": "left card in Osaka",
+        "excuse_for_no_colleagues": "would cause work problems",
+        "emotional_pressure": "shame, apology"
+      },
+      "classification": "suspicious",
+      "risk_score": 0.88,
+      "detected_signals": [
+        "financial_request_implicit",
+        "verification_blocking",
+        "emotional_manipulation",
+        "excuse_stacking"
+      ],
+      "reasoning": "Financial request arrives after 5 days of trust-building. Every natural verification path is blocked with excuses: can't use insurance (left in Osaka), can't ask colleagues (work problems), can't tell father (from Day 5). Shame/apology language is emotional pressure. Risk elevated sharply.",
+      "sender_profile_snapshot": {
+        "messages_received": 6,
+        "facts_stored": ["name: Tanaka Kenji", "relation: son of Tanaka Taro", "location: Osaka→Tokyo", "incident: hospitalized", "request: financial help"],
+        "contradictions": 1,
+        "risk_score": 0.88,
+        "risk_label": "suspicious"
+      }
+    },
+    {
+      "day": 7,
+      "timestamp": "2025-06-07T07:30:00+09:00",
+      "sender": "kenji_tanaka@gmail.com",
+      "content": "おばさま、本当にすみません。病院から今日中に50万円を払わないと退院できないと言われました。口座番号をお送りしますので、振り込んでいただけないでしょうか。退院したらすぐにお返しします。父には絶対に言わないでください。お願いします。\n\n振込先：みずほ銀行 新宿支店 普通 1234567\n口座名義：タナカ ケンジ",
+      "content_en": "I'm so sorry. The hospital says I must pay 500,000 yen today or I can't be discharged. I'll send you the account number — could you please transfer it? I'll pay you back as soon as I'm out. Please don't tell my father. Please.\n\nTransfer to: Mizuho Bank, Shinjuku Branch, Savings 1234567\nAccount: TANAKA KENJI",
+      "extracted_facts": {
+        "amount_requested": "500,000 yen",
+        "urgency": "must pay today",
+        "bank_details": "Mizuho Bank, Shinjuku Branch, 1234567",
+        "secrecy_reinforced": "don't tell father",
+        "promise_to_repay": true
+      },
+      "classification": "scam",
+      "risk_score": 0.98,
+      "detected_signals": [
+        "explicit_money_request",
+        "artificial_deadline",
+        "bank_account_provided",
+        "secrecy_demand",
+        "urgency_escalation",
+        "amount_threshold_exceeded"
+      ],
+      "reasoning": "Classic ore-ore sagi culmination. Explicit large money request (500,000 yen) with artificial same-day deadline. Bank account details provided unsolicited. Secrecy demand reinforced. Every verification path remains blocked. MESSAGE BLOCKED — user will not receive this without family review.",
+      "action_taken": "BLOCKED",
+      "sender_profile_snapshot": {
+        "messages_received": 7,
+        "facts_stored": ["name: Tanaka Kenji", "relation: son of Tanaka Taro", "location: contradiction", "incident: hospitalized", "request: 500,000 yen"],
+        "contradictions": 1,
+        "risk_score": 0.98,
+        "risk_label": "scam",
+        "blocked": true
+      }
+    }
+  ],
+
+  "outbound_interception": {
+    "description": "The protected user attempts to reply with bank details before Day 7 is blocked.",
+    "trigger": "User drafts a reply after receiving Day 6 message",
+    "outbound_content": "健二くん、大変でしたね。少しですがお力になりたいです。私の口座から振り込みますね。\n\nゆうちょ銀行 記号10040 番号12345678\n暗証番号は変えたばかりで3946です。\nお大事にしてくださいね。",
+    "outbound_content_en": "Kenji-kun, that sounds terrible. I want to help a little. I'll transfer from my account.\n\nJapan Post Bank, Symbol 10040, Number 12345678\nI just changed my PIN — it's 3946.\nPlease take care of yourself.",
+    "interceptor_result": {
+      "action": "HELD",
+      "detected_sensitive_data": [
+        "bank_account_number",
+        "pin_code"
+      ],
+      "risk_context": "Recipient risk_score is 0.88 (suspicious). Outbound message contains bank account number AND PIN code.",
+      "notification_sent_to": "yamada_yuki@gmail.com",
+      "notification_content_summary": "Your family member attempted to send bank account details and a PIN code to a contact flagged as suspicious (risk score: 0.88). The message has been held for your review."
+    }
+  },
+
+  "legitimate_messages": [
+    {
+      "id": "legit_1",
+      "sender": "yamada_yuki@gmail.com",
+      "content": "おばあちゃん、今週末遊びに行くね！何か買っていくものある？",
+      "content_en": "Grandma, I'm coming to visit this weekend! Anything you want me to bring?",
+      "classification": "safe",
+      "risk_score": 0.01,
+      "detected_signals": [],
+      "reasoning": "Known family contact. Casual tone consistent with established relationship. No requests, no pressure."
+    },
+    {
+      "id": "legit_2",
+      "sender": "saitama_clinic@hospital.jp",
+      "content": "山田花子様、次回の定期検診は6月15日（日）10:00です。ご都合が悪い場合はお電話ください。さいたま中央クリニック",
+      "content_en": "Yamada Hanako-sama, your next regular checkup is June 15 (Sun) at 10:00. Please call if this doesn't work. Saitama Central Clinic",
+      "classification": "safe",
+      "risk_score": 0.02,
+      "detected_signals": [],
+      "reasoning": "Appointment reminder from a medical provider. Contains personal info (name, date) but is a standard transactional message. No financial content."
+    },
+    {
+      "id": "legit_3",
+      "sender": "tanaka_taro_real@docomo.ne.jp",
+      "content": "花子さん、太郎です。先日は美味しいお漬物をありがとうございました。家内も大変喜んでおりました。また町内会でお会いしましょう。",
+      "content_en": "Hanako-san, this is Taro. Thank you for the delicious pickles the other day. My wife was very pleased. Let's meet again at the neighborhood association.",
+      "classification": "safe",
+      "risk_score": 0.03,
+      "detected_signals": [],
+      "reasoning": "Message from the actual Tanaka Taro (the father the scammer claims). Casual, reciprocal, references shared real-world context (pickles, neighborhood association). No requests."
+    }
+  ],
+
+  "metrics": {
+    "description": "Key metrics this scenario demonstrates for judges",
+    "scam_detection_accuracy": "Day 5 catches the contradiction (4 days before money request)",
+    "false_positive_rate": "0/3 legitimate messages incorrectly flagged",
+    "outbound_interception": "Caught bank account + PIN before transmission",
+    "early_warning_days": 2,
+    "total_messages_analyzed": 10,
+    "messages_blocked": 1,
+    "outbound_messages_held": 1
+  }
+}
