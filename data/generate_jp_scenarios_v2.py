@@ -1,0 +1,994 @@
+#!/usr/bin/env python3
+"""
+Generate expanded Japanese scam scenario corpus (v2).
+
+9 NPA patterns × (15 scam + 3 legitimate) = 162 total entries.
+Each pattern has 5 obvious, 5 moderate, 5 sophisticated scam examples
+plus 3 tricky_negative legitimate counterparts.
+
+Signals (PM-1..PM-13):
+  PM-1  urgency_language
+  PM-2  secrecy_demand
+  PM-3  financial_solicitation
+  PM-4  authority_claim
+  PM-5  unusual_payment_method
+  PM-6  legal_threat
+  PM-7  credential_solicitation
+  PM-8  prize_notification
+  PM-9  refund_lure
+  PM-10 emotional_crisis
+  PM-11 identity_claim
+  PM-12 flattery_density
+  PM-13 spf_dkim_fail
+"""
+
+import json
+import pathlib
+
+OUTPUT = pathlib.Path(__file__).resolve().parent / "processed" / "jp_scenarios_v2.jsonl"
+
+# ── scenario data ────────────────────────────────────────────────────────────
+
+SCENARIOS = []
+
+def _id(n: int) -> str:
+    return f"npa_v2_{n:03d}"
+
+_counter = 0
+
+def _next_id() -> str:
+    global _counter
+    _counter += 1
+    return _id(_counter)
+
+def scam(slug, difficulty, text, text_en, signals):
+    SCENARIOS.append({
+        "id": _next_id(),
+        "source": "synthetic_npa_v2",
+        "text": text,
+        "text_en": text_en,
+        "label": "scam",
+        "scam_type": slug,
+        "language": "ja",
+        "difficulty": difficulty,
+        "signals": signals,
+    })
+
+def safe(slug, text, text_en, signals=None):
+    SCENARIOS.append({
+        "id": _next_id(),
+        "source": "synthetic_npa_v2",
+        "text": text,
+        "text_en": text_en,
+        "label": "safe",
+        "scam_type": slug,
+        "language": "ja",
+        "difficulty": "tricky_negative",
+        "signals": signals or [],
+    })
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 1. ore-ore-sagi — Impersonation fraud (オレオレ詐欺)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("ore-ore-sagi", "obvious",
+     "もしもし、おれだよ、おれ！大変なことになった。会社の金を使い込んでしまって、今日中に200万円返さないとクビになる。誰にも言わないで、今すぐ振り込んでくれ！口座番号は...",
+     "Hello, it's me, me! Something terrible happened. I embezzled company money and need to return 2 million yen today or I'll be fired. Don't tell anyone, wire it now! The account number is...",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+scam("ore-ore-sagi", "obvious",
+     "おれおれ、聞こえる？事故を起こして相手が怪我した。示談金100万円を今すぐ払わないと逮捕される。頼むから助けて。口座番号言うから振り込んで。",
+     "It's me, can you hear me? I caused an accident and the other person is injured. I need to pay 1 million yen in settlement now or I'll be arrested. Please help. I'll give you the account number, wire it.",
+     ["PM-1", "PM-3", "PM-6", "PM-10", "PM-11"])
+
+scam("ore-ore-sagi", "obvious",
+     "母さん、おれだけど、友達の借金の保証人になっちゃって、今日中に50万円払わないとヤバいことになる。絶対に父さんには言わないで。すぐ振り込んで！",
+     "Mom, it's me, I became a guarantor for a friend's debt and I need to pay 500,000 yen today or things will get bad. Don't tell dad. Wire it immediately!",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+scam("ore-ore-sagi", "obvious",
+     "もしもし、おれだよ。会社のお金を横領してバレた。警察に通報される前に300万円返さないと。今すぐATMで振り込んでくれ。誰にも言うなよ。",
+     "Hello, it's me. I embezzled company money and got caught. I need to return 3 million yen before they report to police. Go to the ATM and wire it now. Don't tell anyone.",
+     ["PM-1", "PM-2", "PM-3", "PM-6", "PM-10", "PM-11"])
+
+scam("ore-ore-sagi", "obvious",
+     "お母さん、助けて！喧嘩して相手を怪我させちゃった。相手が50万円払わないと警察に言うって。急いで！口座番号はこれ。お父さんには内緒で。",
+     "Mom, help! I got into a fight and hurt someone. They say they'll go to the police if I don't pay 500,000 yen. Hurry! Here's the account number. Keep it secret from dad.",
+     ["PM-1", "PM-2", "PM-3", "PM-6", "PM-10", "PM-11"])
+
+# --- moderate (5) ---
+scam("ore-ore-sagi", "moderate",
+     "お母さん、携帯の番号が変わったから登録し直して。実は相談があるんだけど、仕事で取引先に迷惑をかけてしまって、弁護士費用が必要になった。明日までに150万円用意できない？上司の田中さんから連絡が行くかもしれない。",
+     "Mom, my phone number changed so please re-register it. I actually need to talk - I caused problems with a client at work and need lawyer fees. Can you prepare 1.5 million yen by tomorrow? My boss Mr. Tanaka might contact you.",
+     ["PM-1", "PM-3", "PM-10", "PM-11"])
+
+scam("ore-ore-sagi", "moderate",
+     "お母さん、俺だけど、声が変なのは風邪で。実は会社の同僚と揉めてしまって、相手が弁護士を立てるって言ってる。和解金として80万円必要なんだけど、明後日までに用意できる？恥ずかしいから親父には言わないでほしいんだけど。",
+     "Mom, it's me, my voice sounds off because of a cold. I had a dispute with a colleague and they're getting a lawyer. I need 800,000 yen for settlement by the day after tomorrow. It's embarrassing so please don't tell dad.",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+scam("ore-ore-sagi", "moderate",
+     "お母さん、番号変わったんだ。ちょっと困ったことになって。会社のパソコンから顧客データを間違って流出させてしまった。損害賠償を個人で払わないといけなくて、120万円を今週中に用意しなきゃいけないんだ。会社の上の人から直接連絡するかも。",
+     "Mom, my number changed. I'm in trouble. I accidentally leaked customer data from my work computer. I have to pay damages personally - 1.2 million yen by this week. Someone senior from the company might contact you directly.",
+     ["PM-1", "PM-3", "PM-10", "PM-11"])
+
+scam("ore-ore-sagi", "moderate",
+     "親父、俺だけど。声が変なのは喉を痛めたから。実は交通事故を起こして相手が入院した。保険が効かない分の治療費を先に立て替えないといけなくて、50万円必要なんだ。相手の弁護士の先生の口座に振り込んでほしい。母さんに心配かけたくないから内緒で頼む。",
+     "Dad, it's me. My voice sounds strange because I hurt my throat. I caused a car accident and the other person is hospitalized. I need to advance 500,000 yen for treatment not covered by insurance. Please wire it to the other party's lawyer's account. I don't want mom to worry so keep it secret.",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+scam("ore-ore-sagi", "moderate",
+     "お母さん、携帯を新しくしたから番号が変わった。登録してね。それで相談なんだけど、取引先の接待で使った経費が会社に認められなくて、自腹で払うことになった。30万円なんだけど、来月のボーナスで返すから立て替えてもらえない？振込先は幹事の高橋さんの口座で。",
+     "Mom, I got a new phone so my number changed. Please save it. Actually I need advice - entertainment expenses for a client weren't approved by the company, so I have to pay out of pocket. It's 300,000 yen - I'll pay you back from next month's bonus. The transfer goes to the organizer Takahashi's account.",
+     ["PM-3", "PM-11"])
+
+# --- sophisticated (5) ---
+scam("ore-ore-sagi", "sophisticated",
+     "お母さん、健太だけど、声が変なのは風邪ひいてるから。先週話した新しいプロジェクトの件で、取引先への前払い金が必要になってしまった。自分の貯金だけじゃ足りなくて。会社の経理の山田から詳しい説明の電話をさせるから、少し待っていてくれる？金額は80万円なんだけど...",
+     "Mom, it's Kenta, my voice sounds weird because I have a cold. About the new project I mentioned last week - I need an advance payment for a client. My savings aren't enough. I'll have Yamada from accounting call you with details, can you wait? The amount is 800,000 yen...",
+     ["PM-3", "PM-11"])
+
+scam("ore-ore-sagi", "sophisticated",
+     "お母さん、健一です。先日話した名古屋への転勤の件、引っ越し代と敷金礼金で思ったより費用がかかることになった。会社から一部補助は出るんだけど、差額の45万円を先に立て替えないといけなくて。来月の給料日に返すから、不動産屋さんの口座に振り込んでもらえると助かるんだけど。後で仲介の鈴木さんから確認の電話が入ると思う。",
+     "Mom, it's Kenichi. About the Nagoya transfer I mentioned - the moving costs and deposits are more than expected. The company covers part of it, but I need to advance the 450,000 yen difference. I'll pay you back on payday next month. It would help if you could wire it to the real estate agent's account. The agent Mr. Suzuki should call you to confirm later.",
+     ["PM-3", "PM-11"])
+
+scam("ore-ore-sagi", "sophisticated",
+     "お母さん、拓也です。この前言ってた後輩の結婚式のご祝儀の件なんだけど、実はもう一つ相談があって。会社で使ってるリース機器を誤って破損してしまって、保険の免責分として15万円を自己負担しないといけないことになった。今月カードの支払いが多くて厳しいんだ。総務経由で支払うから、総務の佐藤さんの口座に振り込んでもらえる？来月必ず返す。",
+     "Mom, it's Takuya. About the wedding gift for my junior colleague I mentioned - I actually have another thing to discuss. I accidentally damaged leased equipment at work and need to pay 150,000 yen as the insurance deductible. My credit card bills are high this month. I'll pay through general affairs, so could you wire it to Sato in general affairs' account? I'll definitely repay next month.",
+     ["PM-3", "PM-11"])
+
+scam("ore-ore-sagi", "sophisticated",
+     "お母さん、雄介だけど。先月の人間ドックの結果で再検査が必要になって、専門のクリニックを紹介されたんだけど、自由診療で保険が効かないんだ。検査費用が35万円で、来週の予約を取ってしまったんだけど、貯金が足りなくて。クリニックの口座に直接振り込んでもらえると助かるんだけど。後で病院の事務の方から振込先の確認電話があると思う。",
+     "Mom, it's Yusuke. My annual checkup results require further testing, and I was referred to a specialist clinic, but it's not covered by insurance since it's elective care. The exam costs 350,000 yen and I already booked it for next week, but my savings aren't enough. It would help if you could wire it directly to the clinic's account. The hospital admin should call to confirm the transfer details later.",
+     ["PM-3", "PM-11"])
+
+scam("ore-ore-sagi", "sophisticated",
+     "お母さん、直樹です。実は恥ずかしい話なんだけど、後輩を連れて行った居酒屋で会計をカードで払おうとしたら限度額を超えてて、お店に迷惑をかけてしまった。翌日までに現金で払うって約束したんだけど、給料日前で手持ちがなくて。8万円なんだけど、店長の佐々木さんの口座に振り込んでもらえないかな。明細は今度実家に帰った時に見せるから。来月のボーナスで返す。",
+     "Mom, it's Naoki. This is embarrassing but I took my juniors to an izakaya and my card was over the limit at checkout, causing trouble for the restaurant. I promised to pay cash by the next day but I have no cash before payday. It's 80,000 yen - could you wire it to the manager Sasaki's account? I'll show you the receipt when I visit home. I'll repay from next month's bonus.",
+     ["PM-3", "PM-11"])
+
+# --- legitimate (3) ---
+safe("ore-ore-sagi",
+     "お母さん、健太です。来月の結婚式の件で相談したいことがあるんだけど、今度の日曜日に実家に行ってもいい？美咲も一緒に行くから。",
+     "Mom, it's Kenta. I want to discuss something about next month's wedding - can I come home this Sunday? Misaki will come too.",
+     ["PM-11"])
+
+safe("ore-ore-sagi",
+     "お母さん、携帯を落として修理に出してるから、今週はこの番号にかけてね。新しい番号は090-1234-5678。修理費は自分で払うから心配しないで。日曜の夕飯、何時に行けばいい？",
+     "Mom, I dropped my phone and it's being repaired, so call this number this week. New number is 090-1234-5678. I'll pay the repair fee myself so don't worry. What time should I come for Sunday dinner?",
+     ["PM-11"])
+
+safe("ore-ore-sagi",
+     "親父、来月の誕生日なにがほしい？母さんと相談して決めるから教えて。あと正月は3日に帰るから、いつもの駅まで迎えに来てもらえると助かる。",
+     "Dad, what do you want for your birthday next month? I'll discuss with mom and decide. Also I'll come home on the 3rd for New Year's - could you pick me up at the usual station?",
+     ["PM-11"])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 2. fake-grandchild — Fake grandchild (孫を装った詐欺)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("fake-grandchild", "obvious",
+     "おばあちゃん、大変！友達に借りたお金を今日返さないと大変なことになる。30万円を今すぐ振り込んで。お母さんには内緒にして。口座番号は...",
+     "Grandma, it's terrible! I need to pay back money I borrowed from a friend today or I'll be in big trouble. Wire 300,000 yen now. Don't tell mom. The account number is...",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+scam("fake-grandchild", "obvious",
+     "おじいちゃん、おれだよ、孫の翔太！携帯壊れて番号変わった。今すぐ20万円必要なんだ。友達にお金借りてて今日返さないと殴られる。お母さんに言わないで、振り込んで！",
+     "Grandpa, it's me, your grandson Shota! My phone broke and my number changed. I need 200,000 yen right now. I borrowed money from a friend and they'll beat me up if I don't pay today. Don't tell mom, wire it!",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+scam("fake-grandchild", "obvious",
+     "おばあちゃん、助けて！バイクで事故起こしちゃって相手が怒ってる。50万円払えって言われてる。今日中に払わないと警察に言うって。お母さんに言わないで！",
+     "Grandma, help! I caused a motorcycle accident and the other person is furious. They want 500,000 yen. They'll go to the police if I don't pay today. Don't tell mom!",
+     ["PM-1", "PM-2", "PM-3", "PM-6", "PM-10", "PM-11"])
+
+scam("fake-grandchild", "obvious",
+     "おじいちゃん、やばい！学校の教材費20万円を使い込んじゃった。今日先生に返さないと退学になる。すぐ振り込んで。親には絶対言わないで。",
+     "Grandpa, I'm in trouble! I spent the 200,000 yen school materials fee. If I don't return it to my teacher today I'll be expelled. Wire it now. Absolutely don't tell my parents.",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+scam("fake-grandchild", "obvious",
+     "おばあちゃん、俺だよ。彼女を妊娠させちゃって、相手の親が100万円払えって言ってる。今日中に解決しないと大事になる。お母さんに知られたら終わりだから内緒で頼む。",
+     "Grandma, it's me. I got my girlfriend pregnant and her parents demand 1 million yen. It'll blow up if not resolved today. If mom finds out it's over, so keep it secret please.",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+# --- moderate (5) ---
+scam("fake-grandchild", "moderate",
+     "おじいちゃん、翔太だけど。大学のサークルの合宿費を払い忘れてて、幹事の先輩に立て替えてもらったんだけど、今週中に返さないとまずいんだ。12万円なんだけど、来月のバイト代で必ず返すから、一旦助けてくれない？先輩の口座に直接振り込んでほしいんだけど。お母さんに言うと怒られるから...",
+     "Grandpa, it's Shota. I forgot to pay for the college club retreat and a senior covered it for me, but I need to pay them back this week. It's 120,000 yen - I'll definitely pay you back from next month's part-time job earnings. Can you help? I need it wired directly to the senior's account. If mom finds out she'll be angry...",
+     ["PM-1", "PM-2", "PM-3", "PM-11"])
+
+scam("fake-grandchild", "moderate",
+     "おばあちゃん、美咲だけど。バイト先でレジのお金が合わなくて、私が疑われてるの。不足分の8万円を今週中に補填しないとクビになっちゃう。お母さんには心配かけたくないから言わないでほしいんだけど、店長さんの口座に振り込んでもらえない？",
+     "Grandma, it's Misaki. The register was short at my part-time job and they suspect me. I need to cover the 80,000 yen shortage by this week or I'll be fired. I don't want mom to worry so please don't tell her. Could you wire it to the manager's account?",
+     ["PM-1", "PM-2", "PM-3", "PM-10", "PM-11"])
+
+scam("fake-grandchild", "moderate",
+     "おじいちゃん、大輝だよ。友達と旅行に行った時にホテルの備品を壊しちゃって、弁償しないといけないんだ。15万円なんだけど、ホテルから請求書が来てて来週までに払わないとまずいんだ。バイト代入ったら返すから、立て替えてもらえないかな。親にバレたら怒られるから...",
+     "Grandpa, it's Daiki. I broke hotel property during a trip with friends and need to pay for it. It's 150,000 yen and the hotel bill is due next week. I'll repay when I get my part-time pay. Can you cover it? My parents would be angry if they found out...",
+     ["PM-1", "PM-2", "PM-3", "PM-11"])
+
+scam("fake-grandchild", "moderate",
+     "おばあちゃん、翔太です。実は大学の授業料の追加分が発生して、25万円を今月末までに払わないと履修登録が取り消されるんだ。奨学金の申請が間に合わなくて。お母さんに言ったら余計な心配かけるから、とりあえず立て替えてくれないかな。大学の事務局の口座に直接振り込んでほしいんだけど。",
+     "Grandma, it's Shota. Additional tuition fees came up and I need to pay 250,000 yen by the end of this month or my course registration will be cancelled. My scholarship application didn't make it in time. Telling mom would just worry her, so could you cover it for now? I'd like you to wire it directly to the university office's account.",
+     ["PM-1", "PM-2", "PM-3", "PM-11"])
+
+scam("fake-grandchild", "moderate",
+     "おじいちゃん、美咲です。実は引っ越しすることになったんだけど、初期費用が思ったより高くて困ってるの。敷金と礼金で18万円必要なんだけど、今月のバイト代だけじゃ足りなくて。不動産屋さんの口座に直接振り込んでもらえると助かるんだけど。お母さんにはまだ引っ越しのこと言ってないから内緒にしてほしいの。",
+     "Grandpa, it's Misaki. I'm moving but the initial costs are higher than expected. I need 180,000 yen for the deposit and key money, but my part-time earnings aren't enough. It would help if you could wire it directly to the real estate agent's account. I haven't told mom about the move yet so please keep it secret.",
+     ["PM-2", "PM-3", "PM-11"])
+
+# --- sophisticated (5) ---
+scam("fake-grandchild", "sophisticated",
+     "おばあちゃん、美咲です。ごめんね突然。実は先月の研修旅行で会社のカメラを壊してしまって、弁償しなきゃいけないの。新品で28万円って言われて。分割で払うことになったんだけど、最初の一回目の10万円を今週金曜までに払わないといけなくて。恥ずかしくてお母さんに言えなくて...。来月と再来月のお給料から絶対返すから。総務の中川さんの口座に直接振り込んでもらえると助かるんだけど。本当にごめんね。",
+     "Grandma, it's Misaki. Sorry for the sudden call. I broke a company camera during last month's training trip and need to pay for it. They said a new one costs 280,000 yen. I'm paying in installments, but the first 100,000 yen is due this Friday. I'm too embarrassed to tell mom... I'll definitely pay you back from next two months' salary. It would help if you could wire it directly to Nakagawa in general affairs' account. I'm really sorry.",
+     ["PM-2", "PM-3", "PM-11"])
+
+scam("fake-grandchild", "sophisticated",
+     "おじいちゃん、翔太です。お元気ですか。実はちょっと困ったことがあって相談したくて。先月の就活で最終面接まで行った会社があるんだけど、内定が出た場合に必要な資格の取得費用が20万円かかるんだ。貯金が留学で使い切ってしまって。就職が決まればすぐ返せるから、一時的に立て替えてもらえないかな。資格学校の口座に直接振り込みたいんだけど。お母さんには就活のことまだ詳しく話してないから。",
+     "Grandpa, it's Shota. How are you? I'm in a bit of a bind and wanted to ask for help. A company I reached the final interview round with last month requires a certification that costs 200,000 yen if I get the offer. I used up my savings studying abroad. I can repay as soon as I'm employed, so could you advance it temporarily? I'd like to wire it directly to the certification school's account. I haven't told mom the details about my job search yet.",
+     ["PM-2", "PM-3", "PM-11"])
+
+scam("fake-grandchild", "sophisticated",
+     "おばあちゃん、大輝です。先日はお誕生日のお祝いありがとう。実は相談があるんだけど、卒業研究で使う実験機材を誤って壊してしまって、教授から弁償するように言われたんだ。精密機器だから32万円もするんだけど、最初に半額の16万円を来週までに払わないといけなくて。奨学金の返済もあるし、バイト代だけじゃ全然足りない。研究室の教授の口座に直接振り込んでほしいんだけど。卒業に関わることだからお母さんには心配かけたくないんだ。",
+     "Grandma, it's Daiki. Thanks for the birthday gift the other day. I need to ask for help - I accidentally broke lab equipment for my thesis research and the professor told me to pay for it. It's precision equipment costing 320,000 yen, and I need to pay half - 160,000 yen - by next week. Between student loan payments and part-time earnings, I can't cover it. I'd like you to wire it directly to the professor's account. It affects my graduation so I don't want mom to worry.",
+     ["PM-2", "PM-3", "PM-11"])
+
+scam("fake-grandchild", "sophisticated",
+     "おじいちゃん、美咲です。お盆に帰れなくてごめんね。実は入社2年目で初めて一人で担当したプロジェクトで、見積もりミスをしてしまって。お客様に追加費用をお願いできない分を自腹で補填することになったの。金額は25万円で、今月末の決算までに処理しないといけなくて。上司の木村さんが立て替えてくれてるんだけど、早く返さないと申し訳なくて。木村さんの口座に直接振り込んでもらえるとありがたいんだけど。来月から分割で必ず返すから。",
+     "Grandpa, it's Misaki. Sorry I couldn't make it home for Obon. In my second year at work, I made an estimate error on my first solo project. I have to cover the extra cost the client can't be charged for - 250,000 yen, which needs to be settled by the end-of-month closing. My supervisor Mr. Kimura is covering it for now, but I feel terrible not repaying quickly. It would be great if you could wire it directly to Kimura's account. I'll definitely repay in installments starting next month.",
+     ["PM-2", "PM-3", "PM-11"])
+
+scam("fake-grandchild", "sophisticated",
+     "おばあちゃん、翔太です。今度の連休に会いに行こうと思ってるんだけど、その前にちょっと相談。実は先月スマホを落としてデータ復旧に出したら、中に入ってた友達との共有アプリの課金データが消えて、友達3人分の課金額を弁償しないといけなくなって。一人5万円の計15万円で、今月中に返すって約束しちゃったんだ。立て替えてもらえないかな。友達の口座に直接振り込みたいんだけど。次帰った時にちゃんと返すから。お母さんにはスマホ壊したこと怒られるから内緒で。",
+     "Grandma, it's Shota. I'm thinking of visiting during the upcoming holiday, but first a favor. I dropped my phone last month and when I got data recovery, my friends' shared app payment data was lost, so I need to reimburse 3 friends. That's 50,000 yen each, 150,000 yen total, and I promised to pay by this month. Can you advance it? I'd like to wire directly to my friends' accounts. I'll properly repay when I visit next. Mom would scold me for breaking my phone so keep it secret.",
+     ["PM-2", "PM-3", "PM-11"])
+
+# --- legitimate (3) ---
+safe("fake-grandchild",
+     "おばあちゃん、翔太です。来週の土曜日、美咲と一緒に遊びに行くね。何か食べたいものある？お土産持っていくから楽しみにしててね。",
+     "Grandma, it's Shota. I'll visit next Saturday with Misaki. Anything you want to eat? I'll bring souvenirs, so look forward to it!",
+     ["PM-11"])
+
+safe("fake-grandchild",
+     "おじいちゃん、美咲です。大学の学費の件でお母さんから聞いたんだけど、援助してくれるって本当？ありがとう、すごく助かる。振込先は大学の口座で、お母さんが書類持ってるから、お母さんに確認してね。春休みに絶対会いに行くから！",
+     "Grandpa, it's Misaki. Mom told me about the tuition - is it true you'll help? Thank you so much. The transfer goes to the university's account - mom has the documents, so check with her. I'll definitely visit during spring break!",
+     ["PM-11"])
+
+safe("fake-grandchild",
+     "おばあちゃん、大輝です。卒業式の日程が決まったよ。3月15日の10時から。お母さんとおじいちゃんも一緒に来てくれる？席を確保するから人数教えてね。",
+     "Grandma, it's Daiki. My graduation date is set - March 15th at 10 AM. Will you and grandpa come with mom? Let me know how many seats to reserve.",
+     ["PM-11"])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 3. fictitious-billing — Fictitious billing (架空請求)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("fictitious-billing", "obvious",
+     "【重要】未払い料金のお知らせ。有料コンテンツの利用料金39,800円が未納です。本日中にお支払いいただけない場合、法的措置を取らせていただきます。至急下記番号にお電話ください。03-XXXX-XXXX",
+     "[IMPORTANT] Unpaid fee notice. Your premium content usage fee of 39,800 yen is unpaid. Legal action will be taken if not paid today. Call immediately: 03-XXXX-XXXX",
+     ["PM-1", "PM-3", "PM-6"])
+
+scam("fictitious-billing", "obvious",
+     "【最終通告】動画サイト利用料金98,000円が未納です。24時間以内にお支払いなき場合、裁判所に訴状を提出します。今すぐお電話ください。0120-XXX-XXX",
+     "[FINAL NOTICE] Video site usage fee of 98,000 yen is unpaid. If not paid within 24 hours, we will file a lawsuit. Call now: 0120-XXX-XXX",
+     ["PM-1", "PM-3", "PM-6"])
+
+scam("fictitious-billing", "obvious",
+     "【警告】有料サイト登録料金45,000円のお支払いが確認できません。本日17時までにコンビニでお支払いください。払込票番号：XXXXXXX。支払いがない場合、自宅に回収業者を派遣します。",
+     "[WARNING] Payment of 45,000 yen site registration fee not confirmed. Pay at a convenience store by 5 PM today. Payment slip: XXXXXXX. If unpaid, a collection agent will be sent to your home.",
+     ["PM-1", "PM-3", "PM-5", "PM-6"])
+
+scam("fictitious-billing", "obvious",
+     "【緊急】アダルトサイトの退会処理が完了しておりません。違約金として58,000円が発生しています。至急お電話にてご確認ください。放置すると勤務先に通知されます。03-XXXX-XXXX",
+     "[URGENT] Adult site cancellation not processed. Penalty of 58,000 yen incurred. Confirm by phone immediately. If ignored, your employer will be notified. 03-XXXX-XXXX",
+     ["PM-1", "PM-3", "PM-6"])
+
+scam("fictitious-billing", "obvious",
+     "【重要なお知らせ】インターネットサービスの未納料金72,000円について。法的措置移行予定日：本日。早急にギフトカードにてお支払いください。Apple Gift Card希望。番号をメールで送信してください。",
+     "[IMPORTANT NOTICE] Regarding 72,000 yen unpaid internet service fee. Legal action transition date: today. Pay urgently via gift card. Apple Gift Card preferred. Send the number by email.",
+     ["PM-1", "PM-3", "PM-5", "PM-6"])
+
+# --- moderate (5) ---
+scam("fictitious-billing", "moderate",
+     "【NTTファイナンス】ご利用料金について確認事項がございます。お客様番号：TK-298374。2024年1月分の通信料に追加請求が発生しております。詳細確認および精算手続きのため、本日15時までに下記カスタマーセンターまでご連絡ください。0120-XXX-XXX",
+     "[NTT Finance] We need to confirm your usage fees. Customer ID: TK-298374. Additional charges for January 2024 communications have been generated. Please contact our customer center by 3 PM today for details and settlement. 0120-XXX-XXX",
+     ["PM-1", "PM-3", "PM-4"])
+
+scam("fictitious-billing", "moderate",
+     "【総務省認定・消費者保護センター】契約トラブル通知（案件番号：C-2024-5587）。お客様名義で登録されたサブスクリプションサービスに未払い残高68,500円が確認されました。異議のない場合、指定口座へのお振込みをお願いいたします。窓口：0570-XXX-XXX",
+     "[Ministry of Internal Affairs certified - Consumer Protection Center] Contract dispute notice (Case: C-2024-5587). An unpaid balance of 68,500 yen has been found on a subscription registered under your name. If no objection, please wire to the designated account. Contact: 0570-XXX-XXX",
+     ["PM-3", "PM-4", "PM-6"])
+
+scam("fictitious-billing", "moderate",
+     "【Amazon カスタマーサービス】お客様のアカウントにて不正利用が検出されました。未承認の購入（合計85,200円）が発生しています。返金手続きのため、以下のリンクよりログインし、本人確認を行ってください。https://amaz0n-verify.example.com",
+     "[Amazon Customer Service] Unauthorized use detected on your account. Unapproved purchases totaling 85,200 yen. To process a refund, log in via the link below and verify your identity. https://amaz0n-verify.example.com",
+     ["PM-3", "PM-4", "PM-7"])
+
+scam("fictitious-billing", "moderate",
+     "【ソフトバンク料金センター】お客様のご契約プランに関するお知らせ。オプションサービス「プレミアム動画パック」の無料期間が終了し、過去3ヶ月分の利用料金29,700円が未精算です。精算のため本日中にカスタマーセンターまでご連絡ください。0800-XXX-XXX",
+     "[SoftBank Billing Center] Notice regarding your plan. The free trial for the 'Premium Video Pack' option has ended and 3 months of usage fees totaling 29,700 yen are unsettled. Please contact customer center today to settle. 0800-XXX-XXX",
+     ["PM-1", "PM-3", "PM-4"])
+
+scam("fictitious-billing", "moderate",
+     "【法務省認可 債権回収株式会社】通知番号：HS-R6-33891。貴殿の電子消費者契約に基づく未払い債権について、債権者より回収委託を受理いたしました。請求額：125,000円。本書面到達後5営業日以内にお支払いなき場合、訴訟手続きに移行いたします。",
+     "[Ministry of Justice authorized Debt Collection Co.] Notice: HS-R6-33891. We have been commissioned to collect unpaid debts from your electronic consumer contract. Amount: 125,000 yen. If not paid within 5 business days of receipt, litigation will proceed.",
+     ["PM-1", "PM-3", "PM-4", "PM-6"])
+
+# --- sophisticated (5) ---
+scam("fictitious-billing", "sophisticated",
+     "【総務省管轄・電気通信事業者協会】通信サービス利用に関する重要通知（整理番号：R6-TC-00847）。貴殿の契約回線において、規約違反に該当する利用が検出されました。放置された場合、回線停止および損害賠償請求の対象となります。異議申立期間は本通知到達から48時間です。担当：佐藤（内線2847）",
+     "[Ministry of Internal Affairs - Telecom Association] Important notice regarding telecom usage (Ref: R6-TC-00847). Unauthorized usage violating terms has been detected on your contracted line. Failure to respond will result in line suspension and damages claim. Objection period: 48 hours from receipt. Contact: Sato (ext. 2847)",
+     ["PM-1", "PM-4", "PM-6"])
+
+scam("fictitious-billing", "sophisticated",
+     "【三菱UFJニコス株式会社】カード利用に関する重要なお知らせ（通知番号：MU-2024-CR-8842）。お客様のクレジットカード（末尾3847）にて、海外加盟店での高額決済（298,000円）が検出されました。ご本人様の利用でない場合、不正利用届出の手続きが必要です。下記URLより24時間以内にお手続きください。https://mufg-nic0s-secure.example.com/verify",
+     "[Mitsubishi UFJ NICOS] Important card usage notice (Ref: MU-2024-CR-8842). A high-value overseas transaction (298,000 yen) was detected on your card (ending 3847). If not your transaction, fraud reporting is required. Process via the URL below within 24 hours. https://mufg-nic0s-secure.example.com/verify",
+     ["PM-1", "PM-3", "PM-4", "PM-7"])
+
+scam("fictitious-billing", "sophisticated",
+     "【国民生活センター 紛争解決委員会】ADR（裁判外紛争解決）手続開始通知。事案番号：ADR-R6-1204。株式会社○○より、貴殿との電子商取引に関する紛争解決の申立てがありました。申立て内容：未払い利用料金187,000円の回収。本通知から14日以内に回答がない場合、申立人の主張が認容されたものとして処理いたします。回答書の提出先および詳細は下記までお問い合わせください。",
+     "[National Consumer Affairs Center, Dispute Resolution Committee] ADR proceeding initiation notice. Case: ADR-R6-1204. XX Corporation has filed for dispute resolution regarding e-commerce transactions with you. Claim: collection of 187,000 yen in unpaid fees. If no response within 14 days, the applicant's claim will be deemed accepted. Contact below for response submission details.",
+     ["PM-1", "PM-3", "PM-4", "PM-6"])
+
+scam("fictitious-billing", "sophisticated",
+     "【みずほ銀行 カードセキュリティ室】お取引確認のお願い（処理番号：MZ-SEC-24-0093）。不正利用モニタリングにおいて、お客様の口座より身に覚えのない引き落とし（43,800円×3回＝131,400円）が検出されました。お心当たりのない場合、補償手続きのため本人確認が必要です。お手数ですが、下記の専用ダイヤルまでお電話いただくか、セキュアページよりお手続きください。※本メールの真偽はみずほ銀行公式アプリでご確認いただけます。",
+     "[Mizuho Bank Card Security Office] Transaction verification request (Ref: MZ-SEC-24-0093). Fraud monitoring detected unrecognized withdrawals from your account (43,800 yen x 3 = 131,400 yen). If unrecognized, identity verification is needed for compensation. Please call the dedicated line below or process via the secure page. *Verify this email's authenticity through the official Mizuho Bank app.",
+     ["PM-3", "PM-4", "PM-7"])
+
+scam("fictitious-billing", "sophisticated",
+     "【東京地方裁判所 民事執行部】支払督促正本送達のお知らせ（事件番号：令和6年（ロ）第4528号）。債権者 株式会社デジタルコンテンツサービス より、貴殿に対する金銭債権（元本215,000円、遅延損害金32,250円、合計247,250円）について支払督促の申立てがありました。本送達から2週間以内に督促異議の申立てがない場合、仮執行宣言が付されます。異議申立書は当裁判所民事受付まで。",
+     "[Tokyo District Court, Civil Execution Division] Service of payment order (Case: Reiwa 6 (Ro) No. 4528). Creditor Digital Content Services Co. has filed a payment order against you for monetary claim (principal 215,000 yen, late damages 32,250 yen, total 247,250 yen). If no objection is filed within 2 weeks, a provisional execution declaration will be issued. Submit objections to the civil reception desk.",
+     ["PM-3", "PM-4", "PM-6"])
+
+# --- legitimate (3) ---
+safe("fictitious-billing",
+     "【NTTドコモ】今月のご利用料金が確定しました。ご請求額：8,542円。詳細はMy docomoアプリでご確認いただけます。お支払い期限：2月28日。※このメッセージに返信はできません。",
+     "[NTT docomo] Your monthly bill has been finalized. Amount: 8,542 yen. Check details on My docomo app. Payment due: Feb 28. *This message cannot be replied to.",
+     [])
+
+safe("fictitious-billing",
+     "【東京電力エナジーパートナー】電気料金のお支払いについてのご案内です。先月分の料金12,380円が口座振替日に引き落としができませんでした。お手数ですが、同封の振込用紙にて最寄りのコンビニエンスストアでお支払いください。",
+     "[TEPCO Energy Partner] Notice regarding electricity payment. Last month's charge of 12,380 yen could not be debited on the scheduled date. Please pay using the enclosed payment slip at your nearest convenience store.",
+     [])
+
+safe("fictitious-billing",
+     "【楽天カード】ご利用代金明細のお知らせ。今月のご請求額は35,287円です。お支払い日：2月27日。明細はアプリまたはe-NAVIでご確認いただけます。リボ払い変更締切：2月20日。",
+     "[Rakuten Card] Billing statement notice. This month's charge is 35,287 yen. Payment date: Feb 27. View details on the app or e-NAVI. Revolving payment change deadline: Feb 20.",
+     [])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 4. refund-scam — Refund scams (還付金詐欺)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("refund-scam", "obvious",
+     "市役所の保険課です。医療費の過払い分35,000円の還付金があります。今日が最終期限ですので、今すぐ最寄りのATMに行って手続きしてください。ATMの前に着いたらこの番号に電話してください。",
+     "This is the city hall insurance department. You have a 35,000 yen medical expense refund. Today is the final deadline, so please go to the nearest ATM immediately to process it. Call this number when you arrive at the ATM.",
+     ["PM-1", "PM-4", "PM-9"])
+
+scam("refund-scam", "obvious",
+     "年金事務所です。年金の払い過ぎ分50,000円をお返しします。今日中にATMで手続きしないと無効になります。キャッシュカードを持って今すぐATMに行ってください。",
+     "This is the pension office. We're returning 50,000 yen in overpaid pension. The process expires today unless done at an ATM. Take your cash card and go to the ATM immediately.",
+     ["PM-1", "PM-4", "PM-9"])
+
+scam("refund-scam", "obvious",
+     "税務署です。所得税の還付金28,000円があります。本日が締切です。ATMで受け取り手続きができます。今すぐ行ってください。着いたら電話してください。",
+     "This is the tax office. You have an income tax refund of 28,000 yen. Today is the deadline. You can process receipt at an ATM. Go immediately. Call when you arrive.",
+     ["PM-1", "PM-4", "PM-9"])
+
+scam("refund-scam", "obvious",
+     "健康保険組合です。高額医療費の還付金63,000円が未受領です。本日17時で権利が消滅します。急いでATMに行き、手続きしてください。操作方法はATM到着後にお電話で案内します。",
+     "This is the health insurance association. You have an unclaimed 63,000 yen high-cost medical refund. The right expires at 5 PM today. Hurry to the ATM for processing. We'll guide you through the steps by phone when you arrive.",
+     ["PM-1", "PM-4", "PM-9"])
+
+scam("refund-scam", "obvious",
+     "区役所の福祉課です。介護保険料の過払い分42,000円の還付があります。今日で締め切りなので、ATMで手続きしてください。暗証番号は電話で教えてください。",
+     "This is the ward office welfare department. You have a 42,000 yen overpaid nursing care insurance refund. Deadline is today, so process at the ATM. Tell us your PIN over the phone.",
+     ["PM-1", "PM-4", "PM-7", "PM-9"])
+
+# --- moderate (5) ---
+scam("refund-scam", "moderate",
+     "○○市 国民健康保険課の鈴木と申します。令和5年度の保険料の再計算を行いましたところ、28,400円の過払いが判明いたしました。還付のお手続きですが、締切が本日となっておりまして、銀行のATMでお手続きいただく必要がございます。キャッシュカードをお持ちになってお近くの銀行へお越しください。",
+     "This is Suzuki from XX City National Health Insurance. After recalculating your FY2023 premiums, we found an overpayment of 28,400 yen. The refund deadline is today, and you need to process it at a bank ATM. Please bring your cash card to the nearest bank.",
+     ["PM-1", "PM-4", "PM-9"])
+
+scam("refund-scam", "moderate",
+     "○○区役所 介護保険課の山本と申します。介護保険料の過誤納金についてご連絡いたしました。令和5年度分で15,600円の過払いがございます。通常は書面でのお手続きですが、年度末の関係で本日中にATMでお手続きいただく必要がございます。",
+     "This is Yamamoto from XX Ward Office, Long-term Care Insurance Division. I'm calling about overpaid nursing care premiums. There's a 15,600 yen overpayment for FY2023. Normally processed by mail, but due to fiscal year-end, ATM processing is needed today.",
+     ["PM-1", "PM-4", "PM-9"])
+
+scam("refund-scam", "moderate",
+     "社会保険庁の佐藤と申します。厚生年金の計算に誤りがあり、過去2年分の差額38,200円を還付いたします。金融機関の窓口は混雑しておりますので、ATMでの手続きをご案内しております。お近くのゆうちょ銀行のATMまでお越しいただけますか。",
+     "This is Sato from the Social Insurance Agency. There was a miscalculation in your employee pension, and we're refunding 38,200 yen for the past 2 years. Bank counters are crowded, so we recommend ATM processing. Could you go to the nearest Japan Post Bank ATM?",
+     ["PM-4", "PM-9"])
+
+scam("refund-scam", "moderate",
+     "○○市健康福祉局の中村でございます。新型コロナウイルス関連の特別給付金について、お客様に追加の支給分18,000円がございます。受取りの手続き期限が本日までとなっておりまして、お手数ですがATMでの受取り手続きをお願いしたく、ご連絡いたしました。",
+     "This is Nakamura from XX City Health and Welfare Bureau. Regarding COVID-related special benefits, you have an additional 18,000 yen payment. The claim deadline is today, so I'm calling to request ATM processing.",
+     ["PM-1", "PM-4", "PM-9"])
+
+scam("refund-scam", "moderate",
+     "後期高齢者医療広域連合の田中と申します。令和5年度の後期高齢者医療保険料について、所得更正により22,800円の過払いが判明いたしました。還付の手続きは通常郵送ですが、年度切替の関係で本日が最終期限となっております。ATMで還付手続きが可能ですので、キャッシュカードをご用意ください。",
+     "This is Tanaka from the Late-Stage Elderly Medical Care Association. Due to income correction, a 22,800 yen overpayment in FY2023 late-stage elderly medical premiums was found. Normally processed by mail, but today is the final deadline due to fiscal year transition. ATM refund processing is available - please have your cash card ready.",
+     ["PM-1", "PM-4", "PM-9"])
+
+# --- sophisticated (5) ---
+scam("refund-scam", "sophisticated",
+     "○○市保険年金課の高橋でございます。いつもお世話になっております。先日お送りいたしました還付通知書（通知番号：R6-HK-4521）の件でご連絡いたしました。書類の返送期限が過ぎておりますが、特別に本日中であれば電話でのお手続きが可能です。還付額は42,800円でございます。お手続きにはキャッシュカードが必要となりますので、ご用意の上、最寄りの金融機関のATMコーナーまでお越しいただけますでしょうか。ATMに着かれましたら、改めてご連絡ください。",
+     "This is Takahashi from XX City Insurance & Pension Division. Thank you for your continued patronage. I'm calling about the refund notice (Ref: R6-HK-4521) we sent previously. The document return deadline has passed, but as a special case, phone processing is available today. The refund is 42,800 yen. You'll need your cash card - could you please go to the ATM corner at your nearest financial institution? Please call back when you arrive.",
+     ["PM-4", "PM-9"])
+
+scam("refund-scam", "sophisticated",
+     "○○市役所 市民税課の渡辺でございます。確定申告の修正申告に基づき、住民税の過納分56,300円の還付が発生しております。先月お送りした還付請求書（整理番号：ZM-R6-2847）の返送が確認できておりません。年度末処理の関係上、本日が手続きの最終日となっております。ご多忙のところ恐れ入りますが、お近くの金融機関のATMにてお手続きいただけますでしょうか。操作につきましては、ATMに到着されましたらご案内いたします。",
+     "This is Watanabe from XX City Hall Resident Tax Division. Based on your amended tax return, a 56,300 yen residential tax overpayment refund has been generated. We haven't confirmed the return of the refund claim form (Ref: ZM-R6-2847) sent last month. Due to fiscal year-end processing, today is the final day. We apologize for the inconvenience, but could you process this at a nearby financial institution's ATM? We'll guide you through the steps when you arrive.",
+     ["PM-1", "PM-4", "PM-9"])
+
+scam("refund-scam", "sophisticated",
+     "○○年金事務所の小林でございます。大変お世話になっております。国民年金の免除期間に係る追納保険料の精算について確認させていただきたく、お電話いたしました。令和3年度分の保険料について、免除区分の適用誤りにより31,520円の過納が判明いたしました。通常は口座振込での還付となりますが、お届けの口座情報に不備がございまして、ATMでの手続きをお願いしております。",
+     "This is Kobayashi from XX Pension Office. Thank you for your patronage. I'm calling to confirm settlement of retroactive premiums for your national pension exemption period. Due to a misapplied exemption category for FY2021, a 31,520 yen overpayment was found. Normally refunded via bank transfer, but there's an issue with your registered account, so we're requesting ATM processing.",
+     ["PM-4", "PM-9"])
+
+scam("refund-scam", "sophisticated",
+     "○○区役所 高齢者福祉課の松田と申します。先日ご利用いただいた介護サービスの自己負担額について、高額介護サービス費の支給対象であることが判明いたしました。支給額は27,400円でございます。本来であれば申請書をご提出いただくところですが、システム移行の関係で一時的にATMでの受取り手続きをご案内しております。お手数をおかけいたしますが、お近くのみずほ銀行のATMまでお越しいただけますでしょうか。",
+     "This is Matsuda from XX Ward Office Senior Welfare Division. We've determined that your recent nursing care service copayment qualifies for high-cost nursing care benefits. The amount is 27,400 yen. Normally an application form is required, but due to system migration, we're temporarily directing ATM receipt processing. We apologize for the inconvenience, but could you visit a nearby Mizuho Bank ATM?",
+     ["PM-4", "PM-9"])
+
+scam("refund-scam", "sophisticated",
+     "○○厚生局の山下と申します。特定健康診査の受診費用の払い戻しについてご連絡いたしました。昨年度の特定健診で窓口負担が二重計上されており、差額の8,940円を還付させていただきます。本件は個別通知の対象ですが、郵便事故の報告が複数あり、お電話でのご案内となりました。還付手続きはATMで完了いたしますので、ご都合のよろしい時にお近くの金融機関へお越しください。なお、手続きの際にはこちらからお電話で操作をご案内いたします。",
+     "This is Yamashita from XX Regional Bureau of Health and Welfare. I'm calling about a refund for your specified health checkup costs. Your copayment was double-charged at last year's checkup, and we're refunding the 8,940 yen difference. This is subject to individual notification, but due to multiple postal incident reports, we're notifying by phone. The refund can be completed at an ATM - please visit a nearby financial institution when convenient. We'll guide the ATM operation by phone.",
+     ["PM-4", "PM-9"])
+
+# --- legitimate (3) ---
+safe("refund-scam",
+     "【○○市役所】確定申告に基づく住民税の還付について。還付額：15,200円。ご登録の銀行口座に4月15日に振り込み予定です。届出口座の変更をご希望の場合は、窓口にて変更届をご提出ください。問い合わせ：税務課 048-XXX-XXXX（平日9-17時）",
+     "[XX City Hall] Regarding residential tax refund based on your tax return. Refund: 15,200 yen. Scheduled for deposit to your registered bank account on April 15. To change your account, please submit a change form at the counter. Inquiries: Tax Division 048-XXX-XXXX (weekdays 9-17)",
+     [])
+
+safe("refund-scam",
+     "国税庁からのお知らせ：令和5年分の確定申告に基づく所得税の還付金について。還付予定額：23,450円。還付金は申告書に記載された金融機関の口座へ振り込まれます。振り込みまで約1ヶ月お待ちください。ご不明な点は管轄の税務署へお問い合わせください。",
+     "Notice from the National Tax Agency: Regarding income tax refund for FY2023 tax return. Expected refund: 23,450 yen. The refund will be deposited to the bank account specified in your return. Please allow approximately one month. Contact your local tax office with questions.",
+     [])
+
+safe("refund-scam",
+     "【○○健康保険組合】高額療養費の支給決定通知。支給額：48,730円。お届けの口座（ゆうちょ銀行 記号XXXXX 番号XXXXXXXX）に3月25日頃お振込みいたします。口座変更がある場合は組合窓口までご連絡ください。※ATMでの操作をお願いすることはございません。",
+     "[XX Health Insurance Association] High-cost medical expense payment decision notice. Amount: 48,730 yen. To be deposited to your registered account (Japan Post Bank) around March 25. Contact the association office for account changes. *We will never ask you to operate an ATM.",
+     [])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 5. lottery-prize — Lottery/prize fraud (当選通知詐欺)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("lottery-prize", "obvious",
+     "おめでとうございます！抽選で100万円が当選しました！受取手数料としてiTunesカード5万円分を購入し、コード番号をお送りください。",
+     "Congratulations! You won 1 million yen in a lottery! Please purchase 50,000 yen in iTunes cards and send us the codes as a receiving fee.",
+     ["PM-3", "PM-5", "PM-8"])
+
+scam("lottery-prize", "obvious",
+     "【当選通知】宝くじ特別抽選で500万円が当選しました！受取りには登録料3万円が必要です。コンビニで払込票でお支払いください。払込番号：XXXXXXX",
+     "[WINNING NOTICE] You won 5 million yen in a special lottery! Registration fee of 30,000 yen required for collection. Pay at convenience store. Payment number: XXXXXXX",
+     ["PM-3", "PM-5", "PM-8"])
+
+scam("lottery-prize", "obvious",
+     "あなたのメールアドレスが1,000万円の懸賞に当選しました！！今すぐ受取り手続きを。手数料として2万円をAmazonギフトカードで支払ってください。",
+     "Your email address won a 10 million yen prize!! Claim now. Pay 20,000 yen handling fee via Amazon gift cards.",
+     ["PM-1", "PM-3", "PM-5", "PM-8"])
+
+scam("lottery-prize", "obvious",
+     "【緊急】本日限り！あなたは現金300万円の当選者です！受け取り手続きは本日23:59まで。手続き費用10,000円を振り込んでください。口座番号は...",
+     "[URGENT] Today only! You are the winner of 3 million yen cash! Claim by 11:59 PM today. Wire 10,000 yen processing fee. Account number is...",
+     ["PM-1", "PM-3", "PM-8"])
+
+scam("lottery-prize", "obvious",
+     "当選おめでとうございます！海外宝くじで2,000万円が当選！日本円への換金手数料として8万円が必要です。至急お振込みください。振込先：○○銀行 普通 XXXXXXX",
+     "Congratulations on winning! You won 20 million yen in an overseas lottery! 80,000 yen currency conversion fee required. Wire immediately. Transfer to: XX Bank Savings XXXXXXX",
+     ["PM-1", "PM-3", "PM-8"])
+
+# --- moderate (5) ---
+scam("lottery-prize", "moderate",
+     "【○○百貨店 創業100周年記念キャンペーン】厳正なる抽選の結果、お客様に旅行券50万円分が当選いたしました！お受け取りには本人確認のため、事務手数料9,800円をお振込みいただく必要がございます。お振込み確認後、ご登録住所に旅行券をお届けいたします。",
+     "[XX Department Store 100th Anniversary Campaign] You've won 500,000 yen in travel vouchers through our lottery! To claim, an administrative fee of 9,800 yen must be wired for identity verification. Travel vouchers will be sent to your registered address after payment confirmation.",
+     ["PM-3", "PM-8"])
+
+scam("lottery-prize", "moderate",
+     "【公益財団法人 全国くじ振興協会】会員様限定抽選の結果、金賞（賞金100万円）にご当選されました。受取り手続きに際し、当選確認および送金手数料として15,000円のお支払いが必要です。お支払いはコンビニ決済にて承ります。手続き期限：3日以内。",
+     "[National Lottery Promotion Association] You've won the gold prize (1 million yen) in our members-only lottery. A 15,000 yen verification and transfer fee is required for claim processing. Payment via convenience store. Deadline: 3 days.",
+     ["PM-1", "PM-3", "PM-5", "PM-8"])
+
+scam("lottery-prize", "moderate",
+     "【○○テレビ 視聴者プレゼント企画】番組応募の中から厳正抽選を行い、お客様が最新4Kテレビ（市価35万円相当）に当選されました。景品のお届けに際し、配送保険料および税金処理費用として18,500円のお振込みをお願いいたします。",
+     "[XX TV Viewer Prize Campaign] Through strict lottery of program entries, you've won a latest 4K TV (worth 350,000 yen). A delivery insurance and tax processing fee of 18,500 yen must be wired for prize delivery.",
+     ["PM-3", "PM-8"])
+
+scam("lottery-prize", "moderate",
+     "【大手通販サイト ポイントくじ】お客様のポイント番号が特別抽選に当選し、現金30万円がお受け取りいただけます。受取り手続きとして、マネーロンダリング防止法に基づく本人確認費用12,000円をお支払いください。Google Playギフトカードでのお支払いも可能です。",
+     "[Major E-Commerce Points Lottery] Your points number won a special drawing - 300,000 yen cash awaits! Per anti-money laundering law, an identity verification fee of 12,000 yen is required. Google Play gift card payment accepted.",
+     ["PM-3", "PM-5", "PM-8"])
+
+scam("lottery-prize", "moderate",
+     "【○○自動車販売】歳末大感謝祭の抽選結果のお知らせ。お客様は特別賞（商品券20万円分）にご当選されました。おめでとうございます。お受け取りには当選確認書の郵送費および事務手数料として5,500円のお支払いが必要です。下記口座にお振込みください。",
+     "[XX Auto Sales] Year-end grand appreciation sale lottery results. You've won the special prize (200,000 yen gift certificates). Congratulations. A 5,500 yen postage and administrative fee is required for claim. Please wire to the account below.",
+     ["PM-3", "PM-8"])
+
+# --- sophisticated (5) ---
+scam("lottery-prize", "sophisticated",
+     "【一般社団法人 日本宝くじ協会】厳正なる電子抽選の結果、お客様のお電話番号が「令和6年度 新春特別くじ」の1等（賞金500万円）にご当選されましたことをお知らせいたします（当選番号：NS-R6-00042）。賞金のお受け取りに際しまして、所得税の一時所得に関する源泉徴収事務手数料として38,500円のお支払いが必要となります。国税庁の指導に基づくもので、賞金振込時に精算されます。お手続き期限は本通知日より7営業日以内です。",
+     "[Japan Lottery Association] Through strict electronic lottery, your phone number has won 1st prize (5 million yen) in the FY2024 New Year Special Lottery (Winning no: NS-R6-00042). For prize receipt, a withholding tax administrative fee of 38,500 yen is required per National Tax Agency guidance. This will be settled upon prize transfer. Processing deadline: 7 business days from this notice.",
+     ["PM-1", "PM-3", "PM-4", "PM-8"])
+
+scam("lottery-prize", "sophisticated",
+     "田中様、○○カード株式会社の小山でございます。弊社提携カード会員様限定の「プレミアム会員感謝抽選」の結果、田中様がゴールド賞（JTB旅行券80万円分）にご当選されました。大変おめでとうございます。賞品のお受け取りに際し、景品表示法に基づく届出手数料として25,000円のお支払いが必要です。通常のカード決済またはコンビニ払いにてお手続きいただけます。",
+     "Mr. Tanaka, this is Koyama from XX Card Corporation. You've won the Gold Prize (800,000 yen JTB travel vouchers) in our Premium Member Appreciation Lottery for affiliated cardholders. Congratulations. For prize receipt, a 25,000 yen filing fee is required under the Premiums and Representations Act. Payment by card or convenience store.",
+     ["PM-3", "PM-5", "PM-8"])
+
+scam("lottery-prize", "sophisticated",
+     "【○○銀行 資産運用部】お取引先様限定「資産形成応援キャンペーン」の厳正なる抽選の結果、お客様が特別賞に選出されましたことをご報告いたします。賞品は投資信託購入優待券100万円分です。お受け取りの手続きとして、NISA口座開設に伴う特別審査料19,800円をお振込みいただく必要がございます。なお、本審査料は初回買付時に全額キャッシュバックいたします。",
+     "[XX Bank Asset Management] We're pleased to report you've been selected as the special prize winner in our exclusive 'Asset Building Support Campaign' for valued clients. Prize: 1 million yen investment trust purchase voucher. A NISA account special screening fee of 19,800 yen must be wired. This fee will be fully cashbacked upon first purchase.",
+     ["PM-3", "PM-4", "PM-8"])
+
+scam("lottery-prize", "sophisticated",
+     "佐藤様、○○生命保険の山口でございます。先般ご加入いただいた保険の契約者特典として、年末年始キャンペーンの抽選を実施いたしましたところ、佐藤様が最優秀賞（現金200万円）にご当選されました。誠におめでとうございます。賞金のお受け取りに際しまして、一時所得の申告手続き代行費用として32,000円を事前にお振込みいただく必要がございます。こちらは確定申告時に経費として計上可能でございます。",
+     "Mr. Sato, this is Yamaguchi from XX Life Insurance. As a policyholder benefit for your recent enrollment, you've won the grand prize (2 million yen cash) in our year-end campaign lottery. Congratulations. For prize receipt, a 32,000 yen income declaration processing fee must be wired in advance. This can be claimed as an expense in your tax return.",
+     ["PM-3", "PM-8"])
+
+scam("lottery-prize", "sophisticated",
+     "【○○ポイントモール事務局】平素より○○ポイントモールをご利用いただき、誠にありがとうございます。この度、2024年上半期のご利用実績に基づく特別抽選の結果、お客様が「プラチナ会員特別賞」にご当選されました。賞品は○○百貨店商品券30万円分でございます。賞品の発送に際しまして、品質保証保険料および配送特別取扱手数料として8,900円を代引きにてお支払いいただきます。ご都合の良い配達日時をご連絡ください。",
+     "[XX Points Mall Office] Thank you for your continued patronage. Based on your H1 2024 usage, you've won the 'Platinum Member Special Prize' in our special lottery. Prize: 300,000 yen XX Department Store gift certificates. For shipping, a quality assurance insurance and special handling fee of 8,900 yen will be collected via cash on delivery. Please let us know your preferred delivery date.",
+     ["PM-3", "PM-8"])
+
+# --- legitimate (3) ---
+safe("lottery-prize",
+     "【ユニクロ】アプリ会員様限定キャンペーンにご応募いただきありがとうございました。厳正なる抽選の結果、残念ながら今回はご当選に至りませんでした。次回のキャンペーンもぜひご応募ください。",
+     "[UNIQLO] Thank you for entering our app-member exclusive campaign. Unfortunately, you were not selected this time. Please enter our next campaign!",
+     [])
+
+safe("lottery-prize",
+     "【宝くじ公式サイト】ドリームジャンボ宝くじの抽選結果のお知らせ。お客様の購入番号と抽選結果の照合が完了しました。結果はマイページよりご確認いただけます。※当選金のお受け取りに手数料は一切かかりません。",
+     "[Official Lottery Site] Dream Jumbo lottery results notice. Your purchase numbers have been matched with results. Check results on your My Page. *No fees are charged for prize collection.",
+     [])
+
+safe("lottery-prize",
+     "【イオン】お買い物感謝キャンペーンにご当選おめでとうございます！イオン商品券5,000円分をお送りいたします。ご登録住所に2週間以内にお届けいたします。※お届けに際し、お客様のご負担はございません。",
+     "[AEON] Congratulations on winning our Shopping Appreciation Campaign! We're sending 5,000 yen in AEON gift certificates. Delivered to your registered address within 2 weeks. *No customer charges for delivery.",
+     [])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 6. fake-bank — Fake bank notices (銀行なりすまし)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("fake-bank", "obvious",
+     "【緊急】あなたの銀行口座に不正アクセスがありました。口座を保護するため、今すぐパスワードとキャッシュカードの暗証番号を返信してください。",
+     "[URGENT] Unauthorized access to your bank account. To protect it, reply with your password and cash card PIN immediately.",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("fake-bank", "obvious",
+     "【重要】三菱UFJ銀行です。あなたの口座が凍結されました。解除するには以下のリンクからログインし、個人情報を入力してください。http://ufj-bank.example.com",
+     "[IMPORTANT] This is MUFG Bank. Your account has been frozen. To unfreeze, log in at the link below and enter your personal information. http://ufj-bank.example.com",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("fake-bank", "obvious",
+     "みずほ銀行からの緊急通知。不正送金が検出されました。口座を保護するため、全額を以下の安全口座に移してください。口座番号：○○銀行 普通 XXXXXXX",
+     "Urgent notice from Mizuho Bank. Fraudulent transfer detected. To protect your account, move all funds to this safe account. Account: XX Bank Savings XXXXXXX",
+     ["PM-1", "PM-3", "PM-4"])
+
+scam("fake-bank", "obvious",
+     "【ゆうちょ銀行】セキュリティ警告！あなたの口座で不審な活動が検出。至急以下の番号に電話して暗証番号を確認してください。0120-XXX-XXX",
+     "[Japan Post Bank] Security alert! Suspicious activity on your account. Urgently call the number below and verify your PIN. 0120-XXX-XXX",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("fake-bank", "obvious",
+     "りそな銀行より。口座のセキュリティ更新が必要です。24時間以内に更新しないと口座が使えなくなります。こちらから更新→ http://r1sona-update.example.com ユーザーIDとパスワードを入力してください。",
+     "From Resona Bank. Account security update required. If not updated within 24 hours, your account will be disabled. Update here -> http://r1sona-update.example.com Enter your user ID and password.",
+     ["PM-1", "PM-4", "PM-7"])
+
+# --- moderate (5) ---
+scam("fake-bank", "moderate",
+     "【三井住友銀行】SMBCダイレクトに関する重要なお知らせ。第三者による不正ログインの試みを検出いたしました。お客様の口座を保護するため、下記URLよりログインして本人認証を行ってください。https://smbc-direct-verify.example.com ※24時間以内に認証がない場合、口座を一時凍結いたします。",
+     "[Sumitomo Mitsui Banking] Important notice regarding SMBC Direct. Unauthorized login attempts detected. To protect your account, please log in via the URL below for identity verification. https://smbc-direct-verify.example.com *If not verified within 24 hours, your account will be temporarily frozen.",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("fake-bank", "moderate",
+     "【みずほ銀行 お取引確認センター】お客様の口座で通常と異なるお取引パターンが検出されました（検知ID：MZ-2024-F-3891）。セキュリティ強化のため、お電話にて本人確認をさせていただきたく存じます。下記のフリーダイヤルまでご連絡ください。0120-XXX-XXX（受付：24時間）。その際、口座番号とキャッシュカード裏面のセキュリティコードをお伝えください。",
+     "[Mizuho Bank Transaction Verification Center] Unusual transaction patterns detected on your account (Detection ID: MZ-2024-F-3891). For enhanced security, we'd like to verify your identity by phone. Please call our toll-free number: 0120-XXX-XXX (24 hours). Please have your account number and the security code on the back of your cash card ready.",
+     ["PM-4", "PM-7"])
+
+scam("fake-bank", "moderate",
+     "【三菱UFJ銀行】インターネットバンキングのセキュリティアップデートのお願い。お客様のワンタイムパスワードアプリのバージョンが古くなっております。下記URLより最新版へ更新してください。https://mufg-app-update.example.com ※更新の際にログインIDとパスワードの再入力が必要です。",
+     "[MUFG Bank] Internet banking security update request. Your one-time password app version is outdated. Please update to the latest version via the URL below. https://mufg-app-update.example.com *Re-entry of login ID and password required during update.",
+     ["PM-4", "PM-7"])
+
+scam("fake-bank", "moderate",
+     "【ゆうちょ銀行】ゆうちょダイレクトのセキュリティに関する重要通知。お客様の登録メールアドレスから不正なアクセスが試みられました。安全のため、下記ページにてお客様番号、ログインパスワード、電話番号の再登録をお願いいたします。https://yuucho-secure.example.com",
+     "[Japan Post Bank] Important security notice for Yucho Direct. Unauthorized access attempted from your registered email. For safety, please re-register your customer number, login password, and phone number at the page below. https://yuucho-secure.example.com",
+     ["PM-4", "PM-7"])
+
+scam("fake-bank", "moderate",
+     "【りそな銀行 マイゲートサポート】お客様のインターネットバンキング（マイゲート）において、複数回のログイン失敗が検出されました。第三者による不正利用の可能性がございます。口座の安全を確認するため、下記番号にお電話の上、口座番号と暗証番号をご確認させてください。0570-XXX-XXX",
+     "[Resona Bank MyGate Support] Multiple failed login attempts detected on your internet banking (MyGate). Possible unauthorized use by a third party. To verify account safety, please call the number below and confirm your account number and PIN. 0570-XXX-XXX",
+     ["PM-4", "PM-7"])
+
+# --- sophisticated (5) ---
+scam("fake-bank", "sophisticated",
+     "【三菱UFJ銀行 セキュリティ対策室】三菱UFJダイレクトをご利用のお客様へ。金融庁の指導に基づき、全てのインターネットバンキング利用者を対象にセキュリティ強化認証を実施しております（実施要領：金監第R6-2847号）。お手数ですが、下記の専用認証ページよりお手続きください。本認証を3月31日までに完了されない場合、インターネットバンキングのご利用を一時停止させていただきます。https://mufg-kyoka-ninsho.example.com",
+     "[MUFG Bank Security Office] To all internet banking users: Per FSA guidance, enhanced security authentication is being conducted for all internet banking users (Directive: Financial Supervision R6-2847). Please process via the dedicated authentication page below. If not completed by March 31, internet banking access will be temporarily suspended. https://mufg-kyoka-ninsho.example.com",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("fake-bank", "sophisticated",
+     "【三井住友銀行 リスク管理部】お客様のお取引に関する重要なお知らせ。犯罪収益移転防止法に基づく定期的な取引確認の一環として、お客様の口座情報の更新手続きが必要となりました。お手数ですが、本人確認書類（運転免許証またはマイナンバーカード）の画像と、口座の暗証番号を下記フォームよりご送信ください。期限内（本日から10日以内）にご対応いただけない場合、口座のお取引を制限させていただく場合がございます。",
+     "[Sumitomo Mitsui Banking Risk Management] Important transaction notice. As part of routine transaction verification under the Act on Prevention of Transfer of Criminal Proceeds, your account information needs updating. Please submit images of your ID (driver's license or My Number card) and your account PIN via the form below. If not completed within 10 days, account transactions may be restricted.",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("fake-bank", "sophisticated",
+     "○○様、みずほ銀行渋谷支店の窓口担当の伊藤でございます。いつもお世話になっております。先日ご来店いただいた際にお伝えし忘れたことがございまして、お電話いたしました。現在ご利用のキャッシュカードが来月でICチップの有効期限を迎えます。新しいカードへの切替え手続きとして、お客様のお届け印の確認が必要です。お手数ですが、本人確認のため現在のカードの暗証番号を口頭でご確認させていただけますでしょうか。",
+     "XX-san, this is Ito, the counter staff at Mizuho Bank Shibuya branch. Thank you for your patronage. I forgot to mention something during your recent visit. Your current cash card's IC chip expires next month. For the replacement process, we need to verify your registered seal. Could you verbally confirm your current card PIN for identity verification?",
+     ["PM-4", "PM-7", "PM-11"])
+
+scam("fake-bank", "sophisticated",
+     "【ゆうちょ銀行 コンプライアンス部】マネー・ローンダリング及びテロ資金供与対策に関するお客様情報の確認について。金融庁ガイドラインに基づき、お客様の取引口座について定期的な確認を実施させていただいております。つきましては、お客様の最新の勤務先情報、年間取引額の見込み、および取引目的をWebフォームよりご回答いただけますようお願いいたします。あわせて、本人確認のためログインIDと仮パスワードを入力してください。",
+     "[Japan Post Bank Compliance Division] Customer information verification for anti-money laundering and counter-terrorism financing. Per FSA guidelines, we're conducting periodic verification of customer accounts. Please provide your latest employer information, estimated annual transaction volume, and transaction purpose via our web form. Additionally, enter your login ID and temporary password for identity verification.",
+     ["PM-4", "PM-7"])
+
+scam("fake-bank", "sophisticated",
+     "【三井住友信託銀行 電子取引推進室】重要：電子決済等代行業者との連携に伴うセキュリティ認証のお願い。銀行法施行規則の改正に伴い、電子決済サービスとの連携をご利用のお客様を対象に、追加のセキュリティ認証を実施しております。お手数ですが、下記URLより認証手続きをお願いいたします。認証の際、お取引暗証番号の入力が必要となります。本認証は2024年3月末日までに完了してください。",
+     "[Sumitomo Mitsui Trust Bank, Digital Transaction Office] Important: Security authentication for electronic payment service integration. Per revised Banking Act regulations, additional security authentication is being conducted for customers using electronic payment services. Please process via the URL below. Your transaction PIN will be required. Complete by March 31, 2024.",
+     ["PM-1", "PM-4", "PM-7"])
+
+# --- legitimate (3) ---
+safe("fake-bank",
+     "【三菱UFJ銀行】インターネットバンキングへの不審なアクセスを検知したため、お客様のアカウントを一時的にロックいたしました。ロック解除のお手続きは、本人確認書類をお持ちの上、最寄りの支店窓口までお越しください。お電話でのロック解除は行っておりません。※暗証番号やパスワードをメールやお電話でお聞きすることは一切ございません。",
+     "[MUFG Bank] We detected suspicious access and temporarily locked your account. To unlock, visit the nearest branch with your ID. Phone unlocking is not available. *We never ask for PINs or passwords by email or phone.",
+     [])
+
+safe("fake-bank",
+     "【みずほ銀行】キャッシュカードの有効期限が近づいております。新しいカードは有効期限月の前月にご登録住所へ簡易書留にて郵送いたします。届かない場合は最寄りの支店窓口までお問い合わせください。※暗証番号はお電話やメールでお伺いすることはございません。",
+     "[Mizuho Bank] Your cash card is approaching expiration. A new card will be sent by registered mail to your address the month before expiration. If not received, inquire at the nearest branch. *We never ask for PINs by phone or email.",
+     [])
+
+safe("fake-bank",
+     "【三井住友銀行】SMBCダイレクトのログインパスワード変更のお願い。セキュリティ強化のため、6ヶ月以上パスワードを変更されていないお客様にご案内しております。パスワード変更はSMBCダイレクトにログイン後、「各種変更」メニューから行えます。※メールのリンクからパスワード変更を求めることはございません。",
+     "[Sumitomo Mitsui Banking] SMBC Direct login password change request. For security, we recommend changing passwords not updated in 6+ months. Change your password after logging into SMBC Direct via the 'Settings' menu. *We never ask for password changes via email links.",
+     [])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 7. gov-impersonation — Government impersonation (役所なりすまし)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("gov-impersonation", "obvious",
+     "【国税庁】未納の税金があります。今すぐ10万円を振り込まないと差し押さえます。振込先：○○銀行 普通 XXXXXXX。本日中に支払ってください。",
+     "[National Tax Agency] You have unpaid taxes. Wire 100,000 yen immediately or assets will be seized. Transfer to: XX Bank Savings XXXXXXX. Pay today.",
+     ["PM-1", "PM-3", "PM-4", "PM-6"])
+
+scam("gov-impersonation", "obvious",
+     "市役所です。マイナンバーカードの更新料として3万円が必要です。コンビニでGoogle Playカードを購入してコード番号を送ってください。",
+     "This is the city hall. 30,000 yen is required for My Number card renewal. Buy Google Play cards at a convenience store and send us the codes.",
+     ["PM-3", "PM-4", "PM-5"])
+
+scam("gov-impersonation", "obvious",
+     "【警視庁】あなたの口座が犯罪に使われています。調査のため口座番号と暗証番号を教えてください。協力しないと逮捕します。",
+     "[Metropolitan Police] Your account is being used for crime. Provide your account number and PIN for investigation. Failure to cooperate will result in arrest.",
+     ["PM-4", "PM-6", "PM-7"])
+
+scam("gov-impersonation", "obvious",
+     "厚生労働省です。年金の追加徴収が発生しました。5万円を至急振り込んでください。振込がないと年金支給を停止します。",
+     "This is the Ministry of Health, Labour and Welfare. Additional pension collection has occurred. Wire 50,000 yen urgently. Pension payments will be suspended without transfer.",
+     ["PM-1", "PM-3", "PM-4", "PM-6"])
+
+scam("gov-impersonation", "obvious",
+     "【入国管理局】あなたのビザに問題があります。罰金8万円を今日中にコンビニで支払ってください。払わないと強制退去になります。払込票番号：XXXXXXX",
+     "[Immigration Bureau] There's a problem with your visa. Pay the 80,000 yen fine at a convenience store today. Non-payment results in deportation. Payment slip: XXXXXXX",
+     ["PM-1", "PM-3", "PM-4", "PM-5", "PM-6"])
+
+# --- moderate (5) ---
+scam("gov-impersonation", "moderate",
+     "【国税庁 徴収課】令和5年分の確定申告に関するお知らせ。申告内容の審査の結果、追加の所得税額128,000円が発生しております。本日より10日以内にお支払いがない場合、延滞税が加算されます。下記のURLからe-Taxにログインし、お支払い手続きをお願いいたします。https://e-tax-nta.example.com",
+     "[NTA Collection Division] Notice regarding FY2023 tax return. After review, an additional income tax of 128,000 yen has been assessed. Late fees will accrue if not paid within 10 days. Log in to e-Tax via the URL below to process payment. https://e-tax-nta.example.com",
+     ["PM-1", "PM-3", "PM-4"])
+
+scam("gov-impersonation", "moderate",
+     "○○市役所 市民課の村田と申します。マイナンバーカードの電子証明書の有効期限切れに伴い、更新手続きのご案内です。更新にはマイナンバーカードの暗証番号（4桁）が必要です。お電話で確認させていただいてもよろしいですか。窓口の混雑を避けるため、電話での事前確認をお願いしております。",
+     "This is Murata from XX City Hall Citizens Division. Your My Number card electronic certificate has expired and needs renewal. The 4-digit PIN is required. May I confirm it by phone? We're requesting phone pre-verification to avoid counter congestion.",
+     ["PM-4", "PM-7"])
+
+scam("gov-impersonation", "moderate",
+     "【日本年金機構】年金受給に関する重要通知。年金記録の照合の結果、基礎年金番号の確認が必要です。つきましては、基礎年金番号、生年月日、口座番号を下記のフォームよりご回答ください。期限内にご回答のない場合、年金の支給が一時停止される可能性がございます。https://nenkin-kakunin.example.com",
+     "[Japan Pension Service] Important pension notice. Pension record verification requires confirmation of your basic pension number. Please provide your basic pension number, date of birth, and account number via the form below. Pension payments may be temporarily suspended without timely response. https://nenkin-kakunin.example.com",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("gov-impersonation", "moderate",
+     "【総務省 電波監理審議会】お客様のご利用の通信機器について、電波法に基づく調査を実施中です。機器の技術基準適合証明の確認のため、ご利用のスマートフォンの機種名、IMEI番号、およびSIMカードの電話番号をご回答ください。ご協力いただけない場合、電波法違反として罰金の対象となります。0570-XXX-XXX",
+     "[Ministry of Internal Affairs, Radio Regulatory Council] Investigation underway on your communication device per the Radio Act. Please provide your smartphone model, IMEI number, and SIM phone number for technical standards verification. Non-cooperation constitutes a Radio Act violation subject to fines. 0570-XXX-XXX",
+     ["PM-4", "PM-6", "PM-7"])
+
+scam("gov-impersonation", "moderate",
+     "【法務省 人権擁護局】通知番号：HR-R6-0284。お客様名義で人権侵害に関する申立てが提出されております。和解による解決をご希望の場合、和解金として185,000円を指定口座にお振込みください。期限：通知日より14日以内。ご不明な点は担当の加藤（03-XXXX-XXXX）までお問い合わせください。",
+     "[Ministry of Justice, Human Rights Bureau] Notice: HR-R6-0284. A human rights violation complaint has been filed under your name. For settlement resolution, wire 185,000 yen to the designated account. Deadline: 14 days. Contact: Kato (03-XXXX-XXXX).",
+     ["PM-1", "PM-3", "PM-4", "PM-6"])
+
+# --- sophisticated (5) ---
+scam("gov-impersonation", "sophisticated",
+     "○○税務署の藤田でございます。令和5年分の確定申告について、お尋ねしたい事項がございまして、ご連絡いたしました。申告書の第二表の所得控除の内訳について確認させていただきたいのですが、お電話でよろしいでしょうか。確認にあたり、マイナンバー（個人番号）と生年月日をお伝えいただく必要がございます。なお、確認の結果、追加の納付額が発生する場合は、お電話で納付方法をご案内いたします。",
+     "This is Fujita from XX Tax Office. I'm calling about your FY2023 tax return. I'd like to confirm details in the income deductions section of Form 2. Can we do this by phone? I'll need your My Number and date of birth for verification. If additional payment is required after verification, I'll guide you on payment methods by phone.",
+     ["PM-3", "PM-4", "PM-7"])
+
+scam("gov-impersonation", "sophisticated",
+     "【内閣府 消費者委員会事務局】消費者被害救済制度に基づく通知（受付番号：CAO-R6-SC-2841）。お客様が過去にご利用されたサービスについて、事業者の不正行為が認定され、消費者への返金手続きが開始されました。返金対象額は87,400円です。返金をお受け取りいただくには、本人確認のため、所定のフォームにマイナンバー、住所、口座情報をご記入ください。",
+     "[Cabinet Office, Consumer Commission] Notice under consumer damage relief (Ref: CAO-R6-SC-2841). A business you previously used has been found fraudulent, and consumer refund proceedings have begun. Refund amount: 87,400 yen. To receive the refund, fill in your My Number, address, and account information on the designated form for identity verification.",
+     ["PM-4", "PM-7", "PM-9"])
+
+scam("gov-impersonation", "sophisticated",
+     "○○市福祉事務所の長谷川でございます。介護保険法の改正に伴い、高齢者世帯への特別支援金（一世帯あたり50,000円）の支給が決定いたしました。お客様も支給対象となっております。受給手続きは通常郵送ですが、予算執行期限の関係で、お電話でのお手続きも承っております。手続きの際に、振込先口座の確認のため、キャッシュカードをお手元にご用意いただけますか。ATMでの受取り手続きをご案内いたします。",
+     "This is Hasegawa from XX City Welfare Office. Due to amendments to the Long-Term Care Insurance Act, a special support payment (50,000 yen per household) has been approved for elderly households. You're eligible. Processing is normally by mail, but due to budget execution deadlines, phone processing is available. Please have your cash card ready for account verification. I'll guide you through ATM receipt processing.",
+     ["PM-4", "PM-9"])
+
+scam("gov-impersonation", "sophisticated",
+     "【厚生労働省 保険局】特定健康診査・特定保健指導の実施に関するお知らせ（通知番号：HL-TK-R6-0594）。お客様の健康診断データの精査の結果、生活習慣病予防プログラムの対象となりました。プログラム参加費用は国が全額負担いたしますが、初回登録として手数料3,300円（税込）のお支払いをお願いしております。お支払いはコンビニ決済にて承ります。登録後、保健師による電話相談を開始いたします。",
+     "[Ministry of Health, Insurance Bureau] Notice regarding specified health checkups (Ref: HL-TK-R6-0594). After reviewing your health data, you qualify for the lifestyle disease prevention program. The government covers all program costs, but an initial registration fee of 3,300 yen (tax incl.) is required. Payment via convenience store. Phone consultation with a public health nurse begins after registration.",
+     ["PM-3", "PM-4", "PM-5"])
+
+scam("gov-impersonation", "sophisticated",
+     "○○市役所 情報政策課の木下でございます。マイナンバーカードの健康保険証利用登録に関するお知らせです。来年度よりマイナ保険証への完全移行が予定されておりますが、お客様のカードの電子証明書の署名用パスワード（英数字6〜16桁）の有効期限が近づいております。窓口の混雑緩和のため、お電話での事前手続きを開始しております。パスワードをお電話口でお伝えいただければ、更新予約を完了いたします。更新日にはご来庁いただきます。",
+     "This is Kinoshita from XX City Information Policy Division. Notice about My Number card health insurance registration. Full transition to My Number insurance is planned next year, and your card's digital certificate signature password (6-16 alphanumeric characters) is expiring. To reduce counter congestion, phone pre-processing has started. If you provide your password by phone, we'll complete the renewal reservation. You'll need to visit on the renewal date.",
+     ["PM-4", "PM-7"])
+
+# --- legitimate (3) ---
+safe("gov-impersonation",
+     "【国税庁】確定申告の時期です。令和5年分の所得税の確定申告期限は3月15日（金）です。e-Taxをご利用いただくと24時間申告が可能です。詳しくは国税庁ホームページ（www.nta.go.jp）をご覧ください。※国税庁から電話やメールで納税を求めることはありません。",
+     "[NTA] Tax return season. FY2023 income tax return deadline is March 15 (Fri). e-Tax allows 24-hour filing. Visit www.nta.go.jp for details. *The NTA never requests tax payment by phone or email.",
+     [])
+
+safe("gov-impersonation",
+     "【○○市役所】マイナンバーカードの電子証明書の更新について。お客様の電子証明書の有効期限が近づいております。更新手続きは市役所窓口にて承ります。必要書類：マイナンバーカード、暗証番号（ご自身でお持ちください）。※お電話で暗証番号をお聞きすることは一切ございません。",
+     "[XX City Hall] My Number card electronic certificate renewal. Your certificate is approaching expiration. Renewal at the city hall counter. Required: My Number card, PIN (bring it yourself). *We never ask for PINs by phone.",
+     [])
+
+safe("gov-impersonation",
+     "【日本年金機構】年金額改定のお知らせ。令和6年度の年金額は前年度比2.7%の引き上げとなります。6月支給分より新しい年金額が適用されます。詳細は4月にお届けする年金額改定通知書をご確認ください。ご不明な点は最寄りの年金事務所（予約制）までお問い合わせください。",
+     "[Japan Pension Service] Pension amount revision notice. FY2024 pension amounts will increase 2.7% from previous year. New amounts apply from June payment. Details in the revision notice delivered in April. Contact your nearest pension office (by appointment).",
+     [])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 8. romance-scam — Romance/friendship fraud (ロマンス詐欺)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("romance-scam", "obvious",
+     "素敵な出会いをお届けします♪あなたに興味を持っている女性がいます。メッセージを読むにはポイント購入が必要です。初回限定5,000円で100ポイント！今すぐ登録→ http://xxx.example.com",
+     "Delivering wonderful encounters! A woman is interested in you. Points purchase required to read messages. First-time offer: 100 points for 5,000 yen! Register now -> http://xxx.example.com",
+     ["PM-3", "PM-12"])
+
+scam("romance-scam", "obvious",
+     "【出会い系サイト】あなたにメッセージが届いています！「あなたのプロフィールを見て一目惚れしました。ぜひお会いしたいです。」閲覧には3万円のプレミアム登録が必要です。",
+     "[Dating site] You have a message! 'I fell in love at first sight with your profile. I'd love to meet.' Premium registration of 30,000 yen required to view.",
+     ["PM-3", "PM-12"])
+
+scam("romance-scam", "obvious",
+     "突然のメッセージ失礼します。SNSであなたを見つけて、どうしても連絡したくて。私は都内在住の看護師（28歳）です。まずはLINEで話しませんか？ちなみに、このサイトは利用料として1万円かかりますが、私がお支払いしますので安心してください。先にこちらに登録をお願いします→",
+     "Sorry for the sudden message. I found you on social media and had to reach out. I'm a 28-year-old nurse in Tokyo. Let's chat on LINE? By the way, this site costs 10,000 yen but I'll pay so don't worry. Please register here first ->",
+     ["PM-3", "PM-12"])
+
+scam("romance-scam", "obvious",
+     "あなただけに特別なご縁をお届けします。高収入の男性会員様があなたを指名しています。食事代・交通費として毎回5万円をお支払いします。まずは登録料2万円をお振込みください。",
+     "Special connection just for you. A high-income male member has nominated you. 50,000 yen per meeting for meals and transport. First, wire 20,000 yen registration fee.",
+     ["PM-3", "PM-12"])
+
+scam("romance-scam", "obvious",
+     "【マッチングアプリ運営事務局】セレブ会員の鈴木様（年収3,000万円）があなたとの食事を希望しています。お食事1回で謝礼10万円をお支払いいたします。マッチング手数料として15,000円をギフトカードでお支払いください。",
+     "[Matching App Office] Celebrity member Mr. Suzuki (annual income 30M yen) wants to dine with you. 100,000 yen honorarium per meal. Pay 15,000 yen matching fee via gift card.",
+     ["PM-3", "PM-5", "PM-12"])
+
+# --- moderate (5) ---
+scam("romance-scam", "moderate",
+     "○○婚活サービスの田中です。先日ご登録いただいたプロフィールに、すでに3名の方からお見合い希望が届いております。マッチングを進めるには、身元保証金として3万円のお支払いが必要です。お支払い後、すぐにお相手の情報をお伝えいたします。振込先は...",
+     "This is Tanaka from XX matchmaking service. Three people have already expressed interest in your recently registered profile. To proceed with matching, an identity guarantee deposit of 30,000 yen is required. After payment, we'll share their information immediately. Transfer to...",
+     ["PM-3", "PM-12"])
+
+scam("romance-scam", "moderate",
+     "はじめまして、美由紀と申します。友人の紹介であなたのことを知りました。40代で離婚経験がありますが、誠実なお付き合いを希望しています。もしよろしければ、まずはこちらのサイトでメッセージを交換しませんか。サイトの利用には本人確認として5,000円の認証料がかかりますが、安全のためです。",
+     "Nice to meet you, I'm Miyuki. A friend introduced me to you. I'm in my 40s, divorced, seeking a sincere relationship. Would you like to exchange messages on this site first? A 5,000 yen verification fee is required for identity confirmation and safety.",
+     ["PM-3", "PM-12"])
+
+scam("romance-scam", "moderate",
+     "【○○結婚相談所】お客様にぴったりのお相手が見つかりました。お相手は東京在住の会社経営者（45歳）です。仮交際のお申込みが入っております。マッチング成立には、お見合い設定料として58,000円のお支払いが必要です。成婚に至らなかった場合、全額返金いたします。",
+     "[XX Marriage Consultation] A perfect match found. A 45-year-old company owner in Tokyo. They've applied for preliminary dating. Matching requires a 58,000 yen meeting arrangement fee. Full refund if it doesn't lead to marriage.",
+     ["PM-3", "PM-12"])
+
+scam("romance-scam", "moderate",
+     "こんにちは。先月のボランティア活動でお会いした由美子です。あれからずっとあなたのことが気になっていて、思い切って連絡しました。実は今、海外赴任中で寂しい思いをしています。日本に帰国する際の航空券代が少し足りなくて...もしよければ5万円ほど貸していただけませんか。帰国したら必ずお返しします。",
+     "Hello. I'm Yumiko, we met at the volunteer event last month. I've been thinking about you since then. I'm actually stationed overseas and feeling lonely. I'm a bit short on airfare to return to Japan... Could you lend me about 50,000 yen? I'll definitely repay when I'm back.",
+     ["PM-3", "PM-10", "PM-12"])
+
+scam("romance-scam", "moderate",
+     "【プレミアム婚活クラブ】会員様限定のハイクラスパーティーのご案内。医師・弁護士・経営者限定の特別パーティー（参加費無料）に招待されています。ただし、参加にはVIP会員へのアップグレード（年会費12万円）が必要です。今月中のお申込みで入会金5万円が免除されます。",
+     "[Premium Marriage Club] Exclusive high-class party invitation for members. You're invited to a special party for doctors, lawyers, and business owners (free entry). However, VIP membership upgrade (annual fee 120,000 yen) required. Enrollment fee of 50,000 yen waived if you apply this month.",
+     ["PM-3", "PM-12"])
+
+# --- sophisticated (5) ---
+scam("romance-scam", "sophisticated",
+     "佐藤様、○○結婚相談所の小林でございます。先日のカウンセリングありがとうございました。佐藤様にぴったりのお相手が見つかりました。都内在住の医師（38歳）で、お写真も拝見しましたが大変素敵な方です。通常のマッチング費用は15万円ですが、佐藤様は特別コースの対象ですので、成婚料の前払い8万円のみで仮交際をスタートできます。まずはお食事の場を設定させていただきますので、本日中にお手続きください。",
+     "Mr. Sato, this is Kobayashi from XX Marriage Consultation. Thank you for the recent counseling session. We've found a perfect match - a 38-year-old doctor living in Tokyo, very attractive. Normal matching fee is 150,000 yen, but you qualify for our special course - just 80,000 yen advance marriage fee to start a preliminary relationship. We'll arrange a dinner meeting, so please complete the procedure today.",
+     ["PM-1", "PM-3", "PM-12"])
+
+scam("romance-scam", "sophisticated",
+     "お久しぶりです、村上です。5年前に○○会社の研修でご一緒した者です。覚えていらっしゃいますか。最近Facebookであなたを見つけて懐かしくなりました。実は私、3年前に夫を亡くしまして。最近やっと前を向けるようになりました。もしよろしければ、近いうちにお茶でもいかがですか。実は今ちょっと困っていることがありまして、投資で失敗してしまい、生活費が少し厳しい状況です。10万円ほど一時的にお借りできないでしょうか。来月の保険金が入ったらすぐお返しします。",
+     "Long time no see, it's Murakami. We were in the same training at XX Company 5 years ago. Remember me? I found you on Facebook recently and felt nostalgic. Actually, I lost my husband 3 years ago. I'm finally starting to move forward. Would you like to have tea sometime? I'm actually in a bit of trouble - I had an investment loss and living expenses are tight. Could I borrow about 100,000 yen temporarily? I'll repay as soon as my insurance payment comes next month.",
+     ["PM-3", "PM-10", "PM-11", "PM-12"])
+
+scam("romance-scam", "sophisticated",
+     "田中さん、はじめまして。知人の山本さんの紹介で連絡させていただきました、看護師の真由美（35歳）と申します。山本さんから「田中さんは誠実で優しい方」と伺い、ぜひお話ししてみたいと思いました。私は最近、実家の母の介護と仕事の両立で大変な時期を過ごしています。もしお時間ありましたら、週末にお茶でもいかがでしょうか。...実は、母の入院費の一部が足りなくて困っています。もしご無理でなければ、3万円ほどお借りできないでしょうか。",
+     "Mr. Tanaka, nice to meet you. I'm Mayumi (35), a nurse, contacting you through our mutual friend Mr. Yamamoto. He told me you're sincere and kind, and I wanted to chat. I've been going through a tough time balancing work and caring for my elderly mother. Would you like tea this weekend? ...Actually, I'm short on part of my mother's hospital bills. If it's not too much trouble, could I borrow about 30,000 yen?",
+     ["PM-3", "PM-10", "PM-11", "PM-12"])
+
+scam("romance-scam", "sophisticated",
+     "鈴木さん、こんにちは。先月の○○カルチャーセンターの陶芸教室でお隣だった美穂です。あの時は楽しかったですね。先生の作品展、今度一緒に行きませんか？実は最近少し困ったことがあって。今月末に車検の費用が予想以上にかかることがわかって、手持ちが厳しくて。もしご迷惑でなければ、5万円ほどお借りできないでしょうか。来月の給料日に必ずお返しします。車がないと仕事に行けなくて...",
+     "Mr. Suzuki, hello. I'm Miho, we sat next to each other at the pottery class at XX Culture Center last month. That was fun, wasn't it? Want to go to the instructor's exhibition together? Actually, I've had a problem recently. My car inspection costs are more than expected this month and I'm short on cash. If it's not too much trouble, could I borrow about 50,000 yen? I'll definitely repay on payday next month. I can't get to work without my car...",
+     ["PM-3", "PM-11", "PM-12"])
+
+scam("romance-scam", "sophisticated",
+     "高橋さん、お元気ですか。半年前に○○異業種交流会でお名刺交換させていただいた、ITコンサルタントの林です。その節はありがとうございました。最近、とある優良な投資案件を見つけまして、高橋さんにもご興味があるかと思いご連絡しました。暗号資産の裁定取引で、月利5%が安定的に出ています。最低投資額は50万円からですが、私のプライベートグループ経由であれば20万円から参加可能です。詳細をお話しする機会をいただけませんか。",
+     "Mr. Takahashi, how are you? I'm Hayashi, the IT consultant you exchanged business cards with at the XX networking event half a year ago. Thank you for that. I've recently found an excellent investment opportunity and thought you might be interested. Cryptocurrency arbitrage yielding stable 5% monthly returns. Minimum investment is 500,000 yen, but through my private group, you can join from 200,000 yen. Could we meet to discuss details?",
+     ["PM-3", "PM-12"])
+
+# --- legitimate (3) ---
+safe("romance-scam",
+     "【ゼクシィ縁結び】今週のおすすめマッチング情報をお届けします。新しい「いいね」が2件届いています。アプリでご確認ください。※料金プランの変更はアプリ内の設定画面から行えます。",
+     "[Zexy En-Musubi] Here are this week's recommended matches. You have 2 new 'likes'. Check in the app. *Plan changes can be made in the app settings.",
+     [])
+
+safe("romance-scam",
+     "○○結婚相談所より年会費更新のご案内。会員番号：M-8842。次年度年会費（66,000円・税込）のお支払い期限は3月31日です。お支払いはクレジットカードまたは銀行振込で承ります。退会をご希望の場合は更新日の2週間前までにご連絡ください。",
+     "XX Marriage Consultation annual fee renewal notice. Member ID: M-8842. Next year's fee (66,000 yen incl. tax) due March 31. Payment by credit card or bank transfer. To cancel, contact us 2 weeks before renewal.",
+     [])
+
+safe("romance-scam",
+     "田中さん、お久しぶりです。先月のPTA会合でお話しした佐藤です。今度の日曜日に地域の清掃活動がありますが、参加されますか？お子さんも一緒にどうぞ。集合は午前9時に公民館前です。",
+     "Mr. Tanaka, long time no see. It's Sato from the PTA meeting last month. There's a community cleanup this Sunday - will you participate? Your children are welcome too. Meeting at 9 AM in front of the community center.",
+     ["PM-11"])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 9. fake-police — Fake police (警察なりすまし)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# --- obvious (5) ---
+scam("fake-police", "obvious",
+     "警察です。あなたの口座が犯罪に使われています。キャッシュカードを封筒に入れて、これから伺う者に渡してください。暗証番号も教えてください。",
+     "This is the police. Your account is being used for criminal activity. Put your cash card in an envelope and hand it to our officer who will visit. Also tell us your PIN.",
+     ["PM-4", "PM-7"])
+
+scam("fake-police", "obvious",
+     "警視庁です。あなたの名前で偽造カードが作られました。被害を防ぐため、今すぐ口座の全額を安全な口座に移してください。振込先を教えます。",
+     "Metropolitan Police here. Counterfeit cards were made in your name. To prevent damage, transfer all account funds to a safe account now. I'll give you the transfer destination.",
+     ["PM-1", "PM-3", "PM-4"])
+
+scam("fake-police", "obvious",
+     "○○警察署です。あなたの息子さんが逮捕されました。示談金200万円を今日中に払えば釈放できます。振込先は...",
+     "XX Police Station here. Your son has been arrested. If you pay 2 million yen in settlement today, he can be released. Transfer to...",
+     ["PM-1", "PM-3", "PM-4", "PM-6", "PM-10"])
+
+scam("fake-police", "obvious",
+     "刑事課の者です。あなたのマイナンバーが犯罪に使われています。身の潔白を証明するため、貯金を全額引き出して一時的に預けてください。受取人を送ります。",
+     "This is the criminal investigation division. Your My Number is being used for crime. To prove your innocence, withdraw all savings and hand them to our agent temporarily. We'll send someone to collect.",
+     ["PM-3", "PM-4"])
+
+scam("fake-police", "obvious",
+     "警察庁サイバー犯罪対策課です。あなたのパソコンがハッキングされ、不正送金に使われました。調査費用として10万円をすぐに振り込んでください。",
+     "National Police Agency Cybercrime Division. Your computer was hacked and used for illegal transfers. Wire 100,000 yen investigation fee immediately.",
+     ["PM-1", "PM-3", "PM-4"])
+
+# --- moderate (5) ---
+scam("fake-police", "moderate",
+     "○○警察署生活安全課の佐々木と申します。現在捜査中の振り込め詐欺グループの押収物から、お客様のキャッシュカードの偽造品が見つかりました。口座の安全を確保するため、お客様のカードを一時的にお預かりし、新しいカードを発行する必要があります。担当者が本日中にご自宅に伺いますので、カードをご用意ください。",
+     "This is Sasaki from XX Police Station Community Safety Division. Your cash card forgeries were found in seized materials from a fraud ring under investigation. To secure your account, we need to temporarily hold your card and issue a new one. An officer will visit your home today - please have the card ready.",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("fake-police", "moderate",
+     "こちら○○県警察本部の捜査二課、田中警部補です。詐欺事件の捜査にご協力をお願いしたく、お電話いたしました。被疑者の供述からお客様の口座が不正に利用されている可能性が判明いたしました。口座を凍結する前に、資産を保全するために一時的に別の安全な口座に移す必要があります。",
+     "This is Inspector Tanaka from XX Prefectural Police Investigation Division 2. I'm calling to request cooperation in a fraud investigation. The suspect's testimony suggests your account may have been misused. Before freezing the account, funds need to be temporarily moved to a different safe account for asset protection.",
+     ["PM-3", "PM-4"])
+
+scam("fake-police", "moderate",
+     "○○警察署の山田と申します。お宅の近所で空き巣事件が連続しており、防犯上の確認でお電話しました。つきましては、ご自宅の現金や貴重品の保管状況を確認させていただきたいのですが。また、安全のため、自宅にある現金は銀行に預けることをお勧めしています。預入れの手続きのお手伝いに、防犯協力員を派遣いたします。",
+     "This is Yamada from XX Police Station. There have been consecutive burglaries in your neighborhood, so I'm calling for crime prevention. I'd like to confirm how cash and valuables are stored at your home. For safety, we recommend depositing home cash at a bank. We can send a crime prevention volunteer to assist with the deposit process.",
+     ["PM-3", "PM-4"])
+
+scam("fake-police", "moderate",
+     "警視庁捜査一課の木村と申します。捜査番号SA-R6-3892の件でお電話しております。国際犯罪組織がお客様名義の口座を使った資金洗浄を行っていた疑いがございます。お客様ご自身は被害者ですのでご安心ください。ただし、口座の一時凍結措置を取る必要がありますので、凍結前にATMでの引き出し限度額の確認をお願いしたく存じます。",
+     "This is Inspector Kimura from Metropolitan Police Investigation Division 1. Case SA-R6-3892. We suspect an international crime ring used accounts in your name for money laundering. You are a victim, so don't worry. However, we need to temporarily freeze your accounts, so please verify your ATM withdrawal limits before the freeze.",
+     ["PM-4", "PM-7"])
+
+scam("fake-police", "moderate",
+     "○○中央警察署の高橋警部補です。マイナンバーの不正利用事案の捜査にご協力いただきたく、連絡いたしました。お客様のマイナンバーが不正に使用された形跡がございます。被害状況の確認のため、マイナンバー、お名前、住所、生年月日、銀行口座の情報をお電話でお伝えいただけますか。",
+     "This is Inspector Takahashi from XX Central Police Station. I'd like your cooperation in a My Number fraud investigation. There are signs your My Number was misused. To confirm the damage, could you provide your My Number, name, address, date of birth, and bank account information by phone?",
+     ["PM-4", "PM-7"])
+
+# --- sophisticated (5) ---
+scam("fake-police", "sophisticated",
+     "○○警察署生活安全課の松本警部補と申します。捜査番号R6-SA-1247の件でご連絡いたしました。現在捜査中の詐欺グループがお客様の口座情報を不正に入手していたことが判明いたしました。被害を防ぐため、金融庁の指導のもと口座の一時凍結手続きを行います。つきましては、本日16時までにキャッシュカードを封筒に入れ、封印の上、カード表面に×印をお書きください。暗証番号は別の紙に書いて同封してください。捜査協力員が回収に参ります。",
+     "This is Inspector Matsumoto from XX Police Station, Community Safety Division. Case number R6-SA-1247. We've discovered that a fraud ring under investigation obtained your account information illegally. To prevent damage, we'll temporarily freeze your account under FSA guidance. Please place your cash card in a sealed envelope with an X marked on the card surface by 4 PM today. Write your PIN on a separate paper and include it. An investigation assistant will collect it.",
+     ["PM-1", "PM-4", "PM-7"])
+
+scam("fake-police", "sophisticated",
+     "こちら○○県警察本部サイバー犯罪対策課の中村警部でございます。大変恐れ入りますが、現在進行中の大規模サイバー犯罪捜査に関連して、ご協力をお願いしたくご連絡いたしました。お客様のインターネットバンキングの認証情報が、ダークウェブ上で売買されていることが判明いたしました。これは全国的な被害で、現時点で約300名の被害が確認されております。お客様の口座からの不正送金を防止するため、本人確認を兼ねて、ご利用の金融機関名、口座番号、およびインターネットバンキングのログインIDをお伝えいただけますでしょうか。",
+     "This is Chief Inspector Nakamura from XX Prefectural Police Cybercrime Division. I apologize for the intrusion, but I'm contacting you regarding an ongoing large-scale cybercrime investigation. Your internet banking credentials were found being traded on the dark web. This is a nationwide issue with approximately 300 confirmed victims. To prevent unauthorized transfers from your account, could you provide your financial institution name, account number, and internet banking login ID for identity verification?",
+     ["PM-4", "PM-7"])
+
+scam("fake-police", "sophisticated",
+     "○○地方検察庁の佐藤検事でございます。重要な案件についてお話がございますので、お時間をいただけますでしょうか。実は、お客様名義の口座が、特殊詐欺事件の資金還流経路として使用されていた疑いが浮上しております（事件番号：検R6-特-2841）。もちろん、お客様が犯罪に関与されているとは考えておりませんが、捜査上、口座の取引履歴と預金残高の確認が必要です。ご協力いただける場合、担当の捜査員が書類を持参いたしますので、キャッシュカードと通帳をご用意ください。",
+     "This is Prosecutor Sato from XX District Public Prosecutors Office. I need to discuss an important matter. Your account is suspected of being used as a fund routing channel for organized fraud (Case: Ken-R6-Toku-2841). Of course, we don't believe you're involved, but we need to verify transaction history and balance for the investigation. If you cooperate, an investigator will bring documents - please have your cash card and bankbook ready.",
+     ["PM-4", "PM-7"])
+
+scam("fake-police", "sophisticated",
+     "警察庁金融犯罪対策室の伊藤でございます。金融機関と連携した口座保全措置のご案内です。本日、お客様がお使いの○○銀行より、お客様の口座で不審な海外送金の予約（280万円）が検出されたとの通報がございました。銀行側で送金を一時停止しておりますが、本人確認のため、お客様ご自身で銀行に連絡していただく必要がございます。その際、私どもの捜査番号NPA-FC-R6-0094をお伝えいただければ、担当者につながります。なお、この件は他言されますと捜査に支障をきたしますので、ご家族にもお話しにならないようお願いいたします。",
+     "This is Ito from NPA Financial Crime Division. This is about account preservation measures in cooperation with financial institutions. Today, XX Bank reported a suspicious overseas transfer reservation (2.8 million yen) from your account. The bank has paused the transfer, but you need to contact the bank yourself for identity verification. Reference our case number NPA-FC-R6-0094 to be connected to the handler. Please do not discuss this with anyone, including family, as it would interfere with the investigation.",
+     ["PM-2", "PM-4"])
+
+scam("fake-police", "sophisticated",
+     "○○警察署組織犯罪対策課の渡辺警部補でございます。大変申し上げにくいのですが、お客様のご家族に関する捜査についてお話がございます。お客様のご家族名義の携帯電話が、特殊詐欺の連絡手段として使用されていた疑いが出ております。ご家族の名誉を守るためにも、早急に事実関係を確認する必要がございます。つきましては、ご家族の銀行口座の取引明細をご提出いただきたいのですが、まずは口座番号と暗証番号をお伝えいただけますでしょうか。なお、捜査情報の漏洩を防ぐため、この件についてご家族には内密にお願いいたします。",
+     "This is Inspector Watanabe from XX Police Station Organized Crime Division. This is difficult to say, but I need to discuss an investigation involving your family member. A phone in your family member's name is suspected of being used for organized fraud communications. To protect their honor, we need to quickly verify the facts. Could you provide their bank account number and PIN? Also, please keep this confidential from your family to prevent investigation leaks.",
+     ["PM-2", "PM-4", "PM-7"])
+
+# --- legitimate (3) ---
+safe("fake-police",
+     "【○○警察署】地域安全情報のお知らせ。最近、当署管内でオレオレ詐欺の被害が増加しています。「キャッシュカードを預かる」「暗証番号を教えて」という電話は全て詐欺です。不審な電話を受けた場合は、すぐに110番または当署（03-XXXX-XXXX）にご連絡ください。",
+     "[XX Police Station] Community safety alert. Ore-ore fraud cases have increased in our jurisdiction. Any call asking to 'hold your cash card' or 'tell us your PIN' is fraud. If you receive a suspicious call, contact 110 or our station (03-XXXX-XXXX) immediately.",
+     [])
+
+safe("fake-police",
+     "【警視庁】防犯メールのお知らせ。渋谷区内で不審者の目撃情報がありました。日時：3月5日 午後3時頃。場所：渋谷区○○町付近。特徴：30代男性、黒い帽子、紺色のジャケット。お心当たりの方は渋谷警察署（03-XXXX-XXXX）までご連絡ください。",
+     "[Metropolitan Police] Crime prevention email. A suspicious person was spotted in Shibuya. Date: March 5, around 3 PM. Location: Near XX-cho, Shibuya. Description: male, 30s, black hat, navy jacket. Contact Shibuya Police Station (03-XXXX-XXXX) with any information.",
+     [])
+
+safe("fake-police",
+     "○○警察署の地域課です。来週の火曜日に町内会の防犯パトロールを予定しております。参加者を募集しておりますので、ご都合のつく方はご参加ください。集合場所：公民館前、時間：午後7時。持ち物は懐中電灯のみで結構です。",
+     "This is the community division of XX Police Station. A neighborhood crime prevention patrol is scheduled for next Tuesday. We're recruiting participants. Meeting point: in front of the community center at 7 PM. Just bring a flashlight.",
+     [])
+
+
+# ── emit ─────────────────────────────────────────────────────────────────────
+
+def main():
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    with open(OUTPUT, "w", encoding="utf-8") as f:
+        for entry in SCENARIOS:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+    # stats
+    total = len(SCENARIOS)
+    scam_count = sum(1 for e in SCENARIOS if e["label"] == "scam")
+    safe_count = sum(1 for e in SCENARIOS if e["label"] == "safe")
+
+    by_type = {}
+    for e in SCENARIOS:
+        st = e["scam_type"]
+        by_type.setdefault(st, {"scam": 0, "safe": 0})
+        by_type[st][e["label"]] += 1
+
+    by_diff = {}
+    for e in SCENARIOS:
+        d = e["difficulty"]
+        by_diff[d] = by_diff.get(d, 0) + 1
+
+    print(f"\n{'='*60}")
+    print(f"  jp_scenarios_v2.jsonl  —  GENERATED")
+    print(f"{'='*60}")
+    print(f"  Total entries : {total}")
+    print(f"  Scam          : {scam_count}")
+    print(f"  Safe          : {safe_count}")
+    print(f"\n  By difficulty:")
+    for d in ["obvious", "moderate", "sophisticated", "tricky_negative"]:
+        print(f"    {d:20s}: {by_diff.get(d, 0)}")
+    print(f"\n  By pattern (scam / safe):")
+    for st in sorted(by_type.keys(), key=lambda x: x or ""):
+        counts = by_type[st]
+        print(f"    {str(st):25s}: {counts['scam']:2d} scam / {counts['safe']:2d} safe")
+    print(f"{'='*60}\n")
+    print(f"  Written to: {OUTPUT}")
+
+if __name__ == "__main__":
+    main()
