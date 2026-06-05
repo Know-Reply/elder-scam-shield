@@ -1,412 +1,171 @@
 {
   "eval_set_id": "scam_detection_v1",
   "name": "Elder Scam Shield Detection Accuracy",
-  "description": "Static evaluation cases covering NPA tokushu-sagi taxonomy: fictitious billing, safe contacts, romance scams, outbound interception, and false-positive control.",
+  "description": "5 test cases covering scam detection, fact extraction, outbound interception, and false-positive control.",
   "eval_cases": [
     {
       "eval_id": "obvious_scam_billing",
       "conversation": [
         {
-          "invocation_id": "turn_01",
+          "invocation_id": "inv-billing-001",
           "user_content": {
-            "parts": [
-              {
-                "text": "新着メッセージを分析してください。送信者: unknown_0x8f3a, ユーザーID: user_tanaka_001\n\n「【重要】未納料金のお知らせ\n\nお客様のインターネット利用料金について、39,800円の未納が確認されました。本日中にお支払いいただけない場合、法的措置を取らせていただきます。至急、以下の口座にお振込みください。\n\n三井住友銀行 渋谷支店 普通 1234567\n名義：カ）デジタルサービス\n\nお問い合わせ: 03-xxxx-xxxx\n※この件は他の方にはご相談なさらないでください。」"
-              }
-            ]
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: unknown_0x3f8a, ユーザーID: user_tanaka_001\n\n「重要なお知らせ：貴殿のインターネット利用料金に未払いが発生しております。本日中にお支払いいただけない場合、法的措置を取らせていただきます。至急、下記のコンビニエンスストアにて電子マネーでお支払いください。未払い額：89,000円。問い合わせ番号：0120-XXX-XXX」"}]
           },
-          "expected_tool_uses": [
-            {
-              "tool_name": "read_contact_list",
-              "tool_input": {
-                "user_id": "user_tanaka_001"
-              }
-            },
-            {
-              "tool_name": "write_classification",
-              "tool_input": {
-                "user_id": "user_tanaka_001",
-                "sender_id": "unknown_0x8f3a"
-              }
-            },
-            {
-              "tool_name": "publish_classified_event",
-              "tool_input": {
-                "sender_id": "unknown_0x8f3a",
-                "classification": "scam"
-              }
-            }
-          ],
           "final_response": {
-            "parts": [
-              {
-                "text": "{\"classification\": \"scam\", \"confidence\": 0.97, \"detected_signals\": [\"PM-1\", \"PM-2\", \"PM-3\", \"PM-5\", \"PM-6\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": \"デジタルサービス\", \"financial_mention\": {\"amount\": \"39800円\", \"urgency\": \"high\"}, \"other_facts\": [\"架空請求パターン\", \"銀行口座指定あり\"]}, \"reasoning\": \"Classic fictitious billing (架空請求). Multiple strong signals: urgency language (至急/本日中に), secrecy demand (他の方にはご相談なさらないで), financial solicitation with specific amount, unusual payment to unknown account, legal threat (法的措置). Matches NPA架空請求 pattern precisely.\"}"
-              }
-            ]
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.95, \"detected_signals\": [\"PM-1\", \"PM-3\", \"PM-5\", \"PM-6\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": null, \"financial_mention\": {\"amount\": \"89,000\", \"urgency\": \"high\"}, \"other_facts\": []}, \"reasoning\": \"Fictitious billing with urgency language, financial solicitation, unusual payment method, and legal threat.\"}"}]
           },
           "intermediate_data": {
             "tool_uses": [
-              {
-                "tool_name": "read_contact_list",
-                "tool_input": {"user_id": "user_tanaka_001"},
-                "tool_output": {"contacts": [], "blocklist": []}
-              },
-              {
-                "tool_name": "write_classification",
-                "tool_input": {
-                  "user_id": "user_tanaka_001",
-                  "sender_id": "unknown_0x8f3a",
-                  "message_id": "msg_billing_001",
-                  "classification_result": "{\"classification\": \"scam\", \"confidence\": 0.97, \"detected_signals\": [\"PM-1\", \"PM-2\", \"PM-3\", \"PM-5\", \"PM-6\"], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": null, \"claimed_institution\": \"デジタルサービス\", \"financial_mention\": {\"amount\": \"39800円\", \"urgency\": \"high\"}, \"other_facts\": []}}"
-                },
-                "tool_output": {"status": "written", "message_id": "msg_billing_001"}
-              },
-              {
-                "tool_name": "publish_classified_event",
-                "tool_input": {
-                  "sender_id": "unknown_0x8f3a",
-                  "classification": "scam",
-                  "confidence": 0.97,
-                  "extracted_facts": "{\"claimed_institution\": \"デジタルサービス\", \"financial_mention\": {\"amount\": \"39800円\", \"urgency\": \"high\"}}",
-                  "detected_signals": "[\"PM-1\", \"PM-2\", \"PM-3\", \"PM-5\", \"PM-6\"]"
-                },
-                "tool_output": {"event": "message.classified", "sender_id": "unknown_0x8f3a", "classification": "scam"}
-              }
+              {"name": "read_contact_list", "args": {"user_id": "user_tanaka_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_tanaka_001", "sender_id": "unknown_0x3f8a", "message_id": "msg_billing_001", "classification_result": "{\"classification\": \"scam\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "unknown_0x3f8a", "classification": "scam", "confidence": 0.95, "extracted_facts": "{}", "detected_signals": "[\"PM-1\", \"PM-3\", \"PM-5\", \"PM-6\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [], "blocklist": []}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "scam"}}
             ]
           }
         }
       ],
       "session_input": {
-        "state": {
-          "user_id": "user_tanaka_001",
-          "user_name": "田中花子",
-          "user_age": 78
-        }
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
       }
     },
     {
       "eval_id": "safe_grandchild_message",
       "conversation": [
         {
-          "invocation_id": "turn_01",
+          "invocation_id": "inv-safe-001",
           "user_content": {
-            "parts": [
-              {
-                "text": "新着メッセージを分析してください。送信者: contact_yuki_grandson, ユーザーID: user_tanaka_001\n\n「おばあちゃん、ゆきだよ！大学の試験が終わったから、来週の土曜日にそっちに遊びに行くね。お昼ご飯一緒に食べよう！何か食べたいものある？横浜から電車で行くから、11時くらいに着くと思う。楽しみにしてるね😊」"
-              }
-            ]
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: contact_yuki_grandson, ユーザーID: user_tanaka_001\n\n「おばあちゃん、ゆきです！横浜は今日すごく暑いよ。おばあちゃんのところはどう？来月遊びに行くからね。楽しみにしてて！」"}]
           },
-          "expected_tool_uses": [
-            {
-              "tool_name": "read_contact_list",
-              "tool_input": {
-                "user_id": "user_tanaka_001"
-              }
-            },
-            {
-              "tool_name": "write_classification",
-              "tool_input": {
-                "user_id": "user_tanaka_001",
-                "sender_id": "contact_yuki_grandson"
-              }
-            },
-            {
-              "tool_name": "publish_classified_event",
-              "tool_input": {
-                "sender_id": "contact_yuki_grandson",
-                "classification": "safe"
-              }
-            }
-          ],
           "final_response": {
-            "parts": [
-              {
-                "text": "{\"classification\": \"safe\", \"confidence\": 0.95, \"detected_signals\": [\"PM-11\"], \"extracted_facts\": {\"claimed_name\": \"ゆき\", \"claimed_relationship\": \"孫\", \"claimed_location\": \"横浜\", \"claimed_institution\": null, \"financial_mention\": null, \"other_facts\": [\"大学生\", \"来週土曜日に訪問予定\", \"11時到着予定\"]}, \"reasoning\": \"Legitimate grandchild message from known contact. PM-11 (identity claim as 孫) is present but at baseline for known family. No financial solicitation, no urgency, no secrecy. Natural casual tone with emoji. Extracted facts: name ゆき, relationship 孫, location 横浜, university student context.\"}"
-              }
-            ]
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.98, \"detected_signals\": [\"PM-11\"], \"extracted_facts\": {\"claimed_name\": \"ゆき\", \"claimed_relationship\": \"grandson\", \"claimed_location\": \"横浜\", \"claimed_institution\": null, \"financial_mention\": null, \"other_facts\": [\"plans to visit next month\"]}, \"reasoning\": \"Known grandson. Identity matches contacts. Fact extraction: name=ゆき, location=横浜.\"}"}]
           },
           "intermediate_data": {
             "tool_uses": [
-              {
-                "tool_name": "read_contact_list",
-                "tool_input": {"user_id": "user_tanaka_001"},
-                "tool_output": {"contacts": [{"name": "ゆき", "relationship": "孫", "contact_id": "contact_yuki_grandson"}], "blocklist": []}
-              },
-              {
-                "tool_name": "write_classification",
-                "tool_input": {
-                  "user_id": "user_tanaka_001",
-                  "sender_id": "contact_yuki_grandson",
-                  "message_id": "msg_yuki_001",
-                  "classification_result": "{\"classification\": \"safe\", \"confidence\": 0.95, \"detected_signals\": [\"PM-11\"], \"extracted_facts\": {\"claimed_name\": \"ゆき\", \"claimed_relationship\": \"孫\", \"claimed_location\": \"横浜\", \"claimed_institution\": null, \"financial_mention\": null, \"other_facts\": [\"大学生\", \"来週土曜日に訪問予定\"]}}"
-                },
-                "tool_output": {"status": "written", "message_id": "msg_yuki_001"}
-              },
-              {
-                "tool_name": "publish_classified_event",
-                "tool_input": {
-                  "sender_id": "contact_yuki_grandson",
-                  "classification": "safe",
-                  "confidence": 0.95,
-                  "extracted_facts": "{\"claimed_name\": \"ゆき\", \"claimed_relationship\": \"孫\", \"claimed_location\": \"横浜\"}",
-                  "detected_signals": "[\"PM-11\"]"
-                },
-                "tool_output": {"event": "message.classified", "sender_id": "contact_yuki_grandson", "classification": "safe"}
-              }
+              {"name": "read_contact_list", "args": {"user_id": "user_tanaka_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_tanaka_001", "sender_id": "contact_yuki_grandson", "message_id": "msg_safe_001", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_yuki_grandson", "classification": "safe", "confidence": 0.98, "extracted_facts": "{\"claimed_name\": \"ゆき\"}", "detected_signals": "[\"PM-11\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "ゆき", "relationship": "grandson"}]}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
             ]
           }
         }
       ],
       "session_input": {
-        "state": {
-          "user_id": "user_tanaka_001",
-          "user_name": "田中花子",
-          "user_age": 78
-        }
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
       }
     },
     {
       "eval_id": "romance_scam_day5",
       "conversation": [
         {
-          "invocation_id": "turn_01",
+          "invocation_id": "inv-romance-005",
           "user_content": {
-            "parts": [
-              {
-                "text": "新着メッセージを分析してください。送信者: romance_sender_kenji, ユーザーID: user_suzuki_001\n\n「美恵子さん、けんじです。今日は東京で大事な商談があったんだけど、美恵子さんのことをずっと考えていました。先週大阪にいると言ったけど、実は仕事で東京に来ているんです。美恵子さんみたいな素敵な方に出会えて、本当に幸せです。毎日美恵子さんと話せることが一番の楽しみになっています。来週にはそちらに会いに行きたいと思っているんですが、美恵子さんさえよければ。」"
-              }
-            ]
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: new_contact_kenji, ユーザーID: user_tanaka_001\n\n「花子さん、大変なことになりました。実は息子が東京の病院に緊急入院してしまって、今すぐ東京に向かわなければなりません。以前大阪にいると言っていましたが、実は最近東京に引っ越したんです。本当に心配で...花子さんに相談できてよかった。」"}]
           },
-          "expected_tool_uses": [
-            {
-              "tool_name": "read_contact_list",
-              "tool_input": {
-                "user_id": "user_suzuki_001"
-              }
-            },
-            {
-              "tool_name": "write_classification",
-              "tool_input": {
-                "user_id": "user_suzuki_001",
-                "sender_id": "romance_sender_kenji"
-              }
-            },
-            {
-              "tool_name": "publish_classified_event",
-              "tool_input": {
-                "sender_id": "romance_sender_kenji",
-                "classification": "suspicious"
-              }
-            }
-          ],
           "final_response": {
-            "parts": [
-              {
-                "text": "{\"classification\": \"suspicious\", \"confidence\": 0.78, \"detected_signals\": [\"PM-11\", \"PM-12\"], \"extracted_facts\": {\"claimed_name\": \"けんじ\", \"claimed_relationship\": null, \"claimed_location\": \"東京\", \"claimed_institution\": null, \"financial_mention\": null, \"other_facts\": [\"先週は大阪にいると主張（位置矛盾）\", \"商談のため東京\", \"会いに行きたい\", \"毎日の連絡を示唆\"]}, \"reasoning\": \"Romance scam pattern (ロマンス詐欺) day-5 trust building. Location contradiction detected: previously claimed 大阪, now 東京 with weak explanation. High flattery density (PM-12): 素敵な方, 幸せ, 一番の楽しみ. Identity claim without verified relationship. No financial request yet but classic pre-solicitation rapport phase. Contradiction flagged for Behavioral Analyzer longitudinal tracking.\"}"
-              }
-            ]
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"suspicious\", \"confidence\": 0.78, \"detected_signals\": [\"PM-10\", \"PM-11\", \"PM-12\"], \"extracted_facts\": {\"claimed_name\": \"けんじ\", \"claimed_relationship\": null, \"claimed_location\": \"東京\", \"claimed_institution\": \"東京の病院\", \"financial_mention\": null, \"other_facts\": [\"son hospitalized\", \"location contradiction: 大阪→東京\"]}, \"reasoning\": \"Emotional crisis narrative with location contradiction. Feeds Behavioral Analyzer.\"}"}]
           },
           "intermediate_data": {
             "tool_uses": [
-              {
-                "tool_name": "read_contact_list",
-                "tool_input": {"user_id": "user_suzuki_001"},
-                "tool_output": {"contacts": [], "blocklist": []}
-              },
-              {
-                "tool_name": "write_classification",
-                "tool_input": {
-                  "user_id": "user_suzuki_001",
-                  "sender_id": "romance_sender_kenji",
-                  "message_id": "msg_romance_005",
-                  "classification_result": "{\"classification\": \"suspicious\", \"confidence\": 0.78, \"detected_signals\": [\"PM-11\", \"PM-12\"], \"extracted_facts\": {\"claimed_name\": \"けんじ\", \"claimed_relationship\": null, \"claimed_location\": \"東京\", \"claimed_institution\": null, \"financial_mention\": null, \"other_facts\": [\"先週は大阪にいると主張\", \"位置矛盾検出\"]}}"
-                },
-                "tool_output": {"status": "written", "message_id": "msg_romance_005"}
-              },
-              {
-                "tool_name": "publish_classified_event",
-                "tool_input": {
-                  "sender_id": "romance_sender_kenji",
-                  "classification": "suspicious",
-                  "confidence": 0.78,
-                  "extracted_facts": "{\"claimed_name\": \"けんじ\", \"claimed_location\": \"東京\", \"other_facts\": [\"位置矛盾: 大阪→東京\"]}",
-                  "detected_signals": "[\"PM-11\", \"PM-12\"]"
-                },
-                "tool_output": {"event": "message.classified", "sender_id": "romance_sender_kenji", "classification": "suspicious"}
-              }
+              {"name": "read_contact_list", "args": {"user_id": "user_tanaka_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_tanaka_001", "sender_id": "new_contact_kenji", "message_id": "msg_romance_005", "classification_result": "{\"classification\": \"suspicious\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "new_contact_kenji", "classification": "suspicious", "confidence": 0.78, "extracted_facts": "{\"claimed_location\": \"東京\"}", "detected_signals": "[\"PM-10\", \"PM-11\", \"PM-12\"]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "ゆき", "relationship": "grandson"}]}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "suspicious"}}
             ]
           }
         }
       ],
       "session_input": {
-        "state": {
-          "user_id": "user_suzuki_001",
-          "user_name": "鈴木美恵子",
-          "user_age": 74
-        }
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
       }
     },
     {
       "eval_id": "outbound_bank_details",
       "conversation": [
         {
-          "invocation_id": "turn_01",
+          "invocation_id": "inv-outbound-001",
           "user_content": {
-            "parts": [
-              {
-                "text": "ユーザーのアウトバウンドメッセージを分析してください。送信先: flagged_sender_0x4b2c, ユーザーID: user_tanaka_001\n\nユーザーが以下を送信しようとしています:\n「わかりました。口座番号をお伝えしますね。みずほ銀行 目黒支店 普通 7654321 名義 タナカハナコ です。すぐに手続きをお願いします。」"
-              }
-            ]
+            "role": "user",
+            "parts": [{"text": "送信メッセージを確認してください。宛先: flagged_sender_0x4b2c, ユーザーID: user_tanaka_001\n\n「けんじさん、口座番号をお伝えします。三菱UFJ銀行 目黒支店 普通 1234567 田中花子です。暗証番号は9876です。50万円をすぐにお送りしますね。」"}]
           },
-          "expected_tool_uses": [
-            {
-              "tool_name": "check_sender_risk",
-              "tool_input": {
-                "sender_id": "flagged_sender_0x4b2c"
-              }
-            },
-            {
-              "tool_name": "check_known_payee",
-              "tool_input": {
-                "recipient_id": "flagged_sender_0x4b2c",
-                "user_id": "user_tanaka_001"
-              }
-            },
-            {
-              "tool_name": "hold_outbound",
-              "tool_input": {
-                "user_id": "user_tanaka_001",
-                "held_action": "message_send",
-                "recipient_id": "flagged_sender_0x4b2c"
-              }
-            }
-          ],
           "final_response": {
-            "parts": [
-              {
-                "text": "アウトバウンドメッセージを保留しました。検出されたシグナル: OB-2 (銀行口座詳細), OB-4 (フラグ付き送信者への返信), OB-5 (コンプライアンス言語「わかりました」「すぐに」), CM-3 (新規受取人+フラグ付き会話)。複合リスクスコアが閾値を超えたため、ご家族に通知を送信しました。メッセージ内容はハッシュ化され安全に保管されています。"
-              }
-            ]
+            "role": "model",
+            "parts": [{"text": "{\"action\": \"HARD_HOLD\", \"signals\": [\"OB-2\", \"OB-3\", \"OB-4\", \"CM-4\"], \"compound_risk\": 0.98, \"reason\": \"Bank account, PIN, and transfer instruction to flagged sender. Hard hold. Content hashed, not stored.\"}"}]
           },
           "intermediate_data": {
             "tool_uses": [
-              {
-                "tool_name": "check_sender_risk",
-                "tool_input": {"sender_id": "flagged_sender_0x4b2c"},
-                "tool_output": {"sender_id": "flagged_sender_0x4b2c", "risk_score": 0.75, "risk_factors": ["LG-1", "LG-5", "LG-8"], "financial_mentions": [{"amount": "50万円", "urgency": "high"}]}
-              },
-              {
-                "tool_name": "check_known_payee",
-                "tool_input": {"recipient_id": "flagged_sender_0x4b2c", "user_id": "user_tanaka_001"},
-                "tool_output": {"known": false, "recipient_id": "flagged_sender_0x4b2c"}
-              },
-              {
-                "tool_name": "hold_outbound",
-                "tool_input": {
-                  "user_id": "user_tanaka_001",
-                  "held_action": "message_send",
-                  "recipient_id": "flagged_sender_0x4b2c",
-                  "content": "わかりました。口座番号をお伝えしますね。みずほ銀行 目黒支店 普通 7654321 名義 タナカハナコ です。すぐに手続きをお願いします。",
-                  "signals": ["OB-2", "OB-4", "OB-5", "CM-3"],
-                  "sender_risk": 0.75,
-                  "reason": "Bank account details sent to high-risk sender (0.75). New payee + flagged conversation. Compliance language detected."
-                },
-                "tool_output": {
-                  "hold": {"user_id": "user_tanaka_001", "held_action": "message_send", "compound_risk": 0.85, "resolution": "pending"},
-                  "a2a_publish": {"event": "outbound.held", "action_type": "message_send", "compound_risk": 0.85}
-                }
-              }
+              {"name": "check_sender_risk", "args": {"sender_id": "flagged_sender_0x4b2c"}},
+              {"name": "check_known_payee", "args": {"recipient_id": "flagged_sender_0x4b2c", "user_id": "user_tanaka_001"}},
+              {"name": "hold_outbound", "args": {"user_id": "user_tanaka_001", "held_action": "message", "recipient_id": "flagged_sender_0x4b2c", "content": "[REDACTED]", "signals": ["OB-2", "OB-3", "OB-4", "CM-4"], "sender_risk": 0.94, "reason": "Bank details + PIN to flagged sender"}}
+            ],
+            "tool_responses": [
+              {"name": "check_sender_risk", "response": {"sender_id": "flagged_sender_0x4b2c", "risk_score": 0.94}},
+              {"name": "check_known_payee", "response": {"known": false, "recipient_id": "flagged_sender_0x4b2c"}},
+              {"name": "hold_outbound", "response": {"hold": {"resolution": "pending"}, "a2a_publish": {"event": "outbound.held"}}}
             ]
           }
         }
       ],
       "session_input": {
-        "state": {
-          "user_id": "user_tanaka_001",
-          "user_name": "田中花子",
-          "user_age": 78
-        }
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
       }
     },
     {
       "eval_id": "safe_clinic_appointment",
       "conversation": [
         {
-          "invocation_id": "turn_01",
+          "invocation_id": "inv-clinic-001",
           "user_content": {
-            "parts": [
-              {
-                "text": "新着メッセージを分析してください。送信者: contact_meguro_clinic, ユーザーID: user_tanaka_001\n\n「田中花子様\n\nいつもお世話になっております。目黒内科クリニックでございます。\n次回の定期検診のご予約を確認させていただきます。\n\n日時：6月15日（火）午前10時\n場所：目黒内科クリニック 2階 検診室\n\nご持参いただくもの：\n・保険証\n・お薬手帳\n・前回の検査結果（お持ちであれば）\n\nご都合が悪い場合は、03-xxxx-xxxxまでご連絡ください。\nよろしくお願いいたします。\n\n目黒内科クリニック\n受付担当 山田」"
-              }
-            ]
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: contact_meguro_clinic, ユーザーID: user_tanaka_001\n\n「田中花子様、目黒内科クリニックです。次回の定期検診のご予約を確認いたします。6月15日（日）午前10時でお間違いないでしょうか。ご変更がございましたらお電話ください。お大事にどうぞ。」"}]
           },
-          "expected_tool_uses": [
-            {
-              "tool_name": "read_contact_list",
-              "tool_input": {
-                "user_id": "user_tanaka_001"
-              }
-            },
-            {
-              "tool_name": "write_classification",
-              "tool_input": {
-                "user_id": "user_tanaka_001",
-                "sender_id": "contact_meguro_clinic"
-              }
-            },
-            {
-              "tool_name": "publish_classified_event",
-              "tool_input": {
-                "sender_id": "contact_meguro_clinic",
-                "classification": "safe"
-              }
-            }
-          ],
           "final_response": {
-            "parts": [
-              {
-                "text": "{\"classification\": \"safe\", \"confidence\": 0.98, \"detected_signals\": [], \"extracted_facts\": {\"claimed_name\": \"山田\", \"claimed_relationship\": null, \"claimed_location\": \"目黒\", \"claimed_institution\": \"目黒内科クリニック\", \"financial_mention\": null, \"other_facts\": [\"定期検診予約確認\", \"6月15日午前10時\", \"保険証・お薬手帳持参\"]}, \"reasoning\": \"Legitimate clinic appointment reminder from known contact. Proper keigo (お世話になっております, ご予約を確認させていただきます). No financial solicitation, no urgency pressure, no secrecy demand. Standard medical appointment format. Asks only for standard medical documents (保険証, お薬手帳), not financial credentials. Zero scam signals detected — false positive rate: 0%.\"}"
-              }
-            ]
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.99, \"detected_signals\": [], \"extracted_facts\": {\"claimed_name\": null, \"claimed_relationship\": null, \"claimed_location\": \"目黒\", \"claimed_institution\": \"目黒内科クリニック\", \"financial_mention\": null, \"other_facts\": [\"appointment June 15 10am\"]}, \"reasoning\": \"Known clinic. Appointment confirmation. Zero scam signals.\"}"}]
           },
           "intermediate_data": {
             "tool_uses": [
-              {
-                "tool_name": "read_contact_list",
-                "tool_input": {"user_id": "user_tanaka_001"},
-                "tool_output": {"contacts": [{"name": "目黒内科クリニック", "relationship": "かかりつけ医", "contact_id": "contact_meguro_clinic"}], "blocklist": []}
-              },
-              {
-                "tool_name": "write_classification",
-                "tool_input": {
-                  "user_id": "user_tanaka_001",
-                  "sender_id": "contact_meguro_clinic",
-                  "message_id": "msg_clinic_001",
-                  "classification_result": "{\"classification\": \"safe\", \"confidence\": 0.98, \"detected_signals\": [], \"extracted_facts\": {\"claimed_name\": \"山田\", \"claimed_relationship\": null, \"claimed_location\": \"目黒\", \"claimed_institution\": \"目黒内科クリニック\", \"financial_mention\": null, \"other_facts\": [\"定期検診予約確認\", \"6月15日午前10時\"]}}"
-                },
-                "tool_output": {"status": "written", "message_id": "msg_clinic_001"}
-              },
-              {
-                "tool_name": "publish_classified_event",
-                "tool_input": {
-                  "sender_id": "contact_meguro_clinic",
-                  "classification": "safe",
-                  "confidence": 0.98,
-                  "extracted_facts": "{\"claimed_institution\": \"目黒内科クリニック\", \"other_facts\": [\"定期検診予約確認\"]}",
-                  "detected_signals": "[]"
-                },
-                "tool_output": {"event": "message.classified", "sender_id": "contact_meguro_clinic", "classification": "safe"}
-              }
+              {"name": "read_contact_list", "args": {"user_id": "user_tanaka_001"}},
+              {"name": "write_classification", "args": {"user_id": "user_tanaka_001", "sender_id": "contact_meguro_clinic", "message_id": "msg_clinic_001", "classification_result": "{\"classification\": \"safe\"}"}},
+              {"name": "publish_classified_event", "args": {"sender_id": "contact_meguro_clinic", "classification": "safe", "confidence": 0.99, "extracted_facts": "{\"claimed_institution\": \"目黒内科クリニック\"}", "detected_signals": "[]"}}
+            ],
+            "tool_responses": [
+              {"name": "read_contact_list", "response": {"contacts": [{"name": "ゆき", "relationship": "grandson"}, {"name": "目黒内科クリニック", "relationship": "clinic"}]}},
+              {"name": "write_classification", "response": {"status": "written"}},
+              {"name": "publish_classified_event", "response": {"event": "message.classified", "classification": "safe"}}
             ]
           }
         }
       ],
       "session_input": {
-        "state": {
-          "user_id": "user_tanaka_001",
-          "user_name": "田中花子",
-          "user_age": 78
-        }
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
       }
     }
   ]
