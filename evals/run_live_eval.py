@@ -94,36 +94,73 @@ async def run_single_case(runner, session_service, case: dict, case_idx: int) ->
 
     try:
         async for event in runner.run_async(user_id='eval_user', session_id=session.id, new_message=msg):
+            # Walk every attribute that might carry classification data.
+            # ADK events vary: some have .content, some have .actions,
+            # some carry tool calls in nested structures.
+
+            # ── 1. Text responses ───────────────────────────────────
             if hasattr(event, 'content') and event.content and event.content.parts:
                 for part in event.content.parts:
-                    # Check text responses
                     if hasattr(part, 'text') and part.text:
                         parsed = parse_agent_response(part.text)
                         if parsed.get("classification") not in ("parse_error", None):
                             predicted = parsed
-                    # Check function call responses (agent may classify via tool calls)
-                    if hasattr(part, 'function_response') and part.function_response:
-                        fr = part.function_response
-                        if hasattr(fr, 'response') and isinstance(fr.response, dict):
-                            resp = fr.response
-                            if resp.get("classification") or resp.get("event") == "message.classified":
-                                predicted = resp
-                    if hasattr(part, 'function_call') and part.function_call:
-                        fc = part.function_call
-                        if fc.name == "publish_classified_event" and fc.args:
-                            predicted = {
-                                "classification": fc.args.get("classification", "unknown"),
-                                "confidence": fc.args.get("confidence", 0),
-                                "detected_signals": fc.args.get("detected_signals", []),
-                                "extracted_facts": fc.args.get("extracted_facts", {}),
-                            }
-                        elif fc.name == "write_classification" and fc.args:
-                            if fc.args.get("classification"):
-                                predicted["classification"] = fc.args["classification"]
-                            if fc.args.get("confidence"):
-                                predicted["confidence"] = fc.args["confidence"]
-                            if fc.args.get("detected_signals"):
-                                predicted["detected_signals"] = fc.args["detected_signals"]
+
+            # ── 2. Function calls (Gemini wants to call a tool) ─────
+            # Capture classification from ANY tool call that carries it,
+            # not just publish_classified_event.
+            if hasattr(event, 'content') and event.content and event.content.parts:
+                for part in event.content.parts:
+                    fc = getattr(part, 'function_call', None)
+                    if fc and hasattr(fc, 'args') and fc.args:
+                        args = fc.args
+                        # Direct classification field in any tool call
+                        if args.get("classification"):
+                            predicted.update({
+                                k: args[k] for k in
+                                ("classification", "confidence",
+                                 "detected_signals", "extracted_facts")
+                                if k in args
+                            })
+                        # JSON-encoded classification (older tool signature)
+                        if args.get("classification_result"):
+                            try:
+                                cr = json.loads(args["classification_result"])
+                                if cr.get("classification"):
+                                    predicted.update(cr)
+                            except (json.JSONDecodeError, TypeError):
+                                pass
+
+            # ── 3. Function responses (tool returned a result) ──────
+            if hasattr(event, 'content') and event.content and event.content.parts:
+                for part in event.content.parts:
+                    fr = getattr(part, 'function_response', None)
+                    if fr and hasattr(fr, 'response'):
+                        resp = fr.response if isinstance(fr.response, dict) else {}
+                        if resp.get("classification"):
+                            predicted.update({
+                                k: resp[k] for k in
+                                ("classification", "confidence",
+                                 "detected_signals", "extracted_facts")
+                                if k in resp
+                            })
+                        # A2A event payload
+                        if resp.get("event") == "message.classified":
+                            predicted.update({
+                                k: resp[k] for k in
+                                ("classification", "confidence",
+                                 "detected_signals", "extracted_facts")
+                                if k in resp
+                            })
+
+            # ── 4. Catch-all: scan any dict-like event attribute ────
+            for attr_name in ('actions', 'tool_calls', 'function_calls'):
+                items = getattr(event, attr_name, None)
+                if items and isinstance(items, (list, tuple)):
+                    for item in items:
+                        if isinstance(item, dict) and item.get("classification"):
+                            predicted.update(item)
+
     except Exception as e:
         predicted = {"classification": "error", "error": str(e)[:200]}
 
