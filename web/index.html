@@ -357,34 +357,40 @@ body {
   flex-direction: column;
   gap: 4px;
 }
+.two-system-rows {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
 .system-row {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 3px 0;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
 }
 .system-row-muted {
-  opacity: 0.55;
-  font-size: 0.75rem;
+  opacity: 0.5;
+  background: var(--gray-50);
+  border-style: dashed;
 }
 .system-row-primary {
-  font-weight: 600;
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+  border-width: 2px;
 }
 .system-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--gray-500);
-  min-width: 130px;
+  min-width: 0;
   flex-shrink: 0;
 }
-.system-sublabel {
-  font-weight: 400;
-  font-size: 0.68rem;
-  opacity: 0.7;
-}
 .system-row-primary .system-label {
-  color: var(--gray-700);
-  font-size: 0.72rem;
+  color: var(--blue);
 }
 
 .ai-badge {
@@ -2072,14 +2078,14 @@ body {
     var html = '<div class="two-system-rows">';
     // Row 1: Before (single classifier)
     html += '<div class="' + perMsgRowClass + '">';
-    html += '<span class="system-label">Before <span class="system-sublabel">(single classifier)</span></span>';
+    html += '<span class="system-label">Traditional</span>';
     html += '<span class="ai-badge ' + perMsgBadgeClass + '">' + perMsgDisplay + '</span>';
     html += liveBadge;
     if (confDisplay) html += ' <span class="system-metric">' + confDisplay + '</span>';
     html += '</div>';
-    // Row 2: After (multi-agent behavioral analysis)
+    // Row 2: Elder Scam Shield (multi-agent, ADK-tuned)
     html += '<div class="' + behRowClass + '">';
-    html += '<span class="system-label">After <span class="system-sublabel">(behavioral analysis)</span></span>';
+    html += '<span class="system-label">Elder Scam Shield</span>';
     html += '<span class="ai-badge ' + behBadgeClass + '">' + behavioralClass + '</span>';
     html += ' <span class="system-metric">risk ' + behavioralRisk.toFixed(2) + '</span>';
     html += '</div>';
@@ -2098,9 +2104,9 @@ body {
 
     // Divergence / convergence callout
     if (systemsDiverge) {
-      html += '<div class="divergence-callout">This is the gap. Before optimization, this message passes through undetected. After: the behavioral pattern is caught.</div>';
+      html += '<div class="divergence-callout">Traditional protection misses this. Elder Scam Shield catches the behavioral pattern.</div>';
     } else if (systemsAgree) {
-      html += '<div class="convergence-callout">Before and after agree — both systems catch this.</div>';
+      html += '<div class="convergence-callout">Both traditional and Elder Scam Shield catch this one.</div>';
     }
 
     card.innerHTML = html;
