@@ -93,7 +93,8 @@ def detect_signals(text: str, language: str = "en") -> list[str]:
 def main():
     # Load all corpus data
     corpus = []
-    for fname in ["scam_corpus.jsonl", "jp_scenarios.jsonl", "jp_scenarios_v2.jsonl", "edge_cases.jsonl"]:
+    for fname in ["scam_corpus.jsonl", "jp_scenarios.jsonl", "edge_cases.jsonl",
+                   "gov_sources.jsonl", "antiphishing_corpus.jsonl", "conversation_corpus.jsonl"]:
         path = DATA_DIR / fname
         if path.exists():
             with open(path) as f:

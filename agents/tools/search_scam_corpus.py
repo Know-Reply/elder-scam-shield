@@ -84,12 +84,18 @@ def _load_local_corpus() -> list[dict]:
     if _LOCAL_CORPUS is not None:
         return _LOCAL_CORPUS
 
-    corpus_path = Path(__file__).parent.parent.parent / "data" / "processed" / "scam_corpus.jsonl"
-    jp_path = Path(__file__).parent.parent.parent / "data" / "processed" / "jp_scenarios.jsonl"
-    edge_path = Path(__file__).parent.parent.parent / "data" / "processed" / "edge_cases.jsonl"
+    data_dir = Path(__file__).parent.parent.parent / "data" / "processed"
+    corpus_files = [
+        data_dir / "scam_corpus.jsonl",
+        data_dir / "jp_scenarios.jsonl",
+        data_dir / "edge_cases.jsonl",
+        data_dir / "gov_sources.jsonl",
+        data_dir / "antiphishing_corpus.jsonl",
+        data_dir / "conversation_corpus.jsonl",
+    ]
 
     _LOCAL_CORPUS = []
-    for p in [corpus_path, jp_path, edge_path]:
+    for p in corpus_files:
         if p.exists():
             with open(p) as f:
                 for line in f:
