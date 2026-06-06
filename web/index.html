@@ -1229,7 +1229,7 @@ body {
     <div class="reveal-highlight" id="reveal-highlight"></div>
 
     <div class="reveal-actions">
-      <button class="btn btn-dark" id="btn-restart">Play Again</button>
+      <button class="btn btn-dark" id="btn-restart">Try Again</button>
       <a class="btn btn-primary" href="/dashboard">View Dashboard</a>
       <a class="btn btn-secondary" href="/shield">View Overview</a>
     </div>
@@ -2099,7 +2099,23 @@ body {
   //  REVEAL
   // =========================================================
   function showReveal() {
-    showScreen('screen-reveal');
+    // Show reveal BELOW the simulator (don't switch screens)
+    // Move the reveal div into the sim container and make it visible
+    var simContainer = document.querySelector('.sim-container');
+    var revealScreen = $('screen-reveal');
+
+    // Remove reveal from its hidden screen wrapper and append to sim
+    revealScreen.classList.remove('screen');
+    revealScreen.style.display = 'block';
+    revealScreen.style.marginTop = '32px';
+    revealScreen.style.paddingTop = '32px';
+    revealScreen.style.borderTop = '3px solid var(--gray-200)';
+    simContainer.appendChild(revealScreen);
+
+    // Scroll to reveal smoothly after a short delay
+    setTimeout(function() {
+      revealScreen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 600);
 
     // Count how many messages the per-message classifier flagged
     var perMsgFlagCount = state.perMsgFlagged;
