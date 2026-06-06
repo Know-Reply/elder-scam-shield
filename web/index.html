@@ -1308,7 +1308,7 @@ body {
 <!-- ===== SCREEN: REVEAL ===== -->
 <div class="screen" id="screen-reveal">
   <div class="reveal-container">
-    <h2>Here is what the system saw that you could not hide.</h2>
+    <h2>How the Shield performed.</h2>
     <p class="reveal-subtitle" id="reveal-subtitle"></p>
 
     <div class="reveal-section">
@@ -1317,23 +1317,27 @@ body {
     </div>
 
     <div class="reveal-section">
-      <h3>Signal Progression</h3>
+      <h3 style="text-align:center; margin-bottom:16px;">Message-by-Message Comparison</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; margin-bottom:16px;">
+        <div style="padding:8px 12px; background:var(--gray-50); border:1px dashed var(--gray-300); border-radius:8px 0 0 0; text-align:center; font-size:0.72rem; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.04em;">Pre-ADK Tuning</div>
+        <div style="padding:8px 12px; background:var(--blue-light); border:2px solid var(--blue-mid); border-radius:0 8px 0 0; text-align:center; font-size:0.72rem; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:0.04em;">Tuned Elder Shield</div>
+      </div>
       <div id="reveal-signals"></div>
     </div>
 
     <div class="reveal-section">
-      <h3>Detection Comparison</h3>
+      <h3>The Difference</h3>
       <div class="comparison-grid">
         <div class="comp-card comp-card-before">
-          <h4>Single Classifier</h4>
-          <div class="comp-label">Per-Message Analysis</div>
+          <h4>Pre-ADK Tuning</h4>
+          <div class="comp-label">Per-Message Only</div>
           <div class="comp-big comp-big-before"><span id="comp-single-count">1</span> of 6</div>
-          <div class="comp-desc" id="comp-single-desc">messages flagged as suspicious or scam</div>
+          <div class="comp-desc" id="comp-single-desc">messages flagged</div>
         </div>
         <div class="comp-card comp-card-after">
-          <h4>Behavioral Analyzer</h4>
-          <div class="comp-label">Cross-Message Patterns</div>
-          <div class="comp-big comp-big-after">Day <span id="comp-multi">3</span></div>
+          <h4>Tuned Elder Shield</h4>
+          <div class="comp-label">Behavioral Analysis</div>
+          <div class="comp-big comp-big-after">Message <span id="comp-multi">3</span></div>
           <div class="comp-desc" id="comp-multi-desc">sender flagged (risk crossed 0.35)</div>
         </div>
       </div>
@@ -2290,7 +2294,7 @@ body {
     var perMsgFlagCount = state.perMsgFlagged;
     var behavioralFlagDay = state.behavioralFirstFlag > 0 ? state.behavioralFirstFlag : 6;
 
-    $('reveal-subtitle').textContent = 'Your path through 6 days of attempted fraud.';
+    $('reveal-subtitle').textContent = 'Pre-ADK Tuning vs Tuned Elder Shield across ' + state.messages + ' messages.';
     $('comp-single-count').textContent = perMsgFlagCount;
     $('comp-single-desc').textContent = 'messages flagged as suspicious or scam';
     $('comp-multi').textContent = behavioralFlagDay;
@@ -2321,32 +2325,37 @@ body {
     sigEl.innerHTML = '';
     for (var d = 0; d < state.signalHistory.length; d++) {
       var dayLabel = DAYS[d].label;
-      var row = document.createElement('div');
-      row.style.marginBottom = '8px';
-      var title = document.createElement('div');
-      title.style.fontWeight = '600';
-      title.style.fontSize = '0.85rem';
-      title.style.marginBottom = '4px';
-      title.style.color = 'var(--gray-700)';
-      // Show both classifications
       var perMsg = state.perMsgClassHistory[d] || 'SAFE';
       var beh = state.classHistory[d] || 'SAFE';
-      title.textContent = dayLabel + ' -- Per-Msg: ' + perMsg + ' | Behavioral: ' + beh;
-      row.appendChild(title);
-      var sigs = document.createElement('div');
-      sigs.style.display = 'flex';
-      sigs.style.flexWrap = 'wrap';
-      sigs.style.gap = '4px';
+      var behRisk = state.riskHistory[d] || 0;
+
+      // Side-by-side row
+      var row = document.createElement('div');
+      row.style.cssText = 'display:grid; grid-template-columns:1fr 1fr; gap:0; margin-bottom:2px; border-bottom:1px solid var(--gray-100);';
+
+      // Left: Pre-ADK result (muted)
+      var leftCol = document.createElement('div');
+      leftCol.style.cssText = 'padding:8px 12px; opacity:0.6; border-right:1px solid var(--gray-200);';
+      var perMsgColor = (perMsg === 'SCAM' || perMsg === 'SUSPICIOUS') ? 'var(--red)' : 'var(--green)';
+      leftCol.innerHTML =
+        '<div style="font-size:0.75rem; font-weight:600; color:var(--gray-500); margin-bottom:2px;">Msg ' + (d+1) + '</div>' +
+        '<span style="display:inline-block; padding:1px 8px; border-radius:3px; font-size:0.7rem; font-weight:700; color:#fff; background:' + perMsgColor + ';">' + perMsg + '</span>';
+      row.appendChild(leftCol);
+
+      // Right: Tuned Shield result (prominent)
+      var rightCol = document.createElement('div');
+      rightCol.style.cssText = 'padding:8px 12px;';
+      var behColor = behRisk >= 0.7 ? 'var(--red)' : behRisk >= 0.35 ? 'var(--orange, #ea580c)' : behRisk >= 0.2 ? 'var(--yellow)' : 'var(--green)';
+      var sigPills = '';
       state.signalHistory[d].forEach(function(s) {
-        var span = document.createElement('span');
-        span.className = 'signal-item ' + (s.type === 'danger' ? 'signal-item-danger' : s.type === 'warn' ? 'signal-item-warn' : 'signal-item-safe');
-        span.innerHTML = '<strong>' + s.code + '</strong> ' + s.text;
-        span.style.fontSize = '0.78rem';
-        span.style.padding = '4px 8px';
-        span.style.borderRadius = '4px';
-        sigs.appendChild(span);
+        var cls = s.type === 'danger' ? 'background:var(--red-bg);color:var(--red);' : 'background:var(--yellow-bg);color:#92400e;';
+        sigPills += '<span style="display:inline-block; padding:1px 6px; border-radius:3px; font-size:0.68rem; font-weight:600; margin-right:3px; ' + cls + '">' + s.code + '</span>';
       });
-      row.appendChild(sigs);
+      rightCol.innerHTML =
+        '<div style="font-size:0.75rem; font-weight:600; color:var(--gray-500); margin-bottom:2px;">Msg ' + (d+1) + ' <span style="color:' + behColor + '; font-weight:700;">' + beh + '</span> <span style="font-size:0.7rem; color:var(--gray-400);">risk ' + behRisk.toFixed(2) + '</span></div>' +
+        (sigPills || '<span style="font-size:0.68rem; color:var(--green);">OK</span>');
+      row.appendChild(rightCol);
+
       sigEl.appendChild(row);
     }
   }
