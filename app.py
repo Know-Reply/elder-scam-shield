@@ -137,6 +137,15 @@ async def demo():
     return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
 
 
+@app.get("/demo/walkthrough", response_class=HTMLResponse)
+async def demo_walkthrough():
+    """Serve the original guided walkthrough demo (4 scenes + live classify)."""
+    path = Path(__file__).parent / "web" / "demo-walkthrough.html"
+    if not path.exists():
+        return HTMLResponse(content="<h1>Walkthrough not found</h1>", status_code=404)
+    return HTMLResponse(content=path.read_text(encoding="utf-8"))
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard():
     """Serve the Family Safety Dashboard.
