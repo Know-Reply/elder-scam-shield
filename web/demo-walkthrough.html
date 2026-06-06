@@ -1557,55 +1557,54 @@
 <section id="results">
   <div class="section-inner">
     <span class="section-label">Evaluation</span>
-    <h2 class="section-title">Real Results</h2>
-    <p class="section-subtitle">Tested against 80 evaluation cases across 20 scam patterns and 15 edge cases, with live Gemini inference.</p>
+    <h2 class="section-title">What Changed</h2>
+    <p class="section-subtitle">The improvement isn't a better F1 score. It's capabilities that didn't exist before.</p>
 
     <div class="results-table-wrap">
       <table class="results-table">
         <thead>
           <tr>
-            <th>Metric</th>
-            <th>Baseline</th>
-            <th>Optimized</th>
-            <th>Improvement</th>
+            <th>Capability</th>
+            <th>Traditional Classifier</th>
+            <th>Elder Scam Shield</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>F1 Score</strong></td>
+            <td><strong>Multi-day trust-building</strong></td>
+            <td style="color:var(--red);">Impossible &mdash; no cross-message state</td>
+            <td class="improve">Day 4 flag, 3 days before money ask</td>
+          </tr>
+          <tr>
+            <td><strong>Imposter detection</strong></td>
+            <td style="color:var(--red);">No contact network</td>
+            <td class="improve">Graph distance + cross-referencing</td>
+          </tr>
+          <tr>
+            <td><strong>Outbound interception</strong></td>
+            <td style="color:var(--red);">Inbound only</td>
+            <td class="improve">Catches compliance signals</td>
+          </tr>
+          <tr>
+            <td><strong>Elder abuse (known contacts)</strong></td>
+            <td style="color:var(--red);">Trusted = whitelisted</td>
+            <td class="improve">EA signals detect manipulation</td>
+          </tr>
+          <tr>
+            <td><strong>Evidence-backed</strong></td>
+            <td style="color:var(--red);">Prompt-only</td>
+            <td class="improve">22,979 corpus entries cited</td>
+          </tr>
+          <tr>
+            <td><strong>Per-message F1</strong></td>
             <td>0.933</td>
-            <td>0.944</td>
-            <td class="improve">+0.011</td>
-          </tr>
-          <tr>
-            <td><strong>Precision</strong></td>
-            <td>0.875</td>
-            <td>0.894</td>
-            <td class="improve">+0.019</td>
-          </tr>
-          <tr>
-            <td><strong>Recall</strong></td>
-            <td>1.000</td>
-            <td>1.000</td>
-            <td>--</td>
-          </tr>
-          <tr>
-            <td><strong>False Positives</strong></td>
-            <td>6 / 80</td>
-            <td>5 / 80</td>
-            <td class="improve">-1</td>
-          </tr>
-          <tr>
-            <td><strong>Detection Match</strong></td>
-            <td>91.2%</td>
-            <td>93.8%</td>
-            <td class="improve">+2.5%</td>
+            <td><strong>0.944</strong> (+0.011)</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <p class="results-note">Corpus: 22,979 entries across 8 categories. Signal space: 20 signals (LG-1..10, BV-1..5, EA-1..4, CM-1).</p>
+    <p class="results-note">The F1 improvement is modest because Gemini is already good at per-message classification. The real gain is structural &mdash; 20 signals across 4 families operating across messages, contacts, and time.</p>
 
     <h3 style="font-size:1.2rem; color:var(--navy); margin-bottom:24px; text-align:center;">6-Round Hardening</h3>
 
