@@ -6,7 +6,8 @@
   <title>Elder Scam Shield — Interactive Demo</title>
   <style>
 /* ========================================
-   Elder Scam Shield — Scam Simulator
+   Elder Scam Shield — Scam Simulator v2
+   Two-column: Thread + Sender Profile
    ======================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -45,7 +46,7 @@ html { font-size: 16px; scroll-behavior: smooth; }
 body {
   font-family: var(--font);
   color: var(--gray-800);
-  background: #fff;
+  background: var(--gray-50);
   line-height: 1.6;
   min-height: 100vh;
   display: flex;
@@ -62,9 +63,9 @@ body {
   box-shadow: var(--shadow);
 }
 .header-inner {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 10px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -76,14 +77,14 @@ body {
 }
 .shield-icon { flex-shrink: 0; }
 .logo-text {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--navy);
   display: block;
   line-height: 1.2;
 }
 .logo-sub {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--gray-500);
   display: block;
 }
@@ -190,76 +191,102 @@ body {
   opacity: 0.5;
 }
 
-/* ---- Simulator ---- */
+/* ---- Simulator Layout ---- */
 .sim-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 24px 60px;
-}
-.sim-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-.sim-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 4px;
-}
-.sim-header p {
-  font-size: 0.9rem;
-  color: var(--gray-500);
-}
-.day-indicator {
-  display: inline-block;
-  background: var(--blue-light);
-  color: var(--blue);
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 3px 12px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
+  padding: 0 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 57px);
 }
 
 .sim-layout {
   display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 24px;
-  align-items: start;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  padding-top: 16px;
 }
 
-/* -- Left: conversation thread -- */
-.thread-panel {
+/* -- Left: conversation thread column -- */
+.thread-col {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
 }
+
+.thread-col-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.thread-col-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.thread-col-sub {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+}
+
 .thread-scroll {
-  max-height: 520px;
+  flex: 1;
   overflow-y: auto;
-  padding-right: 8px;
-  margin-bottom: 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 .thread-scroll::-webkit-scrollbar { width: 4px; }
 .thread-scroll::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
 
+/* Day dividers */
+.day-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+.day-divider::before,
+.day-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray-200);
+}
+.day-divider-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
 /* Message bubbles */
 .bubble {
-  max-width: 85%;
-  padding: 12px 16px;
-  border-radius: 16px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  animation: bubbleIn 0.35s ease;
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  animation: bubbleIn 0.3s ease;
   position: relative;
 }
 @keyframes bubbleIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .bubble-scammer {
@@ -276,161 +303,101 @@ body {
   border-bottom-left-radius: 4px;
   max-width: 92%;
 }
-.bubble-day-sep {
-  align-self: center;
-  background: none;
-  border: none;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--gray-400);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 8px 0 4px;
-}
 .bubble .en-text {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .bubble .jp-text {
   display: block;
-  font-size: 0.82rem;
-  opacity: 0.6;
+  font-size: 0.78rem;
+  opacity: 0.55;
   font-style: italic;
 }
 
-/* Analysis card inside thread */
-.analysis-card {
+/* Inline analysis card (compact, in thread) */
+.analysis-inline {
+  align-self: flex-start;
+  max-width: 90%;
   background: #fff;
   border: 1px solid var(--gray-200);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  box-shadow: var(--shadow);
-  font-size: 0.85rem;
-  animation: bubbleIn 0.4s ease;
-  align-self: flex-start;
-  max-width: 92%;
+  border-left: 3px solid var(--gray-300);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  animation: bubbleIn 0.35s ease;
 }
-.analysis-card .ac-row {
+.analysis-inline.ai-safe    { border-left-color: var(--green); }
+.analysis-inline.ai-monitor { border-left-color: var(--yellow); }
+.analysis-inline.ai-flag    { border-left-color: #ea580c; }
+.analysis-inline.ai-block   { border-left-color: var(--red); }
+
+.ai-top-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
-.analysis-card .ac-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--gray-400);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  min-width: 80px;
-}
-.analysis-card .ac-badge {
+.ai-badge {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 4px;
+  padding: 1px 8px;
+  border-radius: 3px;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 .badge-safe    { background: var(--green); }
 .badge-monitor { background: var(--yellow); color: var(--navy) !important; }
 .badge-flag    { background: #ea580c; }
 .badge-block   { background: var(--red); }
 
-.analysis-card .ac-signals {
+.ai-signals {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 3px;
   margin-top: 4px;
 }
-.ac-signal {
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 4px;
+.ai-signal-pill {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 3px;
   font-weight: 600;
 }
-.ac-signal-warn { background: var(--yellow-bg); color: #92400e; }
-.ac-signal-danger { background: var(--red-bg); color: #991b1b; }
-.ac-signal-safe { background: var(--green-bg); color: var(--green); }
-.ac-reasoning {
-  margin-top: 6px;
-  font-size: 0.8rem;
+.ai-signal-pill.sig-warn   { background: var(--yellow-bg); color: #92400e; }
+.ai-signal-pill.sig-danger { background: var(--red-bg); color: #991b1b; }
+.ai-signal-pill.sig-safe   { background: var(--green-bg); color: var(--green); }
+
+.ai-reasoning-short {
+  margin-top: 4px;
+  font-size: 0.78rem;
   color: var(--gray-500);
-  font-style: italic;
-  border-top: 1px solid var(--gray-100);
-  padding-top: 6px;
-}
-
-/* Choice buttons */
-.choices {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.choices-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--gray-400);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
-}
-.choice-btn {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 14px;
-  border: 2px solid var(--gray-200);
-  border-radius: var(--radius-lg);
-  background: #fff;
+  line-height: 1.4;
   cursor: pointer;
-  text-align: left;
-  transition: all 0.2s;
-  font-family: inherit;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--gray-800);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
-.choice-btn:hover {
-  border-color: var(--navy);
-  box-shadow: var(--shadow-md);
+.ai-reasoning-short.expanded {
+  -webkit-line-clamp: unset;
 }
-.choice-btn:active { transform: scale(0.99); }
-.custom-message-input { margin-top: 8px; }
-.custom-divider {
-  text-align: center; margin: 12px 0 8px; position: relative;
+.live-badge {
+  display: inline-block; padding: 1px 6px; border-radius: 3px;
+  font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; background: var(--blue-light); color: var(--blue);
 }
-.custom-divider::before {
-  content: ''; position: absolute; left: 0; right: 0; top: 50%;
-  border-top: 1px solid var(--gray-200);
-}
-.custom-divider span {
-  background: #fff; padding: 0 12px; position: relative;
-  font-size: 0.78rem; color: var(--gray-400); text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.custom-message-input textarea {
-  width: 100%; padding: 10px 14px; border: 1px solid var(--gray-200);
-  border-radius: var(--radius); font-size: 0.9rem; font-family: inherit;
-  resize: vertical; margin-bottom: 6px; min-height: 44px;
-}
-.custom-message-input textarea:focus {
-  outline: none; border-color: var(--blue-mid);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-}
-.custom-send-btn { border: 2px dashed var(--gray-300) !important; }
-.custom-send-btn:hover { border-color: var(--blue) !important; }
 
-/* Loading steps animation */
+/* Loading steps */
 .loading-steps { padding: 4px 0; }
 .loading-step {
   display: flex; align-items: center; gap: 8px;
-  font-size: 0.82rem; color: var(--gray-300);
-  padding: 4px 0; transition: color 0.3s;
+  font-size: 0.78rem; color: var(--gray-300);
+  padding: 3px 0; transition: color 0.3s;
 }
 .loading-step.active { color: var(--blue); }
 .ls-dot {
-  width: 8px; height: 8px; border-radius: 50%;
+  width: 7px; height: 7px; border-radius: 50%;
   background: var(--gray-200); flex-shrink: 0;
   transition: background 0.3s;
 }
@@ -442,82 +409,209 @@ body {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.3); opacity: 0.6; }
 }
-.live-badge {
-  display: inline-block; padding: 1px 6px; border-radius: 3px;
-  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.04em; background: var(--blue-light); color: var(--blue);
-  margin-left: 6px;
+
+/* Bottom bar with choices (pinned) */
+.bottom-bar {
+  flex-shrink: 0;
+  border-top: 1px solid var(--gray-100);
+  background: #fff;
+  padding: 12px 16px;
 }
+.bottom-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.bottom-bar-day {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bottom-bar-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.choices-row {
+  display: flex;
+  gap: 8px;
+}
+.choice-btn {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  font-family: inherit;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--gray-800);
+}
+.choice-btn:hover {
+  border-color: var(--navy);
+  box-shadow: var(--shadow-md);
+}
+.choice-btn:active { transform: scale(0.99); }
 .choice-letter {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--navy);
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 700;
   flex-shrink: 0;
   margin-top: 1px;
 }
-.choice-content { flex: 1; }
-.choice-en { display: block; margin-bottom: 4px; }
-.choice-jp { display: block; font-size: 0.8rem; color: var(--gray-500); font-style: italic; }
-
+.choice-content { flex: 1; min-width: 0; }
+.choice-en { display: block; margin-bottom: 2px; }
+.choice-jp { display: block; font-size: 0.75rem; color: var(--gray-500); font-style: italic; }
 .choice-tag {
   display: inline-block;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 3px;
-  margin-right: 4px;
+  margin-bottom: 2px;
 }
 .choice-tag-aggressive { background: var(--red-bg); color: var(--red); }
 .choice-tag-moderate   { background: var(--yellow-bg); color: #92400e; }
 .choice-tag-subtle     { background: var(--green-bg); color: var(--green); }
 
-/* -- Right: system panel -- */
-.system-panel {
+/* Custom message toggle */
+.custom-toggle {
+  margin-top: 8px;
+  text-align: center;
+}
+.custom-toggle-btn {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 4px 12px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+.custom-toggle-btn:hover { color: var(--blue); }
+.custom-area {
+  display: none;
+  margin-top: 8px;
+}
+.custom-area.visible { display: block; }
+.custom-area textarea {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--gray-200);
+  border-radius: var(--radius); font-size: 0.85rem; font-family: inherit;
+  resize: none; min-height: 38px;
+}
+.custom-area textarea:focus {
+  outline: none; border-color: var(--blue-mid);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+.custom-send-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.custom-send-btn {
+  padding: 6px 16px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.custom-send-btn:hover { background: #1e293b; }
+
+/* -- Right: Sender Profile Panel (sticky) -- */
+.sender-panel {
+  position: sticky;
+  top: 73px;
+  max-height: calc(100vh - 89px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #fff;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  background: #fff;
   box-shadow: var(--shadow);
-  overflow: hidden;
-  position: sticky;
-  top: 80px;
 }
+.sender-panel::-webkit-scrollbar { width: 4px; }
+.sender-panel::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+
 .sp-section {
   padding: 14px 16px;
   border-bottom: 1px solid var(--gray-100);
 }
 .sp-section:last-child { border-bottom: none; }
 .sp-title {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--gray-400);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   margin-bottom: 8px;
 }
 
-/* Risk gauge */
-.risk-gauge-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* Risk gauge (big, prominent) */
+.risk-gauge-section {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  text-align: center;
+}
+.risk-gauge-section .sp-title { margin-bottom: 12px; }
+.risk-big-number {
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: color 0.5s;
+}
+.risk-status-label {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: all 0.4s;
+}
+.risk-status-safe    { background: var(--green-bg); color: var(--green); }
+.risk-status-monitor { background: var(--yellow-bg); color: #92400e; }
+.risk-status-flag    { background: #fff7ed; color: #ea580c; }
+.risk-status-block   { background: var(--red-bg); color: var(--red); }
+.risk-gauge-bar-wrap {
+  margin-top: 12px;
 }
 .risk-gauge-bar {
-  flex: 1;
-  height: 12px;
+  height: 8px;
   background: var(--gray-100);
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
 }
 .risk-gauge-fill {
   height: 100%;
-  border-radius: 6px;
+  border-radius: 4px;
   background: var(--green);
   transition: width 0.8s ease, background 0.8s ease;
 }
@@ -525,69 +619,118 @@ body {
 .risk-gauge-fill.risk-medium { background: var(--yellow); }
 .risk-gauge-fill.risk-high   { background: #ea580c; }
 .risk-gauge-fill.risk-critical { background: var(--red); }
-.risk-gauge-value {
-  font-size: 1.4rem;
-  font-weight: 800;
-  min-width: 48px;
-  text-align: right;
-  transition: color 0.5s;
+
+/* Risk timeline sparkline */
+.risk-timeline-mini {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 40px;
+  padding-top: 4px;
+}
+.rtm-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.rtm-bar-wrap:hover { opacity: 0.8; }
+.rtm-bar {
+  width: 100%;
+  min-height: 3px;
+  border-radius: 2px;
+  transition: height 0.5s ease, background 0.5s ease;
+}
+.rtm-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--gray-400);
+}
+.rtm-empty {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gray-100);
 }
 
-/* Classification badge */
-.classification-badge {
-  display: inline-block;
-  padding: 4px 14px;
-  border-radius: 6px;
-  font-weight: 800;
-  font-size: 0.9rem;
-  letter-spacing: 0.03em;
+/* Accumulated signals */
+.acc-signals-group {
+  margin-bottom: 6px;
+}
+.acc-signals-day {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.acc-signals-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.acc-signal {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.acc-signal-warn   { background: var(--yellow-bg); color: #92400e; }
+.acc-signal-danger { background: var(--red-bg); color: #991b1b; }
+.acc-signal-safe   { background: var(--green-bg); color: var(--green); }
+@keyframes signalGlow {
+  0% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+  70% { box-shadow: 0 0 0 4px rgba(59,130,246,0); }
+  100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+}
+.acc-signal.new-signal {
+  animation: signalGlow 1s ease;
+}
+.signal-none {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  font-style: italic;
 }
 
 /* Profile fields */
 .sp-field {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   padding: 3px 0;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 .sp-field-label {
   color: var(--gray-500);
   font-weight: 600;
+  flex-shrink: 0;
 }
 .sp-field-value {
   color: var(--gray-700);
   text-align: right;
+  word-break: break-word;
 }
 
-/* Signals list */
-.signal-list {
+/* Graph validation */
+.graph-val {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.signal-item {
-  font-size: 0.78rem;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 500;
-  animation: bubbleIn 0.3s ease;
-}
-.signal-item-warn { background: var(--yellow-bg); color: #92400e; }
-.signal-item-danger { background: var(--red-bg); color: #991b1b; }
-.signal-item-safe { background: var(--green-bg); color: var(--green); }
-.signal-none {
+  align-items: center;
+  gap: 6px;
   font-size: 0.8rem;
-  color: var(--gray-400);
-  font-style: italic;
 }
-
-/* Reasoning */
-.sp-reasoning {
-  font-size: 0.82rem;
-  color: var(--gray-600);
-  line-height: 1.5;
+.graph-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
+.graph-dot-none { background: var(--red); }
+.graph-dot-ok   { background: var(--green); }
 
 /* ---- Reveal screen ---- */
 .reveal-container {
@@ -620,13 +763,13 @@ body {
   border-bottom: 2px solid var(--gray-100);
 }
 
-/* Timeline chart */
+/* Timeline chart (reveal) */
 .risk-timeline {
   position: relative;
   height: 200px;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  background: var(--gray-50);
+  background: #fff;
   padding: 16px;
   overflow: hidden;
 }
@@ -789,165 +932,20 @@ body {
 }
 .btn-dark:hover { background: #1e293b; }
 
-/* ---- Live Classify Section ---- */
-.live-section {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 48px 24px 60px;
-  border-top: 1px solid var(--gray-200);
-}
-.live-section h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 4px;
-}
-.live-section .live-sub {
-  color: var(--gray-500);
-  font-size: 0.9rem;
-  margin-bottom: 24px;
-}
-.live-field {
-  margin-bottom: 1rem;
-}
-.live-field label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  color: var(--navy);
-  font-size: 0.9rem;
-}
-.live-field input,
-.live-field textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius);
-  font-size: 1rem;
-  font-family: inherit;
-}
-.live-field textarea { resize: vertical; }
-.live-buttons {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.5rem;
-}
-.live-btn-classify {
-  flex: 1;
-  min-width: 200px;
-  padding: 10px 20px;
-  background: var(--blue);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-}
-.live-btn-classify:hover { background: #1447b8; }
-.live-btn-example {
-  padding: 10px 16px;
-  border-radius: var(--radius);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid;
-  background: transparent;
-  font-family: inherit;
-}
-.live-btn-scam { background: var(--red-bg); color: var(--red); border-color: var(--red-light); }
-.live-btn-safe { background: var(--green-bg); color: var(--green); border-color: #bbf7d0; }
-
-#live-result { display: none; }
-#live-loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--blue);
-}
-#live-output { display: none; }
-.live-output-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-.live-output-box {
-  padding: 1rem;
-  border-radius: var(--radius);
-}
-.live-output-label {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 0.25rem;
-}
-.live-output-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-.live-signals-wrap {
-  margin-bottom: 1rem;
-}
-.live-signals-title {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.live-signals-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-.live-facts-wrap {
-  margin-bottom: 1rem;
-}
-.live-facts-title {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.live-facts-pre {
-  background: var(--gray-50);
-  padding: 1rem;
-  border-radius: var(--radius);
-  font-size: 0.85rem;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  font-family: var(--font-mono);
-}
-.live-reasoning-title {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.live-reasoning-text {
-  color: #555;
-  font-size: 0.9rem;
-}
-#live-error {
-  display: none;
-  padding: 1rem;
-  background: var(--red-bg);
-  border-radius: var(--radius);
-  color: var(--red);
-}
-
-/* ---- Footer ---- */
-.footer {
-  text-align: center;
-  padding: 16px 24px;
-  border-top: 1px solid var(--gray-200);
-  font-size: 0.78rem;
-  color: var(--gray-400);
-}
-
 /* ---- Responsive ---- */
-@media (max-width: 860px) {
+@media (max-width: 900px) {
+  .sim-container { height: auto; min-height: calc(100vh - 57px); }
   .sim-layout {
     grid-template-columns: 1fr;
+    height: auto;
   }
-  .system-panel {
+  .sender-panel {
     position: static;
+    max-height: none;
     order: -1;
   }
+  .thread-col { min-height: 500px; }
+  .choices-row { flex-direction: column; }
   .landing h1 { font-size: 1.7rem; }
   .comparison-grid { grid-template-columns: 1fr; }
   .header-nav { gap: 4px; }
@@ -955,10 +953,11 @@ body {
 }
 @media (max-width: 480px) {
   .landing { padding: 48px 16px 40px; }
-  .sim-container { padding: 16px 16px 40px; }
-  .bubble { max-width: 95%; }
-  .choice-btn { padding: 10px 12px; font-size: 0.85rem; }
+  .sim-container { padding: 0 12px; }
+  .bubble { max-width: 92%; }
+  .choice-btn { padding: 8px 10px; font-size: 0.78rem; }
   .comp-big { font-size: 2rem; }
+  .risk-big-number { font-size: 2.2rem; }
 }
   </style>
 </head>
@@ -967,7 +966,7 @@ body {
 <header class="header">
   <div class="header-inner">
     <div class="logo">
-      <svg class="shield-icon" viewBox="0 0 32 40" width="28" height="35">
+      <svg class="shield-icon" viewBox="0 0 32 40" width="26" height="32">
         <path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/>
         <path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -983,7 +982,7 @@ body {
   </div>
 </header>
 
-<!-- ===== SCREEN: LANDING (hidden — simulator starts directly) ===== -->
+<!-- ===== SCREEN: LANDING ===== -->
 <div class="screen" id="screen-landing">
   <div class="landing">
     <h1>Elder Scam Shield</h1>
@@ -1007,13 +1006,6 @@ body {
         </div>
         <span class="btn-arrow">&rarr;</span>
       </a>
-      <a class="entry-btn" href="#live-classify-section">
-        <div>
-          <div class="btn-label">Try Live Classify</div>
-          <div class="btn-desc">Send any message to Gemini and see instant classification.</div>
-        </div>
-        <span class="btn-arrow">&rarr;</span>
-      </a>
     </div>
   </div>
 </div>
@@ -1021,50 +1013,79 @@ body {
 <!-- ===== SCREEN: SIMULATOR ===== -->
 <div class="screen active" id="screen-sim">
   <div class="sim-container">
-    <div class="sim-header">
-      <span class="day-indicator" id="day-label">Day 1 of 7</span>
-      <h2>Can You Scam Grandma?</h2>
-      <p>You are a scammer targeting an elderly Japanese woman. Choose your messages. Watch the system react.</p>
-    </div>
     <div class="sim-layout">
-      <!-- Left: thread -->
-      <div class="thread-panel">
-        <div class="thread-scroll" id="thread"></div>
-        <div class="choices" id="choices"></div>
-      </div>
-      <!-- Right: system panel -->
-      <div class="system-panel">
-        <div class="sp-section">
-          <div class="sp-title">Classification</div>
-          <span class="classification-badge badge-safe" id="sp-class">SAFE</span>
+      <!-- Left: conversation thread -->
+      <div class="thread-col">
+        <div class="thread-col-header">
+          <span class="thread-col-title">Can You Scam Grandma?</span>
+          <span class="thread-col-sub">Choose messages. Watch the system react.</span>
         </div>
-        <div class="sp-section">
-          <div class="sp-title">Risk Score</div>
-          <div class="risk-gauge-wrap">
+        <div class="thread-scroll" id="thread"></div>
+        <div class="bottom-bar" id="bottom-bar">
+          <div class="bottom-bar-header">
+            <span class="bottom-bar-day" id="day-label">Day 1 of 7</span>
+            <span class="bottom-bar-label">Choose your message</span>
+          </div>
+          <div id="choices"></div>
+        </div>
+      </div>
+
+      <!-- Right: sender profile panel -->
+      <div class="sender-panel">
+        <!-- Risk Gauge -->
+        <div class="risk-gauge-section">
+          <div class="sp-title">Sender Risk Level</div>
+          <div class="risk-big-number" id="sp-risk-val" style="color:var(--green)">0.05</div>
+          <div>
+            <span class="risk-status-label risk-status-safe" id="sp-risk-status">SAFE</span>
+          </div>
+          <div class="risk-gauge-bar-wrap">
             <div class="risk-gauge-bar">
               <div class="risk-gauge-fill risk-low" id="sp-risk-fill" style="width:5%"></div>
             </div>
-            <span class="risk-gauge-value" id="sp-risk-val" style="color:var(--green)">0.05</span>
           </div>
         </div>
+
+        <!-- Risk Timeline -->
         <div class="sp-section">
-          <div class="sp-title">Sender Profile</div>
-          <div class="sp-field"><span class="sp-field-label">Messages</span><span class="sp-field-value" id="sp-messages">0</span></div>
-          <div class="sp-field"><span class="sp-field-label">Days Active</span><span class="sp-field-value" id="sp-days">0</span></div>
-          <div class="sp-field"><span class="sp-field-label">Claimed Identity</span><span class="sp-field-value" id="sp-identity">&mdash;</span></div>
-          <div class="sp-field"><span class="sp-field-label">Locations</span><span class="sp-field-value" id="sp-locations">&mdash;</span></div>
-          <div class="sp-field"><span class="sp-field-label">Contradictions</span><span class="sp-field-value" id="sp-contradictions">0</span></div>
-          <div class="sp-field"><span class="sp-field-label">Financial Ask</span><span class="sp-field-value" id="sp-financial">&mdash;</span></div>
+          <div class="sp-title">Risk Timeline</div>
+          <div class="risk-timeline-mini" id="sp-timeline">
+            <div class="rtm-bar-wrap" data-day="1"><div class="rtm-empty"></div><span class="rtm-label">1</span></div>
+            <div class="rtm-bar-wrap" data-day="2"><div class="rtm-empty"></div><span class="rtm-label">2</span></div>
+            <div class="rtm-bar-wrap" data-day="3"><div class="rtm-empty"></div><span class="rtm-label">3</span></div>
+            <div class="rtm-bar-wrap" data-day="4"><div class="rtm-empty"></div><span class="rtm-label">4</span></div>
+            <div class="rtm-bar-wrap" data-day="5"><div class="rtm-empty"></div><span class="rtm-label">5</span></div>
+            <div class="rtm-bar-wrap" data-day="6"><div class="rtm-empty"></div><span class="rtm-label">6</span></div>
+          </div>
         </div>
+
+        <!-- Accumulated Signals -->
         <div class="sp-section">
-          <div class="sp-title">Detected Signals</div>
-          <div class="signal-list" id="sp-signals">
+          <div class="sp-title">Accumulated Signals</div>
+          <div id="sp-acc-signals">
             <span class="signal-none">No signals detected</span>
           </div>
         </div>
+
+        <!-- Sender Identity -->
         <div class="sp-section">
-          <div class="sp-title">Reasoning</div>
-          <div class="sp-reasoning" id="sp-reasoning">Awaiting first message.</div>
+          <div class="sp-title">Sender Identity</div>
+          <div class="sp-field"><span class="sp-field-label">Claimed Name</span><span class="sp-field-value" id="sp-identity">&mdash;</span></div>
+          <div class="sp-field"><span class="sp-field-label">Locations</span><span class="sp-field-value" id="sp-locations">&mdash;</span></div>
+          <div class="sp-field"><span class="sp-field-label">Contradictions</span><span class="sp-field-value" id="sp-contradictions">0</span></div>
+          <div class="sp-field"><span class="sp-field-label">Financial Asks</span><span class="sp-field-value" id="sp-financial">&mdash;</span></div>
+          <div class="sp-field"><span class="sp-field-label">Days Active</span><span class="sp-field-value" id="sp-days">0</span></div>
+          <div class="sp-field"><span class="sp-field-label">Messages</span><span class="sp-field-value" id="sp-messages">0</span></div>
+        </div>
+
+        <!-- Graph Validation -->
+        <div class="sp-section">
+          <div class="sp-title">Graph Validation</div>
+          <div class="graph-val">
+            <span class="graph-dot graph-dot-none"></span>
+            <span style="font-size:0.8rem;color:var(--gray-600)">Network connection: <strong style="color:var(--red)">NONE</strong></span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--gray-400);margin-top:4px;">This sender has no connection to anyone in the contact network.</div>
         </div>
       </div>
     </div>
@@ -1114,11 +1135,6 @@ body {
     </div>
   </div>
 </div>
-
-
-<footer class="footer">
-  <p>Elder Scam Shield &mdash; Google for Startups AI Agents Challenge &bull; Track 2: Optimize</p>
-</footer>
 
 <script>
 (function () {
@@ -1447,7 +1463,7 @@ body {
   // =========================================================
   var state = {
     currentDay: 0,
-    choices: [],    // index of choice made each day
+    choices: [],
     riskHistory: [],
     classHistory: [],
     signalHistory: [],
@@ -1464,8 +1480,6 @@ body {
   //  DOM HELPERS
   // =========================================================
   function $(id) { return document.getElementById(id); }
-  function show(id) { $(id).classList.add('active'); }
-  function hide(id) { $(id).classList.remove('active'); }
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
@@ -1491,23 +1505,36 @@ body {
       default: return 'badge-safe';
     }
   }
+  function riskStatusClass(r) {
+    if (r < 0.2) return 'risk-status-safe';
+    if (r < 0.45) return 'risk-status-monitor';
+    if (r < 0.7) return 'risk-status-flag';
+    return 'risk-status-block';
+  }
+  function riskStatusLabel(r) {
+    if (r < 0.2) return 'SAFE';
+    if (r < 0.45) return 'MONITOR';
+    if (r < 0.7) return 'FLAG';
+    return 'BLOCK';
+  }
 
   // =========================================================
-  //  UPDATE SYSTEM PANEL
+  //  UPDATE SENDER PROFILE PANEL (right side — accumulated)
   // =========================================================
   function updatePanel(choiceData, currentRisk, currentClass) {
-    // Risk
+    // Risk gauge
     var rc = riskColor(currentRisk);
     $('sp-risk-fill').style.width = (currentRisk * 100) + '%';
     $('sp-risk-fill').className = 'risk-gauge-fill ' + rc.cls;
     $('sp-risk-val').textContent = currentRisk.toFixed(2);
     $('sp-risk-val').style.color = rc.color;
 
-    // Classification
-    $('sp-class').textContent = currentClass;
-    $('sp-class').className = 'classification-badge ' + classBadge(currentClass);
+    // Risk status label (SENDER level, not message)
+    var statusEl = $('sp-risk-status');
+    statusEl.textContent = riskStatusLabel(currentRisk);
+    statusEl.className = 'risk-status-label ' + riskStatusClass(currentRisk);
 
-    // Profile
+    // Profile fields
     $('sp-messages').textContent = state.messages;
     $('sp-days').textContent = state.currentDay + 1;
 
@@ -1537,16 +1564,62 @@ body {
     $('sp-financial').style.color = state.profile.financial !== '\u2014' ? 'var(--red)' : '';
     $('sp-financial').style.fontWeight = state.profile.financial !== '\u2014' ? '700' : '';
 
-    // Signals
-    var sigHtml = '';
-    choiceData.signals.forEach(function(s) {
-      var cls = s.type === 'danger' ? 'signal-item-danger' : s.type === 'warn' ? 'signal-item-warn' : 'signal-item-safe';
-      sigHtml += '<div class="signal-item ' + cls + '"><strong>' + s.code + '</strong> ' + s.text + '</div>';
-    });
-    $('sp-signals').innerHTML = sigHtml || '<span class="signal-none">No signals detected</span>';
+    // Risk timeline mini bars
+    updateTimelineMini();
 
-    // Reasoning
-    $('sp-reasoning').textContent = choiceData.reasoning;
+    // Accumulated signals (all days)
+    updateAccumulatedSignals();
+  }
+
+  function updateTimelineMini() {
+    var wraps = $('sp-timeline').querySelectorAll('.rtm-bar-wrap');
+    for (var i = 0; i < wraps.length; i++) {
+      var inner = wraps[i].querySelector('.rtm-bar, .rtm-empty');
+      if (i < state.riskHistory.length) {
+        var r = state.riskHistory[i];
+        var rc = riskColor(r);
+        var barEl = document.createElement('div');
+        barEl.className = 'rtm-bar';
+        barEl.style.height = Math.max(3, r * 36) + 'px';
+        barEl.style.background = rc.color;
+        if (inner) inner.replaceWith(barEl);
+        // Click to scroll
+        (function(dayIdx) {
+          wraps[dayIdx].onclick = function() {
+            var divider = document.getElementById('day-div-' + (dayIdx + 1));
+            if (divider) divider.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+        })(i);
+      }
+    }
+  }
+
+  function updateAccumulatedSignals() {
+    var container = $('sp-acc-signals');
+    if (state.signalHistory.length === 0) {
+      container.innerHTML = '<span class="signal-none">No signals detected</span>';
+      return;
+    }
+    var html = '';
+    var latestDayIdx = state.signalHistory.length - 1;
+    for (var d = 0; d < state.signalHistory.length; d++) {
+      var sigs = state.signalHistory[d];
+      if (!sigs || sigs.length === 0) continue;
+      var hasNonOk = sigs.some(function(s) { return s.code !== 'OK'; });
+      if (!hasNonOk && sigs.length === 1 && sigs[0].type === 'safe') {
+        // Still show safe signals
+      }
+      html += '<div class="acc-signals-group">';
+      html += '<div class="acc-signals-day">Day ' + DAYS[d].day + '</div>';
+      html += '<div class="acc-signals-pills">';
+      sigs.forEach(function(s) {
+        var cls = s.type === 'danger' ? 'acc-signal-danger' : s.type === 'warn' ? 'acc-signal-warn' : 'acc-signal-safe';
+        var newCls = d === latestDayIdx ? ' new-signal' : '';
+        html += '<span class="acc-signal ' + cls + newCls + '" title="' + (s.text || '') + '">' + s.code + '</span>';
+      });
+      html += '</div></div>';
+    }
+    container.innerHTML = html;
   }
 
   // =========================================================
@@ -1561,17 +1634,19 @@ body {
     var day = DAYS[state.currentDay];
     $('day-label').textContent = 'Day ' + day.day + ' of 7';
 
-    // Add day separator to thread
+    // Add day divider to thread
     var thread = $('thread');
     var sep = document.createElement('div');
-    sep.className = 'bubble bubble-day-sep';
-    sep.textContent = day.label;
+    sep.className = 'day-divider';
+    sep.id = 'day-div-' + day.day;
+    sep.innerHTML = '<span class="day-divider-text">Day ' + day.day + '</span>';
     thread.appendChild(sep);
     thread.scrollTop = thread.scrollHeight;
 
-    // Render choices
+    // Render choices in bottom bar
     var choicesDiv = $('choices');
-    choicesDiv.innerHTML = '<div class="choices-label">Choose your message — or write your own:</div>';
+    var choicesRow = document.createElement('div');
+    choicesRow.className = 'choices-row';
     day.choices.forEach(function(c, i) {
       var btn = document.createElement('button');
       btn.className = 'choice-btn';
@@ -1583,21 +1658,31 @@ body {
           '<span class="choice-jp">' + c.jp + '</span>' +
         '</div>';
       btn.addEventListener('click', function() { selectChoice(i); });
-      choicesDiv.appendChild(btn);
+      choicesRow.appendChild(btn);
     });
+    choicesDiv.innerHTML = '';
+    choicesDiv.appendChild(choicesRow);
 
-    // Add "write your own" option
-    var customDiv = document.createElement('div');
-    customDiv.className = 'custom-message-input';
-    customDiv.innerHTML =
-      '<div class="custom-divider"><span>or write your own</span></div>' +
-      '<textarea id="custom-msg" rows="2" placeholder="Type your own scam message and see how the system reacts..."></textarea>' +
-      '<button id="custom-send" class="choice-btn custom-send-btn">' +
-        '<span class="choice-letter">&#9998;</span>' +
-        '<div class="choice-content"><span class="choice-en">Send Custom Message</span></div>' +
-      '</button>';
-    choicesDiv.appendChild(customDiv);
+    // Custom message toggle
+    var customWrap = document.createElement('div');
+    customWrap.className = 'custom-toggle';
+    customWrap.innerHTML =
+      '<button class="custom-toggle-btn" id="custom-toggle-btn">Or write your own message</button>' +
+      '<div class="custom-area" id="custom-area">' +
+        '<textarea id="custom-msg" rows="2" placeholder="Type your own scam message..."></textarea>' +
+        '<div class="custom-send-row">' +
+          '<button class="custom-send-btn" id="custom-send">Send to Gemini</button>' +
+        '</div>' +
+      '</div>';
+    choicesDiv.appendChild(customWrap);
 
+    document.getElementById('custom-toggle-btn').addEventListener('click', function() {
+      var area = document.getElementById('custom-area');
+      area.classList.toggle('visible');
+      if (area.classList.contains('visible')) {
+        document.getElementById('custom-msg').focus();
+      }
+    });
     document.getElementById('custom-send').addEventListener('click', function() {
       var msg = document.getElementById('custom-msg').value.trim();
       if (!msg) { document.getElementById('custom-msg').focus(); return; }
@@ -1612,7 +1697,7 @@ body {
     var btn = document.getElementById('custom-send');
     var textarea = document.getElementById('custom-msg');
     btn.disabled = true;
-    btn.querySelector('.choice-en').textContent = 'Classifying with Gemini...';
+    btn.textContent = 'Classifying...';
 
     fetch('/api/classify', {
       method: 'POST',
@@ -1627,7 +1712,6 @@ body {
       var signals = result.detected_signals || [];
       var reasoning = result.reasoning || '';
 
-      // Use confidence as risk score if available, otherwise map from classification
       var risk;
       if (confidence > 0) {
         risk = cls === 'SAFE' ? Math.max(0.05, 1 - confidence) : confidence;
@@ -1636,7 +1720,6 @@ body {
         risk = riskMap[cls] || 0.3;
       }
 
-      // Build signal objects from string array
       var signalObjects = signals.map(function(s) {
         return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
       });
@@ -1648,7 +1731,6 @@ body {
         reasoning = 'Classified by live Gemini inference.';
       }
 
-      // Feed into the simulator as if it were a pre-written choice
       var fakeChoice = {
         en: msg.length > 120 ? msg.substring(0, 120) + '...' : msg,
         jp: '',
@@ -1661,7 +1743,6 @@ body {
         profile: {}
       };
 
-      // Inject into current day data and select it
       var day = DAYS[state.currentDay];
       var customIdx = day.choices.length;
       day.choices.push(fakeChoice);
@@ -1669,7 +1750,7 @@ body {
     })
     .catch(function(err) {
       btn.disabled = false;
-      btn.querySelector('.choice-en').textContent = 'Error: ' + err.message + '. Is the server running?';
+      btn.textContent = 'Error: ' + err.message;
     });
   }
 
@@ -1696,9 +1777,9 @@ body {
     bubble.innerHTML = '<span class="en-text">' + msgText + '</span>' + (c.jp && c.en ? '<span class="jp-text">' + c.jp + '</span>' : '');
     thread.appendChild(bubble);
 
-    // Add loading animation
+    // Add loading animation inline in thread
     var loadingCard = document.createElement('div');
-    loadingCard.className = 'analysis-card';
+    loadingCard.className = 'analysis-inline';
     loadingCard.id = 'loading-card';
     loadingCard.innerHTML =
       '<div class="loading-steps">' +
@@ -1728,11 +1809,9 @@ body {
       var liveSignals = result.detected_signals || [];
       var liveReasoning = result.reasoning || '';
 
-      // Use live classification if available, fall back to pre-computed
       var currentRisk, currentClass;
       if (liveClass && liveClass !== 'NO_RESPONSE') {
         currentClass = liveClass;
-        // Map classification to risk — use confidence if available
         if (liveConfidence > 0) {
           currentRisk = liveClass === 'SAFE' ? Math.max(0.05, (1 - liveConfidence) * 0.3) :
                         liveClass === 'SUSPICIOUS' ? 0.3 + liveConfidence * 0.3 :
@@ -1740,16 +1819,13 @@ body {
         } else {
           currentRisk = c.risk || 0.3;
         }
-        // Blend with pre-computed risk for progression continuity
         var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
-        currentRisk = Math.max(currentRisk, prevRisk * 0.8); // don't drop too far
-        // Build signal objects from live data
+        currentRisk = Math.max(currentRisk, prevRisk * 0.8);
         c.signals = liveSignals.map(function(s) {
           return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
         });
         c.reasoning = liveReasoning;
       } else {
-        // Fall back to pre-computed
         var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
         currentRisk = c.risk !== null ? c.risk : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
         currentClass = c.classification || (currentRisk < 0.15 ? 'SAFE' : currentRisk < 0.35 ? 'MONITOR' : currentRisk < 0.7 ? 'FLAG' : 'BLOCK');
@@ -1759,14 +1835,12 @@ body {
       state.classHistory.push(currentClass);
       state.signalHistory.push(c.signals);
 
-      // Remove loading card and show results
       var lc = document.getElementById('loading-card');
       if (lc) lc.remove();
 
       renderAnalysisCard(c, currentRisk, currentClass, liveClass && liveClass !== 'NO_RESPONSE');
     })
     .catch(function(err) {
-      // API failed — fall back to pre-computed
       var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
       var currentRisk = c.risk !== null ? c.risk : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
       var currentClass = c.classification || 'MONITOR';
@@ -1781,33 +1855,32 @@ body {
 
   function renderAnalysisCard(c, currentRisk, currentClass, isLive) {
     var thread = $('thread');
-    var rc = riskColor(currentRisk);
     var card = document.createElement('div');
-    card.className = 'analysis-card';
+    var borderClass = currentClass === 'SAFE' ? 'ai-safe' :
+                      currentClass === 'MONITOR' ? 'ai-monitor' :
+                      currentClass === 'FLAG' ? 'ai-flag' : 'ai-block';
+    card.className = 'analysis-inline ' + borderClass;
+
+    // Top row: badge + live indicator
     var sigHtml = '';
     c.signals.forEach(function(s) {
-      var cls = s.type === 'danger' ? 'ac-signal-danger' : s.type === 'warn' ? 'ac-signal-warn' : 'ac-signal-safe';
-      sigHtml += '<span class="ac-signal ' + cls + '">' + s.code + '</span>';
+      var cls = s.type === 'danger' ? 'sig-danger' : s.type === 'warn' ? 'sig-warn' : 'sig-safe';
+      sigHtml += '<span class="ai-signal-pill ' + cls + '" title="' + (s.text || '') + '">' + s.code + '</span>';
     });
-    var liveBadge = isLive ? '<span class="live-badge">Live Gemini</span>' : '';
+    var liveBadge = isLive ? ' <span class="live-badge">Live Gemini</span>' : '';
+
     card.innerHTML =
-      '<div class="ac-row">' +
-        '<span class="ac-label">Status</span>' +
-        '<span class="ac-badge ' + classBadge(currentClass) + '">' + currentClass + '</span>' +
+      '<div class="ai-top-row">' +
+        '<span class="ai-badge ' + classBadge(currentClass) + '">' + currentClass + '</span>' +
         liveBadge +
       '</div>' +
-      '<div class="ac-row">' +
-        '<span class="ac-label">Risk</span>' +
-        '<span style="font-weight:700;color:' + rc.color + '">' + currentRisk.toFixed(2) + '</span>' +
-      '</div>' +
-      (sigHtml ? '<div class="ac-signals">' + sigHtml + '</div>' : '') +
-      '<div class="ac-reasoning">' + (c.reasoning || '') + '</div>';
+      (sigHtml ? '<div class="ai-signals">' + sigHtml + '</div>' : '') +
+      '<div class="ai-reasoning-short" onclick="this.classList.toggle(\'expanded\')">' + (c.reasoning || '') + '</div>';
     thread.appendChild(card);
 
-    // Scroll to bottom
     thread.scrollTop = thread.scrollHeight;
 
-    // Update system panel
+    // Update sender profile panel
     updatePanel(c, currentRisk, currentClass);
 
     // Clear choices
@@ -1824,7 +1897,6 @@ body {
   function showReveal() {
     showScreen('screen-reveal');
 
-    // Find first flag/block day
     var firstFlagDay = -1;
     for (var i = 0; i < state.classHistory.length; i++) {
       if (state.classHistory[i] === 'FLAG' || state.classHistory[i] === 'BLOCK') {
@@ -1838,7 +1910,6 @@ body {
     $('reveal-subtitle').textContent = 'Your path through 6 days of attempted fraud.';
     $('comp-multi').textContent = firstFlagDay;
 
-    // Highlight
     var hlEl = $('reveal-highlight');
     if (daysBefore > 0) {
       hlEl.innerHTML = '<p>The system flagged this conversation as suspicious at <strong>Day ' + firstFlagDay +
@@ -1851,10 +1922,8 @@ body {
         'catching sophisticated scams that individual message analysis misses.</p>';
     }
 
-    // Risk timeline
     drawTimeline();
 
-    // Signal progression
     var sigEl = $('reveal-signals');
     sigEl.innerHTML = '';
     for (var d = 0; d < state.signalHistory.length; d++) {
@@ -1877,6 +1946,8 @@ body {
         span.className = 'signal-item ' + (s.type === 'danger' ? 'signal-item-danger' : s.type === 'warn' ? 'signal-item-warn' : 'signal-item-safe');
         span.innerHTML = '<strong>' + s.code + '</strong> ' + s.text;
         span.style.fontSize = '0.78rem';
+        span.style.padding = '4px 8px';
+        span.style.borderRadius = '4px';
         sigs.appendChild(span);
       });
       row.appendChild(sigs);
@@ -1895,7 +1966,6 @@ body {
     var left0 = 56;
     var top0 = 16;
 
-    // Grid lines
     [0, 0.25, 0.5, 0.75, 1.0].forEach(function(v) {
       var y = top0 + H * (1 - v);
       var line = document.createElement('div');
@@ -1912,7 +1982,6 @@ body {
       container.appendChild(label);
     });
 
-    // Threshold
     var threshY = top0 + H * (1 - 0.7);
     var thresh = document.createElement('div');
     thresh.className = 'rt-threshold';
@@ -1927,14 +1996,12 @@ body {
     tl.textContent = 'FLAG threshold';
     container.appendChild(tl);
 
-    // Points and lines
     var points = [];
     data.forEach(function(r, i) {
       var x = left0 + (W * i / Math.max(data.length - 1, 1));
       var y = top0 + H * (1 - r);
       points.push({ x: x, y: y, r: r });
 
-      // Day label
       var dl = document.createElement('div');
       dl.className = 'rt-day-label';
       dl.style.left = x + 'px';
@@ -1942,7 +2009,6 @@ body {
       container.appendChild(dl);
     });
 
-    // Lines
     for (var i = 1; i < points.length; i++) {
       var p0 = points[i - 1];
       var p1 = points[i];
@@ -1960,7 +2026,6 @@ body {
       container.appendChild(line);
     }
 
-    // Dots
     points.forEach(function(p) {
       var dot = document.createElement('div');
       dot.className = 'rt-point';
@@ -1995,8 +2060,8 @@ body {
     $('sp-risk-fill').className = 'risk-gauge-fill risk-low';
     $('sp-risk-val').textContent = '0.05';
     $('sp-risk-val').style.color = 'var(--green)';
-    $('sp-class').textContent = 'SAFE';
-    $('sp-class').className = 'classification-badge badge-safe';
+    $('sp-risk-status').textContent = 'SAFE';
+    $('sp-risk-status').className = 'risk-status-label risk-status-safe';
     $('sp-messages').textContent = '0';
     $('sp-days').textContent = '0';
     $('sp-identity').textContent = '\u2014';
@@ -2007,16 +2072,22 @@ body {
     $('sp-financial').textContent = '\u2014';
     $('sp-financial').style.color = '';
     $('sp-financial').style.fontWeight = '';
-    $('sp-signals').innerHTML = '<span class="signal-none">No signals detected</span>';
-    $('sp-reasoning').textContent = 'Awaiting first message.';
+    $('sp-acc-signals').innerHTML = '<span class="signal-none">No signals detected</span>';
+    // Reset timeline bars
+    var wraps = $('sp-timeline').querySelectorAll('.rtm-bar-wrap');
+    wraps.forEach(function(w) {
+      var inner = w.querySelector('.rtm-bar, .rtm-empty');
+      var empty = document.createElement('div');
+      empty.className = 'rtm-empty';
+      if (inner) inner.replaceWith(empty);
+      w.onclick = null;
+    });
   }
 
   function init() {
-    // Auto-start simulator (no landing screen)
     resetState();
     renderDay();
 
-    // Start button (if landing screen is ever shown)
     var startBtn = $('btn-start-sim');
     if (startBtn) startBtn.addEventListener('click', function() {
       resetState();
@@ -2024,7 +2095,6 @@ body {
       renderDay();
     });
 
-    // Restart
     $('btn-restart').addEventListener('click', function() {
       resetState();
       showScreen('screen-sim');
@@ -2032,7 +2102,6 @@ body {
     });
   }
 
-  // Run
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
