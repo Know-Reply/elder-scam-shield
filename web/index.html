@@ -1781,26 +1781,17 @@ body {
     choicesDiv.innerHTML = '';
     choicesDiv.appendChild(choicesRow);
 
-    // Custom message toggle
+    // Custom message input (always visible)
     var customWrap = document.createElement('div');
     customWrap.className = 'custom-toggle';
     customWrap.innerHTML =
-      '<button class="custom-toggle-btn" id="custom-toggle-btn">Or write your own message</button>' +
-      '<div class="custom-area" id="custom-area">' +
-        '<textarea id="custom-msg" rows="2" placeholder="Type your own scam message..."></textarea>' +
+      '<div class="custom-area visible" id="custom-area">' +
+        '<textarea id="custom-msg" rows="2" placeholder="Or write your own message..."></textarea>' +
         '<div class="custom-send-row">' +
           '<button class="custom-send-btn" id="custom-send">Send to Gemini</button>' +
         '</div>' +
       '</div>';
     choicesDiv.appendChild(customWrap);
-
-    document.getElementById('custom-toggle-btn').addEventListener('click', function() {
-      var area = document.getElementById('custom-area');
-      area.classList.toggle('visible');
-      if (area.classList.contains('visible')) {
-        document.getElementById('custom-msg').focus();
-      }
-    });
     document.getElementById('custom-send').addEventListener('click', function() {
       var msg = document.getElementById('custom-msg').value.trim();
       if (!msg) { document.getElementById('custom-msg').focus(); return; }
