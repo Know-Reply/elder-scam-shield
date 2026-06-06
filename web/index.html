@@ -617,6 +617,32 @@ body {
 }
 .custom-send-btn:hover { background: #1e293b; }
 
+/* Tabs for chat / results toggle */
+.sim-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--gray-200);
+  margin-bottom: 0;
+}
+.sim-tab {
+  flex: 1;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-400);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+.sim-tab:hover { color: var(--gray-700); }
+.sim-tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
 /* -- Right: Sender Profile Panel (sticky) -- */
 .sender-panel {
   position: sticky;
@@ -2092,39 +2118,41 @@ body {
   //  REVEAL
   // =========================================================
   function showReveal() {
-    // Put reveal inside the thread so user can scroll back up to see messages
     var thread = $('thread');
+    var choicesDiv = $('choices');
     var revealScreen = $('screen-reveal');
 
-    // Remove all scroll constraints so thread + reveal are fully visible
-    thread.style.maxHeight = 'none';
-    thread.style.overflow = 'visible';
-    thread.style.flex = 'none';
-    // Also remove constraints on parent containers
-    var threadPanel = thread.closest('.thread-panel');
-    if (threadPanel) {
-      threadPanel.style.maxHeight = 'none';
-      threadPanel.style.overflow = 'visible';
-    }
-    var simLayout = thread.closest('.sim-layout');
-    if (simLayout) {
-      simLayout.style.maxHeight = 'none';
-      simLayout.style.overflow = 'visible';
-      simLayout.style.alignItems = 'start';
-    }
+    // Build tab bar above the thread
+    var tabBar = document.createElement('div');
+    tabBar.className = 'sim-tabs';
+    tabBar.innerHTML =
+      '<button class="sim-tab" id="tab-chat">Conversation</button>' +
+      '<button class="sim-tab active" id="tab-results">Results</button>';
+    thread.parentNode.insertBefore(tabBar, thread);
 
-    // Move reveal content into the thread
+    // Prepare reveal content
     revealScreen.classList.remove('screen');
     revealScreen.style.display = 'block';
-    revealScreen.style.marginTop = '32px';
-    revealScreen.style.paddingTop = '32px';
-    revealScreen.style.borderTop = '3px solid var(--gray-200)';
-    thread.appendChild(revealScreen);
+    revealScreen.id = 'results-panel';
 
-    // Scroll to reveal smoothly after a delay (let user see final message first)
-    setTimeout(function() {
-      revealScreen.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 600);
+    // Hide chat, show results by default
+    thread.style.display = 'none';
+    choicesDiv.style.display = 'none';
+    thread.parentNode.insertBefore(revealScreen, choicesDiv);
+
+    // Tab switching
+    document.getElementById('tab-chat').addEventListener('click', function() {
+      thread.style.display = '';
+      revealScreen.style.display = 'none';
+      this.classList.add('active');
+      document.getElementById('tab-results').classList.remove('active');
+    });
+    document.getElementById('tab-results').addEventListener('click', function() {
+      thread.style.display = 'none';
+      revealScreen.style.display = 'block';
+      this.classList.add('active');
+      document.getElementById('tab-chat').classList.remove('active');
+    });
 
     // Count how many messages the per-message classifier flagged
     var perMsgFlagCount = state.perMsgFlagged;
