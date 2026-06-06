@@ -13,36 +13,41 @@ Elder fraud costs **$77.7 billion globally** (Nasdaq 2024). Japan's tokushu sagi
 - **Elder abuse detection from trusted contacts** -- detects the same manipulation mechanics (isolation, financial control, authority escalation) regardless of whether the sender is a stranger or a known family member. References Japan's Elder Abuse Prevention Act (2006).
 - **Outbound interception** -- catches the compliance signal ("I'll go to the bank tomorrow") between conversation and transaction. Blocks bank account numbers and transfer instructions leaving the user, not just scam messages arriving.
 
-## Architecture
+## Architecture: 8-Step Hardened Pipeline
+
+The key insight: move intelligence OUT of the model and INTO pre-processing infrastructure. By the time Gemini sees the message, it already has metadata signals, extracted entities, corpus matches, and graph validation as context. The model confirms pre-computed signals — it doesn't reason from scratch.
 
 ```
   Inbound Message
        |
-       v
-+-----------------+   message.classified   +----------------------+
-|    Inbound      | ---------------------> |    Behavioral         |
-|   Classifier    |   (facts + signals)    |     Analyzer          |
-| gemini-3.1-     |                        | gemini-3.1-           |
-|   flash-lite    |        +---------------+  flash-lite-----------+
-+-----------------+        |                          |
-                           v                          v
-                  +----------------+        sender.risk_updated
-                  |  Graph Builder |                   |
-                  |  (5-layer      |     +-------------+-------------+
-                  |   inference)   |     v                           v
-                  +-------+--------+ +------------------+ +-------------------+
-                          |          |    Outbound       | |     Family        |
-                          v          |   Interceptor     | |     Alerter       |
-                  +----------------+ | gemini-3.1-       | | gemini-3.1-       |
-                  | Corpus Search  | |   flash-lite      | |   flash-lite      |
-                  | (22,979 entries)| +------------------+ +-------------------+
-                  +----------------+        ^
-                                            |
-                                      Outbound Message
-                                      (user's reply)
+  ┌────┴─────────────────── PRE-LLM (no API calls) ─────────────────────┐
+  │ Step 1: Linguistic Analysis                                          │
+  │   → style fingerprint, manipulation density (urgency/guilt/flattery) │
+  │ Step 2: Entity Extraction                                            │
+  │   → names, relationships, amounts, locations, deadlines              │
+  │ Step 3: Corpus Search (TF-IDF, 22,979 entries)                       │
+  │   → similar known scams with relevance scores                        │
+  │ Step 4: Social Graph Validation                                      │
+  │   → graph distance, imposter detection, trust modifier               │
+  └──────────────────────────────┬────────────────────────────────────────┘
+                                 │ pre-computed context
+                                 v
+  ┌──────────────────── LLM (Gemini Flash Lite) ─────────────────────────┐
+  │ Step 5: Per-Message Classification                                   │
+  │   → given pre-computed evidence, what's your judgment?               │
+  └──────────────────────────────┬────────────────────────────────────────┘
+                                 │ classification + extracted facts
+                                 v
+  ┌──────────────────── POST-CLASSIFICATION ─────────────────────────────┐
+  │ Step 6: Sender Profile Update (fact accumulation, graph building)     │
+  │ Step 7: Behavioral Velocity Scoring (cross-message pattern analysis) │
+  │ Step 8: Decision Synthesis (compound risk + evidence chain + routing) │
+  │   → PASS / MONITOR / FLAG / BLOCK                                    │
+  │   → Outbound Interceptor armed / Family Alerter triggered            │
+  └──────────────────────────────────────────────────────────────────────┘
 ```
 
-Four agents connected via A2A event routing. The Graph Builder and Corpus Search are shared tools, not agents.
+Steps 1-4 run **before the LLM** — pure infrastructure, no API calls, ~50ms total. This is what enables running on the cheapest Gemini model: the model's job is simpler because the infrastructure did the heavy lifting.
 
 ## The Optimization Story (Track 2)
 
