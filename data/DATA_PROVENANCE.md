@@ -4,14 +4,16 @@ Transparency about what's real, what's synthetic, and how each was produced.
 
 ---
 
-## Corpus: 18,942 entries
+## Corpus: 19,189 entries
 
-### Real data (18,768 entries — 99.1%)
+### Real data (19,015 entries — 99.1%)
 
-| Source | Entries | Type | License | Method |
-|---|---|---|---|---|
-| [zefang-liu/phishing-email-dataset](https://huggingface.co/datasets/zefang-liu/phishing-email-dataset) | 17,514 | Real phishing + safe emails | LGPL-3.0 | Downloaded from HuggingFace, deduplicated |
-| [cybersectony/PhishingEmailDetectionv2.0](https://huggingface.co/datasets/cybersectony/PhishingEmailDetectionv2.0) | 1,254 | Real phishing + legitimate emails (URL rows excluded) | Unspecified | Downloaded from HuggingFace, filtered to email-only rows |
+| Source | Entries | Language | Type | License | Method |
+|---|---|---|---|---|---|
+| [zefang-liu/phishing-email-dataset](https://huggingface.co/datasets/zefang-liu/phishing-email-dataset) | 17,514 | EN | Real phishing + safe emails | LGPL-3.0 | Downloaded from HuggingFace, deduplicated |
+| [cybersectony/PhishingEmailDetectionv2.0](https://huggingface.co/datasets/cybersectony/PhishingEmailDetectionv2.0) | 1,254 | EN | Real phishing + legitimate emails (URL rows excluded) | Unspecified | Downloaded from HuggingFace, filtered to email-only rows |
+| [フィッシング対策協議会 事例DB](https://www.antiphishing.jp/news/database/) | 203 | JA | Real Japanese phishing messages (subject lines + message bodies) | Public educational | Scraped from case pages, tagged by impersonated brand |
+| [警察庁 SOS47 特殊詐欺の手口](https://www.npa.go.jp/bureau/safetylife/sos47/case/) | 44 | JA | Real NPA-published scam dialogues and scripts | Public educational | Extracted from 8 NPA pattern pages (ore-ore, deposits, cashcard, billing, refund, romance, investment, special) |
 
 **Re-tagging (2,008 of the above):** The original datasets use binary labels
 (phishing/safe). We sub-classified the 7,344 "phishing" entries into NPA-aligned
@@ -28,9 +30,11 @@ specific pattern were tagged `generic-scam`. The regex rules are in
 | `data/generate_jp_scenarios_v2.py` | 162 | Japanese NPA scam scenarios | Hand-crafted in Python by AI assistant |
 | `data/generate_edge_cases.py` | 12 | Edge cases (bilingual, ambiguous) | Hand-crafted in Python by AI assistant |
 
-**Why synthetic:** No publicly available dataset of Japanese tokushu sagi messages
-exists. The NPA publishes statistics and pattern descriptions, but not victim
-transcripts (privacy). We created synthetic scenarios grounded in the NPA taxonomy
+**Why synthetic in addition to real data:** The NPA publishes scam dialogue scripts
+and the antiphishing.jp database has real phishing messages, but these cover a
+limited number of variations. We augmented the 247 real Japanese entries with
+synthetic scenarios to ensure coverage across all difficulty levels (obvious,
+moderate, sophisticated) and all 9 NPA patterns. We created synthetic scenarios grounded in the NPA taxonomy
 to cover all 9 tokushu sagi patterns at three difficulty levels (obvious, moderate,
 sophisticated) plus tricky legitimate counterparts.
 
