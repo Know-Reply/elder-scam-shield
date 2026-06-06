@@ -237,6 +237,14 @@ OUTPUT: structured JSON with sender_id, risk_score, risk_factors[],
 
 GROUNDING: call get_corpus_pattern_stats and search_scam_corpus to cite evidence.
 
+ADAPTIVE PER-USER BASELINES (Round 5):
+  Before scoring, call load_user_baselines to get THIS user's communication norms.
+  Pass user_baselines + sender_history_days + sender_message_count to compute_risk_score.
+  A known contact with 3 years of history gets up to -0.3 risk reduction.
+  A contact whose message frequency is within 2x of user's normal gets -0.1.
+  A user who regularly discusses finances gets -0.05 when known contacts mention money.
+  This eliminates false positives on active family members asking for legitimate help.
+
 SOCIAL GRAPH VALIDATION (Round 4):
   Before deep behavioral analysis, call validate_social_graph to check whether
   the sender has ANY connection to the user's known contact network.
@@ -308,10 +316,38 @@ def update_sender_profile(sender_email: str, profile: dict) -> dict:
     return profile
 
 
+def load_user_baselines(user_id: str) -> dict:
+    """Load per-user communication baselines from Memory Bank.
+
+    Adaptive baselines (Round 5): instead of population thresholds, compare
+    against THIS user's normal patterns. A user who gets 5 messages/day from
+    known contacts has a different "normal" than one who gets 1/week.
+
+    Returns baseline dict with frequency, topic, and tone norms.
+    """
+    if db is not None:
+        doc = db.collection("user_baselines").document(user_id).get()
+        if doc.exists:
+            return doc.to_dict()
+    # Default baselines for users without history
+    return {
+        "avg_messages_per_day": 1.0,
+        "avg_messages_per_contact_per_week": 2.0,
+        "known_contact_count": 4,
+        "typical_financial_mentions_per_month": 1,
+        "typical_topics": ["health", "family", "daily_life"],
+        "communication_style": "formal",
+    }
+
+
 def compute_risk_score(detected_signals: list[str],
                        velocity_scores: dict = None,
                        abuse_indicators: dict = None,
-                       is_known_contact: bool = False) -> dict:
+                       is_known_contact: bool = False,
+                       graph_risk_modifier: float = 0.0,
+                       user_baselines: dict = None,
+                       sender_history_days: int = 0,
+                       sender_message_count: int = 0) -> dict:
     """Compute weighted risk score from detected signals and behavioral metrics.
 
     Args:
@@ -319,14 +355,43 @@ def compute_risk_score(detected_signals: list[str],
         velocity_scores: BV metrics dict (stranger detection).
         abuse_indicators: EA metrics dict (known contact monitoring).
         is_known_contact: Whether sender is in user's contact list.
+        graph_risk_modifier: From validate_social_graph (-0.2 to +0.3).
+        user_baselines: Per-user communication norms (Round 5 adaptive).
+        sender_history_days: How many days of history with this sender.
+        sender_message_count: Total messages from this sender.
 
     Returns:
         Dict with risk_score, recommendation, and breakdown.
     """
+    baselines = user_baselines or {}
+
     # Base score from signal weights
     base_score = sum(SIGNAL_WEIGHTS.get(s, 0.0) for s in detected_signals)
 
-    # Add behavioral velocity composite (strangers)
+    # ── Adaptive baseline adjustments (Round 5) ────────────────────────
+    # Known contacts with established history get risk reduction.
+    # The longer the history, the more trust earned.
+    adaptive_modifier = 0.0
+    if is_known_contact and sender_history_days > 0:
+        # Long-established contacts get risk reduction
+        history_trust = min(sender_history_days / 365, 0.3)  # max 0.3 reduction for 1yr+
+        adaptive_modifier -= history_trust
+
+        # Active contacts (frequent messaging) get velocity threshold relaxation
+        if sender_message_count > 0:
+            msg_per_day = sender_message_count / max(sender_history_days, 1)
+            user_normal = baselines.get("avg_messages_per_contact_per_week", 2.0) / 7.0
+            # If this contact's frequency is within 2x of user's normal, no velocity alarm
+            if msg_per_day <= user_normal * 2:
+                adaptive_modifier -= 0.1  # frequency is within normal range
+
+        # Financial mentions from known contacts with financial history are less alarming
+        if baselines.get("typical_financial_mentions_per_month", 0) >= 2:
+            # User regularly discusses finances — don't over-flag
+            if "PM-3" in detected_signals or "LG-5" in detected_signals:
+                adaptive_modifier -= 0.05
+
+    # ── Behavioral velocity composite (strangers) ──────────────────────
     bv_score = 0.0
     if velocity_scores and not is_known_contact:
         bv_score = (
@@ -349,8 +414,12 @@ def compute_risk_score(detected_signals: list[str],
         # Isolation from known contact is 1.5x more alarming
         ea_score *= 1.2
 
-    score = min(base_score + bv_score * 0.4 + ea_score * 0.4, 1.0)
-    score = round(score, 3)
+    # Combine all components
+    raw_score = base_score + bv_score * 0.4 + ea_score * 0.4
+    # Apply modifiers: graph validation (Round 4) + adaptive baselines (Round 5)
+    raw_score += graph_risk_modifier
+    raw_score += adaptive_modifier
+    score = round(max(min(raw_score, 1.0), 0.0), 3)
 
     if score >= 0.7:
         rec = "block"
@@ -368,7 +437,10 @@ def compute_risk_score(detected_signals: list[str],
             "signal_weight_score": round(base_score, 3),
             "behavioral_velocity_score": round(bv_score, 3),
             "elder_abuse_score": round(ea_score, 3),
+            "graph_risk_modifier": round(graph_risk_modifier, 3),
+            "adaptive_modifier": round(adaptive_modifier, 3),
             "is_known_contact": is_known_contact,
+            "sender_history_days": sender_history_days,
         },
     }
 
@@ -416,6 +488,7 @@ behavioral_analyzer = Agent(
     tools=[
         load_sender_profile,
         load_user_contacts,
+        load_user_baselines,
         update_sender_profile,
         compute_risk_score,
         publish_risk_assessment,
