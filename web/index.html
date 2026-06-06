@@ -2105,9 +2105,22 @@ body {
     var thread = $('thread');
     var revealScreen = $('screen-reveal');
 
-    // Remove max-height on thread so everything is visible
+    // Remove all scroll constraints so thread + reveal are fully visible
     thread.style.maxHeight = 'none';
     thread.style.overflow = 'visible';
+    thread.style.flex = 'none';
+    // Also remove constraints on parent containers
+    var threadPanel = thread.closest('.thread-panel');
+    if (threadPanel) {
+      threadPanel.style.maxHeight = 'none';
+      threadPanel.style.overflow = 'visible';
+    }
+    var simLayout = thread.closest('.sim-layout');
+    if (simLayout) {
+      simLayout.style.maxHeight = 'none';
+      simLayout.style.overflow = 'visible';
+      simLayout.style.alignItems = 'start';
+    }
 
     // Move reveal content into the thread
     revealScreen.classList.remove('screen');
