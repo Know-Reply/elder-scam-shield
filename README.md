@@ -4,7 +4,7 @@ Multi-agent scam protection system that detects elder fraud through behavioral a
 
 ## The Problem
 
-Elder fraud in Japan hit **\u00a5324 billion** in 2025 -- a **4.5x year-over-year increase** across 42,900 reported cases. Existing defenses classify messages one at a time. They catch obvious phishing but miss multi-day trust-building attacks where a scammer poses as a grandchild for a week before requesting a wire transfer.
+Elder fraud is a **$77.7 billion global problem** (Nasdaq 2024). In Japan, tokushu sagi losses hit **¥1.4 trillion** in 2025 — a record high. The FBI reports **$7.7 billion** in US elder fraud the same year, **up 37% YoY**. Every system protecting these users today relies on per-message classification. None detect the multi-day trust-building campaigns that cause the largest losses.
 
 A per-message classifier catches **1 of 7** messages in a romance scam sequence. Elder Scam Shield catches **7 of 7**.
 
