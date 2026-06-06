@@ -14,6 +14,8 @@ Transparency about what's real, what's synthetic, and how each was produced.
 | [cybersectony/PhishingEmailDetectionv2.0](https://huggingface.co/datasets/cybersectony/PhishingEmailDetectionv2.0) | 1,254 | EN | Real phishing + legitimate emails (URL rows excluded) | Unspecified | Downloaded from HuggingFace, filtered to email-only rows |
 | [フィッシング対策協議会 事例DB](https://www.antiphishing.jp/news/database/) | 203 | JA | Real Japanese phishing messages (subject lines + message bodies) | Public educational | Scraped from case pages, tagged by impersonated brand |
 | [警察庁 SOS47 特殊詐欺の手口](https://www.npa.go.jp/bureau/safetylife/sos47/case/) | 44 | JA | Real NPA-published scam dialogues and scripts | Public educational | Extracted from 8 NPA pattern pages (ore-ore, deposits, cashcard, billing, refund, romance, investment, special) |
+| [BothBosu/scam-dialogue](https://huggingface.co/datasets/BothBosu/scam-dialogue) | 1,600 | EN | Multi-turn phone call transcripts (scam + safe) | Apache 2.0 | Downloaded from HuggingFace. Synthetic (Llama 3 70B). 4 scam types + 4 safe types. |
+| [BothBosu/multi-agent-scam-conversation](https://huggingface.co/datasets/BothBosu/multi-agent-scam-conversation) | 1,600 | EN | Multi-turn conversations with 8 personality types | Apache 2.0 | Downloaded from HuggingFace. Synthetic (AutoGen). Same types + personality dimension. |
 
 **Re-tagging (2,008 of the above):** The original datasets use binary labels
 (phishing/safe). We sub-classified the 7,344 "phishing" entries into NPA-aligned
