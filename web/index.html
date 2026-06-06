@@ -420,6 +420,34 @@ body {
 }
 .custom-send-btn { border: 2px dashed var(--gray-300) !important; }
 .custom-send-btn:hover { border-color: var(--blue) !important; }
+
+/* Loading steps animation */
+.loading-steps { padding: 4px 0; }
+.loading-step {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.82rem; color: var(--gray-300);
+  padding: 4px 0; transition: color 0.3s;
+}
+.loading-step.active { color: var(--blue); }
+.ls-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gray-200); flex-shrink: 0;
+  transition: background 0.3s;
+}
+.loading-step.active .ls-dot {
+  background: var(--blue);
+  animation: lsPulse 1s ease infinite;
+}
+@keyframes lsPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+}
+.live-badge {
+  display: inline-block; padding: 1px 6px; border-radius: 3px;
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; background: var(--blue-light); color: var(--blue);
+  margin-left: 6px;
+}
 .choice-letter {
   display: inline-flex;
   align-items: center;
@@ -1589,7 +1617,7 @@ body {
   }
 
   // =========================================================
-  //  SELECT CHOICE
+  //  SELECT CHOICE — all choices go through live Gemini
   // =========================================================
   function selectChoice(choiceIdx) {
     var day = DAYS[state.currentDay];
@@ -1597,36 +1625,105 @@ body {
     state.choices.push(choiceIdx);
     state.messages++;
 
-    // Compute risk
-    var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
-    var currentRisk;
-    if (c.risk !== null) {
-      currentRisk = c.risk;
-    } else {
-      currentRisk = Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
-    }
-    var currentClass;
-    if (c.classification !== null) {
-      currentClass = c.classification;
-    } else {
-      if (currentRisk < 0.15) currentClass = 'SAFE';
-      else if (currentRisk < 0.35) currentClass = 'MONITOR';
-      else if (currentRisk < 0.7) currentClass = 'FLAG';
-      else currentClass = 'BLOCK';
-    }
+    // Disable all choice buttons
+    var choicesDiv = $('choices');
+    choicesDiv.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
+    var textarea = document.getElementById('custom-msg');
+    if (textarea) textarea.disabled = true;
 
-    state.riskHistory.push(currentRisk);
-    state.classHistory.push(currentClass);
-    state.signalHistory.push(c.signals);
-
-    // Add scammer bubble
+    // Add scammer bubble immediately
     var thread = $('thread');
     var bubble = document.createElement('div');
     bubble.className = 'bubble bubble-scammer';
-    bubble.innerHTML = '<span class="en-text">' + c.en + '</span>' + (c.jp ? '<span class="jp-text">' + c.jp + '</span>' : '');
+    var msgText = c.en || c.jp || '(message)';
+    bubble.innerHTML = '<span class="en-text">' + msgText + '</span>' + (c.jp && c.en ? '<span class="jp-text">' + c.jp + '</span>' : '');
     thread.appendChild(bubble);
 
-    // Add analysis card
+    // Add loading animation
+    var loadingCard = document.createElement('div');
+    loadingCard.className = 'analysis-card';
+    loadingCard.id = 'loading-card';
+    loadingCard.innerHTML =
+      '<div class="loading-steps">' +
+        '<div class="loading-step active" id="ls-1"><span class="ls-dot"></span> Searching scam corpus (22,979 entries)...</div>' +
+        '<div class="loading-step" id="ls-2"><span class="ls-dot"></span> Running scam signal detection (20 signals)...</div>' +
+        '<div class="loading-step" id="ls-3"><span class="ls-dot"></span> Computing risk score with Gemini...</div>' +
+      '</div>';
+    thread.appendChild(loadingCard);
+    thread.scrollTop = thread.scrollHeight;
+
+    // Animate loading steps
+    setTimeout(function() { var s = document.getElementById('ls-2'); if (s) s.classList.add('active'); }, 1000);
+    setTimeout(function() { var s = document.getElementById('ls-3'); if (s) s.classList.add('active'); }, 2000);
+
+    // Call live Gemini API
+    var messageForApi = c.jp || c.en || msgText;
+    fetch('/api/classify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sender: 'scammer_day' + (state.currentDay + 1), content: messageForApi })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var result = data.result || {};
+      var liveClass = (result.classification || '').toUpperCase();
+      var liveConfidence = result.confidence || 0;
+      var liveSignals = result.detected_signals || [];
+      var liveReasoning = result.reasoning || '';
+
+      // Use live classification if available, fall back to pre-computed
+      var currentRisk, currentClass;
+      if (liveClass && liveClass !== 'NO_RESPONSE') {
+        currentClass = liveClass;
+        // Map classification to risk — use confidence if available
+        if (liveConfidence > 0) {
+          currentRisk = liveClass === 'SAFE' ? Math.max(0.05, (1 - liveConfidence) * 0.3) :
+                        liveClass === 'SUSPICIOUS' ? 0.3 + liveConfidence * 0.3 :
+                        liveClass === 'SCAM' ? 0.7 + liveConfidence * 0.3 : 0.3;
+        } else {
+          currentRisk = c.risk || 0.3;
+        }
+        // Blend with pre-computed risk for progression continuity
+        var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
+        currentRisk = Math.max(currentRisk, prevRisk * 0.8); // don't drop too far
+        // Build signal objects from live data
+        c.signals = liveSignals.map(function(s) {
+          return { code: s, text: s, type: s.startsWith('PM-') ? 'danger' : 'warn' };
+        });
+        c.reasoning = liveReasoning;
+      } else {
+        // Fall back to pre-computed
+        var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
+        currentRisk = c.risk !== null ? c.risk : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
+        currentClass = c.classification || (currentRisk < 0.15 ? 'SAFE' : currentRisk < 0.35 ? 'MONITOR' : currentRisk < 0.7 ? 'FLAG' : 'BLOCK');
+      }
+
+      state.riskHistory.push(currentRisk);
+      state.classHistory.push(currentClass);
+      state.signalHistory.push(c.signals);
+
+      // Remove loading card and show results
+      var lc = document.getElementById('loading-card');
+      if (lc) lc.remove();
+
+      renderAnalysisCard(c, currentRisk, currentClass, liveClass && liveClass !== 'NO_RESPONSE');
+    })
+    .catch(function(err) {
+      // API failed — fall back to pre-computed
+      var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
+      var currentRisk = c.risk !== null ? c.risk : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
+      var currentClass = c.classification || 'MONITOR';
+      state.riskHistory.push(currentRisk);
+      state.classHistory.push(currentClass);
+      state.signalHistory.push(c.signals);
+      var lc = document.getElementById('loading-card');
+      if (lc) lc.remove();
+      renderAnalysisCard(c, currentRisk, currentClass, false);
+    });
+  }
+
+  function renderAnalysisCard(c, currentRisk, currentClass, isLive) {
+    var thread = $('thread');
     var rc = riskColor(currentRisk);
     var card = document.createElement('div');
     card.className = 'analysis-card';
@@ -1635,17 +1732,19 @@ body {
       var cls = s.type === 'danger' ? 'ac-signal-danger' : s.type === 'warn' ? 'ac-signal-warn' : 'ac-signal-safe';
       sigHtml += '<span class="ac-signal ' + cls + '">' + s.code + '</span>';
     });
+    var liveBadge = isLive ? '<span class="live-badge">Live Gemini</span>' : '';
     card.innerHTML =
       '<div class="ac-row">' +
         '<span class="ac-label">Status</span>' +
         '<span class="ac-badge ' + classBadge(currentClass) + '">' + currentClass + '</span>' +
+        liveBadge +
       '</div>' +
       '<div class="ac-row">' +
         '<span class="ac-label">Risk</span>' +
         '<span style="font-weight:700;color:' + rc.color + '">' + currentRisk.toFixed(2) + '</span>' +
       '</div>' +
-      '<div class="ac-signals">' + sigHtml + '</div>' +
-      '<div class="ac-reasoning">' + c.reasoning + '</div>';
+      (sigHtml ? '<div class="ac-signals">' + sigHtml + '</div>' : '') +
+      '<div class="ac-reasoning">' + (c.reasoning || '') + '</div>';
     thread.appendChild(card);
 
     // Scroll to bottom

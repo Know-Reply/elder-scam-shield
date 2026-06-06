@@ -185,15 +185,26 @@ async def classify_message(req: ClassifyRequest):
             if not (hasattr(event, "content") and event.content and event.content.parts):
                 continue
             for part in event.content.parts:
-                # 1. Text responses — parse classification JSON
+                # 1. Text responses — extract top-level JSON object
                 if hasattr(part, "text") and part.text:
-                    m = re.search(
-                        r'\{[\s\S]*?"classification"[\s\S]*?\}',
-                        part.text,
-                    )
-                    if m:
+                    text = part.text.strip()
+                    # Strip markdown code fences
+                    if text.startswith("```"):
+                        text = re.sub(r'^```\w*\s*', '', text)
+                        text = re.sub(r'\s*```$', '', text)
+                    # Find the outermost JSON object by brace counting
+                    start = text.find("{")
+                    if start >= 0:
+                        depth = 0
+                        end = start
+                        for i in range(start, len(text)):
+                            if text[i] == "{": depth += 1
+                            elif text[i] == "}": depth -= 1
+                            if depth == 0:
+                                end = i + 1
+                                break
                         try:
-                            parsed = json.loads(m.group())
+                            parsed = json.loads(text[start:end])
                             if parsed.get("classification"):
                                 result = parsed
                         except json.JSONDecodeError:
@@ -217,13 +228,6 @@ async def classify_message(req: ClassifyRequest):
                 if fr and hasattr(fr, "response") and isinstance(fr.response, dict):
                     resp = fr.response
                     if resp.get("classification"):
-                        result.update({
-                            k: resp[k] for k in
-                            ("classification", "confidence",
-                             "detected_signals", "extracted_facts")
-                            if k in resp
-                        })
-                    if resp.get("event") == "message.classified":
                         result.update({
                             k: resp[k] for k in
                             ("classification", "confidence",
