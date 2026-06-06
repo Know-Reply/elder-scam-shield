@@ -2092,27 +2092,32 @@ body {
 
     // Advance to next day after delay
     state.currentDay++;
-    setTimeout(function() { renderDay(); }, 800);
+    // Longer delay before reveal so user can read the final analysis
+    var delay = state.currentDay >= DAYS.length ? 2500 : 800;
+    setTimeout(function() { renderDay(); }, delay);
   }
 
   // =========================================================
   //  REVEAL
   // =========================================================
   function showReveal() {
-    // Show reveal BELOW the simulator (don't switch screens)
-    // Move the reveal div into the sim container and make it visible
-    var simContainer = document.querySelector('.sim-container');
+    // Put reveal inside the thread so user can scroll back up to see messages
+    var thread = $('thread');
     var revealScreen = $('screen-reveal');
 
-    // Remove reveal from its hidden screen wrapper and append to sim
+    // Remove max-height on thread so everything is visible
+    thread.style.maxHeight = 'none';
+    thread.style.overflow = 'visible';
+
+    // Move reveal content into the thread
     revealScreen.classList.remove('screen');
     revealScreen.style.display = 'block';
     revealScreen.style.marginTop = '32px';
     revealScreen.style.paddingTop = '32px';
     revealScreen.style.borderTop = '3px solid var(--gray-200)';
-    simContainer.appendChild(revealScreen);
+    thread.appendChild(revealScreen);
 
-    // Scroll to reveal smoothly after a short delay
+    // Scroll to reveal smoothly after a delay (let user see final message first)
     setTimeout(function() {
       revealScreen.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 600);
