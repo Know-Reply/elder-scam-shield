@@ -24,6 +24,7 @@
       <button class="nav-dot active" data-scene="1" aria-label="Scene 1">1</button>
       <button class="nav-dot" data-scene="2" aria-label="Scene 2">2</button>
       <button class="nav-dot" data-scene="3" aria-label="Scene 3">3</button>
+      <button class="nav-dot" data-scene="5" aria-label="Try It">&#9881;</button>
       <button class="nav-dot" data-scene="4" aria-label="Scene 4">4</button>
     </nav>
   </div>
@@ -498,7 +499,75 @@
 
     <div class="scene-nav">
       <button class="btn btn-prev" data-goto="3">&larr; Scene 3</button>
-      <button class="btn btn-restart" data-goto="1">Restart Demo</button>
+      <button class="btn btn-next" data-goto="5">Try It Live &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ===== SCENE 5: Live Classify ===== -->
+  <section class="scene" id="scene-5">
+    <div class="scene-header">
+      <span class="scene-label">Try It</span>
+      <h2>Live Classification</h2>
+      <p class="scene-subtitle">Type any message and see the agents classify it in real-time</p>
+    </div>
+
+    <div class="scene-content" style="max-width: 800px; margin: 0 auto;">
+      <div style="margin-bottom: 1.5rem;">
+        <label for="live-sender" style="display:block; font-weight:600; margin-bottom:0.5rem; color:var(--navy);">Sender:</label>
+        <input id="live-sender" type="text" value="unknown_sender"
+          style="width:100%; padding:0.75rem; border:1px solid var(--gray-100); border-radius:8px; font-size:1rem;" />
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label for="live-message" style="display:block; font-weight:600; margin-bottom:0.5rem; color:var(--navy);">Message:</label>
+        <textarea id="live-message" rows="5" placeholder="Type a message in English or Japanese..."
+          style="width:100%; padding:0.75rem; border:1px solid var(--gray-100); border-radius:8px; font-size:1rem; font-family:inherit; resize:vertical;"></textarea>
+      </div>
+      <div style="margin-bottom: 1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <button id="live-classify-btn" class="btn btn-next" style="flex:1; min-width:200px;">
+          Classify with Live Gemini &rarr;
+        </button>
+        <button id="live-example-scam" class="btn" style="background:var(--red-bg); color:var(--red); border:1px solid var(--red-light);">
+          Example: Scam
+        </button>
+        <button id="live-example-safe" class="btn" style="background:var(--green-bg); color:var(--green); border:1px solid #bbf7d0;">
+          Example: Safe
+        </button>
+      </div>
+
+      <div id="live-result" style="display:none;">
+        <div id="live-loading" style="display:none; text-align:center; padding:2rem; color:var(--blue);">
+          <p>Classifying with Gemini 3.1 Flash Lite... <span id="live-timer">0.0s</span></p>
+        </div>
+        <div id="live-output" style="display:none;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+            <div style="padding:1rem; border-radius:8px;" id="live-class-box">
+              <div style="font-size:0.85rem; color:#666; margin-bottom:0.25rem;">Classification</div>
+              <div style="font-size:1.5rem; font-weight:700;" id="live-class-label"></div>
+            </div>
+            <div style="padding:1rem; background:var(--gray-50); border-radius:8px;">
+              <div style="font-size:0.85rem; color:#666; margin-bottom:0.25rem;">Confidence</div>
+              <div style="font-size:1.5rem; font-weight:700;" id="live-confidence"></div>
+            </div>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <div style="font-weight:600; margin-bottom:0.5rem;">Detected Signals</div>
+            <div id="live-signals" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <div style="font-weight:600; margin-bottom:0.5rem;">Extracted Facts</div>
+            <pre id="live-facts" style="background:var(--gray-50); padding:1rem; border-radius:8px; font-size:0.85rem; overflow-x:auto; white-space:pre-wrap;"></pre>
+          </div>
+          <div>
+            <div style="font-weight:600; margin-bottom:0.5rem;">Reasoning</div>
+            <p id="live-reasoning" style="color:#555; font-size:0.9rem;"></p>
+          </div>
+        </div>
+        <div id="live-error" style="display:none; padding:1rem; background:var(--red-bg); border-radius:8px; color:var(--red);"></div>
+      </div>
+    </div>
+
+    <div class="scene-nav">
+      <button class="btn btn-prev" data-goto="4">&larr; Results</button>
     </div>
   </section>
 

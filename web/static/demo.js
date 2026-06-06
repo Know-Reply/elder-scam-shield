@@ -307,10 +307,116 @@
     goToDay(1);
   }
 
+  // ---- Live Classify (Scene 5) ----
+  function initLiveClassify() {
+    var btn = document.getElementById('live-classify-btn');
+    var msgInput = document.getElementById('live-message');
+    var senderInput = document.getElementById('live-sender');
+    var resultDiv = document.getElementById('live-result');
+    var loadingDiv = document.getElementById('live-loading');
+    var outputDiv = document.getElementById('live-output');
+    var errorDiv = document.getElementById('live-error');
+    var timerSpan = document.getElementById('live-timer');
+
+    if (!btn) return;
+
+    // Example buttons
+    document.getElementById('live-example-scam').addEventListener('click', function () {
+      senderInput.value = 'unknown_0x9f3a';
+      msgInput.value = '重要なお知らせ：貴殿のインターネット利用料金に未払いが発生しております。本日中にお支払いいただけない場合、法的措置を取らせていただきます。至急、コンビニにて電子マネーでお支払いください。未払い額：89,000円。';
+    });
+    document.getElementById('live-example-safe').addEventListener('click', function () {
+      senderInput.value = 'contact_yuki_grandson';
+      msgInput.value = 'おばあちゃん、ゆきです！来週の土曜日、横浜から遊びに行くね。何か食べたいものある？お土産持っていくから楽しみにしてて！';
+    });
+
+    btn.addEventListener('click', function () {
+      var message = msgInput.value.trim();
+      var sender = senderInput.value.trim();
+      if (!message) { msgInput.focus(); return; }
+
+      resultDiv.style.display = 'block';
+      loadingDiv.style.display = 'block';
+      outputDiv.style.display = 'none';
+      errorDiv.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Classifying...';
+
+      var startTime = Date.now();
+      var timerInterval = setInterval(function () {
+        timerSpan.textContent = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
+      }, 100);
+
+      fetch('/api/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sender: sender, content: message })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          clearInterval(timerInterval);
+          loadingDiv.style.display = 'none';
+          btn.disabled = false;
+          btn.innerHTML = 'Classify with Live Gemini &rarr;';
+
+          if (data.result && data.result.classification) {
+            outputDiv.style.display = 'block';
+            var res = data.result;
+            var cls = res.classification || 'unknown';
+
+            var classBox = document.getElementById('live-class-box');
+            var classLabel = document.getElementById('live-class-label');
+            classLabel.textContent = cls.toUpperCase();
+            classBox.style.background =
+              cls === 'scam' ? 'var(--red-bg)' :
+              cls === 'suspicious' ? 'var(--yellow-bg)' :
+              cls === 'safe' ? 'var(--green-bg)' : 'var(--gray-50)';
+            classLabel.style.color =
+              cls === 'scam' ? 'var(--red)' :
+              cls === 'suspicious' ? 'var(--yellow)' :
+              cls === 'safe' ? 'var(--green)' : 'var(--navy)';
+
+            document.getElementById('live-confidence').textContent =
+              (res.confidence != null ? (res.confidence * 100).toFixed(0) + '%' : 'N/A');
+
+            var sigDiv = document.getElementById('live-signals');
+            sigDiv.innerHTML = '';
+            var signals = res.detected_signals || [];
+            if (signals.length === 0) {
+              sigDiv.innerHTML = '<span style="color:#999;">None detected</span>';
+            } else {
+              signals.forEach(function (s) {
+                var span = document.createElement('span');
+                span.className = 'flag ' + (s.startsWith('PM-') ? 'flag-danger' : 'flag-warn');
+                span.textContent = s;
+                sigDiv.appendChild(span);
+              });
+            }
+
+            var facts = res.extracted_facts || {};
+            document.getElementById('live-facts').textContent = JSON.stringify(facts, null, 2);
+            document.getElementById('live-reasoning').textContent = res.reasoning || '—';
+          } else {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = 'Unexpected response: ' + JSON.stringify(data).substring(0, 300);
+          }
+        })
+        .catch(function (err) {
+          clearInterval(timerInterval);
+          loadingDiv.style.display = 'none';
+          errorDiv.style.display = 'block';
+          errorDiv.textContent = 'Error: ' + err.message + '. Is the server running? (uvicorn app:app --port 8080)';
+          btn.disabled = false;
+          btn.innerHTML = 'Classify with Live Gemini &rarr;';
+        });
+    });
+  }
+
   // Run on DOM ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', function () { init(); initLiveClassify(); });
   } else {
     init();
+    initLiveClassify();
   }
 })();
