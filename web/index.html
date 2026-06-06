@@ -1386,6 +1386,63 @@ body {
   ];
 
   // =========================================================
+  //  SIGNAL LABELS — human-readable descriptions for signal codes
+  // =========================================================
+  var SIGNAL_LABELS = {
+    'PM-1':  'Urgency language — immediate deadline pressure',
+    'PM-2':  'Secrecy demand — "don\'t tell anyone"',
+    'PM-3':  'Financial solicitation — money request or transfer',
+    'PM-4':  'Authority claim — police, government, bank impersonation',
+    'PM-5':  'Unusual payment — gift cards, crypto, e-money',
+    'PM-6':  'Legal threat — lawsuit, arrest, court action',
+    'PM-7':  'Credential solicitation — passwords, PINs, account numbers',
+    'PM-8':  'Prize notification — unsolicited winning claim',
+    'PM-9':  'Refund lure — fake refund requiring bank details',
+    'PM-10': 'Emotional crisis — accident, hospital, emergency',
+    'PM-11': 'Identity claim — claims specific family relationship',
+    'PM-12': 'Flattery density — excessive compliments',
+    'PM-13': 'SPF/DKIM failure — email authentication failed',
+    'BV-1':  'Relationship velocity — intimacy progressing too fast',
+    'BV-2':  'Isolation index — distancing from verification network',
+    'BV-3':  'Emotional arc — sentiment escalating on schedule',
+    'BV-4':  'Credibility seeding — excessive personal detail volunteering',
+    'BV-5':  'Help positioning — systematic availability signaling',
+    'LG-1':  'Stated fact contradiction — location, job, or relationship changed',
+    'LG-2':  'Contact identity mismatch — not in user\'s contact book',
+    'LG-3':  'Frequency escalation — message rate accelerating',
+    'LG-4':  'Emotional progression — casual → intimate → urgent',
+    'LG-5':  'Financial mention timing — money after trust-building period',
+    'LG-6':  'Isolation language trend — increasing secrecy requests',
+    'LG-7':  'Persona inconsistency — writing style shift between messages',
+    'LG-8':  'Crisis after trust — emergency narrative after rapport',
+    'LG-9':  'Rapid intimacy — relationship depth advancing too fast',
+    'LG-10': 'Compliance conditioning — small requests escalating',
+    'EA-1':  'Financial control — known contact requesting money/savings info',
+    'EA-2':  'Trusted isolation — known contact cutting off family',
+    'EA-3':  'Authority escalation — caregiver taking over decisions',
+    'EA-4':  'Communication shift — sudden frequency/topic change',
+    'CM-1':  'Spending correlation — conversation intensity matches spending',
+    'OB-1':  'PII in response — personal information in outbound message',
+    'OB-2':  'Bank details in response — account/card numbers outbound',
+    'OB-3':  'Transfer instruction — wire transfer or payment outbound',
+    'OB-4':  'Response to flagged sender — replying to elevated risk contact',
+    'OB-5':  'Compliance language — agreement to comply with request',
+  };
+  var SIGNAL_TYPES = {
+    'PM-1': 'danger', 'PM-2': 'danger', 'PM-3': 'danger', 'PM-4': 'danger',
+    'PM-5': 'danger', 'PM-6': 'danger', 'PM-7': 'danger', 'PM-8': 'warn',
+    'PM-9': 'warn', 'PM-10': 'danger', 'PM-11': 'warn', 'PM-12': 'warn',
+    'PM-13': 'danger',
+    'BV-1': 'warn', 'BV-2': 'danger', 'BV-3': 'warn', 'BV-4': 'warn', 'BV-5': 'warn',
+    'LG-1': 'danger', 'LG-2': 'danger', 'LG-3': 'warn', 'LG-4': 'warn',
+    'LG-5': 'danger', 'LG-6': 'danger', 'LG-7': 'warn', 'LG-8': 'danger',
+    'LG-9': 'warn', 'LG-10': 'warn',
+    'EA-1': 'danger', 'EA-2': 'danger', 'EA-3': 'warn', 'EA-4': 'warn',
+    'CM-1': 'warn',
+    'OB-1': 'warn', 'OB-2': 'danger', 'OB-3': 'danger', 'OB-4': 'warn', 'OB-5': 'warn',
+  };
+
+  // =========================================================
   //  STATE
   // =========================================================
   var state = {
@@ -1581,7 +1638,7 @@ body {
 
       // Build signal objects from string array
       var signalObjects = signals.map(function(s) {
-        return { code: s, text: s, type: s.startsWith('PM-') ? 'danger' : 'warn' };
+        return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
       });
 
       if (!reasoning && cls === 'NO_RESPONSE') {
@@ -1688,7 +1745,7 @@ body {
         currentRisk = Math.max(currentRisk, prevRisk * 0.8); // don't drop too far
         // Build signal objects from live data
         c.signals = liveSignals.map(function(s) {
-          return { code: s, text: s, type: s.startsWith('PM-') ? 'danger' : 'warn' };
+          return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
         });
         c.reasoning = liveReasoning;
       } else {
