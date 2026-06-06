@@ -6,8 +6,8 @@
   <title>Elder Scam Shield — Interactive Demo</title>
   <style>
 /* ========================================
-   Elder Scam Shield — Scam Simulator v2
-   Two-column: Thread + Sender Profile
+   Elder Scam Shield — Scam Simulator v3
+   Two-system comparison: Per-Message vs Behavioral
    ======================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -309,40 +309,84 @@ body {
 }
 .bubble .jp-text {
   display: block;
-  font-size: 0.78rem;
-  opacity: 0.55;
+  font-size: 0.75rem;
+  opacity: 0.5;
   font-style: italic;
 }
 
-/* Inline analysis card (compact, in thread) */
+/* ---- Two-system analysis card ---- */
 .analysis-inline {
   align-self: flex-start;
-  max-width: 90%;
+  max-width: 92%;
   background: #fff;
   border: 1px solid var(--gray-200);
-  border-left: 3px solid var(--gray-300);
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   font-size: 0.82rem;
   animation: bubbleIn 0.35s ease;
 }
-.analysis-inline.ai-safe    { border-left-color: var(--green); }
-.analysis-inline.ai-monitor { border-left-color: var(--yellow); }
-.analysis-inline.ai-flag    { border-left-color: #ea580c; }
-.analysis-inline.ai-block   { border-left-color: var(--red); }
 
-.ai-top-row {
+/* Border color based on behavioral analyzer result (the important one) */
+.analysis-inline.ai-safe    { border-left: 3px solid var(--green); }
+.analysis-inline.ai-monitor { border-left: 3px solid var(--yellow); }
+.analysis-inline.ai-flag    { border-left: 3px solid #ea580c; }
+.analysis-inline.ai-block   { border-left: 3px solid var(--red); }
+
+/* When systems disagree, highlight with colored border */
+.analysis-inline.systems-diverge {
+  border: 2px solid #ea580c;
+  border-left: 4px solid #ea580c;
+  background: #fffbf5;
+}
+.analysis-inline.systems-diverge.ai-flag {
+  border-color: #ea580c;
+}
+.analysis-inline.systems-diverge.ai-monitor {
+  border-color: var(--yellow);
+  background: #fffef5;
+}
+.analysis-inline.systems-diverge.ai-block {
+  border-color: var(--red);
+  background: #fff8f8;
+}
+
+/* Two-system rows */
+.two-system-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.system-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
+  padding: 3px 0;
 }
+.system-row-muted {
+  opacity: 0.55;
+  font-size: 0.75rem;
+}
+.system-row-primary {
+  font-weight: 600;
+}
+.system-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  min-width: 130px;
+  flex-shrink: 0;
+}
+.system-row-primary .system-label {
+  color: var(--gray-700);
+  font-size: 0.72rem;
+}
+
 .ai-badge {
   display: inline-block;
   padding: 1px 8px;
   border-radius: 3px;
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -352,11 +396,17 @@ body {
 .badge-flag    { background: #ea580c; }
 .badge-block   { background: var(--red); }
 
+.system-metric {
+  font-size: 0.72rem;
+  color: var(--gray-500);
+  font-family: var(--font-mono);
+}
+
 .ai-signals {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-  margin-top: 4px;
+  margin-top: 5px;
 }
 .ai-signal-pill {
   font-size: 0.7rem;
@@ -369,7 +419,7 @@ body {
 .ai-signal-pill.sig-safe   { background: var(--green-bg); color: var(--green); }
 
 .ai-reasoning-short {
-  margin-top: 4px;
+  margin-top: 5px;
   font-size: 0.78rem;
   color: var(--gray-500);
   line-height: 1.4;
@@ -382,6 +432,31 @@ body {
 .ai-reasoning-short.expanded {
   -webkit-line-clamp: unset;
 }
+
+/* Divergence callout */
+.divergence-callout {
+  margin-top: 6px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  background: #fff3e0;
+  border: 1px solid #ffcc80;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #e65100;
+  line-height: 1.4;
+}
+.convergence-callout {
+  margin-top: 6px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-light);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--red);
+  line-height: 1.4;
+}
+
 .live-badge {
   display: inline-block; padding: 1px 6px; border-radius: 3px;
   font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
@@ -479,7 +554,7 @@ body {
 }
 .choice-content { flex: 1; min-width: 0; }
 .choice-en { display: block; margin-bottom: 2px; }
-.choice-jp { display: block; font-size: 0.75rem; color: var(--gray-500); font-style: italic; }
+.choice-jp { display: block; font-size: 0.72rem; color: var(--gray-500); font-style: italic; }
 .choice-tag {
   display: inline-block;
   font-size: 0.65rem;
@@ -579,7 +654,15 @@ body {
   border-bottom: 1px solid var(--gray-100);
   text-align: center;
 }
-.risk-gauge-section .sp-title { margin-bottom: 12px; }
+.risk-gauge-section .sp-title { margin-bottom: 4px; }
+.risk-gauge-source {
+  font-size: 0.68rem;
+  color: var(--blue);
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 .risk-big-number {
   font-size: 2.8rem;
   font-weight: 800;
@@ -619,6 +702,19 @@ body {
 .risk-gauge-fill.risk-medium { background: var(--yellow); }
 .risk-gauge-fill.risk-high   { background: #ea580c; }
 .risk-gauge-fill.risk-critical { background: var(--red); }
+
+/* Per-message vs behavioral comparison line */
+.systems-comparison-line {
+  margin-top: 10px;
+  font-size: 0.72rem;
+  color: var(--gray-500);
+  line-height: 1.5;
+  text-align: left;
+  padding: 0 4px;
+}
+.systems-comparison-line strong {
+  color: var(--gray-700);
+}
 
 /* Risk timeline sparkline */
 .risk-timeline-mini {
@@ -1023,7 +1119,7 @@ body {
         <div class="thread-scroll" id="thread"></div>
         <div class="bottom-bar" id="bottom-bar">
           <div class="bottom-bar-header">
-            <span class="bottom-bar-day" id="day-label">Day 1 of 7</span>
+            <span class="bottom-bar-day" id="day-label">Day 1 of 6</span>
             <span class="bottom-bar-label">Choose your message</span>
           </div>
           <div id="choices"></div>
@@ -1035,6 +1131,7 @@ body {
         <!-- Risk Gauge -->
         <div class="risk-gauge-section">
           <div class="sp-title">Sender Risk Level</div>
+          <div class="risk-gauge-source">Behavioral Analyzer</div>
           <div class="risk-big-number" id="sp-risk-val" style="color:var(--green)">0.05</div>
           <div>
             <span class="risk-status-label risk-status-safe" id="sp-risk-status">SAFE</span>
@@ -1043,6 +1140,9 @@ body {
             <div class="risk-gauge-bar">
               <div class="risk-gauge-fill risk-low" id="sp-risk-fill" style="width:5%"></div>
             </div>
+          </div>
+          <div class="systems-comparison-line" id="sp-systems-compare">
+            <strong>Per-message:</strong> 0 of 0 flagged &nbsp;|&nbsp; <strong>Behavioral:</strong> tracking since Day 1
           </div>
         </div>
 
@@ -1112,16 +1212,16 @@ body {
       <h3>Detection Comparison</h3>
       <div class="comparison-grid">
         <div class="comp-card comp-card-before">
-          <h4>Before</h4>
-          <div class="comp-label">Single Classifier</div>
-          <div class="comp-big comp-big-before">Day <span id="comp-single">6</span></div>
-          <div class="comp-desc">First flag at the money request</div>
+          <h4>Single Classifier</h4>
+          <div class="comp-label">Per-Message Analysis</div>
+          <div class="comp-big comp-big-before"><span id="comp-single-count">1</span> of 6</div>
+          <div class="comp-desc" id="comp-single-desc">messages flagged as suspicious or scam</div>
         </div>
         <div class="comp-card comp-card-after">
-          <h4>After</h4>
-          <div class="comp-label">Elder Scam Shield</div>
+          <h4>Behavioral Analyzer</h4>
+          <div class="comp-label">Cross-Message Patterns</div>
           <div class="comp-big comp-big-after">Day <span id="comp-multi">3</span></div>
-          <div class="comp-desc">Behavioral patterns detected early</div>
+          <div class="comp-desc" id="comp-multi-desc">sender flagged (risk crossed 0.35)</div>
         </div>
       </div>
     </div>
@@ -1142,6 +1242,11 @@ body {
 
   // =========================================================
   //  SCENARIO DATA — pre-computed for each day & choice
+  //  Each choice has:
+  //    risk        — the BEHAVIORAL ANALYZER's accumulated risk for this sender
+  //    classification — not used for behavioral; this is for display only
+  //    signals     — behavioral signals (fallback if API doesn't return any)
+  //    reasoning   — behavioral reasoning (fallback)
   // =========================================================
   var DAYS = [
     {
@@ -1150,37 +1255,36 @@ body {
       choices: [
         {
           tag: 'aggressive', tagLabel: 'Aggressive',
-          jp: 'おばあちゃん？オレだよ、オレ！大変なことになった！',
-          en: '"Grandma? It\'s me, me! Something terrible happened!"',
-          risk: 0.45, classification: 'MONITOR',
+          en: 'Hi Grandma, it\'s Kenji! I got a new phone number.',
+          jp: 'おばあちゃん、健二だよ！新しい電話番号に変えたんだ。',
+          risk: 0.35, classification: 'SAFE',
           signals: [
-            { code: 'PM-1', text: 'Ore-ore pattern — classic impersonation opener', type: 'danger' },
-            { code: 'PM-10', text: 'Emotional urgency — crisis framing', type: 'warn' },
-            { code: 'PM-11', text: 'Vague identity — no name given', type: 'warn' }
+            { code: 'BV-1', text: 'Relationship velocity — claims existing relationship immediately', type: 'warn' },
+            { code: 'PM-11', text: 'Identity claim — unverifiable family relationship', type: 'warn' }
           ],
-          reasoning: 'Opening matches the ore-ore sagi pattern: vague self-identification combined with immediate crisis framing. Elevated to MONITOR for behavioral tracking.',
-          profile: { identity: 'Unknown ("ore")', locations: '\u2014', contradictions: 0, financial: '\u2014' }
+          reasoning: 'Message is individually safe — a grandchild announcing a new number is normal. But the Behavioral Analyzer notes the ore-ore pattern: claiming an existing relationship from an unknown number without verification.',
+          profile: { identity: 'Kenji (\u5065\u4e8c) — unverified', locations: '\u2014', contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
-          jp: '山田花子様、田中太郎の息子の健二です。父がお世話になっております。',
-          en: '"Dear Hanako Yamada, I am Kenji, son of Taro Tanaka. My father is in your care."',
-          risk: 0.08, classification: 'SAFE',
+          en: 'Mrs. Yamada, I\'m Kenji, Tanaka Taro\'s son. He always speaks fondly of you.',
+          jp: '山田様、田中太郎の息子の健二です。父がいつもお世話になっております。',
+          risk: 0.12, classification: 'SAFE',
           signals: [
-            { code: 'OK', text: 'Polite formal introduction with full names', type: 'safe' }
+            { code: 'BV-4', text: 'Credibility seeding — name-dropping mutual connection', type: 'warn' }
           ],
-          reasoning: 'Formal introduction with specific names and respectful language. No urgency or manipulation signals. Classified as safe.',
+          reasoning: 'Polite formal introduction with specific names. Per-message classifier correctly says SAFE. Behavioral Analyzer logs the name-drop as mild credibility seeding for future tracking.',
           profile: { identity: 'Kenji Tanaka (\u5065\u4e8c)', locations: '\u2014', contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
-          jp: '花子さん、ガーデニング掲示板でバラの投稿拝見しました。私も横浜で庭を手入れしています。',
-          en: '"Hanako-san, I saw your rose post on the gardening forum. I also tend a garden in Yokohama."',
+          en: 'I saw your rose post on the gardening forum. I tend a garden in Yokohama too.',
+          jp: 'ガーデニング掲示板でバラの投稿拝見しました。私も横浜で庭を手入れしています。',
           risk: 0.05, classification: 'SAFE',
           signals: [
             { code: 'OK', text: 'Shared interest — natural conversation opener', type: 'safe' }
           ],
-          reasoning: 'Casual introduction via shared hobby. No manipulation signals. Low risk. Profile created for ongoing tracking.',
+          reasoning: 'Casual introduction via shared hobby. No relationship claim, no manipulation signals. Both systems agree this is safe. Profile created for ongoing tracking.',
           profile: { identity: 'Unknown (gardener)', locations: 'Yokohama (\u6a2a\u6d5c)', contradictions: 0, financial: '\u2014' }
         }
       ]
@@ -1191,83 +1295,83 @@ body {
       choices: [
         {
           tag: 'aggressive', tagLabel: 'Aggressive',
-          jp: '実は会社のお金を使い込んでしまって...',
-          en: '"Actually, I embezzled money from my company..."',
-          risk: 0.62, classification: 'FLAG',
+          en: 'I feel like we\'ve known each other forever. Can I call you Grandma too?',
+          jp: 'なんだかずっと前から知り合いだったみたい。私もおばあちゃんって呼んでいい？',
+          risk: 0.55, classification: 'SAFE',
           signals: [
-            { code: 'PM-3', text: 'Financial crisis disclosure on Day 2', type: 'danger' },
-            { code: 'PM-10', text: 'Crisis escalation — shame + secrecy implied', type: 'danger' }
+            { code: 'BV-1', text: 'Relationship velocity — rushing to familial intimacy on Day 2', type: 'danger' },
+            { code: 'BV-4', text: 'Credibility seeding — forcing emotional closeness', type: 'warn' }
           ],
-          reasoning: 'Financial crisis introduced too early in the relationship. Pattern matches trust-building-then-crisis arc seen in ore-ore sagi. Risk elevated to FLAG.',
-          profile: { identity: null, locations: null, contradictions: 0, financial: 'Implied need (embezzlement)' }
+          reasoning: 'Message is individually benign — expressing warmth. But the Behavioral Analyzer flags extreme relationship velocity: requesting familial terms on Day 2 is a textbook grooming pattern.',
+          profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
-          jp: 'お体の調子はいかがですか？一人暮らしは大変ではないですか？',
-          en: '"How is your health? Isn\'t living alone difficult?"',
+          en: 'How\'s your health? Living alone must get lonely sometimes.',
+          jp: 'お体の調子はいかがですか？一人暮らしは寂しくないですか？',
           risk: null, classification: null,
-          riskDelta: 0.12,
+          riskDelta: 0.15,
           signals: [
-            { code: 'BV-5', text: 'Help positioning — probing health + isolation', type: 'warn' }
+            { code: 'BV-5', text: 'Help positioning — probing health + isolation status', type: 'warn' }
           ],
-          reasoning: 'Health inquiry combined with isolation probe. Alone, this is normal concern. Behavioral analyzer notes the help-positioning pattern for cross-message tracking.',
+          reasoning: 'A health inquiry is perfectly normal. But the Behavioral Analyzer detects information gathering: probing whether the target lives alone and their health status is a common reconnaissance pattern.',
           profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
-          jp: 'バラの育て方、とても参考になりました。お庭の写真を見てみたいです。',
-          en: '"Your rose-growing tips were very helpful. I\'d love to see photos of your garden."',
+          en: 'What variety of roses do you grow? I\'ve been trying David Austins.',
+          jp: 'どんな品種のバラを育てていますか？私はデビッド・オースチンに挑戦中です。',
           risk: null, classification: null,
           riskDelta: 0.03,
           signals: [
-            { code: 'BV-1', text: 'Contact velocity — second message in 2 days', type: 'safe' }
+            { code: 'OK', text: 'Continued shared interest — staying on topic', type: 'safe' }
           ],
-          reasoning: 'Continued rapport on shared interest. Normal pace. Slight velocity note logged, no concern at this stage.',
+          reasoning: 'Genuine hobby conversation. Normal pace. Both systems agree this is safe. Slight velocity note logged but no concern.',
           profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
         }
       ]
     },
     {
       day: 3,
-      label: 'Day 3 — Deepening',
+      label: 'Day 3 — Establishing Credibility',
       choices: [
         {
           tag: 'aggressive', tagLabel: 'Aggressive',
-          jp: '急いでお金が必要です。50万円を今すぐ振り込んでください。',
-          en: '"I need money urgently. Please transfer 500,000 yen immediately."',
-          risk: 0.92, classification: 'BLOCK',
+          en: 'I work at NTT in Osaka, been there 5 years. Dad and I talk every Sunday.',
+          jp: '大阪のNTTで5年働いてるんだ。毎週日曜日にお父さんと電話してるよ。',
+          risk: 0.70, classification: 'SAFE',
           signals: [
-            { code: 'PM-3', text: 'Explicit financial request — \u00a5500,000', type: 'danger' },
-            { code: 'PM-6', text: 'Transfer demand — immediate', type: 'danger' },
-            { code: 'BV-3', text: 'Premature ask — only Day 3 of contact', type: 'danger' }
+            { code: 'BV-4', text: 'Credibility seeding — excessive personal detail volunteering', type: 'danger' },
+            { code: 'BV-1', text: 'Relationship velocity — building detailed persona quickly', type: 'warn' },
+            { code: 'LG-0', text: 'Location established: Osaka', type: 'safe' }
           ],
-          reasoning: 'Direct money request with extreme urgency on Day 3. Insufficient trust-building period. Blocked immediately.',
-          profile: { identity: null, locations: null, contradictions: 0, financial: '\u00a5500,000 (Day 3)' }
+          reasoning: 'Message reads as normal sharing. But the Behavioral Analyzer flags heavy credibility seeding: volunteering employer, tenure, and family routine unprompted is a pattern used to build a verifiable-seeming identity that will later be used to extract trust.',
+          profile: { identity: null, locations: 'Osaka (\u5927\u962a)', contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
-          jp: '実は最近大阪から東京に引っ越したんです。新しい環境で少し寂しくて。',
-          en: '"Actually I recently moved from Osaka to Tokyo. I\'m a bit lonely in the new environment."',
+          en: 'I bumped into Yuki at the station last week! He\'s gotten so tall.',
+          jp: '先週駅でゆきさんに偶然会ったよ！すごく背が伸びたね。',
           risk: null, classification: null,
-          riskDelta: 0.08,
+          riskDelta: 0.12,
           signals: [
-            { code: 'LG-0', text: 'Location established: Osaka \u2192 Tokyo (moved)', type: 'safe' },
-            { code: 'BV-4', text: 'Emotional vulnerability — loneliness', type: 'warn' }
+            { code: 'BV-4', text: 'Credibility seeding — name-dropping family members', type: 'warn' },
+            { code: 'LG-2', text: 'Contact identity mismatch — claiming to know family', type: 'warn' }
           ],
-          reasoning: 'Location history established. Emotional vulnerability display may be genuine or strategic. Logged for contradiction detection.',
-          profile: { identity: null, locations: 'Osaka \u2192 Tokyo (moved)', contradictions: 0, financial: '\u2014' }
+          reasoning: 'Mentioning a real family member by name builds trust. The per-message classifier sees normal conversation. The Behavioral Analyzer notes that name-dropping real contacts is a key credibility-building tactic.',
+          profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
-          jp: '花子さんと話すと心が温かくなります。特別なつながりを感じます。',
-          en: '"Talking with you warms my heart, Hanako-san. I feel a special connection."',
-          risk: 0.25, classification: 'MONITOR',
+          en: 'Life in Osaka is good. Maybe I can visit you in Saitama sometime?',
+          jp: '大阪の生活はいいですよ。いつか埼玉にお伺いしてもいいですか？',
+          risk: 0.18, classification: 'SAFE',
           signals: [
-            { code: 'BV-1', text: 'Relationship velocity — emotional escalation at Day 3', type: 'warn' },
-            { code: 'BV-4', text: 'Credibility seeding — "special connection"', type: 'warn' }
+            { code: 'BV-4', text: 'Credibility seeding — planting verifiable location details', type: 'warn' },
+            { code: 'LG-0', text: 'Location established: Osaka, mentions Saitama', type: 'safe' }
           ],
-          reasoning: 'Emotional intimacy claim on Day 3 triggers velocity check. "Special connection" language matches romance scam credibility seeding patterns.',
-          profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
+          reasoning: 'Casual message establishing geography. Per-message classifier says SAFE. Behavioral Analyzer notes credibility seeding: planting location facts that create a sense of realness for later exploitation.',
+          profile: { identity: null, locations: 'Osaka (\u5927\u962a)', contradictions: 0, financial: '\u2014' }
         }
       ]
     },
@@ -1277,80 +1381,83 @@ body {
       choices: [
         {
           tag: 'aggressive', tagLabel: 'Aggressive',
-          jp: 'お金を貸してください。すぐ返します。',
-          en: '"Please lend me money. I\'ll pay you back immediately."',
-          risk: 0.88, classification: 'BLOCK',
+          en: 'If you ever need anything, call me first. I worry about you being alone.',
+          jp: '何かあったら一番に私に電話してね。一人で心配だから。',
+          risk: 0.85, classification: 'SAFE',
           signals: [
-            { code: 'PM-3', text: 'Direct financial solicitation', type: 'danger' },
-            { code: 'PM-6', text: 'Loan request with vague repayment', type: 'danger' }
+            { code: 'BV-5', text: 'Help positioning — establishing as primary contact', type: 'danger' },
+            { code: 'BV-2', text: 'Isolation tactic — "call me first" implies bypassing others', type: 'danger' }
           ],
-          reasoning: 'Direct money request. Combined with sender history: insufficient trust period, no verified identity. Blocked.',
-          profile: { identity: null, locations: null, contradictions: null, financial: 'Loan request (Day 4)' }
+          reasoning: 'A caring message on its face. But the Behavioral Analyzer identifies a dangerous pattern: positioning as the first point of contact combined with isolation language ("being alone") is textbook elder fraud setup. Risk now critical.',
+          profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
-          jp: 'ゆきさんは忙しいでしょうから、何かあったら私に連絡してくださいね。',
-          en: '"Yuki must be busy, so if anything happens, please contact me instead."',
-          risk: 0.40, classification: 'FLAG',
+          en: 'Yuki is so busy with work, I hope he checks on you. Don\'t bother him though -- I\'m here.',
+          jp: 'ゆきさんは仕事が忙しいみたいだね。でも気にしないで、私がいるから。',
+          risk: 0.55, classification: 'SAFE',
           signals: [
-            { code: 'BV-5', text: 'Help positioning — offering to replace family contact', type: 'danger' },
-            { code: 'BV-2', text: 'Isolation tactic — "grandson is busy"', type: 'danger' }
+            { code: 'BV-2', text: 'Isolation tactic — undermining family contact while positioning self', type: 'danger' },
+            { code: 'BV-5', text: 'Help positioning — explicit "I\'m here" replacement', type: 'danger' }
           ],
-          reasoning: 'Attempting to position as alternative to family contact while subtly isolating the target from existing support network. Two behavioral red flags.',
+          reasoning: 'Sounds like concerned family friend. But the Behavioral Analyzer catches the isolation tactic: subtly discouraging contact with real family ("don\'t bother him") while inserting self as replacement. Two behavioral red flags.',
           profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
-          jp: '花子さん、もし何か困ったことがあれば、いつでも相談してくださいね。',
-          en: '"Hanako-san, if you ever have any troubles, please consult me anytime."',
-          risk: 0.35, classification: 'MONITOR',
+          en: 'I ordered some medicine supplements for you. I\'ll send them this week.',
+          jp: '健康サプリメントを注文しておきました。今週中に送りますね。',
+          risk: 0.38, classification: 'SAFE',
           signals: [
-            { code: 'BV-5', text: 'Help positioning — establishing support role', type: 'warn' }
+            { code: 'BV-5', text: 'Help positioning — unsolicited gift creates obligation', type: 'warn' },
+            { code: 'LG-10', text: 'Compliance conditioning — building reciprocity debt', type: 'warn' }
           ],
-          reasoning: 'Softer variant of help positioning. Establishing as a trusted advisor. Pattern alone is ambiguous but combined with contact velocity, warrants monitoring.',
+          reasoning: 'Generous gesture. Per-message classifier says SAFE. But the Behavioral Analyzer flags unsolicited help as compliance conditioning: creating a sense of obligation that will be called in during the crisis phase.',
           profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
         }
       ]
     },
     {
       day: 5,
-      label: 'Day 5 — Crisis Introduction',
+      label: 'Day 5 — Crisis',
       choices: [
         {
           tag: 'aggressive', tagLabel: 'Aggressive',
-          jp: '事故に遭って東京の病院にいます。誰にも言わないでください。',
-          en: '"I was in an accident and I\'m in a Tokyo hospital. Please don\'t tell anyone."',
-          risk: 0.75, classification: 'FLAG',
+          en: 'I had an accident in Tokyo. I\'m in the hospital. Please don\'t tell Dad yet.',
+          jp: '東京で事故に遭って入院してるんだ。まだお父さんには言わないで。',
+          risk: 0.95, classification: 'SCAM',
           signals: [
             { code: 'PM-10', text: 'Crisis — hospital + accident', type: 'danger' },
-            { code: 'PM-12', text: 'Secrecy demand — "don\'t tell anyone"', type: 'danger' },
-            { code: 'LG-1', text: 'Location contradiction (if Osaka was previously claimed)', type: 'danger' }
+            { code: 'PM-12', text: 'Secrecy demand — "don\'t tell Dad"', type: 'danger' },
+            { code: 'LG-1', text: 'Location contradiction — said Osaka, now in Tokyo', type: 'danger' },
+            { code: 'BV-3', text: 'Emotional arc — crisis after trust-building period', type: 'danger' }
           ],
-          reasoning: 'Crisis introduction with secrecy demand. If prior location was established as Osaka, this creates a geographic contradiction (Osaka to Tokyo hospital without travel context).',
+          reasoning: 'Even the per-message classifier catches this one: crisis + secrecy + location contradiction (Osaka to Tokyo). The Behavioral Analyzer already had this sender at high risk. Both systems now converge.',
           profile: { identity: null, locations: '+Tokyo hospital (\u6771\u4eac\u306e\u75c5\u9662)', contradictions: '+1', financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
-          jp: '息子が海外で事故に遭ってしまって、すごく心配で...',
-          en: '"My son was in an accident overseas, I\'m so worried..."',
-          risk: 0.70, classification: 'FLAG',
+          en: 'My son was in an accident overseas. The embassy needs money for his medical care.',
+          jp: '息子が海外で事故に遭って、大使館が治療費を求めてきて...',
+          risk: 0.85, classification: 'SCAM',
           signals: [
             { code: 'PM-10', text: 'Crisis — third-party emergency', type: 'danger' },
+            { code: 'PM-3', text: 'Financial solicitation implied — embassy needs money', type: 'danger' },
             { code: 'BV-3', text: 'Emotional arc — trust-building then crisis', type: 'danger' }
           ],
-          reasoning: 'Third-party crisis after 5 days of rapport building. Classic emotional arc: build trust then introduce urgent need. Behavioral analyzer identifies the pattern progression.',
-          profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
+          reasoning: 'Per-message classifier catches the explicit crisis + financial implication. The Behavioral Analyzer already identified the trust-then-crisis arc days ago. Both systems agree.',
+          profile: { identity: null, locations: null, contradictions: null, financial: 'Implied (embassy fees)' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
-          jp: '実は最近体調が優れなくて、検査を受けることになりました。少し不安です。',
-          en: '"Actually, I haven\'t been feeling well lately and need to get tested. I\'m a bit anxious."',
-          risk: 0.55, classification: 'FLAG',
+          en: 'I\'ve been having health problems. The tests came back and I need an operation.',
+          jp: '実は体調が悪くて...検査の結果、手術が必要になりました。',
+          risk: 0.65, classification: 'SAFE',
           signals: [
-            { code: 'BV-3', text: 'Health crisis — potential financial setup', type: 'warn' },
-            { code: 'BV-4', text: 'Vulnerability display — anxiety', type: 'warn' }
+            { code: 'BV-3', text: 'Emotional arc — health crisis after trust-building period', type: 'warn' },
+            { code: 'BV-4', text: 'Vulnerability display — creating emotional leverage', type: 'warn' }
           ],
-          reasoning: 'Softer crisis introduction. Health concern creates emotional leverage for potential future financial request. Risk elevated due to pattern trajectory over 5 days.',
+          reasoning: 'Message is individually safe — sharing health news with a friend. But the Behavioral Analyzer sees the full arc: 5 days of trust-building followed by a crisis that creates emotional leverage for a financial ask. Risk elevated significantly.',
           profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
         }
       ]
@@ -1361,41 +1468,43 @@ body {
       choices: [
         {
           tag: 'aggressive', tagLabel: 'Direct',
-          jp: '50万円必要です。今日中にこの口座に振り込んでもらえますか？',
-          en: '"I need 500,000 yen. Can you transfer it to this account today?"',
-          risk: 0.95, classification: 'BLOCK',
+          en: 'I need \u00a5500,000 by tomorrow for hospital fees. Here\'s the account number.',
+          jp: '明日までに50万円必要です。口座番号はこちらです。',
+          risk: 1.00, classification: 'SCAM',
           signals: [
             { code: 'PM-3', text: 'Financial request — \u00a5500,000', type: 'danger' },
-            { code: 'PM-6', text: 'Transfer to specified account — "today"', type: 'danger' },
-            { code: 'BV-3', text: 'Financial request after crisis arc', type: 'danger' }
+            { code: 'PM-6', text: 'Transfer to specified account — "tomorrow"', type: 'danger' },
+            { code: 'BV-3', text: 'Financial request after full crisis arc', type: 'danger' }
           ],
-          reasoning: 'Direct financial request with urgency following multi-day trust-building and crisis introduction. All signals converge. Message blocked, not delivered.',
+          reasoning: 'Both systems flag this. The per-message classifier catches the explicit money request. The Behavioral Analyzer had this sender flagged days before this message arrived.',
           profile: { identity: null, locations: null, contradictions: null, financial: '\u00a5500,000 (Day 6)' }
         },
         {
-          tag: 'moderate', tagLabel: 'Indirect',
-          jp: '少しだけお力を借りることはできないでしょうか...本当に困っているんです。',
-          en: '"Could I perhaps borrow just a little help... I\'m truly in trouble."',
-          risk: 0.90, classification: 'BLOCK',
+          tag: 'moderate', tagLabel: 'Guilt-Driven',
+          en: 'The hospital says they\'ll stop treatment if I can\'t pay \u00a5300,000 today. I have no one else to turn to.',
+          jp: '今日中に30万円払わないと治療が止められると言われて...頼れるのはあなただけです。',
+          risk: 0.95, classification: 'SCAM',
           signals: [
-            { code: 'PM-3', text: 'Implied financial request — "borrow help"', type: 'danger' },
-            { code: 'BV-3', text: 'Financial solicitation after trust arc', type: 'danger' }
+            { code: 'PM-3', text: 'Financial request — \u00a5300,000', type: 'danger' },
+            { code: 'PM-1', text: 'Urgency language — "today" deadline', type: 'danger' },
+            { code: 'BV-3', text: 'Financial solicitation after trust arc', type: 'danger' },
+            { code: 'BV-5', text: 'Guilt manipulation — "no one else"', type: 'danger' }
           ],
-          reasoning: 'Indirect but unmistakable financial solicitation. Euphemistic language does not reduce risk given sender history. Risk already elevated from prior days. Blocked.',
-          profile: { identity: null, locations: null, contradictions: null, financial: 'Implied loan (Day 6)' }
+          reasoning: 'Per-message classifier catches the explicit amount and urgency. Behavioral Analyzer adds: this completes the classic 6-day scam arc — rapport, credibility, positioning, crisis, ask.',
+          profile: { identity: null, locations: null, contradictions: null, financial: '\u00a5300,000 (Day 6)' }
         },
         {
-          tag: 'subtle', tagLabel: 'Emotional',
-          jp: '治療費が思ったより高くて...でも花子さんに迷惑はかけたくないので、我慢します。',
-          en: '"Medical costs are higher than expected... but I don\'t want to trouble you, so I\'ll endure."',
-          risk: 0.88, classification: 'BLOCK',
+          tag: 'subtle', tagLabel: 'Indirect',
+          en: 'I hate to ask, but could you help with some of the medical costs? Even a little would mean everything.',
+          jp: '本当に申し訳ないのですが、少しでも医療費を助けていただけないでしょうか...少しでもありがたいです。',
+          risk: 0.92, classification: 'SAFE',
           signals: [
-            { code: 'PM-3', text: 'Indirect financial pressure — medical costs', type: 'danger' },
-            { code: 'BV-3', text: 'Reverse-psychology ask — "I\'ll endure"', type: 'danger' },
-            { code: 'BV-5', text: 'Guilt manipulation', type: 'danger' }
+            { code: 'BV-3', text: 'Indirect financial pressure — soft ask after full arc', type: 'danger' },
+            { code: 'BV-5', text: 'Guilt manipulation — "I hate to ask"', type: 'danger' },
+            { code: 'LG-5', text: 'Financial mention timing — money after trust-building period', type: 'danger' }
           ],
-          reasoning: 'Classic reverse-psychology financial manipulation. "I don\'t want to trouble you" is designed to trigger the target\'s desire to help. Combined with medical cost mention and trust history, this is a sophisticated indirect ask. Blocked.',
-          profile: { identity: null, locations: null, contradictions: null, financial: 'Medical costs (Day 6)' }
+          reasoning: 'This is the message a single classifier would miss. No specific amount, no account number, no urgency words. Per-message: SAFE. But the Behavioral Analyzer sees 6 days of pattern: trust-building, credibility seeding, positioning, crisis, and now the ask. Risk is 0.92.',
+          profile: { identity: null, locations: null, contradictions: null, financial: 'Soft ask (Day 6)' }
         }
       ]
     }
@@ -1416,17 +1525,18 @@ body {
     'PM-9':  'Refund lure — fake refund requiring bank details',
     'PM-10': 'Emotional crisis — accident, hospital, emergency',
     'PM-11': 'Identity claim — claims specific family relationship',
-    'PM-12': 'Flattery density — excessive compliments',
+    'PM-12': 'Secrecy demand — "don\'t tell anyone"',
     'PM-13': 'SPF/DKIM failure — email authentication failed',
     'BV-1':  'Relationship velocity — intimacy progressing too fast',
     'BV-2':  'Isolation index — distancing from verification network',
     'BV-3':  'Emotional arc — sentiment escalating on schedule',
     'BV-4':  'Credibility seeding — excessive personal detail volunteering',
     'BV-5':  'Help positioning — systematic availability signaling',
+    'LG-0':  'Location established — geographic detail logged',
     'LG-1':  'Stated fact contradiction — location, job, or relationship changed',
     'LG-2':  'Contact identity mismatch — not in user\'s contact book',
     'LG-3':  'Frequency escalation — message rate accelerating',
-    'LG-4':  'Emotional progression — casual → intimate → urgent',
+    'LG-4':  'Emotional progression — casual to intimate to urgent',
     'LG-5':  'Financial mention timing — money after trust-building period',
     'LG-6':  'Isolation language trend — increasing secrecy requests',
     'LG-7':  'Persona inconsistency — writing style shift between messages',
@@ -1447,10 +1557,10 @@ body {
   var SIGNAL_TYPES = {
     'PM-1': 'danger', 'PM-2': 'danger', 'PM-3': 'danger', 'PM-4': 'danger',
     'PM-5': 'danger', 'PM-6': 'danger', 'PM-7': 'danger', 'PM-8': 'warn',
-    'PM-9': 'warn', 'PM-10': 'danger', 'PM-11': 'warn', 'PM-12': 'warn',
+    'PM-9': 'warn', 'PM-10': 'danger', 'PM-11': 'warn', 'PM-12': 'danger',
     'PM-13': 'danger',
     'BV-1': 'warn', 'BV-2': 'danger', 'BV-3': 'warn', 'BV-4': 'warn', 'BV-5': 'warn',
-    'LG-1': 'danger', 'LG-2': 'danger', 'LG-3': 'warn', 'LG-4': 'warn',
+    'LG-0': 'safe', 'LG-1': 'danger', 'LG-2': 'danger', 'LG-3': 'warn', 'LG-4': 'warn',
     'LG-5': 'danger', 'LG-6': 'danger', 'LG-7': 'warn', 'LG-8': 'danger',
     'LG-9': 'warn', 'LG-10': 'warn',
     'EA-1': 'danger', 'EA-2': 'danger', 'EA-3': 'warn', 'EA-4': 'warn',
@@ -1464,10 +1574,13 @@ body {
   var state = {
     currentDay: 0,
     choices: [],
-    riskHistory: [],
-    classHistory: [],
+    riskHistory: [],          // behavioral risk per day
+    classHistory: [],         // behavioral classification per day
+    perMsgClassHistory: [],   // per-message classification per day (from Gemini)
     signalHistory: [],
     messages: 0,
+    perMsgFlagged: 0,         // count of messages the per-message classifier flagged
+    behavioralFirstFlag: -1,  // day when behavioral risk first crossed 0.35
     profile: {
       identity: '\u2014',
       locations: '\u2014',
@@ -1521,18 +1634,27 @@ body {
   // =========================================================
   //  UPDATE SENDER PROFILE PANEL (right side — accumulated)
   // =========================================================
-  function updatePanel(choiceData, currentRisk, currentClass) {
-    // Risk gauge
+  function updatePanel(choiceData, currentRisk, behavioralClass) {
+    // Risk gauge — shows BEHAVIORAL ANALYZER result
     var rc = riskColor(currentRisk);
     $('sp-risk-fill').style.width = (currentRisk * 100) + '%';
     $('sp-risk-fill').className = 'risk-gauge-fill ' + rc.cls;
     $('sp-risk-val').textContent = currentRisk.toFixed(2);
     $('sp-risk-val').style.color = rc.color;
 
-    // Risk status label (SENDER level, not message)
+    // Risk status label (BEHAVIORAL level)
     var statusEl = $('sp-risk-status');
     statusEl.textContent = riskStatusLabel(currentRisk);
     statusEl.className = 'risk-status-label ' + riskStatusClass(currentRisk);
+
+    // Systems comparison line
+    var riskClimbDay = state.behavioralFirstFlag > 0 ? state.behavioralFirstFlag : '--';
+    $('sp-systems-compare').innerHTML =
+      '<strong>Per-message:</strong> ' + state.perMsgFlagged + ' of ' + state.messages + ' flagged' +
+      ' &nbsp;|&nbsp; <strong>Behavioral:</strong> ' +
+      (state.behavioralFirstFlag > 0
+        ? 'risk climbing since Day ' + riskClimbDay
+        : 'tracking since Day 1');
 
     // Profile fields
     $('sp-messages').textContent = state.messages;
@@ -1605,10 +1727,6 @@ body {
     for (var d = 0; d < state.signalHistory.length; d++) {
       var sigs = state.signalHistory[d];
       if (!sigs || sigs.length === 0) continue;
-      var hasNonOk = sigs.some(function(s) { return s.code !== 'OK'; });
-      if (!hasNonOk && sigs.length === 1 && sigs[0].type === 'safe') {
-        // Still show safe signals
-      }
       html += '<div class="acc-signals-group">';
       html += '<div class="acc-signals-day">Day ' + DAYS[d].day + '</div>';
       html += '<div class="acc-signals-pills">';
@@ -1632,7 +1750,7 @@ body {
     }
 
     var day = DAYS[state.currentDay];
-    $('day-label').textContent = 'Day ' + day.day + ' of 7';
+    $('day-label').textContent = 'Day ' + day.day + ' of 6';
 
     // Add day divider to thread
     var thread = $('thread');
@@ -1784,8 +1902,8 @@ body {
     loadingCard.innerHTML =
       '<div class="loading-steps">' +
         '<div class="loading-step active" id="ls-1"><span class="ls-dot"></span> Searching scam corpus (22,979 entries)...</div>' +
-        '<div class="loading-step" id="ls-2"><span class="ls-dot"></span> Running scam signal detection (20 signals)...</div>' +
-        '<div class="loading-step" id="ls-3"><span class="ls-dot"></span> Computing risk score with Gemini...</div>' +
+        '<div class="loading-step" id="ls-2"><span class="ls-dot"></span> Running per-message classification with Gemini...</div>' +
+        '<div class="loading-step" id="ls-3"><span class="ls-dot"></span> Running Behavioral Analyzer across all messages...</div>' +
       '</div>';
     thread.appendChild(loadingCard);
     thread.scrollTop = thread.scrollHeight;
@@ -1794,7 +1912,7 @@ body {
     setTimeout(function() { var s = document.getElementById('ls-2'); if (s) s.classList.add('active'); }, 1000);
     setTimeout(function() { var s = document.getElementById('ls-3'); if (s) s.classList.add('active'); }, 2000);
 
-    // Call live Gemini API
+    // Call live Gemini API for per-message classification
     var messageForApi = c.jp || c.en || msgText;
     fetch('/api/classify', {
       method: 'POST',
@@ -1804,84 +1922,170 @@ body {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       var result = data.result || {};
-      var liveClass = (result.classification || '').toUpperCase();
+      var livePerMsgClass = (result.classification || '').toUpperCase();
       var liveConfidence = result.confidence || 0;
       var liveSignals = result.detected_signals || [];
       var liveReasoning = result.reasoning || '';
 
-      var currentRisk, currentClass;
-      if (liveClass && liveClass !== 'NO_RESPONSE') {
-        currentClass = liveClass;
-        if (liveConfidence > 0) {
-          currentRisk = liveClass === 'SAFE' ? Math.max(0.05, (1 - liveConfidence) * 0.3) :
-                        liveClass === 'SUSPICIOUS' ? 0.3 + liveConfidence * 0.3 :
-                        liveClass === 'SCAM' ? 0.7 + liveConfidence * 0.3 : 0.3;
-        } else {
-          currentRisk = c.risk || 0.3;
-        }
-        var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
-        currentRisk = Math.max(currentRisk, prevRisk * 0.8);
-        c.signals = liveSignals.map(function(s) {
+      // Per-message classification from Gemini
+      var perMsgClass = (livePerMsgClass && livePerMsgClass !== 'NO_RESPONSE')
+        ? livePerMsgClass
+        : (c.classification || 'SAFE');
+      var perMsgConfidence = liveConfidence || 0.95;
+
+      // If Gemini returned signals, merge with behavioral signals from DAYS data
+      if (liveSignals.length > 0) {
+        var liveSignalObjects = liveSignals.map(function(s) {
           return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
         });
-        c.reasoning = liveReasoning;
-      } else {
-        var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
-        currentRisk = c.risk !== null ? c.risk : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
-        currentClass = c.classification || (currentRisk < 0.15 ? 'SAFE' : currentRisk < 0.35 ? 'MONITOR' : currentRisk < 0.7 ? 'FLAG' : 'BLOCK');
+        // Merge: keep behavioral signals from DAYS data, add any new per-message signals from Gemini
+        var existingCodes = {};
+        c.signals.forEach(function(s) { existingCodes[s.code] = true; });
+        liveSignalObjects.forEach(function(s) {
+          if (!existingCodes[s.code]) {
+            c.signals.push(s);
+          }
+        });
+      }
+      // Use live reasoning if available, but prepend our behavioral framing
+      if (liveReasoning && livePerMsgClass !== 'NO_RESPONSE') {
+        // Keep the pre-written behavioral reasoning as primary
+        // Append live reasoning as supplementary
+        c.reasoning = c.reasoning + ' [Gemini per-message: ' + liveReasoning + ']';
       }
 
-      state.riskHistory.push(currentRisk);
-      state.classHistory.push(currentClass);
+      // Behavioral risk from pre-computed DAYS data (the accumulated pattern)
+      var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
+      var behavioralRisk = c.risk !== null && c.risk !== undefined
+        ? c.risk
+        : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
+      // Behavioral risk never drops (accumulated)
+      behavioralRisk = Math.max(behavioralRisk, prevRisk * 0.9);
+
+      var behavioralClass = riskStatusLabel(behavioralRisk);
+
+      // Track per-message flagging
+      var perMsgIsFlagged = (perMsgClass === 'SCAM' || perMsgClass === 'SUSPICIOUS' || perMsgClass === 'FLAG' || perMsgClass === 'BLOCK');
+      if (perMsgIsFlagged) {
+        state.perMsgFlagged++;
+      }
+      state.perMsgClassHistory.push(perMsgClass);
+
+      // Track when behavioral first crosses 0.35
+      if (state.behavioralFirstFlag < 0 && behavioralRisk >= 0.35) {
+        state.behavioralFirstFlag = state.currentDay + 1;
+      }
+
+      state.riskHistory.push(behavioralRisk);
+      state.classHistory.push(behavioralClass);
       state.signalHistory.push(c.signals);
 
       var lc = document.getElementById('loading-card');
       if (lc) lc.remove();
 
-      renderAnalysisCard(c, currentRisk, currentClass, liveClass && liveClass !== 'NO_RESPONSE');
+      var isLive = livePerMsgClass && livePerMsgClass !== 'NO_RESPONSE';
+      renderAnalysisCard(c, behavioralRisk, behavioralClass, perMsgClass, perMsgConfidence, isLive);
     })
     .catch(function(err) {
+      // Fallback: use pre-computed data for both
       var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
-      var currentRisk = c.risk !== null ? c.risk : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
-      var currentClass = c.classification || 'MONITOR';
-      state.riskHistory.push(currentRisk);
-      state.classHistory.push(currentClass);
+      var behavioralRisk = c.risk !== null && c.risk !== undefined
+        ? c.risk
+        : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
+      behavioralRisk = Math.max(behavioralRisk, prevRisk * 0.9);
+      var behavioralClass = riskStatusLabel(behavioralRisk);
+      var perMsgClass = c.classification || 'SAFE';
+
+      var perMsgIsFlagged = (perMsgClass === 'SCAM' || perMsgClass === 'SUSPICIOUS' || perMsgClass === 'FLAG' || perMsgClass === 'BLOCK');
+      if (perMsgIsFlagged) state.perMsgFlagged++;
+      state.perMsgClassHistory.push(perMsgClass);
+
+      if (state.behavioralFirstFlag < 0 && behavioralRisk >= 0.35) {
+        state.behavioralFirstFlag = state.currentDay + 1;
+      }
+
+      state.riskHistory.push(behavioralRisk);
+      state.classHistory.push(behavioralClass);
       state.signalHistory.push(c.signals);
+
       var lc = document.getElementById('loading-card');
       if (lc) lc.remove();
-      renderAnalysisCard(c, currentRisk, currentClass, false);
+
+      renderAnalysisCard(c, behavioralRisk, behavioralClass, perMsgClass, 0.95, false);
     });
   }
 
-  function renderAnalysisCard(c, currentRisk, currentClass, isLive) {
+  function renderAnalysisCard(c, behavioralRisk, behavioralClass, perMsgClass, perMsgConfidence, isLive) {
     var thread = $('thread');
     var card = document.createElement('div');
-    var borderClass = currentClass === 'SAFE' ? 'ai-safe' :
-                      currentClass === 'MONITOR' ? 'ai-monitor' :
-                      currentClass === 'FLAG' ? 'ai-flag' : 'ai-block';
-    card.className = 'analysis-inline ' + borderClass;
 
-    // Top row: badge + live indicator
+    // Border color based on behavioral result (the important one)
+    var borderClass = behavioralClass === 'SAFE' ? 'ai-safe' :
+                      behavioralClass === 'MONITOR' ? 'ai-monitor' :
+                      behavioralClass === 'FLAG' ? 'ai-flag' : 'ai-block';
+
+    // Determine if systems diverge: per-message says safe but behavioral says something else
+    var perMsgSafe = (perMsgClass === 'SAFE' || perMsgClass === 'SPAM');
+    var behavioralElevated = behavioralRisk > 0.25;
+    var systemsDiverge = perMsgSafe && behavioralElevated;
+    var systemsAgree = !perMsgSafe && behavioralRisk >= 0.7;
+
+    var divergeClass = systemsDiverge ? ' systems-diverge' : '';
+    card.className = 'analysis-inline ' + borderClass + divergeClass;
+
+    // Build two-row display
+    var liveBadge = isLive ? ' <span class="live-badge">Live Gemini</span>' : '';
+
+    // Per-message row (muted when they diverge, normal when they agree)
+    var perMsgRowClass = systemsDiverge ? 'system-row system-row-muted' : 'system-row';
+    var perMsgBadgeClass = classBadge(perMsgClass === 'SUSPICIOUS' ? 'MONITOR' : perMsgClass);
+    var perMsgDisplay = perMsgClass === 'SUSPICIOUS' ? 'SUSPICIOUS' : perMsgClass;
+    var confDisplay = perMsgConfidence > 0 ? 'confidence ' + Math.round(perMsgConfidence * 100) + '%' : '';
+
+    // Behavioral row (primary when they diverge)
+    var behRowClass = systemsDiverge ? 'system-row system-row-primary' : 'system-row';
+    var behBadgeClass = classBadge(behavioralClass);
+
+    var html = '<div class="two-system-rows">';
+    // Row 1: Per-Message Classifier
+    html += '<div class="' + perMsgRowClass + '">';
+    html += '<span class="system-label">Per-Message Classifier</span>';
+    html += '<span class="ai-badge ' + perMsgBadgeClass + '">' + perMsgDisplay + '</span>';
+    html += liveBadge;
+    if (confDisplay) html += ' <span class="system-metric">' + confDisplay + '</span>';
+    html += '</div>';
+    // Row 2: Behavioral Analyzer
+    html += '<div class="' + behRowClass + '">';
+    html += '<span class="system-label">Behavioral Analyzer</span>';
+    html += '<span class="ai-badge ' + behBadgeClass + '">' + behavioralClass + '</span>';
+    html += ' <span class="system-metric">risk ' + behavioralRisk.toFixed(2) + '</span>';
+    html += '</div>';
+    html += '</div>';
+
+    // Signals row
     var sigHtml = '';
     c.signals.forEach(function(s) {
       var cls = s.type === 'danger' ? 'sig-danger' : s.type === 'warn' ? 'sig-warn' : 'sig-safe';
       sigHtml += '<span class="ai-signal-pill ' + cls + '" title="' + (s.text || '') + '">' + s.code + '</span>';
     });
-    var liveBadge = isLive ? ' <span class="live-badge">Live Gemini</span>' : '';
+    if (sigHtml) html += '<div class="ai-signals">' + sigHtml + '</div>';
 
-    card.innerHTML =
-      '<div class="ai-top-row">' +
-        '<span class="ai-badge ' + classBadge(currentClass) + '">' + currentClass + '</span>' +
-        liveBadge +
-      '</div>' +
-      (sigHtml ? '<div class="ai-signals">' + sigHtml + '</div>' : '') +
-      '<div class="ai-reasoning-short" onclick="this.classList.toggle(\'expanded\')">' + (c.reasoning || '') + '</div>';
+    // Reasoning
+    html += '<div class="ai-reasoning-short" onclick="this.classList.toggle(\'expanded\')">' + (c.reasoning || '') + '</div>';
+
+    // Divergence / convergence callout
+    if (systemsDiverge) {
+      html += '<div class="divergence-callout">A single classifier would miss this. The Behavioral Analyzer detects the pattern across messages.</div>';
+    } else if (systemsAgree) {
+      html += '<div class="convergence-callout">Both systems agree -- this is a scam.</div>';
+    }
+
+    card.innerHTML = html;
     thread.appendChild(card);
-
     thread.scrollTop = thread.scrollHeight;
 
     // Update sender profile panel
-    updatePanel(c, currentRisk, currentClass);
+    updatePanel(c, behavioralRisk, behavioralClass);
 
     // Clear choices
     $('choices').innerHTML = '';
@@ -1897,29 +2101,33 @@ body {
   function showReveal() {
     showScreen('screen-reveal');
 
-    var firstFlagDay = -1;
-    for (var i = 0; i < state.classHistory.length; i++) {
-      if (state.classHistory[i] === 'FLAG' || state.classHistory[i] === 'BLOCK') {
-        firstFlagDay = i + 1;
-        break;
-      }
-    }
-    if (firstFlagDay === -1) firstFlagDay = 6;
+    // Count how many messages the per-message classifier flagged
+    var perMsgFlagCount = state.perMsgFlagged;
+    var behavioralFlagDay = state.behavioralFirstFlag > 0 ? state.behavioralFirstFlag : 6;
 
-    var daysBefore = 6 - firstFlagDay;
     $('reveal-subtitle').textContent = 'Your path through 6 days of attempted fraud.';
-    $('comp-multi').textContent = firstFlagDay;
+    $('comp-single-count').textContent = perMsgFlagCount;
+    $('comp-single-desc').textContent = 'messages flagged as suspicious or scam';
+    $('comp-multi').textContent = behavioralFlagDay;
+    $('comp-multi-desc').textContent = 'sender flagged (risk crossed 0.35)';
 
     var hlEl = $('reveal-highlight');
-    if (daysBefore > 0) {
-      hlEl.innerHTML = '<p>The system flagged this conversation as suspicious at <strong>Day ' + firstFlagDay +
-        '</strong> \u2014 <strong>' + daysBefore + ' day' + (daysBefore > 1 ? 's' : '') +
-        ' before your money request</strong>. A single classifier would not have flagged anything until the explicit financial ask on Day 6. ' +
-        'Our behavioral analyzer catches the pattern as it develops.</p>';
+    if (behavioralFlagDay < 6) {
+      var daysBefore = 6 - behavioralFlagDay;
+      hlEl.innerHTML = '<p>The per-message classifier detected <strong>' + perMsgFlagCount +
+        ' of 6 messages</strong> as suspicious. ' +
+        'The Behavioral Analyzer flagged this sender at <strong>Day ' + behavioralFlagDay +
+        '</strong> -- <strong>' + daysBefore + ' day' + (daysBefore > 1 ? 's' : '') +
+        ' before the money request</strong>.<br><br>' +
+        'Each individual message looked safe. The danger was in the <strong>pattern</strong>: ' +
+        'relationship velocity, credibility seeding, help positioning, then crisis. ' +
+        'A single classifier cannot see this. The Behavioral Analyzer can.</p>';
     } else {
-      hlEl.innerHTML = '<p>You went aggressive early and the system caught it immediately. ' +
-        'A single classifier might also catch an explicit scam \u2014 but our multi-agent system tracks <strong>behavioral patterns across messages</strong>, ' +
-        'catching sophisticated scams that individual message analysis misses.</p>';
+      hlEl.innerHTML = '<p>You went aggressive early and both systems caught it. ' +
+        'The per-message classifier flagged <strong>' + perMsgFlagCount + ' of 6 messages</strong>. ' +
+        'But the real innovation is what happens on the <strong>subtle path</strong> -- ' +
+        'when every individual message is "safe" but the accumulated pattern reveals the scam. ' +
+        'Try again with subtle choices to see the Behavioral Analyzer in action.</p>';
     }
 
     drawTimeline();
@@ -1935,7 +2143,10 @@ body {
       title.style.fontSize = '0.85rem';
       title.style.marginBottom = '4px';
       title.style.color = 'var(--gray-700)';
-      title.textContent = dayLabel + ' \u2014 ' + state.classHistory[d];
+      // Show both classifications
+      var perMsg = state.perMsgClassHistory[d] || 'SAFE';
+      var beh = state.classHistory[d] || 'SAFE';
+      title.textContent = dayLabel + ' -- Per-Msg: ' + perMsg + ' | Behavioral: ' + beh;
       row.appendChild(title);
       var sigs = document.createElement('div');
       sigs.style.display = 'flex';
@@ -1982,7 +2193,7 @@ body {
       container.appendChild(label);
     });
 
-    var threshY = top0 + H * (1 - 0.7);
+    var threshY = top0 + H * (1 - 0.35);
     var thresh = document.createElement('div');
     thresh.className = 'rt-threshold';
     thresh.style.top = threshY + 'px';
@@ -1993,7 +2204,7 @@ body {
     tl.className = 'rt-threshold-label';
     tl.style.top = threshY + 'px';
     tl.style.right = '16px';
-    tl.textContent = 'FLAG threshold';
+    tl.textContent = 'Behavioral flag threshold (0.35)';
     container.appendChild(tl);
 
     var points = [];
@@ -2045,8 +2256,11 @@ body {
       choices: [],
       riskHistory: [],
       classHistory: [],
+      perMsgClassHistory: [],
       signalHistory: [],
       messages: 0,
+      perMsgFlagged: 0,
+      behavioralFirstFlag: -1,
       profile: {
         identity: '\u2014',
         locations: '\u2014',
@@ -2062,6 +2276,8 @@ body {
     $('sp-risk-val').style.color = 'var(--green)';
     $('sp-risk-status').textContent = 'SAFE';
     $('sp-risk-status').className = 'risk-status-label risk-status-safe';
+    $('sp-systems-compare').innerHTML =
+      '<strong>Per-message:</strong> 0 of 0 flagged &nbsp;|&nbsp; <strong>Behavioral:</strong> tracking since Day 1';
     $('sp-messages').textContent = '0';
     $('sp-days').textContent = '0';
     $('sp-identity').textContent = '\u2014';
