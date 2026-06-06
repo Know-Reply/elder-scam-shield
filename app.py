@@ -120,17 +120,18 @@ async def health():
 # Demo page
 # ---------------------------------------------------------------------------
 
+@app.get("/shield", response_class=HTMLResponse)
 @app.get("/demo", response_class=HTMLResponse)
-async def demo():
-    """Main demo landing page — the walkthrough with real eval data."""
+async def shield():
+    """Main landing page — the walkthrough with real eval data."""
     path = Path(__file__).parent / "web" / "demo-walkthrough.html"
     if not path.exists():
         return HTMLResponse(content="<h1>Demo not built yet.</h1>", status_code=200)
     return HTMLResponse(content=path.read_text(encoding="utf-8"))
 
 
-@app.get("/demo/simulator", response_class=HTMLResponse)
-async def demo_simulator():
+@app.get("/simulator", response_class=HTMLResponse)
+async def simulator():
     """Interactive scam simulator — choose-your-adventure style."""
     path = Path(__file__).parent / "web" / "index.html"
     if not path.exists():

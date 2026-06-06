@@ -1074,8 +1074,8 @@
       <li><a href="#comparison">Comparison</a></li>
       <li><a href="#outbound">Outbound</a></li>
       <li><a href="#results">Results</a></li>
-      <li><a href="/dashboard" style="color:var(--blue);">Dashboard</a></li>
-      <li><a href="/demo/simulator" style="color:var(--blue);">Simulator</a></li>
+      <li><a href="/dashboard" >Dashboard</a></li>
+      <li><a href="/simulator" >Simulator</a></li>
     </ul>
   </div>
 </nav>
@@ -1110,7 +1110,7 @@
     <div class="hero-buttons">
       <a href="#attack" class="btn btn-primary">See How It Works</a>
       <a href="/dashboard" class="btn btn-secondary">Family Dashboard</a>
-      <a href="/demo/simulator" class="btn btn-secondary">Try Live Classify</a>
+      <a href="/simulator" class="btn btn-secondary">Try Simulator</a>
     </div>
   </div>
 </section>
@@ -1737,13 +1737,13 @@
         Family Dashboard
         <span class="try-btn-sub">Real-time monitoring interface</span>
       </a>
-      <a href="/demo/simulator" class="try-btn try-btn-demo">
+      <a href="/simulator" class="try-btn try-btn-demo">
         Interactive Simulator
         <span class="try-btn-sub">Step through a scam scenario</span>
       </a>
     </div>
 
-    <h3 style="font-size:1.1rem; color:#fff; margin-bottom:16px;">Live Classify</h3>
+    <h3 style="font-size:1.1rem; color:#fff; margin-bottom:16px;">Simulator</h3>
     <div class="classify-form">
       <label for="live-sender">Sender</label>
       <input id="live-sender" type="text" value="unknown_sender" placeholder="Sender ID or email">
@@ -1892,7 +1892,7 @@
     });
   });
 
-  // ---- Live Classify ----
+  // ---- Simulator ----
   var classifyBtn = document.getElementById('live-classify-btn');
   var msgInput = document.getElementById('live-message');
   var senderInput = document.getElementById('live-sender');
