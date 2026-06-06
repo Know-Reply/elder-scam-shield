@@ -96,7 +96,7 @@ async def demo():
     letting judges walk through each day and see the agent pipeline
     in action.
     """
-    index_path = STATIC_DIR / "index.html"
+    index_path = Path(__file__).parent / "web" / "index.html"
     if not index_path.exists():
         return HTMLResponse(
             content="<h1>Elder Scam Shield</h1><p>Demo UI not built yet. "
