@@ -744,19 +744,19 @@
   </div>
 
   <ul class="sidebar-nav">
-    <li><a href="#" class="active" onclick="return false">
+    <li><a href="#" class="active" onclick="navTo('all',this);return false">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
     </a></li>
-    <li><a href="#" onclick="return false">
+    <li><a href="#" onclick="navTo('quarantine',this);return false">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       Quarantine
     </a></li>
-    <li><a href="#" onclick="return false">
+    <li><a href="#" onclick="navTo('contacts',this);return false">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
       Contacts
     </a></li>
-    <li><a href="#" onclick="return false">
+    <li><a href="#" onclick="navTo('settings',this);return false">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       Settings
     </a></li>
@@ -793,7 +793,7 @@
     <!-- ============================================================
          PANEL 1: QUARANTINE INBOX
          ============================================================ -->
-    <div class="card quarantine-panel">
+    <div class="card quarantine-panel" id="section-quarantine">
       <div class="card-header">
         <h2>Quarantine Inbox</h2>
         <span class="badge-count">4 held</span>
@@ -820,7 +820,7 @@
     <!-- ============================================================
          PANEL 3: CONTACT NETWORK
          ============================================================ -->
-    <div class="card network-panel">
+    <div class="card network-panel" id="section-contacts">
       <div class="card-header">
         <h2>Contact Network</h2>
       </div>
@@ -838,7 +838,7 @@
     <!-- ============================================================
          PANEL 4: PROTECTION SUMMARY
          ============================================================ -->
-    <div class="card summary-panel">
+    <div class="card summary-panel" id="section-settings">
       <div class="card-header">
         <h2>Protection Summary</h2>
       </div>
@@ -883,6 +883,31 @@
 </div>
 
 <script>
+// ================================================================
+// SIDEBAR NAVIGATION
+// ================================================================
+function navTo(section, el) {
+  // Update active nav
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
+  el.classList.add('active');
+  // Close mobile sidebar
+  document.querySelector('.sidebar').classList.remove('open');
+
+  if (section === 'all') {
+    // Dashboard view — show all panels, scroll to top
+    document.querySelectorAll('.content .card').forEach(function(c) { c.style.display = ''; });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    // Section view — scroll to that panel and highlight it
+    var target = document.getElementById('section-' + section);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      target.style.boxShadow = '0 0 0 3px var(--blue-mid)';
+      setTimeout(function() { target.style.boxShadow = ''; }, 1500);
+    }
+  }
+}
+
 // ================================================================
 // DATA
 // ================================================================
