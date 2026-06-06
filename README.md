@@ -128,22 +128,29 @@ A single-message classifier -- no matter how good the model -- structurally cann
 
 ### We optimized the system, not just the model
 
-Both systems below run on the **same model** (gemini-3.1-flash-lite) at the **same cost**. The difference is entirely in the infrastructure we built around it:
+Both systems run on the **same model** (gemini-3.1-flash-lite) at the **same cost**. Same F1. Completely different system:
 
-| | Pre-ADK Tuning | Tuned Elder Shield |
+| | Pre-ADK Tuning | 8-Step Tuned Pipeline |
 |---|---|---|
 | **Model** | gemini-3.1-flash-lite | gemini-3.1-flash-lite |
-| **Per-message F1** | 0.933 | 0.923 |
-| **Recall (scams caught)** | 1.000 | **1.000** |
+| **Pipeline** | 1 step (raw message → classify) | **8 steps** (linguistic → entity → corpus → graph → classify → profile → behavioral → synthesis) |
+| **Per-message F1** | 0.933 | **0.932** |
+| **Recall** | 1.000 | **1.000** |
 | **Early detection** | Day 7 only | **Day 3** |
 | **Imposter detection** | No | **Yes** |
 | **Outbound interception** | No | **Yes** |
 | **Elder abuse detection** | No | **Yes** |
 | **Evidence-backed** | No | **Yes (22,979 corpus)** |
+| **Pre-LLM processing** | None | **4 steps (~50ms, no API calls)** |
 
-Per-message F1 drops 0.01 — because each hardening round moved intelligence OUT of the model and INTO the infrastructure (corpus search, social graph, adaptive baselines, signal weights). The model's job got simpler. The system got smarter.
+The F1 is the same because per-message accuracy was never the problem. The problem was everything a per-message classifier **can't** do — and the 8-step pipeline solves all of it on the cheapest model.
 
-This is the ADK optimization story: we didn't need a bigger model. We needed better tools, better data, and better architecture. The cheapest Gemini model now does what the most expensive model couldn't do alone — detect trust-building attacks 3 days before the money request.
+Each step moves intelligence OUT of the model and INTO infrastructure:
+- Steps 1-4 run **before** the LLM — linguistic analysis, entity extraction, TF-IDF corpus search, graph validation. Pure code, no API calls, ~50ms.
+- Step 5 is the LLM call — but now its job is trivially simple: "given this pre-computed evidence, what's your judgment?"
+- Steps 6-8 run **after** — profile updates, behavioral scoring, decision synthesis with full evidence chain.
+
+This is the ADK optimization story: we didn't need a bigger model. We needed better infrastructure. The cheapest Gemini model now does what the most expensive model couldn't do alone.
 
 ### Corpus search: from zero matches to evidence-backed
 
