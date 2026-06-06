@@ -61,6 +61,18 @@ Six rounds of iterative hardening, each compounding on the last:
 | 4 | Social graph validation | Imposter detection against contact network | Agent Simulation |
 | 5 | Adaptive baselines + elder abuse signals (EA-1..4) | False positive reduction (6 to 5) | Memory Bank |
 | 6 | Family safety dashboard | Human-in-the-loop proof of intervention | -- |
+| 7 | 8-step pipeline (linguistic + entity + TF-IDF + graph → LLM → behavioral → synthesis) | Same F1 on cheapest model, 5 new capabilities | Agent Observability |
+
+### How ADK tools drove the optimization
+
+ADK didn't make the model better — it gave us the framework to build, measure, and validate a system that's better than any model alone:
+
+- **Agent Evaluation** measured the baseline (F1 0.933) and validated every round. Without it, we'd be guessing.
+- **Agent Simulation** proved Day 3 detection works across a 7-message trust-building sequence. No simulation = no proof the behavioral analyzer works.
+- **Agent Observability** (45 OTel spans) showed us WHERE classification failed — Firestore stubs breaking tool calls, JSON parsing losing responses, false positives on legitimate family messages. We traced the failures and fixed them.
+- **Agent Optimizer** ran 5 iterations and couldn't beat our prompt — proving the value is in the infrastructure (tools, corpus, graph), not prompt wording.
+- **Grounding** via corpus search gave the classifier evidence to cite instead of relying on prompt instructions alone.
+- **Memory Bank** stores sender profiles, graph data, and baseline communication patterns across sessions.
 
 ## Behavioral Sequence: The Hero Test
 
