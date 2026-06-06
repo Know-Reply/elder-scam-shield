@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elder Scam Shield — Family Safety Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #0f172a;
+      --blue:       #1a56db;
+      --blue-light: #e8f0fe;
+      --blue-mid:   #3b82f6;
+      --green:      #16a34a;
+      --green-bg:   #f0fdf4;
+      --yellow:     #f59e0b;
+      --yellow-bg:  #fffbeb;
+      --orange:     #ea580c;
+      --orange-bg:  #fff7ed;
+      --red:        #dc2626;
+      --red-bg:     #fef2f2;
+      --red-light:  #fee2e2;
+      --gray-50:    #f8fafc;
+      --gray-100:   #f1f5f9;
+      --gray-200:   #e2e8f0;
+      --gray-300:   #cbd5e1;
+      --gray-400:   #94a3b8;
+      --gray-500:   #64748b;
+      --gray-600:   #475569;
+      --gray-700:   #334155;
+      --gray-800:   #1e293b;
+      --sidebar-w:  240px;
+      --radius:     8px;
+      --radius-lg:  12px;
+      --shadow:     0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:  0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+      --shadow-lg:  0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.05);
+      --font:       -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono:  "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      color: var(--gray-800);
+      background: var(--gray-50);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ================================================================
+       SIDEBAR
+       ================================================================ */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 200;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-brand {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-brand svg { flex-shrink: 0; }
+
+    .sidebar-brand-text {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .sidebar-brand-sub {
+      font-size: 0.68rem;
+      color: var(--gray-400);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
+
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .sidebar-nav li a:hover {
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+    }
+    .sidebar-nav li a.active {
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--blue-mid);
+    }
+    .sidebar-nav li a svg { flex-shrink: 0; opacity: 0.7; }
+    .sidebar-nav li a.active svg { opacity: 1; }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.72rem;
+      color: var(--gray-500);
+    }
+    .sidebar-footer .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--gray-300);
+      font-size: 0.8rem;
+    }
+    .sidebar-footer .user-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; color: #fff;
+    }
+
+    /* mobile hamburger */
+    .mobile-toggle {
+      display: none;
+      position: fixed;
+      top: 12px; left: 12px;
+      z-index: 300;
+      background: var(--navy);
+      border: none;
+      color: #fff;
+      width: 40px; height: 40px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    /* ================================================================
+       MAIN CONTENT
+       ================================================================ */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-left h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .topbar-left p {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      margin-top: 1px;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .topbar-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+    .topbar-status .dot {
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .content {
+      padding: 24px 28px;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      grid-template-rows: auto auto auto;
+      gap: 20px;
+      align-content: start;
+    }
+
+    /* ================================================================
+       CARDS
+       ================================================================ */
+    .card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-header h2 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .card-header .badge-count {
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--red);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .card-body { padding: 0; }
+
+    /* ================================================================
+       QUARANTINE INBOX (Panel 1)
+       ================================================================ */
+    .quarantine-panel {
+      grid-column: 1;
+      grid-row: 1 / 4;
+    }
+
+    .q-item {
+      border-bottom: 1px solid var(--gray-100);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .q-item:last-child { border-bottom: none; }
+    .q-item:hover { background: var(--gray-50); }
+
+    .q-item-summary {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px;
+      gap: 14px;
+    }
+
+    .q-risk-badge {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .q-risk-badge.risk-critical { background: var(--red); }
+    .q-risk-badge.risk-high     { background: var(--orange); }
+    .q-risk-badge.risk-medium   { background: var(--yellow); color: var(--gray-800); }
+    .q-risk-badge.risk-low      { background: var(--green); }
+
+    .q-item-info { flex: 1; min-width: 0; }
+    .q-item-sender {
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--gray-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .q-item-reason {
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .q-item-meta {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .q-item-date {
+      font-size: 0.72rem;
+      color: var(--gray-400);
+    }
+
+    .q-status-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .q-status-tag.blocked  { background: var(--red-light); color: var(--red); }
+    .q-status-tag.flagged  { background: var(--yellow-bg); color: #b45309; }
+    .q-status-tag.held     { background: var(--orange-bg); color: var(--orange); }
+    .q-status-tag.released { background: var(--green-bg); color: var(--green); }
+
+    /* Expanded details */
+    .q-item-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-100);
+    }
+    .q-item.expanded .q-item-details {
+      max-height: 600px;
+      padding: 20px;
+    }
+    .q-item.expanded { background: var(--gray-50); }
+
+    .q-detail-section {
+      margin-bottom: 16px;
+    }
+    .q-detail-section:last-child { margin-bottom: 0; }
+    .q-detail-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-400);
+      margin-bottom: 6px;
+    }
+
+    /* Risk gauge */
+    .risk-gauge {
+      height: 8px;
+      background: var(--gray-200);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .risk-gauge-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .risk-gauge-fill.critical { background: linear-gradient(90deg, var(--orange), var(--red)); }
+    .risk-gauge-fill.high     { background: linear-gradient(90deg, var(--yellow), var(--orange)); }
+    .risk-gauge-fill.medium   { background: linear-gradient(90deg, #fbbf24, var(--yellow)); }
+    .risk-gauge-fill.low      { background: var(--green); }
+
+    .risk-gauge-value {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gray-700);
+    }
+
+    /* Signal tags */
+    .signal-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin: 2px 4px 2px 0;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-weight: 500;
+    }
+    .signal-tag strong {
+      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+    .signal-tag.danger {
+      background: var(--red-light);
+      color: var(--red);
+    }
+    .signal-tag.warning {
+      background: var(--yellow-bg);
+      color: #92400e;
+    }
+
+    .evidence-text {
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      line-height: 1.55;
+    }
+
+    .reasoning-text {
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      line-height: 1.55;
+      font-style: italic;
+      border-left: 3px solid var(--blue-mid);
+      padding-left: 12px;
+    }
+
+    .content-redacted {
+      font-size: 0.72rem;
+      color: var(--gray-400);
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .content-redacted svg { flex-shrink: 0; }
+
+    .q-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-release {
+      background: var(--green);
+      color: #fff;
+    }
+    .btn-release:hover { background: #15803d; }
+    .btn-block {
+      background: var(--red);
+      color: #fff;
+    }
+    .btn-block:hover { background: #b91c1c; }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .action-confirm {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      display: none;
+    }
+    .action-confirm.show { display: inline-flex; align-items: center; gap: 6px; }
+    .action-confirm.released-confirm {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+    .action-confirm.blocked-confirm {
+      background: var(--red-light);
+      color: var(--red);
+    }
+
+    /* ================================================================
+       RISK TIMELINE (Panel 2)
+       ================================================================ */
+    .timeline-panel {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .timeline-chart {
+      padding: 16px 20px 12px;
+      position: relative;
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 200px;
+    }
+
+    .chart-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ================================================================
+       CONTACT NETWORK (Panel 3)
+       ================================================================ */
+    .network-panel {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .network-container {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      padding: 16px;
+    }
+
+    .network-node {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .network-node:hover { transform: scale(1.08); }
+
+    .node-circle {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 700; color: #fff;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      z-index: 2;
+    }
+    .node-circle.center {
+      width: 56px; height: 56px;
+      font-size: 0.75rem;
+      background: var(--blue);
+    }
+    .node-circle.safe { background: var(--green); }
+    .node-circle.danger {
+      background: var(--red);
+      animation: pulse-danger 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-danger {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4), var(--shadow-md); }
+      50% { box-shadow: 0 0 0 10px rgba(220,38,38,0), var(--shadow-md); }
+    }
+
+    .node-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-top: 4px;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .node-label-en {
+      font-size: 0.6rem;
+      color: var(--gray-400);
+      white-space: nowrap;
+    }
+
+    .network-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .network-alert {
+      padding: 10px 16px;
+      background: var(--red-bg);
+      border-top: 1px solid var(--red-light);
+      font-size: 0.73rem;
+      color: var(--red);
+      font-weight: 500;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .network-alert svg { flex-shrink: 0; margin-top: 1px; }
+
+    .contact-tooltip {
+      display: none;
+      position: absolute;
+      background: var(--navy);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 0.75rem;
+      z-index: 10;
+      max-width: 200px;
+      box-shadow: var(--shadow-lg);
+      pointer-events: none;
+    }
+    .contact-tooltip.show { display: block; }
+    .contact-tooltip .tt-name { font-weight: 700; margin-bottom: 3px; }
+    .contact-tooltip .tt-detail { color: var(--gray-300); font-size: 0.7rem; }
+
+    /* ================================================================
+       PROTECTION SUMMARY (Panel 4)
+       ================================================================ */
+    .summary-panel {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--gray-100);
+    }
+    .stat-card {
+      background: #fff;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1;
+    }
+    .stat-value.danger { color: var(--red); }
+    .stat-value.safe { color: var(--green); }
+    .stat-value.warn { color: var(--yellow); }
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--gray-500);
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+
+    .summary-section {
+      padding: 14px 20px;
+      border-top: 1px solid var(--gray-100);
+    }
+    .summary-section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-400);
+      margin-bottom: 8px;
+    }
+
+    .alert-prefs {
+      display: flex;
+      gap: 6px;
+    }
+    .alert-pref {
+      font-size: 0.72rem;
+      padding: 5px 12px;
+      border: 1px solid var(--gray-200);
+      border-radius: 20px;
+      background: #fff;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+    .alert-pref.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+    .alert-pref:hover:not(.active) {
+      border-color: var(--blue-mid);
+      color: var(--blue);
+    }
+
+    .last-alert {
+      font-size: 0.78rem;
+      color: var(--gray-600);
+      line-height: 1.5;
+    }
+    .last-alert strong { color: var(--gray-800); }
+
+    /* ================================================================
+       RESPONSIVE
+       ================================================================ */
+    @media (max-width: 1100px) {
+      .content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+      .quarantine-panel {
+        grid-column: 1;
+        grid-row: auto;
+      }
+      .timeline-panel,
+      .network-panel,
+      .summary-panel {
+        grid-column: 1;
+        grid-row: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-toggle { display: flex; align-items: center; justify-content: center; }
+      .main { margin-left: 0; }
+      .content { padding: 16px; }
+      .topbar { padding: 12px 16px 12px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Mobile Toggle -->
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menu">
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect y="3" width="20" height="2" rx="1"/><rect y="9" width="20" height="2" rx="1"/><rect y="15" width="20" height="2" rx="1"/></svg>
+</button>
+
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <svg viewBox="0 0 32 40" width="26" height="32">
+      <path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/>
+      <path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <span class="sidebar-brand-text">Elder Scam Shield</span>
+      <span class="sidebar-brand-sub">Family Safety Console</span>
+    </div>
+  </div>
+
+  <ul class="sidebar-nav">
+    <li><a href="#" class="active" onclick="return false">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a></li>
+    <li><a href="#" onclick="return false">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Quarantine
+    </a></li>
+    <li><a href="#" onclick="return false">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Contacts
+    </a></li>
+    <li><a href="#" onclick="return false">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </a></li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="user-badge">
+      <div class="user-avatar">MS</div>
+      <span>美咲 (Misaki)</span>
+    </div>
+    Family member account
+  </div>
+</aside>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Family Safety Dashboard</h1>
+      <p>Protecting 山田花子 (78) &mdash; Saitama, Japan</p>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-status">
+        <span class="dot"></span>
+        Active Protection
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ============================================================
+         PANEL 1: QUARANTINE INBOX
+         ============================================================ -->
+    <div class="card quarantine-panel">
+      <div class="card-header">
+        <h2>Quarantine Inbox</h2>
+        <span class="badge-count">4 held</span>
+      </div>
+      <div class="card-body" id="quarantine-list">
+        <!-- Items rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ============================================================
+         PANEL 2: RISK TIMELINE
+         ============================================================ -->
+    <div class="card timeline-panel">
+      <div class="card-header">
+        <h2>Risk Timeline &mdash; けんじ (Scammer)</h2>
+      </div>
+      <div class="timeline-chart">
+        <div class="chart-container">
+          <canvas class="chart-canvas" id="risk-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         PANEL 3: CONTACT NETWORK
+         ============================================================ -->
+    <div class="card network-panel">
+      <div class="card-header">
+        <h2>Contact Network</h2>
+      </div>
+      <div class="network-container" id="network-container">
+        <svg class="network-svg" id="network-lines"></svg>
+        <div id="contact-tooltip" class="contact-tooltip"></div>
+        <!-- Nodes rendered by JS -->
+      </div>
+      <div class="network-alert">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>けんじ claims to know 田中太郎 but has no connection to anyone in the network</span>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         PANEL 4: PROTECTION SUMMARY
+         ============================================================ -->
+    <div class="card summary-panel">
+      <div class="card-header">
+        <h2>Protection Summary</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value danger">3</div>
+          <div class="stat-label">Scams blocked<br>this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value warn">1</div>
+          <div class="stat-label">Outbound message<br>held</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value safe">0</div>
+          <div class="stat-label">False positives<br>released</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">23</div>
+          <div class="stat-label">Days since<br>last threat</div>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-section-title">Alert Preferences</div>
+        <div class="alert-prefs">
+          <button class="alert-pref active" onclick="selectPref(this)">Immediate</button>
+          <button class="alert-pref" onclick="selectPref(this)">Daily Digest</button>
+          <button class="alert-pref" onclick="selectPref(this)">Weekly</button>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-section-title">Last Alert Sent</div>
+        <div class="last-alert">
+          <strong>2026-06-07</strong> to 美咲 (daughter)<br>
+          Ore-ore sagi blocked &mdash; risk score 0.98
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ================================================================
+// DATA
+// ================================================================
+
+const quarantineItems = [
+  {
+    id: 1,
+    sender: "けんじ (unknown)",
+    senderJp: "けんじ",
+    date: "2026-06-07",
+    risk: 0.98,
+    status: "blocked",
+    reason: "Ore-ore sagi — multi-day social engineering, Day 7 money request",
+    signals: [
+      { code: "BV-1", label: "Behavioral Velocity", desc: "Trust-building over 7 days before financial ask", type: "danger" },
+      { code: "PM-3", label: "Extreme Urgency", desc: "\"Today\" deadline with emotional pressure", type: "danger" },
+      { code: "PM-6", label: "Financial Request", desc: "Bank transfer to unverifiable account", type: "danger" },
+      { code: "II-1", label: "Identity Impersonation", desc: "Claims to be grandson \"ゆき\"", type: "danger" },
+      { code: "SC-2", label: "Story Contradiction", desc: "Phone number does not match known grandson contact", type: "warning" }
+    ],
+    evidence: "Corpus match: 87% similarity to known ore-ore sagi scripts. Sender claimed relationship \"grandson\" but contact graph shows zero connections to any known contact. Behavioral velocity score 0.94 — anomalous trust-building cadence across 7 messages.",
+    reasoning: "This sender followed the classic ore-ore pattern: establish familiarity (Day 1-3), build emotional bond (Day 4-5), introduce urgency (Day 6), request money (Day 7). The behavioral velocity alone flags this at 0.75 by Day 4. Combined with zero network connections and corpus match, confidence is near-certain."
+  },
+  {
+    id: 2,
+    sender: "けんじ (unknown)",
+    senderJp: "けんじ",
+    date: "2026-06-04",
+    risk: 0.75,
+    status: "flagged",
+    reason: "Early warning — behavioral velocity anomaly, no scam signal yet",
+    signals: [
+      { code: "BV-1", label: "Behavioral Velocity", desc: "Accelerating contact frequency from unknown sender", type: "warning" },
+      { code: "BV-3", label: "Emotional Escalation", desc: "Increasingly personal tone without established relationship", type: "warning" }
+    ],
+    evidence: "No explicit scam signals detected. Flagged on behavioral pattern alone: 4 messages in 4 days from an unverified sender with escalating emotional tone. Velocity score 0.68 — above threshold for early warning.",
+    reasoning: "The behavioral analyzer cannot yet classify this as scam — there are no financial asks, urgency markers, or identity contradictions. However, the velocity pattern is consistent with the grooming phase of ore-ore sagi. Flagging for family review to maintain human oversight during the ambiguous window."
+  },
+  {
+    id: 3,
+    sender: "山田花子 (outbound)",
+    senderJp: "花子おばあちゃん",
+    date: "2026-06-07",
+    risk: 0.92,
+    status: "held",
+    reason: "Outbound interceptor — compliance reply to high-risk sender",
+    signals: [
+      { code: "OI-1", label: "Outbound to Flagged Sender", desc: "Replying to sender with risk score > 0.75", type: "danger" },
+      { code: "OI-3", label: "Financial Information", desc: "Message contains bank account reference pattern", type: "danger" },
+      { code: "OI-2", label: "Compliance Language", desc: "Agreeing to action requested by flagged sender", type: "warning" }
+    ],
+    evidence: "Protected user attempted to reply to けんじ (risk 0.98). Outbound message matched financial information pattern (bank account format detected). Compliance language detected: affirmative response to previous request.",
+    reasoning: "The outbound interceptor held this message because the recipient has a near-certain scam classification. The protected user appears to be complying with the scammer's request. This is the critical interception point — the scam would succeed if this message is delivered."
+  },
+  {
+    id: 4,
+    sender: "警察庁 (fake)",
+    senderJp: "偽警察庁",
+    date: "2026-06-02",
+    risk: 0.85,
+    status: "blocked",
+    reason: "Impersonation of National Police Agency — authority fraud pattern",
+    signals: [
+      { code: "II-2", label: "Authority Impersonation", desc: "Claims to be 警察庁 (National Police Agency)", type: "danger" },
+      { code: "PM-5", label: "Legal Threat", desc: "Threatens arrest if action not taken", type: "danger" },
+      { code: "PM-6", label: "Financial Request", desc: "Payment demanded to \"resolve\" legal matter", type: "danger" }
+    ],
+    evidence: "Sender domain does not match any legitimate police communication channel. Message template matches known authority impersonation corpus (92% similarity). No legitimate police contact exists in protected user's history.",
+    reasoning: "Authority impersonation scams targeting elderly Japanese citizens commonly use police, tax office, or bank identities. This message uses all three canonical markers: false authority, legal threat, and financial demand. Blocked immediately — no ambiguity."
+  },
+  {
+    id: 5,
+    sender: "佐藤クリニック",
+    senderJp: "佐藤クリニック",
+    date: "2026-06-05",
+    risk: 0.15,
+    status: "released",
+    reason: "Appointment reminder from known clinic — auto-released after review",
+    signals: [
+      { code: "BV-0", label: "Known Contact", desc: "Sender in trusted contact list since 2024-03", type: "" }
+    ],
+    evidence: "Sender matches known medical provider in contact graph. Message pattern consistent with previous appointment reminders. No anomalous signals detected.",
+    reasoning: "Briefly flagged by the velocity filter due to an unusual send time (late evening). Automatic review confirmed the sender identity against the contact graph. Auto-released within 30 seconds — no human intervention needed."
+  },
+  {
+    id: 6,
+    sender: "田中太郎",
+    senderJp: "田中太郎",
+    date: "2026-06-01",
+    risk: 0.45,
+    status: "flagged",
+    reason: "Elder abuse signal — financial control pattern from known contact",
+    signals: [
+      { code: "EA-1", label: "Financial Control", desc: "Repeated requests for account access from close contact", type: "warning" },
+      { code: "EA-3", label: "Isolation Language", desc: "Discouraging contact with other family members", type: "warning" }
+    ],
+    evidence: "田中太郎 is a known contact (friend) but recent messages show a pattern shift: 3 requests for financial information in 2 weeks, combined with language discouraging the protected user from discussing finances with family. Pattern matches EA-1 (financial control) criteria.",
+    reasoning: "Elder abuse detection operates on a different axis than scam detection. This sender is verified and trusted, but the behavioral pattern has shifted toward financial control. The risk is lower than external scams but the signal warrants family review. Flagging without blocking to preserve the relationship while alerting the family guardian."
+  }
+];
+
+const contactNodes = [
+  { id: "hanako", name: "花子", nameEn: "Hanako", type: "center", x: 50, y: 45, detail: "Protected user\n山田花子 (78)\nSaitama, Japan" },
+  { id: "yuki",   name: "ゆき", nameEn: "Grandson", type: "safe", x: 25, y: 20, detail: "Verified grandson\nLast contact: 2 days ago\nTrust level: verified" },
+  { id: "clinic", name: "佐藤C", nameEn: "Clinic", type: "safe", x: 78, y: 18, detail: "佐藤クリニック\nMedical provider\nKnown since 2024-03" },
+  { id: "tanaka", name: "太郎", nameEn: "Friend", type: "safe", x: 80, y: 55, detail: "田中太郎\nLong-time friend\nEA-1 flag active" },
+  { id: "misaki", name: "美咲", nameEn: "Daughter", type: "safe", x: 25, y: 70, detail: "美咲 (Misaki)\nFamily guardian\nAlert recipient" },
+  { id: "kenji",  name: "けんじ", nameEn: "Scammer", type: "danger", x: 78, y: 85, detail: "けんじ (Unknown)\nNo verified connections\nRisk: 0.98 — Blocked" }
+];
+
+const contactEdges = [
+  ["hanako", "yuki"],
+  ["hanako", "clinic"],
+  ["hanako", "tanaka"],
+  ["hanako", "misaki"]
+];
+
+// ================================================================
+// QUARANTINE INBOX
+// ================================================================
+
+function renderQuarantine() {
+  const list = document.getElementById("quarantine-list");
+  list.innerHTML = quarantineItems.map(item => {
+    const riskClass = item.risk >= 0.75 ? "critical" : item.risk >= 0.5 ? "high" : item.risk >= 0.25 ? "medium" : "low";
+    const riskBadgeClass = item.risk >= 0.75 ? "risk-critical" : item.risk >= 0.5 ? "risk-high" : item.risk >= 0.25 ? "risk-medium" : "risk-low";
+
+    return `
+      <div class="q-item" data-id="${item.id}" onclick="toggleItem(this)">
+        <div class="q-item-summary">
+          <div class="q-risk-badge ${riskBadgeClass}">${item.risk.toFixed(2)}</div>
+          <div class="q-item-info">
+            <div class="q-item-sender">
+              ${item.sender}
+            </div>
+            <div class="q-item-reason">${item.reason}</div>
+          </div>
+          <div class="q-item-meta">
+            <div class="q-item-date">${item.date}</div>
+            <span class="q-status-tag ${item.status}">${item.status}</span>
+          </div>
+        </div>
+        <div class="q-item-details">
+          <div class="q-detail-section">
+            <div class="q-detail-label">Risk Score</div>
+            <div class="risk-gauge">
+              <div class="risk-gauge-fill ${riskClass}" style="width:${item.risk * 100}%"></div>
+            </div>
+            <div class="risk-gauge-value">${item.risk.toFixed(2)} / 1.00</div>
+          </div>
+
+          <div class="q-detail-section">
+            <div class="q-detail-label">Detected Signals</div>
+            ${item.signals.map(s => `<span class="signal-tag ${s.type}"><strong>${s.code}</strong> ${s.label} &mdash; ${s.desc}</span>`).join("")}
+          </div>
+
+          <div class="q-detail-section">
+            <div class="q-detail-label">Evidence Summary</div>
+            <div class="evidence-text">${item.evidence}</div>
+          </div>
+
+          <div class="q-detail-section">
+            <div class="q-detail-label">Behavioral Analyzer Reasoning</div>
+            <div class="reasoning-text">${item.reasoning}</div>
+          </div>
+
+          <div class="q-detail-section">
+            <div class="q-detail-label">Message Content</div>
+            <div class="content-redacted">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Content not displayed — signals and evidence shown instead (privacy-preserving design)
+            </div>
+          </div>
+
+          <div class="q-actions">
+            ${item.status !== "released" ?
+              `<button class="btn btn-release" onclick="releaseItem(event, ${item.id})">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Release
+              </button>` : ""}
+            ${item.status !== "blocked" ?
+              `<button class="btn btn-block" onclick="blockItem(event, ${item.id})">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Block
+              </button>` : ""}
+            <div class="action-confirm" id="confirm-${item.id}"></div>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function toggleItem(el) {
+  if (el.classList.contains("expanded")) {
+    el.classList.remove("expanded");
+  } else {
+    document.querySelectorAll(".q-item.expanded").forEach(e => e.classList.remove("expanded"));
+    el.classList.add("expanded");
+  }
+}
+
+function releaseItem(e, id) {
+  e.stopPropagation();
+  const item = document.querySelector(`.q-item[data-id="${id}"]`);
+  const tag = item.querySelector(".q-status-tag");
+  tag.className = "q-status-tag released";
+  tag.textContent = "released";
+  const confirm = document.getElementById(`confirm-${id}`);
+  confirm.className = "action-confirm released-confirm show";
+  confirm.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Released — message delivered';
+  item.querySelectorAll(".btn").forEach(b => b.disabled = true);
+}
+
+function blockItem(e, id) {
+  e.stopPropagation();
+  const item = document.querySelector(`.q-item[data-id="${id}"]`);
+  const tag = item.querySelector(".q-status-tag");
+  tag.className = "q-status-tag blocked";
+  tag.textContent = "blocked";
+  const confirm = document.getElementById(`confirm-${id}`);
+  confirm.className = "action-confirm blocked-confirm show";
+  confirm.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Blocked — sender quarantined';
+  item.querySelectorAll(".btn").forEach(b => b.disabled = true);
+}
+
+// ================================================================
+// RISK TIMELINE CHART (Canvas)
+// ================================================================
+
+function drawRiskChart() {
+  const canvas = document.getElementById("risk-chart");
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  canvas.style.width = rect.width + "px";
+  canvas.style.height = rect.height + "px";
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = rect.height;
+  const pad = { top: 20, right: 20, bottom: 36, left: 40 };
+  const cw = W - pad.left - pad.right;
+  const ch = H - pad.top - pad.bottom;
+
+  const data = [0.18, 0.32, 0.50, 0.75, 0.92, 1.00, 1.00];
+  const labels = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
+  const annotations = ["", "", "", "BV-1 flag", "II-1 + SC-2", "PM-3 + PM-6", "BLOCKED"];
+
+  // Background zones
+  const zones = [
+    { from: 0, to: 0.25, color: "rgba(22,163,74,0.07)" },
+    { from: 0.25, to: 0.50, color: "rgba(245,158,11,0.07)" },
+    { from: 0.50, to: 0.75, color: "rgba(234,88,12,0.07)" },
+    { from: 0.75, to: 1.00, color: "rgba(220,38,38,0.07)" }
+  ];
+
+  zones.forEach(z => {
+    const y1 = pad.top + ch * (1 - z.to);
+    const y2 = pad.top + ch * (1 - z.from);
+    ctx.fillStyle = z.color;
+    ctx.fillRect(pad.left, y1, cw, y2 - y1);
+  });
+
+  // Grid lines
+  ctx.strokeStyle = "#e2e8f0";
+  ctx.lineWidth = 1;
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(v => {
+    const y = pad.top + ch * (1 - v);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + cw, y);
+    ctx.stroke();
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px -apple-system, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(v.toFixed(2), pad.left - 6, y + 4);
+  });
+
+  // X labels
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#64748b";
+  ctx.font = "11px -apple-system, sans-serif";
+  data.forEach((_, i) => {
+    const x = pad.left + (i / (data.length - 1)) * cw;
+    ctx.fillText(labels[i], x, H - pad.bottom + 18);
+  });
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = "#dc2626";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  data.forEach((v, i) => {
+    const x = pad.left + (i / (data.length - 1)) * cw;
+    const y = pad.top + ch * (1 - v);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Area fill
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = pad.left + (i / (data.length - 1)) * cw;
+    const y = pad.top + ch * (1 - v);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.lineTo(pad.left + cw, pad.top + ch);
+  ctx.lineTo(pad.left, pad.top + ch);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  grad.addColorStop(0, "rgba(220,38,38,0.15)");
+  grad.addColorStop(1, "rgba(220,38,38,0.02)");
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Points and annotations
+  data.forEach((v, i) => {
+    const x = pad.left + (i / (data.length - 1)) * cw;
+    const y = pad.top + ch * (1 - v);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = v >= 0.75 ? "#dc2626" : v >= 0.5 ? "#ea580c" : v >= 0.25 ? "#f59e0b" : "#16a34a";
+    ctx.fill();
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (annotations[i]) {
+      ctx.fillStyle = "#475569";
+      ctx.font = "bold 9px -apple-system, sans-serif";
+      ctx.textAlign = "center";
+      const offY = i >= 5 ? 18 : -10;
+      ctx.fillText(annotations[i], x, y + offY);
+    }
+  });
+}
+
+// ================================================================
+// CONTACT NETWORK
+// ================================================================
+
+function renderNetwork() {
+  const container = document.getElementById("network-container");
+  const svgEl = document.getElementById("network-lines");
+  const cw = container.offsetWidth;
+  const ch = container.offsetHeight;
+
+  // Draw edges
+  let svgContent = "";
+  contactEdges.forEach(([fromId, toId]) => {
+    const from = contactNodes.find(n => n.id === fromId);
+    const to = contactNodes.find(n => n.id === toId);
+    const x1 = (from.x / 100) * cw;
+    const y1 = (from.y / 100) * ch;
+    const x2 = (to.x / 100) * cw;
+    const y2 = (to.y / 100) * ch;
+    svgContent += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,4"/>`;
+  });
+  svgEl.innerHTML = svgContent;
+
+  // Remove old nodes
+  container.querySelectorAll(".network-node").forEach(n => n.remove());
+
+  // Render nodes
+  contactNodes.forEach(node => {
+    const el = document.createElement("div");
+    el.className = "network-node";
+    el.style.left = `calc(${node.x}% - 21px)`;
+    el.style.top = `calc(${node.y}% - 21px)`;
+    if (node.type === "center") {
+      el.style.left = `calc(${node.x}% - 28px)`;
+      el.style.top = `calc(${node.y}% - 28px)`;
+    }
+    el.innerHTML = `
+      <div class="node-circle ${node.type}">${node.name}</div>
+      <span class="node-label-en">${node.nameEn}</span>
+    `;
+    el.addEventListener("mouseenter", (e) => showTooltip(e, node));
+    el.addEventListener("mouseleave", hideTooltip);
+    el.addEventListener("click", (e) => { e.stopPropagation(); });
+    container.appendChild(el);
+  });
+}
+
+function showTooltip(e, node) {
+  const tt = document.getElementById("contact-tooltip");
+  const lines = node.detail.split("\n");
+  tt.innerHTML = `<div class="tt-name">${lines[0]}</div>` +
+    lines.slice(1).map(l => `<div class="tt-detail">${l}</div>`).join("");
+  tt.classList.add("show");
+
+  const container = document.getElementById("network-container");
+  const rect = container.getBoundingClientRect();
+  const nodeRect = e.currentTarget.getBoundingClientRect();
+
+  let left = nodeRect.left - rect.left + nodeRect.width / 2;
+  let top = nodeRect.top - rect.top - 10;
+
+  // Keep within bounds
+  if (left > rect.width - 120) left = rect.width - 140;
+  if (left < 60) left = 60;
+
+  tt.style.left = left + "px";
+  tt.style.top = (top - tt.offsetHeight) + "px";
+}
+
+function hideTooltip() {
+  document.getElementById("contact-tooltip").classList.remove("show");
+}
+
+// ================================================================
+// ALERT PREFS
+// ================================================================
+
+function selectPref(el) {
+  el.parentElement.querySelectorAll(".alert-pref").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+}
+
+// ================================================================
+// INIT
+// ================================================================
+
+function init() {
+  renderQuarantine();
+  drawRiskChart();
+  renderNetwork();
+}
+
+window.addEventListener("load", init);
+window.addEventListener("resize", () => {
+  drawRiskChart();
+  renderNetwork();
+});
+</script>
+
+</body>
+</html>
