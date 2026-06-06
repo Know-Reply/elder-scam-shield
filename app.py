@@ -177,32 +177,62 @@ async def classify_message(req: ClassifyRequest):
             role="user", parts=[genai_types.Part(text=prompt)]
         )
 
-        result = {"classification": "no_response", "raw_events": []}
+        result = {"classification": "no_response"}
         async for event in _classifier_runner.run_async(
             user_id="demo_user", session_id=session.id, new_message=msg
         ):
-            if hasattr(event, "content") and event.content and event.content.parts:
-                for part in event.content.parts:
-                    if hasattr(part, "text") and part.text:
-                        # Try to parse classification JSON
-                        m = re.search(
-                            r'\{[^{}]*"classification"[^{}]*\}',
-                            part.text, re.DOTALL,
-                        )
-                        if m:
-                            try:
-                                result = json.loads(m.group())
-                            except json.JSONDecodeError:
-                                pass
-                    if hasattr(part, "function_call") and part.function_call:
-                        fc = part.function_call
-                        if fc.name == "publish_classified_event" and fc.args:
-                            result = {
-                                "classification": fc.args.get("classification"),
-                                "confidence": fc.args.get("confidence"),
-                                "detected_signals": fc.args.get("detected_signals", []),
-                                "extracted_facts": fc.args.get("extracted_facts", {}),
-                            }
+            if not (hasattr(event, "content") and event.content and event.content.parts):
+                continue
+            for part in event.content.parts:
+                # 1. Text responses — parse classification JSON
+                if hasattr(part, "text") and part.text:
+                    m = re.search(
+                        r'\{[\s\S]*?"classification"[\s\S]*?\}',
+                        part.text,
+                    )
+                    if m:
+                        try:
+                            parsed = json.loads(m.group())
+                            if parsed.get("classification"):
+                                result = parsed
+                        except json.JSONDecodeError:
+                            pass
+
+                # 2. Function calls — classification in ANY tool's args
+                fc = getattr(part, "function_call", None)
+                if fc and hasattr(fc, "args") and fc.args:
+                    args = fc.args
+                    if args.get("classification"):
+                        result.update({
+                            k: args[k] for k in
+                            ("classification", "confidence",
+                             "detected_signals", "extracted_facts",
+                             "reasoning")
+                            if k in args
+                        })
+
+                # 3. Function responses — classification in tool return
+                fr = getattr(part, "function_response", None)
+                if fr and hasattr(fr, "response") and isinstance(fr.response, dict):
+                    resp = fr.response
+                    if resp.get("classification"):
+                        result.update({
+                            k: resp[k] for k in
+                            ("classification", "confidence",
+                             "detected_signals", "extracted_facts")
+                            if k in resp
+                        })
+                    if resp.get("event") == "message.classified":
+                        result.update({
+                            k: resp[k] for k in
+                            ("classification", "confidence",
+                             "detected_signals", "extracted_facts")
+                            if k in resp
+                        })
+
+        # Ensure reasoning field exists
+        if "reasoning" not in result:
+            result["reasoning"] = ""
 
         return {"result": result, "sender": req.sender, "live": True}
     except Exception as e:

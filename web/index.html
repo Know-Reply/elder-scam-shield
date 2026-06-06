@@ -1537,25 +1537,42 @@ body {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       var result = data.result || {};
-      var cls = (result.classification || 'safe').toUpperCase();
-      var confidence = result.confidence || 0.5;
+      var cls = (result.classification || 'no_response').toUpperCase();
+      var confidence = result.confidence || 0;
       var signals = result.detected_signals || [];
-      var reasoning = result.reasoning || 'Custom message analyzed by live Gemini inference.';
+      var reasoning = result.reasoning || '';
 
-      // Map classification to risk score
-      var riskMap = { 'SAFE': 0.1, 'SPAM': 0.15, 'SUSPICIOUS': 0.55, 'SCAM': 0.9 };
-      var risk = riskMap[cls] || 0.3;
+      // Use confidence as risk score if available, otherwise map from classification
+      var risk;
+      if (confidence > 0) {
+        risk = cls === 'SAFE' ? Math.max(0.05, 1 - confidence) : confidence;
+      } else {
+        var riskMap = { 'SAFE': 0.05, 'SPAM': 0.1, 'SUSPICIOUS': 0.55, 'SCAM': 0.9, 'NO_RESPONSE': 0.3 };
+        risk = riskMap[cls] || 0.3;
+      }
+
+      // Build signal objects from string array
+      var signalObjects = signals.map(function(s) {
+        return { code: s, text: s, type: s.startsWith('PM-') ? 'danger' : 'warn' };
+      });
+
+      if (!reasoning && cls === 'NO_RESPONSE') {
+        reasoning = 'The server is running but could not classify this message. Make sure the API key is set and Gemini is accessible.';
+      }
+      if (!reasoning) {
+        reasoning = 'Classified by live Gemini inference.';
+      }
 
       // Feed into the simulator as if it were a pre-written choice
       var fakeChoice = {
-        en: msg.length > 80 ? msg.substring(0, 80) + '...' : msg,
+        en: msg.length > 120 ? msg.substring(0, 120) + '...' : msg,
         jp: '',
         tag: cls === 'SCAM' ? 'aggressive' : cls === 'SUSPICIOUS' ? 'moderate' : 'subtle',
-        tagLabel: 'Custom',
+        tagLabel: 'Live Gemini',
         risk: risk,
         classification: cls,
-        signals: signals,
-        reasoning: '(Live Gemini) ' + reasoning,
+        signals: signalObjects,
+        reasoning: reasoning,
         profile: {}
       };
 
