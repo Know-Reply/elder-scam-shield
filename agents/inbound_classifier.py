@@ -139,7 +139,7 @@ def publish_classified_event(sender_id: str, classification: str,
 
 
 inbound_classifier = Agent(
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     name="inbound_classifier",
     description=(
         "Entry-point SENSE agent. Classifies every inbound message as "

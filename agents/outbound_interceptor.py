@@ -91,7 +91,7 @@ def release_outbound(hold_id: str, reason: str) -> dict:
 
 
 outbound_interceptor = Agent(
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     name="outbound_interceptor",
     description=(
         "Intercepts outgoing user responses containing sensitive data. "

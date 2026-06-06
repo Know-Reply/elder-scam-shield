@@ -124,7 +124,7 @@ def generate_alert(
 
 
 family_alerter = Agent(
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     name="family_alerter",
     description=(
         "Translates scam detection events into warm, actionable Japanese "

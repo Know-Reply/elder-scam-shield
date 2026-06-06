@@ -72,7 +72,7 @@ def route_hold_event(event: dict) -> dict:
 
 
 root_agent = Agent(
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     name="elder_scam_shield",
     description=(
         "Elder Scam Shield — multi-agent scam protection for elderly Japanese "
