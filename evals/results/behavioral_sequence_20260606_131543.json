@@ -1,0 +1,182 @@
+{
+  "eval": "behavioral_sequence",
+  "model": "gemini-2.5-flash",
+  "timestamp": "2026-06-06T13:15:43.386852",
+  "timeline": [
+    {
+      "day": 1,
+      "risk_score": 0.18,
+      "detected_signals": [
+        "BV-1: Relationship Velocity (accelerated for Day 1)",
+        "BV-4: Credibility Seeding (high rate)",
+        "LG-9: Rapid Intimacy (attempt to establish pre-existing connection)"
+      ],
+      "velocity_scores": {
+        "relationship_velocity": 0.15,
+        "isolation_index": 0.0,
+        "emotional_arc_intensity": 0.2,
+        "credibility_seeding_rate": 3.0,
+        "help_positioning_score": 0.0
+      },
+      "recommendation": "monitor",
+      "reasoning": "Stranger attempting to establish a pre-existing, positive relationship and volunteering significant personal details (credibility seeding) on first contact, indicating an attempt to rapidly build trust.",
+      "message_summary": "Yamada-san, it's been a long time. I'm Tanaka Kenji, son of "
+    },
+    {
+      "day": 2,
+      "risk_score": 0.32,
+      "detected_signals": [
+        "BV-1: Relationship Velocity (abnormal velocity for Day 2)",
+        "BV-3: Emotional Arc (intensity increase >0.2 per message)",
+        "BV-4: Credibility Seeding (rate >0.6)",
+        "LG-4: Emotional Progression (from warm to intimate)",
+        "LG-9: Rapid Intimacy (probing specific personal details on Day 2)"
+      ],
+      "velocity_scores": {
+        "relationship_velocity": 0.6,
+        "isolation_index": 0.0,
+        "emotional_arc_intensity": 0.4,
+        "credibility_seeding_rate": 2.0,
+        "help_positioning_score": 0.0
+      },
+      "recommendation": "flag",
+      "reasoning": "Sender is rapidly escalating intimacy by expressing happiness and demonstrating specific knowledge of the user's personal life (garden) on Day 2, reinforcing a fabricated shared history.",
+      "message_summary": "Thank you for your reply! I'm so happy. The weather has been"
+    },
+    {
+      "day": 3,
+      "risk_score": 0.5,
+      "detected_signals": [
+        "BV-1: Relationship Velocity (abnormal velocity for Day 3, direct meeting request)",
+        "BV-3: Emotional Arc (intensity increase >0.2 per message, desire to meet)",
+        "BV-4: Credibility Seeding (rate >0.6, excessive unsolicited personal details)",
+        "LG-4: Emotional Progression (from intimate to direct engagement)",
+        "LG-9: Rapid Intimacy (direct request to meet in person on Day 3)"
+      ],
+      "velocity_scores": {
+        "relationship_velocity": 0.8,
+        "isolation_index": 0.0,
+        "emotional_arc_intensity": 0.6,
+        "credibility_seeding_rate": 3.0,
+        "help_positioning_score": 0.0
+      },
+      "recommendation": "flag",
+      "reasoning": "Sender is rapidly escalating intimacy by volunteering excessive personal details and requesting an in-person meeting on Day 3, a classic grooming pattern.",
+      "message_summary": "Actually, I'm working in Osaka now. I work at an IT company,"
+    },
+    {
+      "day": 4,
+      "risk_score": 0.75,
+      "detected_signals": [
+        "BV-1: RELATIONSHIP VELOCITY (abnormal velocity for Day 4, deep personal probing and offering constant availability)",
+        "BV-2: ISOLATION INDEX (first instance of distancing from verification network: 'Yuki-san must be busy')",
+        "BV-3: EMOTIONAL ARC (intensity increased to 'concerned', average increase >0.2 per message)",
+        "BV-4: CREDIBILITY SEEDING (rate 2.25, still significantly >0.6)",
+        "BV-5: HELP POSITIONING (score 0.5 from a 4-day stranger, offering constant support and expressing worry)",
+        "LG-4: Emotional Progression (from intimate to concerned/caring)",
+        "LG-6: Isolation Language Trend (first instance of isolation language)",
+        "LG-9: Rapid Intimacy (continues the pattern of rapid intimacy and personal probing)"
+      ],
+      "velocity_scores": {
+        "relationship_velocity": 0.9,
+        "isolation_index": 0.2,
+        "emotional_arc_intensity": 0.8,
+        "credibility_seeding_rate": 2.25,
+        "help_positioning_score": 0.5
+      },
+      "recommendation": "flag",
+      "reasoning": "This message significantly escalates grooming by probing personal vulnerabilities, attempting to isolate the user from their network, and positioning the sender as a primary source of support, all at an abnormally rapid pace for a new contact.",
+      "message_summary": "How is your health lately, Yamada-san? Isn't it hard living "
+    },
+    {
+      "day": 5,
+      "risk_score": 0.92,
+      "detected_signals": [
+        "BV-1: RELATIONSHIP VELOCITY (extreme acceleration to crisis-response, forcing user into a helper role)",
+        "BV-2: ISOLATION INDEX (strong isolation references: 'can't contact company', 'haven't told father')",
+        "BV-3: EMOTIONAL ARC (escalation to urgent/desperate, average increase >0.2 per message)",
+        "BV-4: CREDIBILITY SEEDING (continues to volunteer unsolicited personal crisis details, rate 2.6)",
+        "BV-5: HELP POSITIONING (leveraging previous positioning by creating an urgent need for help from the user)",
+        "LG-4: Emotional Progression (from concerned to urgent/crisis)",
+        "LG-6: Isolation Language Trend (reinforced with new instances of cutting off external contacts)",
+        "LG-8: Crisis After Trust (major trigger: a fabricated crisis is introduced immediately after rapid trust-building)",
+        "LG-9: Rapid Intimacy (continues the pattern, now sharing a personal crisis)"
+      ],
+      "velocity_scores": {
+        "relationship_velocity": 0.98,
+        "isolation_index": 0.7,
+        "emotional_arc_intensity": 0.95,
+        "credibility_seeding_rate": 2.6,
+        "help_positioning_score": 0.5
+      },
+      "recommendation": "block",
+      "reasoning": "The sender has introduced a fabricated personal crisis (accident, hospitalization) to elicit sympathy and create urgency. They are simultaneously using strong isolation language ('can't contact company', 'haven't told father') to position the user as the sole confidante and potential helper, directly leveraging the previously established 'help positioning' and 'rapid intimacy'. This is a classic setup for an imminent financial request.",
+      "message_summary": "Yamada-san, something terrible has happened. I was in a traf"
+    },
+    {
+      "day": 6,
+      "risk_score": 1.0,
+      "detected_signals": [
+        "BV-1",
+        "BV-2",
+        "BV-3",
+        "BV-4",
+        "BV-5",
+        "LG-4",
+        "LG-5",
+        "LG-6",
+        "LG-8",
+        "LG-9",
+        "LG-10"
+      ],
+      "velocity_scores": {
+        "relationship_velocity": 1.0,
+        "isolation_index": 1.0,
+        "emotional_arc_intensity": 1.0,
+        "credibility_seeding_rate": 2.83,
+        "help_positioning_score": 1.0
+      },
+      "recommendation": "block",
+      "reasoning": "The sender, a stranger, has escalated to an explicit financial request on Day 6, leveraging a fabricated crisis and strong isolation tactics after rapid trust-building and help positioning. This is a clear scam attempt, triggering critical financial mention and crisis-after-trust signals.",
+      "message_summary": "I'm sorry for worrying you yesterday. The test results seem "
+    },
+    {
+      "day": 7,
+      "risk_score": 1.0,
+      "detected_signals": [
+        "BV-2",
+        "BV-3",
+        "LG-4",
+        "LG-5",
+        "LG-6",
+        "LG-8",
+        "LG-10"
+      ],
+      "velocity_scores": {
+        "relationship_velocity": 1.0,
+        "isolation_index": 1.3,
+        "emotional_arc_intensity": 1.0,
+        "credibility_seeding_rate": 2.71,
+        "help_positioning_score": 1.0
+      },
+      "recommendation": "block",
+      "reasoning": "The sender, a stranger, has escalated to an urgent financial request (500,000 JPY) with bank details, following a fabricated crisis and continued isolation tactics, confirming a high-velocity trust-building scam.",
+      "message_summary": "I'm so sorry. The hospital says I must pay 500,000 yen today"
+    }
+  ],
+  "assertions": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "day4_early_detection": true
+  },
+  "risk_trajectory": [
+    0.18,
+    0.32,
+    0.5,
+    0.75,
+    0.92,
+    1.0,
+    1.0
+  ]
+}
