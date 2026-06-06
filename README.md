@@ -1,81 +1,70 @@
 # Elder Scam Shield
 
-Multi-agent scam protection system that detects elder fraud through behavioral analysis, not keyword matching. Built on Google ADK 2.0.
+Multi-agent protection system that detects elder fraud through behavioral analysis, social graph inference, and outbound interception. Built on Google ADK 2.0 with Gemini.
 
 ## The Problem
 
-Elder fraud is a **$77.7 billion global problem** (Nasdaq 2024). In Japan, tokushu sagi losses hit **¥1.4 trillion** in 2025 — a record high. The FBI reports **$7.7 billion** in US elder fraud the same year, **up 37% YoY**. Every system protecting these users today relies on per-message classification. None detect the multi-day trust-building campaigns that cause the largest losses.
-
-A per-message classifier catches **1 of 7** messages in a romance scam sequence. Elder Scam Shield catches **7 of 7**.
+Elder fraud costs **$77.7 billion globally** (Nasdaq 2024). Japan's tokushu sagi losses hit **\u00a51.4 trillion** in 2025 -- a record. The FBI reports **$7.7 billion** in US elder fraud losses the same year, **up 37% YoY**. Every existing protection system classifies messages one at a time. None detect the multi-day trust-building campaigns that cause the largest losses.
 
 ## What Makes This Different
 
-**Longitudinal behavioral analysis.** Every message updates a sender profile. When a sender claims Osaka on Day 1 and Tokyo on Day 3, the system flags the contradiction -- no single-message classifier can do this.
-
-**Outbound interception.** Operates between conversation and transaction. Catches bank account numbers and transfer instructions leaving the user, not just scam messages arriving.
-
-**Elder abuse detection from trusted contacts.** Detects financial control, isolation tactics, and authority escalation from known contacts -- the blind spot every spam filter has.
-
-**"Never show content" design.** Does not warn; it shields. A warning on a fake grandchild plea gets acted on by elderly users. Scam content never reaches the user.
+- **Behavioral velocity detection** -- flags trust-building patterns BEFORE any scam signal appears. The system detects danger at Day 4 of a 7-day attack, 3 days before the money ask, based on relationship velocity alone.
+- **Social graph inference** -- builds contact networks from message history, cross-references identity claims across contacts, and structurally detects imposters who have no graph connection to anyone the user knows.
+- **Elder abuse detection from trusted contacts** -- detects the same manipulation mechanics (isolation, financial control, authority escalation) regardless of whether the sender is a stranger or a known family member. References Japan's Elder Abuse Prevention Act (2006).
+- **Outbound interception** -- catches the compliance signal ("I'll go to the bank tomorrow") between conversation and transaction. Blocks bank account numbers and transfer instructions leaving the user, not just scam messages arriving.
 
 ## Architecture
-
-Four agents connected via A2A event routing, coordinated by a root orchestrator:
 
 ```
   Inbound Message
        |
        v
-+-----------------+  message.classified  +----------------------+
-|    Inbound      | ------------------> |    Behavioral         |
-|   Classifier    |  (facts + signals)  |     Analyzer          |
-| gemini-flash-lite|                     | gemini-2.5-flash      |
-+-----------------+                     +----------+-----------+
-                                                   |
-                                     sender.risk_updated
-                                                   |
-       +-------------------------------------------+
-       v                                           v
-+-----------------+                     +----------------------+
-|    Outbound     |  outbound.held      |      Family          |
-|  Interceptor    | ------------------> |      Alerter         |
-| gemini-flash-lite|                     | gemini-2.5-flash      |
-+-----------------+                     +----------------------+
-       ^
-       |
-  Outbound Message
-  (user's reply)
++-----------------+   message.classified   +----------------------+
+|    Inbound      | ---------------------> |    Behavioral         |
+|   Classifier    |   (facts + signals)    |     Analyzer          |
+| gemini-3.1-     |                        | gemini-3.5-flash      |
+|   flash-lite    |        +---------------+----------+-----------+
++-----------------+        |                          |
+                           v                          v
+                  +----------------+        sender.risk_updated
+                  |  Graph Builder |                   |
+                  |  (5-layer      |     +-------------+-------------+
+                  |   inference)   |     v                           v
+                  +-------+--------+ +------------------+ +-------------------+
+                          |          |    Outbound       | |     Family        |
+                          v          |   Interceptor     | |     Alerter       |
+                  +----------------+ | gemini-3.1-       | | gemini-3.1-       |
+                  | Corpus Search  | |   flash-lite      | |   flash-lite      |
+                  | (22,979 entries)| +------------------+ +-------------------+
+                  +----------------+        ^
+                                            |
+                                      Outbound Message
+                                      (user's reply)
 ```
 
-**Inbound Classifier** -- per-message signal extraction across 20 detection signals. Fast gate model (gemini-3.1-flash-lite) keeps latency under 2s.
-
-**Behavioral Analyzer** -- longitudinal sender profiles with 10 longitudinal signals (LG-1..10), 5 behavioral velocity signals (BV-1..5), and 4 elder abuse signals (EA-1..4). Detects contradictions, cross-references known contacts, tracks emotional progression.
-
-**Outbound Interceptor** -- catches sensitive data leaving the user. Bank accounts, transfer instructions, PII in replies to flagged senders. Content is hashed for audit, never stored.
-
-**Family Alerter** -- translates detections into actionable Japanese notifications for designated family members via the family safety dashboard.
+Four agents connected via A2A event routing. The Graph Builder and Corpus Search are shared tools, not agents.
 
 ## The Optimization Story (Track 2)
 
-Six rounds of iterative hardening from baseline to production:
+Six rounds of iterative hardening, each compounding on the last:
 
-| Round | Focus | Outcome |
-|-------|-------|---------|
-| 1 | Basic classifier with 8-category taxonomy | F1 0.933 baseline |
-| 2 | Behavioral velocity scoring (BV-1..5) | Day 4 early detection before any scam signal |
-| 3 | Corpus grounding (22,979 entries, 7 sources) | Evidence-backed classification via Vertex AI Search |
-| 4 | Social graph validation | Imposter detection against contact network (see below) |
-| 5 | Adaptive baselines + elder abuse signals | False positive reduction (6 -> 5) |
-| 6 | Family safety dashboard | Human-in-the-loop proof of intervention |
+| Round | Focus | Key Outcome | Platform Tool |
+|-------|-------|-------------|---------------|
+| 1 | Basic classifier, 8-category taxonomy | F1 0.933 baseline | ADK agent definition |
+| 2 | Behavioral velocity (BV-1..5) | Day 4 early detection, 3 days before money ask | Agent Evaluation |
+| 3 | Corpus grounding (22,979 entries, 7 sources) | Evidence-backed classification | Vertex AI Search |
+| 4 | Social graph validation | Imposter detection against contact network | Agent Simulation |
+| 5 | Adaptive baselines + elder abuse signals (EA-1..4) | False positive reduction (6 to 5) | Memory Bank |
+| 6 | Family safety dashboard | Human-in-the-loop proof of intervention | -- |
 
-### Behavioral Sequence: The Hero Test
+## Behavioral Sequence: The Hero Test
 
-A trust-building scam over 7 days — one of many timelines the system handles. The Behavioral Analyzer measures velocity (rate of change), not duration. A 3-day compressed attack triggers faster; a 30-day romance scam accumulates the same signals more slowly. This example shows the pattern:
+A trust-building scam over 7 days. The Behavioral Analyzer measures velocity (rate of change), not duration. A 3-day compressed attack triggers faster; a 30-day romance scam accumulates the same signals more slowly.
 
 ```
-Day 1  "Grandma, it's Kenji"          risk: 0.15  (greeting from unknown number)
-Day 2  "How are you feeling?"          risk: 0.25  (rapport building)
-Day 3  "I moved to Osaka for work"     risk: 0.40  (establishing backstory)
+Day 1  "Grandma, it's Kenji"          risk: 0.18  (greeting from unknown number)
+Day 2  "How are you feeling?"          risk: 0.32  (rapport building, credibility seeding)
+Day 3  "I moved to Osaka for work"     risk: 0.50  (establishing backstory)
 Day 4  "Things are tough financially"  risk: 0.75  ** FLAGGED -- trust-building pattern **
 Day 5  "Can you help with rent?"       risk: 0.90  (financial request)
 Day 6  "Here's my bank account"        risk: 0.95  (transaction details)
@@ -84,42 +73,41 @@ Day 7  Reply with bank transfer        BLOCKED by Outbound Interceptor
 
 The system flags at **Day 4** -- before any explicit scam signal -- based on behavioral velocity alone.
 
-### Social Graph: How Contact Networks Are Built
+## Social Graph: How Contact Networks Are Built
 
-The social graph validates sender claims against the user's actual contact network. Graph distance determines trust: known contacts get risk reduction (-0.2), unconnected senders claiming relationships get risk boost (+0.3).
+Five-layer inference builds the graph from communication, not manual entry:
 
-**How the graph is populated in production:**
+1. **Message history** -- anyone with 3+ months of reciprocal messaging becomes a known contact. Frequency, reciprocity, and formality are tracked.
+2. **Relationship extraction** -- when grandma's message says "Yuki is coming next week," the system infers a Yuki-grandma edge. When daughter says "I'll go with Yuki," the edge is corroborated from both sides.
+3. **Cross-referencing** -- a sender mentioned by 2+ verified contacts is RECOGNIZED. A sender mentioned by 1 is CORROBORATED. A sender mentioned by nobody is UNCONNECTED.
+4. **Community detection** -- contacts cluster into natural groups (family, neighborhood, medical, commercial) based on mutual references and formality patterns. Japanese keigo level encodes relationship hierarchy -- a "grandson" using honorific language instead of casual speech is structurally suspicious.
+5. **Anomaly detection** -- claiming to be "Tanaka's son" means nothing if Tanaka's node has no edge to the sender. Graph distance determines trust: known contacts get risk reduction (-0.2), unconnected senders claiming relationships get risk boost (+0.3).
 
-1. **Message history** (highest confidence) — anyone the user has exchanged messages with for 3+ months becomes a known contact. Reciprocity, frequency, and formality are tracked automatically. A contact with 17 months of reciprocal communication is unambiguously real.
-
-2. **Relationship extraction** — the Inbound Classifier already extracts facts from every message. When grandma's email says "ゆきが来週来る" (Yuki is coming next week), the system infers a Yuki→grandma edge. When daughter's email says "ゆきと一緒に行くね" (I'll go with Yuki), the Yuki→daughter edge is corroborated from both sides.
-
-3. **Family portal registration** — when a family member signs up for the dashboard, they're added as a verified node with their stated relationship.
-
-4. **Community detection** — contacts cluster into natural groups (family, neighborhood/町内会, medical, commercial) based on mutual references, shared events, and formality patterns. Japanese keigo level encodes relationship hierarchy — a "grandson" using 尊敬語 (honorific language) instead of casual タメ口 is structurally suspicious.
-
-**What this enables:** Impersonation becomes structurally detectable. Claiming to be "Tanaka's son" means nothing if Tanaka's node has no edge to the sender. The graph strengthens with every message — a 2-year graph is nearly impossible to penetrate with a fake identity.
+Confidence levels: VERIFIED > OBSERVED > ESTABLISHED > RECOGNIZED > CORROBORATED > INFERRED > CLAIMED > UNCONNECTED.
 
 ## Results
 
-80-case eval suite (55 Japanese + 20 English + 5 edge cases):
+80-case eval suite (55 Japanese + 20 English + 5 edge cases), live Gemini inference:
 
-| Metric | Baseline | Optimized |
-|--------|----------|-----------|
-| F1 Score | 0.933 | **0.944** |
-| Precision | 0.895 | **0.894** |
-| Recall | 0.971 | **1.000** |
-| False Positives | 6 | **5** |
+| Metric | Baseline (Round 1) | Optimized (Round 5) | Delta |
+|--------|---------------------|---------------------|-------|
+| F1 Score | 0.933 | **0.944** | +0.011 |
+| Precision | 0.875 | **0.894** | +0.019 |
+| Recall | 1.000 | **1.000** | 0.000 |
+| False Positives | 6 | **5** | -1 |
+| False Negatives | 0 | **0** | 0 |
 
-Recall of 1.000 means zero scams missed in the eval suite. The precision trade-off (one additional false positive class) is acceptable -- a blocked legitimate message is recoverable; a successful scam is not.
+20 detection signals across 4 families: LG (10 legacy longitudinal), BV (5 behavioral velocity), EA (4 elder abuse), CM (1 cross-modal).
+
+Recall of 1.000 means zero scams missed. The precision trade-off (one additional false positive class) is acceptable -- a blocked legitimate message is recoverable; a successful scam is not.
 
 ## Demo
 
 Live at [shield.faxi.jp](https://shield.faxi.jp):
 
-- **/shield** -- overview with trust-building scam walkthrough and real eval results
-- **/simulator** -- interactive "Can You Scam Grandma?" with live Gemini classification
-- **/dashboard** -- family safety dashboard with quarantine inbox, risk timeline, contact graph
+- **/shield** -- Overview with trust-building scam walkthrough, real eval results, and architecture explanation.
+- **/simulator** -- Interactive "Can You Scam Grandma?" with live Gemini classification. Write a scam message, watch it get classified in real time.
+- **/dashboard** -- Family safety dashboard with quarantine inbox, risk timeline, contact graph visualization, and protection summary.
 
 ## Tech Stack
 
@@ -127,27 +115,50 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 |-----------|-----------|
 | Agent framework | Google ADK 2.0 (Python) |
 | Gate model | Gemini 3.1 Flash Lite |
-| Analysis model | Gemini 2.5 Flash |
+| Analysis model | Gemini 3.5 Flash |
 | Memory | Cloud Firestore |
 | Corpus grounding | Vertex AI Search + local Jaccard fallback |
 | Deployment | Google Cloud Run |
 | Protocol | A2A (Agent-to-Agent) events |
 
-## Data Sources
+## Data
 
-22,979 corpus entries from 7 sources with full provenance:
+22,979 corpus entries across 8 scam categories from 7 sources. 57% legitimate / 43% scam split. Signal weights derived from corpus analysis, not hand-tuned.
 
-| Source | Type | Entries |
-|--------|------|---------|
-| [antiphishing.jp](https://www.antiphishing.jp/) | Real phishing reports (JP) | 730 |
-| [NPA SOS47 dialogues](https://www.npa.go.jp/) | Real police transcripts (JP) | 44 |
-| [Romance scam dialogues](https://arxiv.org/html/2512.16280v1) | Academic dataset | 250 |
-| [Scam call conversations](https://www.kaggle.com/datasets/teeconnie/scam-and-non-scam-call-conversation-dataset) | Kaggle dataset | ~2,000 |
-| [Fraud email corpus](https://www.kaggle.com/datasets/rtatman/fraudulent-email-corpus) | Kaggle dataset | ~4,000 |
-| Generated edge cases | Synthetic (JP + EN) | ~15,900 |
-| Legitimate messages | Synthetic baselines | ~100 |
+| Source | Entries | Type |
+|--------|---------|------|
+| zefang-liu/phishing-email-dataset | 17,514 | Real phishing + safe emails |
+| BothBosu/scam-dialogue + multi-agent | 3,200 | Multi-turn phone/chat transcripts |
+| cybersectony/PhishingEmailDetectionv2.0 | 1,254 | Real phishing + legitimate emails |
+| antiphishing.jp | 203 | Real Japanese phishing reports |
+| NPA SOS47 dialogues | 44 | Real police-published scam scripts |
+| Synthetic NPA scenarios | 162 | Japanese scam scenarios (3 difficulty levels) |
+| Synthetic edge cases | 12 | Bilingual, ambiguous test cases |
 
-8-category taxonomy organized by attack mechanics, not surface keywords.
+Full provenance chain in [DATA_PROVENANCE.md](data/DATA_PROVENANCE.md). NPA pattern re-tagging uses deterministic regex, not LLM inference.
+
+## Family Alerter UX
+
+The Family Alerter never uses the word "scam" in notifications. In Japanese elder care, telling a daughter "scam detected" triggers a panic confrontation. The mother feels surveilled, turns the system off, and the system causes the damage the scam would have.
+
+Instead:
+- Subject lines read "A new contact -- please review" not "Scam alert."
+- Action scripts give concrete 30-second instructions: "Ask casually: who have you been talking to lately? Listen -- don't lead."
+- Every alert asserts what the elder did NOT see: "Your mother did not see this message."
+- Silent blocks include a monthly counter: "3rd block this month, all resolved."
+
+This is dignity-preserving design. The elder's autonomy is never undermined.
+
+## Adversarial Edge Cases
+
+12 scenarios across 4 categories, developed with external review:
+
+- **3 legitimate-looking scammy** -- real grandchild emergency in scam-shape language, legitimate bank fraud alert, family member asking for WiFi password
+- **4 sophisticated evasions** -- 30-day slow-burn under velocity thresholds, family insider with phone access, cross-platform persona, LLM-cloned voice
+- **3 system trust collapse** -- self-fulfilling fear loop, counter-system social engineering, held legitimate time-sensitive message
+- **2 discipline collisions** -- elder requests to see held messages, held message costs critical access
+
+7 are runnable tests. 3 are documented honest-fails with known limitations named. We document what we cannot catch.
 
 ## Quick Start
 
@@ -155,30 +166,39 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 pip install -r requirements.txt
 export GOOGLE_API_KEY=your-gemini-api-key
 export GOOGLE_CLOUD_PROJECT=your-project-id
-adk run agents/
+uvicorn app:app --host 0.0.0.0 --port 8080 --reload
 ```
 
 ## Project Structure
 
 ```
 agents/
-  root_agent.py           # Root orchestrator with A2A event routing
-  inbound_classifier.py   # Per-message signal extraction
-  behavioral_analyzer.py  # Longitudinal sender profiling
-  outbound_interceptor.py # Outbound data interception
-  family_alerter.py       # Family notification generation
-  tools/                  # Shared agent tools
+  root_agent.py            # Root orchestrator with A2A event routing
+  inbound_classifier.py    # Per-message signal extraction (20 signals)
+  behavioral_analyzer.py   # Longitudinal sender profiling (BV + EA + LG)
+  outbound_interceptor.py  # Outbound data interception
+  family_alerter.py        # Bilingual family notification generation
+  tools/
+    graph_builder.py       # Social graph inference from message history
+    social_graph.py        # Graph validation and imposter detection
+    search_scam_corpus.py  # Corpus grounding (Vertex AI Search + local)
 data/
-  processed/              # 22,979-entry corpus
-  raw/                    # Original source data
+  processed/               # 22,979-entry corpus (JSONL)
+  raw/                     # Original source data
+  DATA_PROVENANCE.md       # Full data transparency
+  CORPUS_VALIDATION_REPORT.md
 evals/
-  scam_detection_full.evalset.json  # 80-case eval suite
-  run_evaluation.py       # Eval runner
-  results/                # Eval results with metrics
-web/
-  index.html              # Family safety dashboard
+  scam_detection_full.evalset.json   # 80-case eval suite
+  run_evaluation.py        # Eval runner
+  results/                 # Eval results with metrics
 scenarios/
-  demo_7day.json          # 7-day romance scam demo scenario
+  demo_7day.json           # 7-day romance scam demo scenario
+  adversarial_edge_cases.json  # 12 adversarial scenarios
+web/
+  dashboard.html           # Family safety dashboard
+  demo-walkthrough.html    # Shield overview page
+  index.html               # Interactive scam simulator
+app.py                     # FastAPI application (/shield, /simulator, /dashboard, /api/*)
 ```
 
 ## License
