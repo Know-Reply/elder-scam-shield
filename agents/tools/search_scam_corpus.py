@@ -72,15 +72,18 @@ def _search_vertex(query: str, top_k: int = 5) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# Local fallback (development — searches JSONL corpus directly)
+# ---------------------------------------------------------------------------
+# Local fallback (development — TF-IDF search over JSONL corpus)
 # ---------------------------------------------------------------------------
 
 _LOCAL_CORPUS: Optional[list[dict]] = None
+_TFIDF_VECTORIZER = None
+_TFIDF_MATRIX = None
 
 
 def _load_local_corpus() -> list[dict]:
-    """Load the processed JSONL corpus into memory."""
-    global _LOCAL_CORPUS
+    """Load the processed JSONL corpus into memory and fit TF-IDF."""
+    global _LOCAL_CORPUS, _TFIDF_VECTORIZER, _TFIDF_MATRIX
     if _LOCAL_CORPUS is not None:
         return _LOCAL_CORPUS
 
@@ -103,53 +106,92 @@ def _load_local_corpus() -> list[dict]:
                     if line:
                         _LOCAL_CORPUS.append(json.loads(line))
 
+    # Fit TF-IDF on corpus texts
+    if _LOCAL_CORPUS:
+        try:
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            from sklearn.metrics.pairwise import cosine_similarity as _cos_sim
+
+            texts = [entry.get("text", "") for entry in _LOCAL_CORPUS]
+            # Token pattern handles ASCII + CJK characters
+            _TFIDF_VECTORIZER = TfidfVectorizer(
+                max_features=50000,
+                token_pattern=r'(?u)\b\w[\w\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]+\b|[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]',
+                ngram_range=(1, 2),
+                min_df=2,
+                max_df=0.95,
+                sublinear_tf=True,
+            )
+            _TFIDF_MATRIX = _TFIDF_VECTORIZER.fit_transform(texts)
+        except ImportError:
+            _TFIDF_VECTORIZER = None
+            _TFIDF_MATRIX = None
+
     return _LOCAL_CORPUS
 
 
-def _tokenize(text: str) -> set[str]:
-    """Simple whitespace + CJK character tokenization."""
-    # Split on whitespace and punctuation, keep CJK characters individually
-    tokens = set(re.findall(r'[\w\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]+', text.lower()))
-    return tokens
-
-
-def _jaccard_similarity(a: set, b: set) -> float:
-    """Jaccard similarity between two token sets."""
-    if not a or not b:
-        return 0.0
-    return len(a & b) / len(a | b)
-
-
 def _search_local(query: str, top_k: int = 5, label_filter: str = None) -> list[dict]:
-    """Search local JSONL corpus using token-level Jaccard similarity."""
+    """Search local JSONL corpus using TF-IDF + cosine similarity."""
     corpus = _load_local_corpus()
     if not corpus:
         return []
 
-    query_tokens = _tokenize(query)
+    # TF-IDF search (much better than Jaccard)
+    if _TFIDF_VECTORIZER is not None and _TFIDF_MATRIX is not None:
+        from sklearn.metrics.pairwise import cosine_similarity
+
+        query_vec = _TFIDF_VECTORIZER.transform([query])
+        scores = cosine_similarity(query_vec, _TFIDF_MATRIX).flatten()
+
+        # Apply label filter
+        if label_filter:
+            for i, entry in enumerate(corpus):
+                if entry.get("label") != label_filter:
+                    scores[i] = 0.0
+
+        # Get top-k
+        top_indices = scores.argsort()[::-1][:top_k * 3]  # oversample then filter
+        results = []
+        for idx in top_indices:
+            if scores[idx] < 0.01:
+                break
+            entry = corpus[idx]
+            results.append({
+                "id": entry.get("id", "unknown"),
+                "snippet": entry.get("text", "")[:200],
+                "label": entry.get("label", "unknown"),
+                "scam_type": entry.get("scam_type"),
+                "source": entry.get("source", "unknown"),
+                "relevance_score": round(float(scores[idx]), 3),
+                "language": entry.get("language", "en"),
+            })
+            if len(results) >= top_k:
+                break
+        return results
+
+    # Fallback: simple keyword matching if sklearn not available
+    query_lower = query.lower()
+    query_words = set(re.findall(r'[\w\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]+', query_lower))
     scored = []
     for entry in corpus:
         if label_filter and entry.get("label") != label_filter:
             continue
-        entry_tokens = _tokenize(entry.get("text", ""))
-        score = _jaccard_similarity(query_tokens, entry_tokens)
-        if score > 0.05:  # minimum relevance threshold
+        text = entry.get("text", "").lower()
+        text_words = set(re.findall(r'[\w\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]+', text))
+        overlap = len(query_words & text_words)
+        if overlap > 0:
+            score = overlap / max(len(query_words), 1)
             scored.append((score, entry))
-
     scored.sort(key=lambda x: x[0], reverse=True)
-    results = []
-    for score, entry in scored[:top_k]:
-        results.append({
-            "id": entry.get("id", "unknown"),
-            "snippet": entry.get("text", "")[:200],
-            "label": entry.get("label", "unknown"),
-            "scam_type": entry.get("scam_type"),
-            "source": entry.get("source", "unknown"),
-            "relevance_score": round(score, 3),
-            "language": entry.get("language", "en"),
-        })
-
-    return results
+    return [{
+        "id": e.get("id", "unknown"),
+        "snippet": e.get("text", "")[:200],
+        "label": e.get("label", "unknown"),
+        "scam_type": e.get("scam_type"),
+        "source": e.get("source", "unknown"),
+        "relevance_score": round(s, 3),
+        "language": e.get("language", "en"),
+    } for s, e in scored[:top_k]]
 
 
 # ---------------------------------------------------------------------------
