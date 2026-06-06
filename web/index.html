@@ -925,6 +925,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 40px 24px 60px;
+  overflow: visible;
 }
 .reveal-container h2 {
   font-size: 1.75rem;
@@ -2267,6 +2268,10 @@ body {
       '<button class="sim-tab" id="tab-chat">Conversation</button>' +
       '<button class="sim-tab active" id="tab-results">Results</button>';
     header.after(tabBar);
+
+    // Remove overflow constraints so reveal can expand fully
+    threadCol.style.overflow = 'visible';
+    threadCol.style.maxHeight = 'none';
 
     // Insert reveal content after the thread
     thread.after(revealScreen);
