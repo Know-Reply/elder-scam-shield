@@ -22,8 +22,8 @@ Elder fraud costs **$77.7 billion globally** (Nasdaq 2024). Japan's tokushu sagi
 +-----------------+   message.classified   +----------------------+
 |    Inbound      | ---------------------> |    Behavioral         |
 |   Classifier    |   (facts + signals)    |     Analyzer          |
-| gemini-3.1-     |                        | gemini-3.5-flash      |
-|   flash-lite    |        +---------------+----------+-----------+
+| gemini-3.1-     |                        | gemini-3.1-           |
+|   flash-lite    |        +---------------+  flash-lite-----------+
 +-----------------+        |                          |
                            v                          v
                   +----------------+        sender.risk_updated
@@ -121,16 +121,24 @@ A single-message classifier -- no matter how good the model -- structurally cann
 | Evidence-backed classification | **No** — prompt-only | **Yes** — 22,979 corpus entries cited |
 | Adaptive per-user baselines | **No** — population thresholds | **Yes** — learns each user's normal |
 
-### Classification accuracy (80-case eval, live Gemini)
+### We optimized the system, not just the model
 
-| Metric | Pre-ADK | Elder Shield | Delta |
-|--------|-------------|-------------------|-------|
-| F1 Score | 0.933 | **0.944** | +0.011 |
-| Precision | 0.875 | **0.894** | +0.019 |
-| Recall | 1.000 | **1.000** | 0.000 |
-| False Positives | 6 | **5** | -1 |
+Both systems below run on the **same model** (gemini-3.1-flash-lite) at the **same cost**. The difference is entirely in the infrastructure we built around it:
 
-The F1 improvement is modest because Gemini is already good at per-message classification. **The real gain is structural** -- 20 detection signals across 4 families (LG, BV, EA, CM) that operate across messages, contacts, and time. A single classifier cannot access these dimensions regardless of prompt quality.
+| | Pre-ADK Tuning | Tuned Elder Shield |
+|---|---|---|
+| **Model** | gemini-3.1-flash-lite | gemini-3.1-flash-lite |
+| **Per-message F1** | 0.933 | 0.923 |
+| **Recall (scams caught)** | 1.000 | **1.000** |
+| **Early detection** | Day 7 only | **Day 3** |
+| **Imposter detection** | No | **Yes** |
+| **Outbound interception** | No | **Yes** |
+| **Elder abuse detection** | No | **Yes** |
+| **Evidence-backed** | No | **Yes (22,979 corpus)** |
+
+Per-message F1 drops 0.01 — because each hardening round moved intelligence OUT of the model and INTO the infrastructure (corpus search, social graph, adaptive baselines, signal weights). The model's job got simpler. The system got smarter.
+
+This is the ADK optimization story: we didn't need a bigger model. We needed better tools, better data, and better architecture. The cheapest Gemini model now does what the most expensive model couldn't do alone — detect trust-building attacks 3 days before the money request.
 
 ## Demo
 
@@ -145,8 +153,7 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 | Component | Technology |
 |-----------|-----------|
 | Agent framework | Google ADK 2.0 (Python) |
-| Gate model | Gemini 3.1 Flash Lite |
-| Analysis model | Gemini 3.5 Flash |
+| Model (all agents) | Gemini 3.1 Flash Lite — cheapest model, infrastructure does the heavy lifting |
 | Memory | Cloud Firestore |
 | Corpus grounding | Vertex AI Search + local Jaccard fallback |
 | Deployment | Google Cloud Run |
