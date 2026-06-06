@@ -386,35 +386,54 @@ body {
 }
 
 /* Two-system rows */
-.two-system-rows {
+/* VS comparison layout */
+.vs-comparison {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.two-system-rows {
-  display: flex;
-  gap: 8px;
+  gap: 0;
   margin-bottom: 6px;
 }
-.system-row {
-  flex: 1;
+.vs-left {
+  flex: 0 0 130px;
+  padding: 10px;
+  background: var(--gray-50);
+  border: 1px dashed var(--gray-300);
+  border-radius: 8px 0 0 8px;
+  text-align: center;
+  opacity: 0.6;
+}
+.vs-divider {
+  flex: 0 0 32px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  background: var(--gray-50);
-  border: 1px solid var(--gray-200);
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--gray-400);
+  background: var(--gray-100);
+  letter-spacing: 0.05em;
 }
-.system-row-muted {
-  opacity: 0.5;
-  background: var(--gray-50);
-  border-style: dashed;
-}
-.system-row-primary {
+.vs-right {
+  flex: 1;
+  padding: 10px 12px;
   background: var(--blue-light);
-  border-color: var(--blue-mid);
-  border-width: 2px;
+  border: 2px solid var(--blue-mid);
+  border-radius: 0 8px 8px 0;
+}
+.vs-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.vs-label-tuned {
+  color: var(--blue);
+}
+.vs-metric {
+  font-size: 0.72rem;
+  color: var(--gray-500);
+  margin-top: 4px;
 }
 .system-label {
   font-size: 0.72rem;
@@ -1208,7 +1227,10 @@ body {
       <div class="sender-panel">
         <!-- Risk Gauge -->
         <div class="risk-gauge-section">
-          <div class="sp-title">Sender Risk Level</div>
+          <div class="sp-title" style="display:flex; align-items:center; justify-content:center; gap:6px;">
+            <svg viewBox="0 0 32 40" width="16" height="20"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Tuned Elder Scam Shield
+          </div>
           <div class="risk-gauge-source">Behavioral Analyzer</div>
           <div class="risk-big-number" id="sp-risk-val" style="color:var(--green)">0.05</div>
           <div>
@@ -1224,10 +1246,22 @@ body {
           </div>
         </div>
 
-        <!-- Risk Timeline -->
+        <!-- Risk Timeline — dual track -->
         <div class="sp-section">
-          <div class="sp-title">Risk Timeline</div>
+          <div class="sp-title" style="display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 32 40" width="14" height="18"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Tuned Shield
+          </div>
           <div class="risk-timeline-mini" id="sp-timeline">
+            <div class="rtm-bar-wrap" data-day="1"><div class="rtm-empty"></div><span class="rtm-label">1</span></div>
+            <div class="rtm-bar-wrap" data-day="2"><div class="rtm-empty"></div><span class="rtm-label">2</span></div>
+            <div class="rtm-bar-wrap" data-day="3"><div class="rtm-empty"></div><span class="rtm-label">3</span></div>
+            <div class="rtm-bar-wrap" data-day="4"><div class="rtm-empty"></div><span class="rtm-label">4</span></div>
+            <div class="rtm-bar-wrap" data-day="5"><div class="rtm-empty"></div><span class="rtm-label">5</span></div>
+            <div class="rtm-bar-wrap" data-day="6"><div class="rtm-empty"></div><span class="rtm-label">6</span></div>
+          </div>
+          <div class="sp-title" style="margin-top:8px; opacity:0.5; font-size:0.65rem;">Pre-ADK Tuning</div>
+          <div class="risk-timeline-mini" id="sp-timeline-preadk" style="opacity:0.5;">
             <div class="rtm-bar-wrap" data-day="1"><div class="rtm-empty"></div><span class="rtm-label">1</span></div>
             <div class="rtm-bar-wrap" data-day="2"><div class="rtm-empty"></div><span class="rtm-label">2</span></div>
             <div class="rtm-bar-wrap" data-day="3"><div class="rtm-empty"></div><span class="rtm-label">3</span></div>
@@ -1772,6 +1806,7 @@ body {
   }
 
   function updateTimelineMini() {
+    // Tuned Shield timeline (main)
     var wraps = $('sp-timeline').querySelectorAll('.rtm-bar-wrap');
     for (var i = 0; i < wraps.length; i++) {
       var inner = wraps[i].querySelector('.rtm-bar, .rtm-empty');
@@ -1783,13 +1818,32 @@ body {
         barEl.style.height = Math.max(3, r * 36) + 'px';
         barEl.style.background = rc.color;
         if (inner) inner.replaceWith(barEl);
-        // Click to scroll
         (function(dayIdx) {
           wraps[dayIdx].onclick = function() {
             var divider = document.getElementById('day-div-' + (dayIdx + 1));
             if (divider) divider.scrollIntoView({ behavior: 'smooth', block: 'start' });
           };
         })(i);
+      }
+    }
+
+    // Pre-ADK timeline (comparison — flat green, late red)
+    var preAdkEl = $('sp-timeline-preadk');
+    if (preAdkEl) {
+      var preWraps = preAdkEl.querySelectorAll('.rtm-bar-wrap');
+      for (var j = 0; j < preWraps.length; j++) {
+        var preInner = preWraps[j].querySelector('.rtm-bar, .rtm-empty');
+        if (j < state.perMsgClassHistory.length) {
+          var preClass = state.perMsgClassHistory[j];
+          var preFlagged = (preClass === 'SCAM' || preClass === 'SUSPICIOUS' || preClass === 'FLAG' || preClass === 'BLOCK');
+          var preColor = preFlagged ? 'var(--red)' : 'var(--green)';
+          var preHeight = preFlagged ? 20 : 4;
+          var preBar = document.createElement('div');
+          preBar.className = 'rtm-bar';
+          preBar.style.height = preHeight + 'px';
+          preBar.style.background = preColor;
+          if (preInner) preInner.replaceWith(preBar);
+        }
       }
     }
   }
@@ -2125,39 +2179,37 @@ body {
     var behRowClass = systemsDiverge ? 'system-row system-row-primary' : 'system-row';
     var behBadgeClass = classBadge(behavioralClass);
 
-    var html = '<div class="two-system-rows">';
-    // Row 1: Before (single classifier)
-    html += '<div class="' + perMsgRowClass + '">';
-    html += '<span class="system-label">Pre-ADK Tuning</span>';
-    html += '<span class="ai-badge ' + perMsgBadgeClass + '">' + perMsgDisplay + '</span>';
-    html += liveBadge;
-    if (confDisplay) html += ' <span class="system-metric">' + confDisplay + '</span>';
-    html += '</div>';
-    // Row 2: Tuned Shield (multi-agent, ADK-tuned)
-    html += '<div class="' + behRowClass + '">';
-    html += '<span class="system-label">Tuned Elder Scam Shield</span>';
-    html += '<span class="ai-badge ' + behBadgeClass + '">' + behavioralClass + '</span>';
-    html += ' <span class="system-metric">risk ' + behavioralRisk.toFixed(2) + '</span>';
-    html += '</div>';
-    html += '</div>';
-
-    // Signals row
+    // Signals
     var sigHtml = '';
     c.signals.forEach(function(s) {
       var cls = s.type === 'danger' ? 'sig-danger' : s.type === 'warn' ? 'sig-warn' : 'sig-safe';
       sigHtml += '<span class="ai-signal-pill ' + cls + '" title="' + (s.text || '') + '">' + s.code + '</span>';
     });
+
+    // Side-by-side VS layout
+    var html = '<div class="vs-comparison">';
+
+    // Left: Pre-ADK (narrow)
+    html += '<div class="vs-left">';
+    html += '<div class="vs-label">Pre-ADK Tuning</div>';
+    html += '<span class="ai-badge ' + perMsgBadgeClass + '">' + perMsgDisplay + '</span>';
+    html += liveBadge;
+    if (confDisplay) html += '<div class="vs-metric">' + confDisplay + '</div>';
+    html += '</div>';
+
+    // VS divider
+    html += '<div class="vs-divider">VS</div>';
+
+    // Right: Tuned Shield (wider, with details)
+    html += '<div class="vs-right">';
+    html += '<div class="vs-label vs-label-tuned">Tuned Elder Scam Shield</div>';
+    html += '<span class="ai-badge ' + behBadgeClass + '">' + behavioralClass + '</span>';
+    html += '<div class="vs-metric">risk ' + behavioralRisk.toFixed(2) + '</div>';
     if (sigHtml) html += '<div class="ai-signals">' + sigHtml + '</div>';
-
-    // Reasoning
     html += '<div class="ai-reasoning-short" onclick="this.classList.toggle(\'expanded\')">' + (c.reasoning || '') + '</div>';
+    html += '</div>';
 
-    // Divergence / convergence callout
-    if (systemsDiverge) {
-      html += '<div class="divergence-callout">Pre-ADK protection misses this. Tuned Elder Scam Shield catches the behavioral pattern.</div>';
-    } else if (systemsAgree) {
-      html += '<div class="convergence-callout">Both traditional and Tuned Shield catch this one.</div>';
-    }
+    html += '</div>'; // end vs-comparison
 
     card.innerHTML = html;
     thread.appendChild(card);
