@@ -121,28 +121,19 @@ async def health():
 
 @app.get("/demo", response_class=HTMLResponse)
 async def demo():
-    """Serve the interactive web demo.
-
-    Returns the demo HTML page that visualizes the 7-day scenario,
-    letting judges walk through each day and see the agent pipeline
-    in action.
-    """
-    index_path = Path(__file__).parent / "web" / "index.html"
-    if not index_path.exists():
-        return HTMLResponse(
-            content="<h1>Elder Scam Shield</h1><p>Demo UI not built yet. "
-            "Use <code>/api/demo/scenario</code> for raw scenario data.</p>",
-            status_code=200,
-        )
-    return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
-
-
-@app.get("/demo/walkthrough", response_class=HTMLResponse)
-async def demo_walkthrough():
-    """Serve the original guided walkthrough demo (4 scenes + live classify)."""
+    """Main demo landing page — the walkthrough with real eval data."""
     path = Path(__file__).parent / "web" / "demo-walkthrough.html"
     if not path.exists():
-        return HTMLResponse(content="<h1>Walkthrough not found</h1>", status_code=404)
+        return HTMLResponse(content="<h1>Demo not built yet.</h1>", status_code=200)
+    return HTMLResponse(content=path.read_text(encoding="utf-8"))
+
+
+@app.get("/demo/simulator", response_class=HTMLResponse)
+async def demo_simulator():
+    """Interactive scam simulator — choose-your-adventure style."""
+    path = Path(__file__).parent / "web" / "index.html"
+    if not path.exists():
+        return HTMLResponse(content="<h1>Simulator not built yet.</h1>", status_code=200)
     return HTMLResponse(content=path.read_text(encoding="utf-8"))
 
 

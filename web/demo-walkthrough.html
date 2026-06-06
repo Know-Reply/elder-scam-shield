@@ -339,13 +339,13 @@
     .day-message-card.risk-high { border-left-color: var(--orange); }
     .day-message-card.risk-crit { border-left-color: var(--red); }
 
-    .day-jp {
+    .day-en {
       font-size: 1.15rem;
       margin-bottom: 8px;
       line-height: 1.6;
     }
-    .day-en {
-      font-size: 0.9rem;
+    .day-jp {
+      font-size: 0.85rem;
       color: var(--gray-500);
       font-style: italic;
       margin-bottom: 12px;
@@ -536,12 +536,12 @@
     .icon-oi { background: var(--red); }
     .icon-fa { background: var(--yellow); }
 
-    .flow-jp {
+    .flow-en {
       font-size: 1rem;
       margin-bottom: 8px;
       line-height: 1.7;
     }
-    .flow-en {
+    .flow-jp {
       font-size: 0.85rem;
       color: var(--gray-500);
       font-style: italic;
@@ -1071,11 +1071,11 @@
     </a>
     <ul class="nav-links">
       <li><a href="#attack">7-Day Attack</a></li>
-      <li><a href="#comparison">Single vs Multi</a></li>
+      <li><a href="#comparison">Comparison</a></li>
       <li><a href="#outbound">Outbound</a></li>
       <li><a href="#results">Results</a></li>
-      <li><a href="#architecture">Architecture</a></li>
-      <li><a href="#try-it">Try It</a></li>
+      <li><a href="/dashboard" style="color:var(--blue);">Dashboard</a></li>
+      <li><a href="/demo/simulator" style="color:var(--blue);">Simulator</a></li>
     </ul>
   </div>
 </nav>
@@ -1109,8 +1109,8 @@
     </div>
     <div class="hero-buttons">
       <a href="#attack" class="btn btn-primary">See How It Works</a>
-      <a href="dashboard.html" class="btn btn-secondary">Family Dashboard</a>
-      <a href="index.html" class="btn btn-secondary">Try Live Classify</a>
+      <a href="/dashboard" class="btn btn-secondary">Family Dashboard</a>
+      <a href="/demo/simulator" class="btn btn-secondary">Try Live Classify</a>
     </div>
   </div>
 </section>
@@ -1221,8 +1221,8 @@
       <div id="day-detail-1" class="day-detail active">
         <div class="day-detail-grid">
           <div class="day-message-card risk-low">
-            <div class="day-jp">"おばあちゃん、健二だよ。久しぶり！元気にしてる？"</div>
             <div class="day-en">"Grandma, it's Kenji. Long time no see! How are you doing?"</div>
+            <div class="day-jp">"おばあちゃん、健二だよ。久しぶり！元気にしてる？"</div>
             <div class="day-meta">
               <span class="badge badge-safe">SAFE</span>
               <span class="risk-score-inline" style="color:var(--green)">Risk: 0.18</span>
@@ -1242,8 +1242,8 @@
       <div id="day-detail-2" class="day-detail">
         <div class="day-detail-grid">
           <div class="day-message-card risk-low">
-            <div class="day-jp">"体は大丈夫？一人暮らし大変じゃない？"</div>
             <div class="day-en">"Are you doing okay? Isn't living alone hard?"</div>
+            <div class="day-jp">"体は大丈夫？一人暮らし大変じゃない？"</div>
             <div class="day-meta">
               <span class="badge badge-safe">SAFE</span>
               <span class="risk-score-inline" style="color:var(--green)">Risk: 0.32</span>
@@ -1263,8 +1263,8 @@
       <div id="day-detail-3" class="day-detail">
         <div class="day-detail-grid">
           <div class="day-message-card risk-med">
-            <div class="day-jp">"大阪のIT会社で働き始めたんだ。忙しいけど楽しいよ。"</div>
             <div class="day-en">"I started working at an IT company in Osaka. Busy but fun."</div>
+            <div class="day-jp">"大阪のIT会社で働き始めたんだ。忙しいけど楽しいよ。"</div>
             <div class="day-meta">
               <span class="badge badge-monitor">MONITOR</span>
               <span class="risk-score-inline" style="color:var(--yellow)">Risk: 0.50</span>
@@ -1284,8 +1284,8 @@
       <div id="day-detail-4" class="day-detail">
         <div class="day-detail-grid">
           <div class="day-message-card risk-high">
-            <div class="day-jp">"いつでも電話してね。おばあちゃんのこと心配してるから。"</div>
             <div class="day-en">"Call me anytime. I worry about you, grandma."</div>
+            <div class="day-jp">"いつでも電話してね。おばあちゃんのこと心配してるから。"</div>
             <div class="day-meta">
               <span class="badge badge-flagged">FLAGGED</span>
               <span class="risk-score-inline" style="color:var(--orange)">Risk: 0.75</span>
@@ -1310,8 +1310,8 @@
       <div id="day-detail-5" class="day-detail">
         <div class="day-detail-grid">
           <div class="day-message-card risk-crit">
-            <div class="day-jp">"事故に遭って東京の病院にいるんだ。大変なことになって..."</div>
             <div class="day-en">"I was in an accident and I'm in a hospital in Tokyo. Things have gotten serious..."</div>
+            <div class="day-jp">"事故に遭って東京の病院にいるんだ。大変なことになって..."</div>
             <div class="day-meta">
               <span class="badge badge-blocked">BLOCKED</span>
               <span class="risk-score-inline" style="color:var(--red)">Risk: 0.92</span>
@@ -1333,8 +1333,8 @@
       <div id="day-detail-6" class="day-detail">
         <div class="day-detail-grid">
           <div class="day-message-card risk-crit">
-            <div class="day-jp">"入院費用が足りなくて...助けてくれないかな？"</div>
             <div class="day-en">"I don't have enough for hospital fees... Could you help me?"</div>
+            <div class="day-jp">"入院費用が足りなくて...助けてくれないかな？"</div>
             <div class="day-meta">
               <span class="badge badge-blocked">BLOCKED</span>
               <span class="risk-score-inline" style="color:var(--red)">Risk: 1.00</span>
@@ -1356,8 +1356,8 @@
       <div id="day-detail-7" class="day-detail">
         <div class="day-detail-grid">
           <div class="day-message-card risk-crit">
-            <div class="day-jp">"50万円必要なんだ。今日中に振り込んでくれない？口座番号送るから。"</div>
             <div class="day-en">"I need &yen;500,000. Can you transfer it today? I'll send the account number."</div>
+            <div class="day-jp">"50万円必要なんだ。今日中に振り込んでくれない？口座番号送るから。"</div>
             <div class="day-meta">
               <span class="badge badge-blocked">BLOCKED</span>
               <span class="risk-score-inline" style="color:var(--red)">Risk: 1.00</span>
@@ -1479,8 +1479,8 @@
         <div class="flow-agent-badge">
           <span style="font-size:0.82rem; color:var(--gray-400);">User (Grandmother) replies:</span>
         </div>
-        <div class="flow-jp">"健二、わかりました。明日朝一番に銀行に行って振り込みますね。50万円で足りますか？心配しないでね。お父さんには言いませんから。早く元気になってね。"</div>
         <div class="flow-en">"Kenji, understood. I'll go to the bank first thing tomorrow morning and transfer it. Is &yen;500,000 enough? Don't worry. I won't tell your father. Get well soon."</div>
+        <div class="flow-jp">"健二、わかりました。明日朝一番に銀行に行って振り込みますね。50万円で足りますか？心配しないでね。お父さんには言いませんから。早く元気になってね。"</div>
       </div>
 
       <!-- Arrow -->
@@ -1733,11 +1733,11 @@
     <p class="section-subtitle">Explore the dashboard, run the interactive simulator, or classify a message right here.</p>
 
     <div class="try-buttons">
-      <a href="dashboard.html" class="try-btn try-btn-dashboard">
+      <a href="/dashboard" class="try-btn try-btn-dashboard">
         Family Dashboard
         <span class="try-btn-sub">Real-time monitoring interface</span>
       </a>
-      <a href="index.html" class="try-btn try-btn-demo">
+      <a href="/demo/simulator" class="try-btn try-btn-demo">
         Interactive Simulator
         <span class="try-btn-sub">Step through a scam scenario</span>
       </a>
