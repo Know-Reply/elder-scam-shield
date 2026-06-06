@@ -70,7 +70,7 @@ Six rounds of iterative hardening from baseline to production:
 
 ### Behavioral Sequence: The Hero Test
 
-A 7-day romance scam where no single message is obviously fraudulent:
+A trust-building scam over 7 days — one of many timelines the system handles. The Behavioral Analyzer measures velocity (rate of change), not duration. A 3-day compressed attack triggers faster; a 30-day romance scam accumulates the same signals more slowly. This example shows the pattern:
 
 ```
 Day 1  "Grandma, it's Kenji"          risk: 0.15  (greeting from unknown number)
@@ -101,9 +101,9 @@ Recall of 1.000 means zero scams missed in the eval suite. The precision trade-o
 
 Live at [shield.faxi.jp](https://shield.faxi.jp):
 
-- **/demo** -- pre-built 7-day romance scam walkthrough with agent reasoning traces
-- **/dashboard** -- family safety dashboard showing real-time alerts and sender risk
-- **Live classify** -- paste any message for instant classification with signal breakdown
+- **/shield** -- overview with trust-building scam walkthrough and real eval results
+- **/simulator** -- interactive "Can You Scam Grandma?" with live Gemini classification
+- **/dashboard** -- family safety dashboard with quarantine inbox, risk timeline, contact graph
 
 ## Tech Stack
 
