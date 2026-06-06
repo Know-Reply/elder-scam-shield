@@ -1830,15 +1830,10 @@ body {
     var day = DAYS[state.currentDay];
     $('day-label').textContent = 'Day ' + day.day + ' of 6';
 
-    // Add day divider to thread
     var thread = $('thread');
 
-    var sep = document.createElement('div');
-    sep.className = 'day-divider';
-    sep.id = 'day-div-' + day.day;
-    sep.innerHTML = '<span class="day-divider-text">Day ' + day.day + '</span>';
-    thread.appendChild(sep);
-    thread.scrollTop = thread.scrollHeight;
+    // Don't add Day 1 divider on init — welcome prompt is showing.
+    // Day dividers are added in selectChoice() before the message bubble.
 
     // Render choices in bottom bar
     var choicesDiv = $('choices');
@@ -1961,8 +1956,18 @@ body {
     var textarea = document.getElementById('custom-msg');
     if (textarea) textarea.disabled = true;
 
-    // Add scammer bubble immediately
+    // Add day divider before the message
     var thread = $('thread');
+    var day_num = DAYS[state.currentDay].day;
+    if (!document.getElementById('day-div-' + day_num)) {
+      var sep = document.createElement('div');
+      sep.className = 'day-divider';
+      sep.id = 'day-div-' + day_num;
+      sep.innerHTML = '<span class="day-divider-text">Day ' + day_num + '</span>';
+      thread.appendChild(sep);
+    }
+
+    // Add scammer bubble
     var bubble = document.createElement('div');
     bubble.className = 'bubble bubble-scammer';
     var msgText = c.en || c.jp || '(message)';
