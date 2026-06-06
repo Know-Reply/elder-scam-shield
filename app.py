@@ -137,6 +137,23 @@ async def demo():
     return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
 
 
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard():
+    """Serve the Family Safety Dashboard.
+
+    Interactive dashboard showing quarantine inbox, risk timeline,
+    contact network, and protection summary — the human-in-the-loop
+    proof for family guardians.
+    """
+    path = Path(__file__).parent / "web" / "dashboard.html"
+    if not path.exists():
+        return HTMLResponse(
+            content="<h1>Elder Scam Shield</h1><p>Dashboard not built yet.</p>",
+            status_code=200,
+        )
+    return HTMLResponse(content=path.read_text(encoding="utf-8"))
+
+
 # ---------------------------------------------------------------------------
 # API endpoints
 # ---------------------------------------------------------------------------

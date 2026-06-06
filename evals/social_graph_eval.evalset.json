@@ -1,0 +1,168 @@
+{
+  "eval_set_id": "social_graph_v1",
+  "name": "Social Graph Validation — Imposter Detection and Contact Verification",
+  "description": "5 test cases covering graph-based sender validation: imposter claims, known contact verification, unknown sender scoring, identity spoofing, and elder abuse overlap with verified contacts.",
+  "eval_cases": [
+    {
+      "eval_id": "imposter_claims_friend_son",
+      "conversation": [
+        {
+          "invocation_id": "inv-graph-001",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: unknown_kenji_999, ユーザーID: user_tanaka_001\n\n「花子さん、はじめまして。けんじと申します。田中太郎さんの息子です。父がいつもお世話になっております。父から花子さんのことをよく聞いています。少しご相談したいことがありまして...」"}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"suspicious\", \"confidence\": 0.85, \"detected_signals\": [\"LG-2\", \"BV-4\"], \"social_graph\": {\"sender_id\": \"unknown_kenji_999\", \"is_known_contact\": false, \"graph_distance\": -1, \"connected_via\": null, \"relationship_claimed\": \"friend's son\", \"relationship_verified\": false, \"graph_risk_modifier\": 0.3, \"network_size\": 4}, \"reasoning\": \"Sender claims to be 田中太郎's son but has no connection in the social graph. 田中太郎 is a known contact but unknown_kenji_999 does not appear in any connected_to list. Imposter signal: +0.3 risk modifier. Credibility seeding detected (unsolicited relationship claim + consultation pretext).\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "validate_social_graph", "args": {"user_id": "user_tanaka_001", "sender_id": "unknown_kenji_999", "claimed_relationship": "friend's son"}},
+              {"name": "load_sender_profile", "args": {"sender_email": "unknown_kenji_999"}},
+              {"name": "search_scam_corpus", "args": {"query": "claims to be friend's son", "top_k": 3}}
+            ],
+            "tool_responses": [
+              {"name": "validate_social_graph", "response": {"sender_id": "unknown_kenji_999", "is_known_contact": false, "graph_distance": -1, "connected_via": null, "relationship_claimed": "friend's son", "relationship_verified": false, "graph_risk_modifier": 0.3, "network_size": 4}},
+              {"name": "load_sender_profile", "response": {"sender_email": "unknown_kenji_999", "first_seen": "2026-06-05", "message_count": 0, "risk_score": 0.0}},
+              {"name": "search_scam_corpus", "response": {"results": [], "total": 0}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
+      }
+    },
+    {
+      "eval_id": "real_grandson_yuki_verified",
+      "conversation": [
+        {
+          "invocation_id": "inv-graph-002",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: contact_yuki_grandson, ユーザーID: user_tanaka_001\n\n「おばあちゃん、ゆきだよ！今日学校でテストがあってさ、めっちゃ難しかった。帰りに横浜のラーメン屋さん行ったよ。今度おばあちゃんも一緒に行こうね！」"}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.97, \"detected_signals\": [], \"social_graph\": {\"sender_id\": \"contact_yuki_grandson\", \"is_known_contact\": true, \"graph_distance\": 0, \"connected_via\": null, \"relationship_claimed\": \"grandson\", \"relationship_verified\": true, \"graph_risk_modifier\": -0.2, \"network_size\": 4}, \"reasoning\": \"Known contact ゆき verified as grandson in social graph. 36-month message history. Location matches (横浜). Graph risk modifier: -0.2 (risk reduction). No suspicious signals detected.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "validate_social_graph", "args": {"user_id": "user_tanaka_001", "sender_id": "contact_yuki_grandson", "claimed_relationship": "grandson"}},
+              {"name": "load_sender_profile", "args": {"sender_email": "contact_yuki_grandson"}}
+            ],
+            "tool_responses": [
+              {"name": "validate_social_graph", "response": {"sender_id": "contact_yuki_grandson", "is_known_contact": true, "graph_distance": 0, "connected_via": null, "relationship_claimed": "grandson", "relationship_verified": true, "graph_risk_modifier": -0.2, "network_size": 4}},
+              {"name": "load_sender_profile", "response": {"sender_email": "contact_yuki_grandson", "first_seen": "2023-06-01", "message_count": 142, "risk_score": 0.0, "is_known_contact": true}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
+      }
+    },
+    {
+      "eval_id": "unknown_sender_no_claim",
+      "conversation": [
+        {
+          "invocation_id": "inv-graph-003",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: unknown_sender_abc, ユーザーID: user_tanaka_001\n\n「こんにちは。先日のコミュニティセンターの集まりでお会いした者です。楽しかったですね。また機会があれば。」"}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"monitor\", \"confidence\": 0.60, \"detected_signals\": [\"BV-4\"], \"social_graph\": {\"sender_id\": \"unknown_sender_abc\", \"is_known_contact\": false, \"graph_distance\": -1, \"connected_via\": null, \"relationship_claimed\": null, \"relationship_verified\": false, \"graph_risk_modifier\": 0.1, \"network_size\": 4}, \"reasoning\": \"Unknown sender with no relationship claim. Graph risk modifier: +0.1 (moderate). No imposter signal since no specific relationship was claimed. Light credibility seeding (referencing shared event). Monitor for escalation.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "validate_social_graph", "args": {"user_id": "user_tanaka_001", "sender_id": "unknown_sender_abc"}},
+              {"name": "load_sender_profile", "args": {"sender_email": "unknown_sender_abc"}}
+            ],
+            "tool_responses": [
+              {"name": "validate_social_graph", "response": {"sender_id": "unknown_sender_abc", "is_known_contact": false, "graph_distance": -1, "connected_via": null, "relationship_claimed": null, "relationship_verified": false, "graph_risk_modifier": 0.1, "network_size": 4}},
+              {"name": "load_sender_profile", "response": {"sender_email": "unknown_sender_abc", "first_seen": "2026-06-05", "message_count": 0, "risk_score": 0.0}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
+      }
+    },
+    {
+      "eval_id": "spoofed_grandson_name_wrong_id",
+      "conversation": [
+        {
+          "invocation_id": "inv-graph-004",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: unknown_spoof_777, ユーザーID: user_tanaka_001\n\n「おばあちゃん、ゆきだよ！携帯が壊れちゃって、新しい番号から送ってるの。友達にお金借りちゃって、急いで返さなきゃいけないんだけど、3万円だけ振り込んでもらえないかな？明日返すから！」"}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"scam\", \"confidence\": 0.95, \"detected_signals\": [\"LG-2\", \"LG-5\", \"LG-8\", \"PM-1\", \"PM-3\"], \"social_graph\": {\"sender_id\": \"unknown_spoof_777\", \"is_known_contact\": false, \"graph_distance\": -1, \"connected_via\": null, \"relationship_claimed\": \"grandson\", \"relationship_verified\": false, \"graph_risk_modifier\": 0.3, \"network_size\": 4}, \"reasoning\": \"CRITICAL: Sender uses grandson name ゆき but sender_id unknown_spoof_777 does NOT match known contact_yuki_grandson. Classic オレオレ詐欺 pattern — claims phone broke to explain new number. Immediate money request (3万円). Graph shows imposter: claimed grandson but graph_distance=-1, graph_risk_modifier=+0.3. Real ゆき's sender_id is contact_yuki_grandson.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "validate_social_graph", "args": {"user_id": "user_tanaka_001", "sender_id": "unknown_spoof_777", "claimed_relationship": "grandson"}},
+              {"name": "load_sender_profile", "args": {"sender_email": "unknown_spoof_777"}},
+              {"name": "search_scam_corpus", "args": {"query": "phone broke new number money grandson", "top_k": 3}}
+            ],
+            "tool_responses": [
+              {"name": "validate_social_graph", "response": {"sender_id": "unknown_spoof_777", "is_known_contact": false, "graph_distance": -1, "connected_via": null, "relationship_claimed": "grandson", "relationship_verified": false, "graph_risk_modifier": 0.3, "network_size": 4}},
+              {"name": "load_sender_profile", "response": {"sender_email": "unknown_spoof_777", "first_seen": "2026-06-05", "message_count": 0, "risk_score": 0.0}},
+              {"name": "search_scam_corpus", "response": {"results": [{"pattern": "PM-1", "description": "ore-ore phone change pattern"}], "total": 1}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
+      }
+    },
+    {
+      "eval_id": "real_daughter_finance_ea_monitoring",
+      "conversation": [
+        {
+          "invocation_id": "inv-graph-005",
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "新着メッセージを分析してください。送信者: contact_misaki_daughter, ユーザーID: user_tanaka_001\n\n「お母さん、美咲です。最近お金のこと心配になってきて。通帳ってどこに置いてる？年金の振込先とか、私が管理した方がいいかなと思って。お母さんも歳だし、心配なの。」"}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "{\"classification\": \"safe\", \"confidence\": 0.80, \"detected_signals\": [\"EA-1\"], \"social_graph\": {\"sender_id\": \"contact_misaki_daughter\", \"is_known_contact\": true, \"graph_distance\": 0, \"connected_via\": null, \"relationship_claimed\": \"daughter\", \"relationship_verified\": true, \"graph_risk_modifier\": -0.2, \"network_size\": 4}, \"abuse_indicators\": {\"financial_control_refs\": 1, \"isolation_refs\": 0, \"authority_stage\": 1, \"topic_shift_score\": 0.3}, \"reasoning\": \"Graph-verified daughter 美咲 (60-month message history, risk modifier -0.2). Identity confirmed. However, EA-1 (financial control) signal detected: asking about bank book location, pension details, and offering to manage finances. This is a single instance — below the 3-reference threshold for escalation. Classification: safe with EA monitoring. If financial control references reach 3+ in 30 days, escalate to flag.\"}"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "validate_social_graph", "args": {"user_id": "user_tanaka_001", "sender_id": "contact_misaki_daughter", "claimed_relationship": "daughter"}},
+              {"name": "load_sender_profile", "args": {"sender_email": "contact_misaki_daughter"}},
+              {"name": "load_user_contacts", "args": {"user_id": "user_tanaka_001"}}
+            ],
+            "tool_responses": [
+              {"name": "validate_social_graph", "response": {"sender_id": "contact_misaki_daughter", "is_known_contact": true, "graph_distance": 0, "connected_via": null, "relationship_claimed": "daughter", "relationship_verified": true, "graph_risk_modifier": -0.2, "network_size": 4}},
+              {"name": "load_sender_profile", "response": {"sender_email": "contact_misaki_daughter", "first_seen": "2021-06-01", "message_count": 287, "risk_score": 0.0, "is_known_contact": true}},
+              {"name": "load_user_contacts", "response": {"contacts": [{"name": "美咲", "relationship": "daughter"}]}}
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "elder_scam_shield",
+        "user_id": "user_tanaka_001",
+        "state": {"user_name": "田中花子"}
+      }
+    }
+  ]
+}

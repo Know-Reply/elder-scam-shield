@@ -15,6 +15,7 @@ from datetime import date, datetime, timezone
 
 from google.adk import Agent
 from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
+from agents.tools.social_graph import validate_social_graph
 try:
     from google.cloud import firestore
 except ImportError:
@@ -234,7 +235,15 @@ OUTPUT: structured JSON with sender_id, risk_score, risk_factors[],
   behavioral_velocity (for strangers) or abuse_indicators (for known contacts),
   recommendation (monitor|flag|block|alert_family).
 
-GROUNDING: call get_corpus_pattern_stats and search_scam_corpus to cite evidence."""
+GROUNDING: call get_corpus_pattern_stats and search_scam_corpus to cite evidence.
+
+SOCIAL GRAPH VALIDATION (Round 4):
+  Before deep behavioral analysis, call validate_social_graph to check whether
+  the sender has ANY connection to the user's known contact network.
+  - graph_distance 0 (direct contact) with long history → risk reduction (-0.2)
+  - graph_distance 1 (friend-of-friend) → neutral
+  - graph_distance -1 with a claimed relationship → IMPOSTER SIGNAL (+0.3)
+  Incorporate graph_risk_modifier into the final risk_score computation."""
 
 
 def _empty_profile(sender_email: str) -> dict:
@@ -412,6 +421,7 @@ behavioral_analyzer = Agent(
         publish_risk_assessment,
         search_scam_corpus,
         get_corpus_pattern_stats,
+        validate_social_graph,
     ],
     sub_agents=[],
 )
