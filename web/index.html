@@ -324,19 +324,21 @@ body {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* Message + analysis grouped together, centered */
+.message-group {
+  align-self: center;
+  width: 100%;
+  max-width: 95%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: bubbleIn 0.3s ease;
+}
 .bubble-scammer {
-  align-self: flex-end;
   background: var(--navy);
   color: #fff;
-  border-bottom-right-radius: 4px;
-}
-.bubble-system {
-  align-self: flex-start;
-  background: var(--gray-50);
-  border: 1px solid var(--gray-200);
-  color: var(--gray-700);
-  border-bottom-left-radius: 4px;
-  max-width: 92%;
+  border-radius: 12px 12px 0 0;
+  max-width: 100%;
 }
 .bubble .en-text {
   display: block;
@@ -349,16 +351,15 @@ body {
   font-style: italic;
 }
 
-/* ---- Two-system analysis card ---- */
+/* ---- Two-system analysis card — attached below message ---- */
 .analysis-inline {
-  align-self: flex-start;
-  max-width: 92%;
+  max-width: 100%;
   background: #fff;
   border: 1px solid var(--gray-200);
-  border-radius: 6px;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
   padding: 10px 12px;
   font-size: 0.82rem;
-  animation: bubbleIn 0.35s ease;
 }
 
 /* Border color based on behavioral analyzer result (the important one) */
@@ -1882,7 +1883,7 @@ body {
     }
 
     var day = DAYS[state.currentDay];
-    $('day-label').textContent = 'Day ' + day.day + ' of 6';
+    $('day-label').textContent = 'Message ' + day.day + ' of 6';
 
     var thread = $('thread');
 
@@ -2021,12 +2022,16 @@ body {
       thread.appendChild(sep);
     }
 
-    // Add scammer bubble
+    // Add message group (bubble + analysis grouped together)
+    var msgGroup = document.createElement('div');
+    msgGroup.className = 'message-group';
+    msgGroup.id = 'msg-group-' + state.messages;
     var bubble = document.createElement('div');
     bubble.className = 'bubble bubble-scammer';
     var msgText = c.en || c.jp || '(message)';
     bubble.innerHTML = '<span class="en-text">' + msgText + '</span>' + (c.jp && c.en ? '<span class="jp-text">' + c.jp + '</span>' : '');
-    thread.appendChild(bubble);
+    msgGroup.appendChild(bubble);
+    thread.appendChild(msgGroup);
 
     // Add loading animation inline in thread
     var loadingCard = document.createElement('div');
@@ -2038,7 +2043,7 @@ body {
         '<div class="loading-step" id="ls-2"><span class="ls-dot"></span> Running per-message classification with Gemini...</div>' +
         '<div class="loading-step" id="ls-3"><span class="ls-dot"></span> Running Behavioral Analyzer across all messages...</div>' +
       '</div>';
-    thread.appendChild(loadingCard);
+    msgGroup.appendChild(loadingCard);
     thread.scrollTop = thread.scrollHeight;
 
     // Animate loading steps
@@ -2212,7 +2217,13 @@ body {
     html += '</div>'; // end vs-comparison
 
     card.innerHTML = html;
-    thread.appendChild(card);
+    // Append to the message group (not thread) so message + analysis are visually grouped
+    var currentGroup = document.getElementById('msg-group-' + state.messages);
+    if (currentGroup) {
+      currentGroup.appendChild(card);
+    } else {
+      thread.appendChild(card);
+    }
     thread.scrollTop = thread.scrollHeight;
 
     // Update sender profile panel
