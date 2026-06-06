@@ -8,7 +8,17 @@ Designed for Cloud Run deployment with ADK Python 2.0.
 
 import json
 import os
+import re
+import sys
 from pathlib import Path
+
+# Firestore optional for local dev
+class _FakeFS:
+    def Client(self, *a, **kw): return None
+    def __getattr__(self, n): return None
+if os.environ.get("FIRESTORE_EMULATOR_HOST") or not os.environ.get("GOOGLE_CLOUD_PROJECT"):
+    sys.modules.setdefault('google.cloud.firestore', _FakeFS())
+    sys.modules.setdefault('google.cloud.firestore_v1', _FakeFS())
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,7 +26,28 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from google.adk import Runner
+from google.adk.sessions import InMemorySessionService
+from google.genai import types as genai_types
+
+from agents.inbound_classifier import inbound_classifier
 from agents.root_agent import root_agent
+
+# Load .env if present
+_env_path = Path(__file__).parent / ".env"
+if _env_path.exists():
+    for _line in _env_path.read_text().splitlines():
+        if "=" in _line and not _line.startswith("#"):
+            _k, _v = _line.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip())
+
+# ADK runner for live inference
+_session_service = InMemorySessionService()
+_classifier_runner = Runner(
+    agent=inbound_classifier,
+    app_name="elder_scam_shield",
+    session_service=_session_service,
+)
 
 # ---------------------------------------------------------------------------
 # App
@@ -112,21 +143,51 @@ async def demo():
 
 @app.post("/api/classify")
 async def classify_message(req: ClassifyRequest):
-    """Run an inbound message through the Inbound Classifier agent.
+    """Run an inbound message through the Inbound Classifier with live Gemini.
 
     Returns classification (safe / suspicious / scam), detected signals,
-    and extracted facts from the message content.
+    and extracted facts. This is LIVE inference, not pre-computed.
     """
     try:
-        # Build the prompt for the root agent to route to inbound_classifier
-        prompt = (
-            f"Classify this inbound message.\n"
-            f"Sender: {req.sender}\n"
-            f"Content: {req.content}"
+        session = await _session_service.create_session(
+            app_name="elder_scam_shield", user_id="demo_user"
         )
-        # ADK 2.0: invoke the agent and collect the response
-        response = await root_agent.ainvoke(prompt)
-        return {"result": response, "sender": req.sender}
+        prompt = (
+            f"新着メッセージを分析してください。送信者: {req.sender}, "
+            f"ユーザーID: demo_user\n\n「{req.content}」"
+        )
+        msg = genai_types.Content(
+            role="user", parts=[genai_types.Part(text=prompt)]
+        )
+
+        result = {"classification": "no_response", "raw_events": []}
+        async for event in _classifier_runner.run_async(
+            user_id="demo_user", session_id=session.id, new_message=msg
+        ):
+            if hasattr(event, "content") and event.content and event.content.parts:
+                for part in event.content.parts:
+                    if hasattr(part, "text") and part.text:
+                        # Try to parse classification JSON
+                        m = re.search(
+                            r'\{[^{}]*"classification"[^{}]*\}',
+                            part.text, re.DOTALL,
+                        )
+                        if m:
+                            try:
+                                result = json.loads(m.group())
+                            except json.JSONDecodeError:
+                                pass
+                    if hasattr(part, "function_call") and part.function_call:
+                        fc = part.function_call
+                        if fc.name == "publish_classified_event" and fc.args:
+                            result = {
+                                "classification": fc.args.get("classification"),
+                                "confidence": fc.args.get("confidence"),
+                                "detected_signals": fc.args.get("detected_signals", []),
+                                "extracted_facts": fc.args.get("extracted_facts", {}),
+                            }
+
+        return {"result": result, "sender": req.sender, "live": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
