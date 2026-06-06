@@ -2054,14 +2054,15 @@ body {
     msgGroup.appendChild(loadingCard);
     thread.scrollTop = thread.scrollHeight;
 
-    // Animate loading steps progressively
-    setTimeout(function() { var s = document.getElementById('ls-2'); if (s) s.classList.add('active'); }, 300);
-    setTimeout(function() { var s = document.getElementById('ls-3'); if (s) s.classList.add('active'); }, 600);
-    setTimeout(function() { var s = document.getElementById('ls-4'); if (s) s.classList.add('active'); }, 900);
-    setTimeout(function() { var s = document.getElementById('ls-5'); if (s) s.classList.add('active'); }, 1200);
-    setTimeout(function() { var s = document.getElementById('ls-6'); if (s) s.classList.add('active'); }, 1800);
+    // Steps 1-4: pre-processing (genuinely fast — no LLM)
+    setTimeout(function() { var s = document.getElementById('ls-2'); if (s) s.classList.add('active'); }, 200);
+    setTimeout(function() { var s = document.getElementById('ls-3'); if (s) s.classList.add('active'); }, 400);
+    setTimeout(function() { var s = document.getElementById('ls-4'); if (s) s.classList.add('active'); }, 600);
+    // Step 5 lights up when API call starts (below)
+    // Steps 6-8 light up when API response arrives (in .then())
 
-    // Call live Gemini API for per-message classification
+    // Call live Gemini API — step 5 starts now
+    setTimeout(function() { var s = document.getElementById('ls-5'); if (s) s.classList.add('active'); }, 800);
     var messageForApi = c.jp || c.en || msgText;
     fetch('/api/classify', {
       method: 'POST',
@@ -2070,6 +2071,10 @@ body {
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
+      // Step 5 complete — light up steps 6-8
+      var ls6 = document.getElementById('ls-6');
+      if (ls6) ls6.classList.add('active');
+
       var result = data.result || {};
       var livePerMsgClass = (result.classification || '').toUpperCase();
       var liveConfidence = result.confidence || 0;
