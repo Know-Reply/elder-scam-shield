@@ -93,15 +93,15 @@ Both systems eventually catch the scam. The question is when — and what happen
 
 ```
 "Did you catch the scam?"
-  Traditional:        Yes (at Day 7, when "send me ¥500,000" arrives)
+  Pre-ADK:        Yes (at Day 7, when "send me ¥500,000" arrives)
   Elder Scam Shield:  Yes (at Day 3, from behavioral velocity alone)
 
 "Did you catch it BEFORE the money request?"
-  Traditional:        No — only catches the explicit ask
+  Pre-ADK:        No — only catches the explicit ask
   Elder Scam Shield:  Yes — flagged 3 days earlier
 
 "What if the scammer calls grandma on the phone for the close?"
-  Traditional:        Misses entirely — never sees the phone call
+  Pre-ADK:        Misses entirely — never sees the phone call
   Elder Scam Shield:  Already flagged — family was alerted at Day 3
 ```
 
@@ -111,7 +111,7 @@ This is the difference between catching a scam and **preventing** one. A system 
 
 A single-message classifier -- no matter how good the model -- structurally cannot detect trust-building attacks. Each individual message in a 7-day scam sequence is genuinely safe. The improvement isn't a better F1 score. It's capabilities that didn't exist before:
 
-| Capability | Traditional (single classifier) | Elder Scam Shield |
+| Capability | Pre-ADK Tuning | Elder Scam Shield |
 |---|---|---|
 | Obvious scam detection | Yes | Yes |
 | Multi-day trust-building detection | **Impossible** — no cross-message state | **Day 4 flag** (3 days before money ask) |
@@ -123,7 +123,7 @@ A single-message classifier -- no matter how good the model -- structurally cann
 
 ### Classification accuracy (80-case eval, live Gemini)
 
-| Metric | Traditional | Elder Scam Shield | Delta |
+| Metric | Pre-ADK | Elder Scam Shield | Delta |
 |--------|-------------|-------------------|-------|
 | F1 Score | 0.933 | **0.944** | +0.011 |
 | Precision | 0.875 | **0.894** | +0.019 |
