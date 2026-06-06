@@ -14,12 +14,15 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from google.adk import Agent
-from google.cloud import firestore
+try:
+    from google.cloud import firestore
+    db = firestore.Client()
+except Exception:
+    db = None
 
 JST = timezone(timedelta(hours=9))
 DEDUP_WINDOW_H = 24
 RATE_LIMIT_PER_DAY = 5
-db = firestore.Client()
 
 # fmt: off
 TEMPLATES: dict[str, dict[str, Any]] = {
@@ -121,7 +124,7 @@ def generate_alert(
 
 
 family_alerter = Agent(
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     name="family_alerter",
     description=(
         "Translates scam detection events into warm, actionable Japanese "

@@ -13,12 +13,14 @@ import hashlib
 from datetime import datetime, timezone
 
 from google.adk import Agent
-from google.cloud import firestore
-
-db = firestore.Client()
-PROFILES = db.collection("sender_profiles")
-HOLDS = db.collection("hold_records")
-KNOWN_PAYEES = db.collection("known_payees")
+try:
+    from google.cloud import firestore
+    db = firestore.Client()
+except Exception:
+    db = None
+PROFILES = db.collection("sender_profiles") if db else None
+HOLDS = db.collection("hold_records") if db else None
+KNOWN_PAYEES = db.collection("known_payees") if db else None
 
 SIGNAL_WEIGHTS = {
     "OB-1": 0.3, "OB-2": 0.7, "OB-3": 0.8, "OB-4": 0.4,
@@ -89,7 +91,7 @@ def release_outbound(hold_id: str, reason: str) -> dict:
 
 
 outbound_interceptor = Agent(
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     name="outbound_interceptor",
     description=(
         "Intercepts outgoing user responses containing sensitive data. "

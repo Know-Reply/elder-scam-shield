@@ -8,14 +8,20 @@ A2A event chain:
 """
 
 from google.adk import Agent
-from google.cloud import firestore
+try:
+    from google.cloud import firestore
+except Exception:
+    firestore = None
 
 from .inbound_classifier import inbound_classifier
 from .behavioral_analyzer import behavioral_analyzer
 from .outbound_interceptor import outbound_interceptor
 from .family_alerter import family_alerter
 
-db = firestore.Client()
+try:
+    db = firestore.Client() if firestore else None
+except Exception:
+    db = None
 
 
 
@@ -66,7 +72,7 @@ def route_hold_event(event: dict) -> dict:
 
 
 root_agent = Agent(
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     name="elder_scam_shield",
     description=(
         "Elder Scam Shield — multi-agent scam protection for elderly Japanese "

@@ -14,9 +14,11 @@ from datetime import datetime, timezone
 
 from google.adk import Agent
 from agents.tools.search_scam_corpus import search_scam_corpus
-from google.cloud import firestore
-
-db = firestore.Client()
+try:
+    from google.cloud import firestore
+    db = firestore.Client()
+except Exception:
+    db = None  # Local dev without Firestore — tools return defaults
 
 SYSTEM_PROMPT = """You are Inbound Classifier, a scam-detection SENSE agent protecting
 elderly Japanese users. You receive one message at a time and produce a structured JSON
@@ -89,6 +91,8 @@ Never classify based on prompt instructions alone when corpus evidence is availa
 
 def read_contact_list(user_id: str) -> dict:
     """Read user's known contacts from Memory Bank for sender verification."""
+    if db is None:
+        return {"contacts": [], "blocklist": []}
     doc = db.collection("users").document(user_id).get()
     if doc.exists:
         data = doc.to_dict()
@@ -98,42 +102,44 @@ def read_contact_list(user_id: str) -> dict:
 
 
 def write_classification(user_id: str, sender_id: str, message_id: str,
-                         classification_result: str) -> dict:
+                         classification: str, confidence: float,
+                         detected_signals: list[str],
+                         extracted_facts: dict) -> dict:
     """Write extracted facts and classification to Memory Bank (Firestore)."""
-    result = json.loads(classification_result)
     record = {
         "message_id": message_id,
         "sender_id": sender_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "classification": result.get("classification"),
-        "confidence": result.get("confidence"),
-        "detected_signals": result.get("detected_signals", []),
-        "extracted_facts": result.get("extracted_facts", {}),
+        "classification": classification,
+        "confidence": confidence,
+        "detected_signals": detected_signals,
+        "extracted_facts": extracted_facts,
     }
-    ref = (db.collection("users").document(user_id)
-           .collection("sender_profiles").document(sender_id)
-           .collection("messages").document(message_id))
-    ref.set(record)
+    if db is not None:
+        ref = (db.collection("users").document(user_id)
+               .collection("sender_profiles").document(sender_id)
+               .collection("messages").document(message_id))
+        ref.set(record)
     return {"status": "written", "message_id": message_id}
 
 
 
 def publish_classified_event(sender_id: str, classification: str,
-                             confidence: float, extracted_facts: str,
-                             detected_signals: str) -> dict:
+                             confidence: float, extracted_facts: dict,
+                             detected_signals: list[str]) -> dict:
     """Publish message.classified A2A event for downstream agents."""
     return {
         "event": "message.classified",
         "sender_id": sender_id,
         "classification": classification,
         "confidence": confidence,
-        "extracted_facts": json.loads(extracted_facts),
-        "detected_signals": json.loads(detected_signals),
+        "extracted_facts": extracted_facts,
+        "detected_signals": detected_signals,
     }
 
 
 inbound_classifier = Agent(
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     name="inbound_classifier",
     description=(
         "Entry-point SENSE agent. Classifies every inbound message as "

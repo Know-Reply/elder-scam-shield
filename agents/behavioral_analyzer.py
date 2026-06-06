@@ -11,7 +11,10 @@ from datetime import date, datetime, timezone
 
 from google.adk import Agent
 from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
-from google.cloud import firestore
+try:
+    from google.cloud import firestore
+except ImportError:
+    firestore = None
 
 # Signal weights derived from corpus analysis (data/derive_baselines.py).
 # Loaded from data/processed/corpus_baselines.json at import time.
@@ -58,10 +61,13 @@ _total = sum(SIGNAL_WEIGHTS.values())
 if _total > 0:
     SIGNAL_WEIGHTS = {k: round(v / _total, 4) for k, v in SIGNAL_WEIGHTS.items()}
 
-db = firestore.Client()
-PROFILES = db.collection("sender_profiles")
-CONTACTS = db.collection("user_contacts")
-RISK_EVENTS = db.collection("risk_events")
+try:
+    db = firestore.Client() if firestore else None
+except Exception:
+    db = None
+PROFILES = db.collection("sender_profiles") if db else None
+CONTACTS = db.collection("user_contacts") if db else None
+RISK_EVENTS = db.collection("risk_events") if db else None
 
 SYSTEM_PROMPT = """You are the Behavioral Analyzer for Elder Scam Shield, protecting elderly
 Japanese users from trust-building scams (特殊詐欺).
