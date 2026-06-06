@@ -87,6 +87,26 @@ Confidence levels: VERIFIED > OBSERVED > ESTABLISHED > RECOGNIZED > CORROBORATED
 
 ## Results
 
+### The metric that matters: WHEN, not IF
+
+Both systems eventually catch the scam. The question is when — and what happens if the scammer goes offline for the close.
+
+```
+"Did you catch the scam?"
+  Traditional:        Yes (at Day 7, when "send me ¥500,000" arrives)
+  Elder Scam Shield:  Yes (at Day 3, from behavioral velocity alone)
+
+"Did you catch it BEFORE the money request?"
+  Traditional:        No — only catches the explicit ask
+  Elder Scam Shield:  Yes — flagged 3 days earlier
+
+"What if the scammer calls grandma on the phone for the close?"
+  Traditional:        Misses entirely — never sees the phone call
+  Elder Scam Shield:  Already flagged — family was alerted at Day 3
+```
+
+This is the difference between catching a scam and **preventing** one. A system that flags at Day 7 is documenting a crime. A system that flags at Day 3 is preventing it.
+
 ### What changed: capability, not just accuracy
 
 A single-message classifier -- no matter how good the model -- structurally cannot detect trust-building attacks. Each individual message in a 7-day scam sequence is genuinely safe. The improvement isn't a better F1 score. It's capabilities that didn't exist before:
