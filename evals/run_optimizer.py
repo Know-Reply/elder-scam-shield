@@ -95,13 +95,15 @@ def build_agent(prompt: str) -> Agent:
         return {"contacts": [], "blocklist": []}
 
     def write_classification(user_id: str, sender_id: str, message_id: str,
-                             classification_result: str) -> dict:
+                             classification: str, confidence: float,
+                             detected_signals: list[str],
+                             extracted_facts: dict) -> dict:
         """Write classification result."""
-        return {"status": "written"}
+        return {"status": "written", "classification": classification}
 
     def publish_classified_event(sender_id: str, classification: str,
-                                 confidence: float, extracted_facts: str,
-                                 detected_signals: str) -> dict:
+                                 confidence: float, extracted_facts: dict,
+                                 detected_signals: list[str]) -> dict:
         """Publish classification event."""
         return {"event": "message.classified", "classification": classification}
 
@@ -125,7 +127,7 @@ def build_agent(prompt: str) -> Agent:
         }
 
     return Agent(
-        model="gemini-2.0-flash",
+        model="gemini-3.1-flash-lite",
         name="inbound_classifier",
         description=(
             "Scam-detection SENSE agent. Classifies inbound messages as "
