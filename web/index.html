@@ -287,17 +287,16 @@ body {
   letter-spacing: 0.06em;
   padding: 8px 0 4px;
 }
-.bubble .jp-text {
+.bubble .en-text {
   display: block;
   margin-bottom: 6px;
 }
-.bubble .en-text {
+.bubble .jp-text {
   display: block;
   font-size: 0.82rem;
-  opacity: 0.7;
+  opacity: 0.6;
   font-style: italic;
 }
-.bubble-scammer .en-text { opacity: 0.6; }
 
 /* Analysis card inside thread */
 .analysis-card {
@@ -397,6 +396,30 @@ body {
   box-shadow: var(--shadow-md);
 }
 .choice-btn:active { transform: scale(0.99); }
+.custom-message-input { margin-top: 8px; }
+.custom-divider {
+  text-align: center; margin: 12px 0 8px; position: relative;
+}
+.custom-divider::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  border-top: 1px solid var(--gray-200);
+}
+.custom-divider span {
+  background: #fff; padding: 0 12px; position: relative;
+  font-size: 0.78rem; color: var(--gray-400); text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.custom-message-input textarea {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--gray-200);
+  border-radius: var(--radius); font-size: 0.9rem; font-family: inherit;
+  resize: vertical; margin-bottom: 6px; min-height: 44px;
+}
+.custom-message-input textarea:focus {
+  outline: none; border-color: var(--blue-mid);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+.custom-send-btn { border: 2px dashed var(--gray-300) !important; }
+.custom-send-btn:hover { border-color: var(--blue) !important; }
 .choice-letter {
   display: inline-flex;
   align-items: center;
@@ -412,8 +435,8 @@ body {
   margin-top: 1px;
 }
 .choice-content { flex: 1; }
-.choice-jp { display: block; margin-bottom: 4px; }
-.choice-en { display: block; font-size: 0.8rem; color: var(--gray-500); font-style: italic; }
+.choice-en { display: block; margin-bottom: 4px; }
+.choice-jp { display: block; font-size: 0.8rem; color: var(--gray-500); font-style: italic; }
 
 .choice-tag {
   display: inline-block;
@@ -926,14 +949,14 @@ body {
       </div>
     </div>
     <nav class="header-nav">
+      <a href="/demo">Walkthrough</a>
       <a href="/dashboard">Dashboard</a>
-      <a href="#live-classify-section">Live Classify</a>
     </nav>
   </div>
 </header>
 
-<!-- ===== SCREEN: LANDING ===== -->
-<div class="screen active" id="screen-landing">
+<!-- ===== SCREEN: LANDING (hidden — simulator starts directly) ===== -->
+<div class="screen" id="screen-landing">
   <div class="landing">
     <h1>Elder Scam Shield</h1>
     <p class="subtitle">
@@ -968,7 +991,7 @@ body {
 </div>
 
 <!-- ===== SCREEN: SIMULATOR ===== -->
-<div class="screen" id="screen-sim">
+<div class="screen active" id="screen-sim">
   <div class="sim-container">
     <div class="sim-header">
       <span class="day-indicator" id="day-label">Day 1 of 7</span>
@@ -1059,7 +1082,7 @@ body {
     <div class="reveal-actions">
       <button class="btn btn-dark" id="btn-restart">Play Again</button>
       <a class="btn btn-primary" href="/dashboard">View Dashboard</a>
-      <a class="btn btn-secondary" href="#live-classify-section">Try Live Classify</a>
+      <a class="btn btn-secondary" href="/demo">View Walkthrough</a>
     </div>
   </div>
 </div>
@@ -1513,7 +1536,7 @@ body {
 
     // Render choices
     var choicesDiv = $('choices');
-    choicesDiv.innerHTML = '<div class="choices-label">Choose your message:</div>';
+    choicesDiv.innerHTML = '<div class="choices-label">Choose your message — or write your own:</div>';
     day.choices.forEach(function(c, i) {
       var btn = document.createElement('button');
       btn.className = 'choice-btn';
@@ -1521,11 +1544,80 @@ body {
         '<span class="choice-letter">' + String.fromCharCode(65 + i) + '</span>' +
         '<div class="choice-content">' +
           '<span class="choice-tag choice-tag-' + c.tag + '">' + c.tagLabel + '</span>' +
-          '<span class="choice-jp">' + c.jp + '</span>' +
           '<span class="choice-en">' + c.en + '</span>' +
+          '<span class="choice-jp">' + c.jp + '</span>' +
         '</div>';
       btn.addEventListener('click', function() { selectChoice(i); });
       choicesDiv.appendChild(btn);
+    });
+
+    // Add "write your own" option
+    var customDiv = document.createElement('div');
+    customDiv.className = 'custom-message-input';
+    customDiv.innerHTML =
+      '<div class="custom-divider"><span>or write your own</span></div>' +
+      '<textarea id="custom-msg" rows="2" placeholder="Type your own scam message and see how the system reacts..."></textarea>' +
+      '<button id="custom-send" class="choice-btn custom-send-btn">' +
+        '<span class="choice-letter">&#9998;</span>' +
+        '<div class="choice-content"><span class="choice-en">Send Custom Message</span></div>' +
+      '</button>';
+    choicesDiv.appendChild(customDiv);
+
+    document.getElementById('custom-send').addEventListener('click', function() {
+      var msg = document.getElementById('custom-msg').value.trim();
+      if (!msg) { document.getElementById('custom-msg').focus(); return; }
+      sendCustomMessage(msg);
+    });
+  }
+
+  // =========================================================
+  //  SEND CUSTOM MESSAGE (live Gemini classify)
+  // =========================================================
+  function sendCustomMessage(msg) {
+    var btn = document.getElementById('custom-send');
+    var textarea = document.getElementById('custom-msg');
+    btn.disabled = true;
+    btn.querySelector('.choice-en').textContent = 'Classifying with Gemini...';
+
+    fetch('/api/classify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sender: 'custom_sender', content: msg })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var result = data.result || {};
+      var cls = (result.classification || 'safe').toUpperCase();
+      var confidence = result.confidence || 0.5;
+      var signals = result.detected_signals || [];
+      var reasoning = result.reasoning || 'Custom message analyzed by live Gemini inference.';
+
+      // Map classification to risk score
+      var riskMap = { 'SAFE': 0.1, 'SPAM': 0.15, 'SUSPICIOUS': 0.55, 'SCAM': 0.9 };
+      var risk = riskMap[cls] || 0.3;
+
+      // Feed into the simulator as if it were a pre-written choice
+      var fakeChoice = {
+        en: msg.length > 80 ? msg.substring(0, 80) + '...' : msg,
+        jp: '',
+        tag: cls === 'SCAM' ? 'aggressive' : cls === 'SUSPICIOUS' ? 'moderate' : 'subtle',
+        tagLabel: 'Custom',
+        risk: risk,
+        classification: cls,
+        signals: signals,
+        reasoning: '(Live Gemini) ' + reasoning,
+        profile: {}
+      };
+
+      // Inject into current day data and select it
+      var day = DAYS[state.currentDay];
+      var customIdx = day.choices.length;
+      day.choices.push(fakeChoice);
+      selectChoice(customIdx);
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.querySelector('.choice-en').textContent = 'Error: ' + err.message + '. Is the server running?';
     });
   }
 
@@ -1564,7 +1656,7 @@ body {
     var thread = $('thread');
     var bubble = document.createElement('div');
     bubble.className = 'bubble bubble-scammer';
-    bubble.innerHTML = '<span class="jp-text">' + c.jp + '</span><span class="en-text">' + c.en + '</span>';
+    bubble.innerHTML = '<span class="en-text">' + c.en + '</span>' + (c.jp ? '<span class="jp-text">' + c.jp + '</span>' : '');
     thread.appendChild(bubble);
 
     // Add analysis card
@@ -1797,8 +1889,13 @@ body {
   }
 
   function init() {
-    // Start simulator
-    $('btn-start-sim').addEventListener('click', function() {
+    // Auto-start simulator (no landing screen)
+    resetState();
+    renderDay();
+
+    // Start button (if landing screen is ever shown)
+    var startBtn = $('btn-start-sim');
+    if (startBtn) startBtn.addEventListener('click', function() {
       resetState();
       showScreen('screen-sim');
       renderDay();
@@ -1810,9 +1907,6 @@ body {
       showScreen('screen-sim');
       renderDay();
     });
-
-    // Live classify
-    initLiveClassify();
   }
 
   // =========================================================
