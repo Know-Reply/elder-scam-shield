@@ -200,7 +200,7 @@ def publish_risk_assessment(
 
 
 behavioral_analyzer = Agent(
-    model="gemini-2.5-pro",
+    model="gemini-2.5-flash",
     name="behavioral_analyzer",
     description=(
         "Builds longitudinal sender profiles, detects fact contradictions, "
