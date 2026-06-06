@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 
 from google.adk import Agent
 from agents.tools.search_scam_corpus import search_scam_corpus
+from agents.tools.graph_builder import update_graph_from_message
 try:
     from google.cloud import firestore
     db = firestore.Client()
@@ -85,7 +86,16 @@ message text. Your classification MUST cite evidence:
 - "This message matches N known [pattern] cases in the corpus"
 - "Similar messages were classified as [scam/safe] with [signals]"
 If the corpus returns no matches, say so — but still classify based on signals.
-Never classify based on prompt instructions alone when corpus evidence is available."""
+Never classify based on prompt instructions alone when corpus evidence is available.
+
+## Social graph building
+After classifying every message, call update_graph_from_message with the sender_id
+and the extracted_facts. This builds the user's contact network over time:
+- Each message strengthens the sender's node
+- Mentioned contacts create cross-reference edges
+- Senders who accumulate enough history get promoted to known contacts
+The graph is how we validate relationships — not from a single claim, but from
+months of accumulated cross-references across multiple contacts."""
 
 
 
@@ -148,5 +158,5 @@ inbound_classifier = Agent(
         "for longitudinal behavioral analysis."
     ),
     instruction=SYSTEM_PROMPT,
-    tools=[read_contact_list, write_classification, publish_classified_event, search_scam_corpus],
+    tools=[read_contact_list, write_classification, publish_classified_event, search_scam_corpus, update_graph_from_message],
 )

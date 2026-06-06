@@ -16,6 +16,7 @@ from datetime import date, datetime, timezone
 from google.adk import Agent
 from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
 from agents.tools.social_graph import validate_social_graph
+from agents.tools.graph_builder import update_graph_from_message, check_cross_references
 try:
     from google.cloud import firestore
 except ImportError:
@@ -495,6 +496,7 @@ behavioral_analyzer = Agent(
         search_scam_corpus,
         get_corpus_pattern_stats,
         validate_social_graph,
+        check_cross_references,
     ],
     sub_agents=[],
 )
