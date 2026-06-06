@@ -285,6 +285,15 @@ async def intercept_outbound(req: InterceptRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/dashboard/data")
+async def dashboard_data():
+    """Return dashboard data from seed file (or Firestore in production)."""
+    path = Path(__file__).parent / "data" / "dashboard_seed.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Dashboard seed data not found")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 @app.get("/api/demo/scenario")
 async def get_demo_scenario():
     """Return the pre-built 7-day demo scenario data.

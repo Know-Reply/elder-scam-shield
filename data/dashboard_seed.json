@@ -1,0 +1,229 @@
+{
+  "user": {
+    "id": "user_tanaka_001",
+    "name": "山田花子",
+    "name_en": "Yamada Hanako",
+    "age": 78,
+    "location": "Saitama, Japan",
+    "status": "active_protection"
+  },
+  "family_member": {
+    "id": "contact_misaki_daughter",
+    "name": "美咲",
+    "name_en": "Misaki",
+    "initials": "MS",
+    "role": "Family member account"
+  },
+  "quarantine": [
+    {
+      "id": 1,
+      "sender": "けんじ (unknown)",
+      "sender_jp": "けんじ",
+      "date": "2026-06-07",
+      "risk_score": 0.98,
+      "severity": "critical",
+      "status": "blocked",
+      "reason": "Ore-ore sagi — multi-day social engineering, Day 7 money request",
+      "signals": [
+        { "code": "BV-1", "label": "Behavioral Velocity", "desc": "Trust-building over 7 days before financial ask", "type": "danger" },
+        { "code": "PM-3", "label": "Extreme Urgency", "desc": "\"Today\" deadline with emotional pressure", "type": "danger" },
+        { "code": "PM-6", "label": "Financial Request", "desc": "Bank transfer to unverifiable account", "type": "danger" },
+        { "code": "II-1", "label": "Identity Impersonation", "desc": "Claims to be grandson \"ゆき\"", "type": "danger" },
+        { "code": "SC-2", "label": "Story Contradiction", "desc": "Phone number does not match known grandson contact", "type": "warning" }
+      ],
+      "evidence_summary": "Corpus match: 87% similarity to known ore-ore sagi scripts. Sender claimed relationship \"grandson\" but contact graph shows zero connections to any known contact. Behavioral velocity score 0.94 — anomalous trust-building cadence across 7 messages.",
+      "reasoning": "This sender followed the classic ore-ore pattern: establish familiarity (Day 1-3), build emotional bond (Day 4-5), introduce urgency (Day 6), request money (Day 7). The behavioral velocity alone flags this at 0.75 by Day 4. Combined with zero network connections and corpus match, confidence is near-certain.",
+      "alert_type": "ore-ore sagi"
+    },
+    {
+      "id": 2,
+      "sender": "けんじ (unknown)",
+      "sender_jp": "けんじ",
+      "date": "2026-06-04",
+      "risk_score": 0.75,
+      "severity": "critical",
+      "status": "flagged",
+      "reason": "Early warning — behavioral velocity anomaly, no scam signal yet",
+      "signals": [
+        { "code": "BV-1", "label": "Behavioral Velocity", "desc": "Accelerating contact frequency from unknown sender", "type": "warning" },
+        { "code": "BV-3", "label": "Emotional Escalation", "desc": "Increasingly personal tone without established relationship", "type": "warning" }
+      ],
+      "evidence_summary": "No explicit scam signals detected. Flagged on behavioral pattern alone: 4 messages in 4 days from an unverified sender with escalating emotional tone. Velocity score 0.68 — above threshold for early warning.",
+      "reasoning": "The behavioral analyzer cannot yet classify this as scam — there are no financial asks, urgency markers, or identity contradictions. However, the velocity pattern is consistent with the grooming phase of ore-ore sagi. Flagging for family review to maintain human oversight during the ambiguous window.",
+      "alert_type": "behavioral anomaly"
+    },
+    {
+      "id": 3,
+      "sender": "山田花子 (outbound)",
+      "sender_jp": "花子おばあちゃん",
+      "date": "2026-06-07",
+      "risk_score": 0.92,
+      "severity": "critical",
+      "status": "held",
+      "reason": "Outbound interceptor — compliance reply to high-risk sender",
+      "signals": [
+        { "code": "OI-1", "label": "Outbound to Flagged Sender", "desc": "Replying to sender with risk score > 0.75", "type": "danger" },
+        { "code": "OI-3", "label": "Financial Information", "desc": "Message contains bank account reference pattern", "type": "danger" },
+        { "code": "OI-2", "label": "Compliance Language", "desc": "Agreeing to action requested by flagged sender", "type": "warning" }
+      ],
+      "evidence_summary": "Protected user attempted to reply to けんじ (risk 0.98). Outbound message matched financial information pattern (bank account format detected). Compliance language detected: affirmative response to previous request.",
+      "reasoning": "The outbound interceptor held this message because the recipient has a near-certain scam classification. The protected user appears to be complying with the scammer's request. This is the critical interception point — the scam would succeed if this message is delivered.",
+      "alert_type": "outbound intercept"
+    },
+    {
+      "id": 4,
+      "sender": "警察庁 (fake)",
+      "sender_jp": "偽警察庁",
+      "date": "2026-06-02",
+      "risk_score": 0.85,
+      "severity": "critical",
+      "status": "blocked",
+      "reason": "Impersonation of National Police Agency — authority fraud pattern",
+      "signals": [
+        { "code": "II-2", "label": "Authority Impersonation", "desc": "Claims to be 警察庁 (National Police Agency)", "type": "danger" },
+        { "code": "PM-5", "label": "Legal Threat", "desc": "Threatens arrest if action not taken", "type": "danger" },
+        { "code": "PM-6", "label": "Financial Request", "desc": "Payment demanded to \"resolve\" legal matter", "type": "danger" }
+      ],
+      "evidence_summary": "Sender domain does not match any legitimate police communication channel. Message template matches known authority impersonation corpus (92% similarity). No legitimate police contact exists in protected user's history.",
+      "reasoning": "Authority impersonation scams targeting elderly Japanese citizens commonly use police, tax office, or bank identities. This message uses all three canonical markers: false authority, legal threat, and financial demand. Blocked immediately — no ambiguity.",
+      "alert_type": "authority impersonation"
+    },
+    {
+      "id": 5,
+      "sender": "佐藤クリニック",
+      "sender_jp": "佐藤クリニック",
+      "date": "2026-06-05",
+      "risk_score": 0.15,
+      "severity": "low",
+      "status": "released",
+      "reason": "Appointment reminder from known clinic — auto-released after review",
+      "signals": [
+        { "code": "BV-0", "label": "Known Contact", "desc": "Sender in trusted contact list since 2024-03", "type": "" }
+      ],
+      "evidence_summary": "Sender matches known medical provider in contact graph. Message pattern consistent with previous appointment reminders. No anomalous signals detected.",
+      "reasoning": "Briefly flagged by the velocity filter due to an unusual send time (late evening). Automatic review confirmed the sender identity against the contact graph. Auto-released within 30 seconds — no human intervention needed.",
+      "alert_type": "false positive"
+    },
+    {
+      "id": 6,
+      "sender": "田中太郎",
+      "sender_jp": "田中太郎",
+      "date": "2026-06-01",
+      "risk_score": 0.45,
+      "severity": "medium",
+      "status": "flagged",
+      "reason": "Elder abuse signal — financial control pattern from known contact",
+      "signals": [
+        { "code": "EA-1", "label": "Financial Control", "desc": "Repeated requests for account access from close contact", "type": "warning" },
+        { "code": "EA-3", "label": "Isolation Language", "desc": "Discouraging contact with other family members", "type": "warning" }
+      ],
+      "evidence_summary": "田中太郎 is a known contact (friend) but recent messages show a pattern shift: 3 requests for financial information in 2 weeks, combined with language discouraging the protected user from discussing finances with family. Pattern matches EA-1 (financial control) criteria.",
+      "reasoning": "Elder abuse detection operates on a different axis than scam detection. This sender is verified and trusted, but the behavioral pattern has shifted toward financial control. The risk is lower than external scams but the signal warrants family review. Flagging without blocking to preserve the relationship while alerting the family guardian.",
+      "alert_type": "elder abuse signal"
+    }
+  ],
+  "risk_timeline": {
+    "sender_id": "scammer_kenji",
+    "sender_name": "けんじ (Scammer)",
+    "data_points": [
+      { "day": 1, "risk": 0.18, "label": "Introduction", "annotation": "" },
+      { "day": 2, "risk": 0.32, "label": "Rapport building", "annotation": "" },
+      { "day": 3, "risk": 0.50, "label": "Credibility seeding", "annotation": "" },
+      { "day": 4, "risk": 0.75, "label": "Help positioning", "annotation": "BV-1 flag" },
+      { "day": 5, "risk": 0.92, "label": "Crisis introduction", "annotation": "II-1 + SC-2" },
+      { "day": 6, "risk": 1.00, "label": "Financial request", "annotation": "PM-3 + PM-6" },
+      { "day": 7, "risk": 1.00, "label": "Explicit demand", "annotation": "BLOCKED" }
+    ]
+  },
+  "contact_network": {
+    "owner": { "name": "山田花子", "id": "user_tanaka_001" },
+    "contacts": [
+      {
+        "id": "yuki",
+        "name": "ゆき",
+        "name_en": "Grandson",
+        "relationship": "Grandson",
+        "status": "safe",
+        "location": "横浜",
+        "x": 25,
+        "y": 20,
+        "detail": "Verified grandson\nLast contact: 2 days ago\nTrust level: verified"
+      },
+      {
+        "id": "misaki",
+        "name": "美咲",
+        "name_en": "Daughter",
+        "relationship": "Daughter",
+        "status": "safe",
+        "location": "東京",
+        "x": 25,
+        "y": 70,
+        "detail": "美咲 (Misaki)\nFamily guardian\nAlert recipient"
+      },
+      {
+        "id": "tanaka",
+        "name": "太郎",
+        "name_en": "Friend",
+        "relationship": "Friend",
+        "status": "safe",
+        "location": "さいたま",
+        "x": 80,
+        "y": 55,
+        "detail": "田中太郎\nLong-time friend\nEA-1 flag active"
+      },
+      {
+        "id": "clinic",
+        "name": "佐藤C",
+        "name_en": "Clinic",
+        "relationship": "Clinic",
+        "status": "safe",
+        "location": "目黒",
+        "x": 78,
+        "y": 18,
+        "detail": "佐藤クリニック\nMedical provider\nKnown since 2024-03"
+      }
+    ],
+    "threats": [
+      {
+        "id": "kenji",
+        "name": "けんじ",
+        "name_en": "Scammer",
+        "status": "blocked",
+        "claim": "claims to know 田中太郎 but has no connection",
+        "x": 78,
+        "y": 85,
+        "detail": "けんじ (Unknown)\nNo verified connections\nRisk: 0.98 — Blocked"
+      }
+    ],
+    "center_node": {
+      "id": "hanako",
+      "name": "花子",
+      "name_en": "Hanako",
+      "x": 50,
+      "y": 45,
+      "detail": "Protected user\n山田花子 (78)\nSaitama, Japan"
+    },
+    "edges": [
+      ["hanako", "yuki"],
+      ["hanako", "clinic"],
+      ["hanako", "tanaka"],
+      ["hanako", "misaki"]
+    ]
+  },
+  "protection_stats": {
+    "scams_blocked_month": 3,
+    "outbound_held": 1,
+    "false_positives_released": 0,
+    "days_since_last_threat": 23,
+    "last_alert": {
+      "date": "2026-06-07",
+      "recipient": "美咲 (daughter)",
+      "type": "ore-ore sagi blocked",
+      "risk_score": 0.98
+    }
+  },
+  "alert_preferences": {
+    "options": ["Immediate", "Daily Digest", "Weekly"],
+    "active": "Immediate"
+  }
+}

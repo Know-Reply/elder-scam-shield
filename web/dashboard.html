@@ -754,12 +754,8 @@
     </a></li>
   </ul>
 
-  <div class="sidebar-footer">
-    <div class="user-badge">
-      <div class="user-avatar">MS</div>
-      <span>美咲 (Misaki)</span>
-    </div>
-    Family member account
+  <div class="sidebar-footer" id="sidebar-footer">
+    <!-- Populated from API data -->
   </div>
 </aside>
 
@@ -770,7 +766,7 @@
   <div class="topbar">
     <div class="topbar-left">
       <h1>Family Safety Dashboard</h1>
-      <p>Protecting 山田花子 (78) &mdash; Saitama, Japan</p>
+      <p id="topbar-subtitle">Loading...</p>
     </div>
     <div class="topbar-right">
       <div class="topbar-status">
@@ -788,10 +784,10 @@
     <div class="card quarantine-panel" id="section-quarantine">
       <div class="card-header">
         <h2>Quarantine Inbox</h2>
-        <span class="badge-count">4 held</span>
+        <span class="badge-count" id="quarantine-badge">0 held</span>
       </div>
       <div class="card-body" id="quarantine-list">
-        <!-- Items rendered by JS -->
+        <!-- Items rendered by JS from API -->
       </div>
     </div>
 
@@ -800,7 +796,7 @@
          ============================================================ -->
     <div class="card timeline-panel">
       <div class="card-header">
-        <h2>Risk Timeline &mdash; けんじ (Scammer)</h2>
+        <h2 id="timeline-title">Risk Timeline</h2>
       </div>
       <div class="timeline-chart">
         <div class="chart-container">
@@ -819,11 +815,10 @@
       <div class="network-container" id="network-container">
         <svg class="network-svg" id="network-lines"></svg>
         <div id="contact-tooltip" class="contact-tooltip"></div>
-        <!-- Nodes rendered by JS -->
+        <!-- Nodes rendered by JS from API -->
       </div>
-      <div class="network-alert">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span>けんじ claims to know 田中太郎 but has no connection to anyone in the network</span>
+      <div class="network-alert" id="network-alert">
+        <!-- Populated from API data -->
       </div>
     </div>
 
@@ -834,40 +829,16 @@
       <div class="card-header">
         <h2>Protection Summary</h2>
       </div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value danger">3</div>
-          <div class="stat-label">Scams blocked<br>this month</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value warn">1</div>
-          <div class="stat-label">Outbound message<br>held</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value safe">0</div>
-          <div class="stat-label">False positives<br>released</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">23</div>
-          <div class="stat-label">Days since<br>last threat</div>
-        </div>
+      <div class="stats-grid" id="stats-grid">
+        <!-- Populated from API data -->
       </div>
 
-      <div class="summary-section">
-        <div class="summary-section-title">Alert Preferences</div>
-        <div class="alert-prefs">
-          <button class="alert-pref active" onclick="selectPref(this)">Immediate</button>
-          <button class="alert-pref" onclick="selectPref(this)">Daily Digest</button>
-          <button class="alert-pref" onclick="selectPref(this)">Weekly</button>
-        </div>
+      <div class="summary-section" id="alert-prefs-section">
+        <!-- Populated from API data -->
       </div>
 
-      <div class="summary-section">
-        <div class="summary-section-title">Last Alert Sent</div>
-        <div class="last-alert">
-          <strong>2026-06-07</strong> to 美咲 (daughter)<br>
-          Ore-ore sagi blocked &mdash; risk score 0.98
-        </div>
+      <div class="summary-section" id="last-alert-section">
+        <!-- Populated from API data -->
       </div>
     </div>
 
@@ -876,21 +847,22 @@
 
 <script>
 // ================================================================
+// GLOBAL STATE — populated from API
+// ================================================================
+let dashboardData = null;
+
+// ================================================================
 // SIDEBAR NAVIGATION
 // ================================================================
 function navTo(section, el) {
-  // Update active nav
   document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
   el.classList.add('active');
-  // Close mobile sidebar
   document.querySelector('.sidebar').classList.remove('open');
 
   if (section === 'all') {
-    // Dashboard view — show all panels, scroll to top
     document.querySelectorAll('.content .card').forEach(function(c) { c.style.display = ''; });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
-    // Section view — scroll to that panel and highlight it
     var target = document.getElementById('section-' + section);
     if (target) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -901,194 +873,99 @@ function navTo(section, el) {
 }
 
 // ================================================================
-// DATA
+// RENDER: SIDEBAR FOOTER
 // ================================================================
-
-const quarantineItems = [
-  {
-    id: 1,
-    sender: "けんじ (unknown)",
-    senderJp: "けんじ",
-    date: "2026-06-07",
-    risk: 0.98,
-    status: "blocked",
-    reason: "Ore-ore sagi — multi-day social engineering, Day 7 money request",
-    signals: [
-      { code: "BV-1", label: "Behavioral Velocity", desc: "Trust-building over 7 days before financial ask", type: "danger" },
-      { code: "PM-3", label: "Extreme Urgency", desc: "\"Today\" deadline with emotional pressure", type: "danger" },
-      { code: "PM-6", label: "Financial Request", desc: "Bank transfer to unverifiable account", type: "danger" },
-      { code: "II-1", label: "Identity Impersonation", desc: "Claims to be grandson \"ゆき\"", type: "danger" },
-      { code: "SC-2", label: "Story Contradiction", desc: "Phone number does not match known grandson contact", type: "warning" }
-    ],
-    evidence: "Corpus match: 87% similarity to known ore-ore sagi scripts. Sender claimed relationship \"grandson\" but contact graph shows zero connections to any known contact. Behavioral velocity score 0.94 — anomalous trust-building cadence across 7 messages.",
-    reasoning: "This sender followed the classic ore-ore pattern: establish familiarity (Day 1-3), build emotional bond (Day 4-5), introduce urgency (Day 6), request money (Day 7). The behavioral velocity alone flags this at 0.75 by Day 4. Combined with zero network connections and corpus match, confidence is near-certain."
-  },
-  {
-    id: 2,
-    sender: "けんじ (unknown)",
-    senderJp: "けんじ",
-    date: "2026-06-04",
-    risk: 0.75,
-    status: "flagged",
-    reason: "Early warning — behavioral velocity anomaly, no scam signal yet",
-    signals: [
-      { code: "BV-1", label: "Behavioral Velocity", desc: "Accelerating contact frequency from unknown sender", type: "warning" },
-      { code: "BV-3", label: "Emotional Escalation", desc: "Increasingly personal tone without established relationship", type: "warning" }
-    ],
-    evidence: "No explicit scam signals detected. Flagged on behavioral pattern alone: 4 messages in 4 days from an unverified sender with escalating emotional tone. Velocity score 0.68 — above threshold for early warning.",
-    reasoning: "The behavioral analyzer cannot yet classify this as scam — there are no financial asks, urgency markers, or identity contradictions. However, the velocity pattern is consistent with the grooming phase of ore-ore sagi. Flagging for family review to maintain human oversight during the ambiguous window."
-  },
-  {
-    id: 3,
-    sender: "山田花子 (outbound)",
-    senderJp: "花子おばあちゃん",
-    date: "2026-06-07",
-    risk: 0.92,
-    status: "held",
-    reason: "Outbound interceptor — compliance reply to high-risk sender",
-    signals: [
-      { code: "OI-1", label: "Outbound to Flagged Sender", desc: "Replying to sender with risk score > 0.75", type: "danger" },
-      { code: "OI-3", label: "Financial Information", desc: "Message contains bank account reference pattern", type: "danger" },
-      { code: "OI-2", label: "Compliance Language", desc: "Agreeing to action requested by flagged sender", type: "warning" }
-    ],
-    evidence: "Protected user attempted to reply to けんじ (risk 0.98). Outbound message matched financial information pattern (bank account format detected). Compliance language detected: affirmative response to previous request.",
-    reasoning: "The outbound interceptor held this message because the recipient has a near-certain scam classification. The protected user appears to be complying with the scammer's request. This is the critical interception point — the scam would succeed if this message is delivered."
-  },
-  {
-    id: 4,
-    sender: "警察庁 (fake)",
-    senderJp: "偽警察庁",
-    date: "2026-06-02",
-    risk: 0.85,
-    status: "blocked",
-    reason: "Impersonation of National Police Agency — authority fraud pattern",
-    signals: [
-      { code: "II-2", label: "Authority Impersonation", desc: "Claims to be 警察庁 (National Police Agency)", type: "danger" },
-      { code: "PM-5", label: "Legal Threat", desc: "Threatens arrest if action not taken", type: "danger" },
-      { code: "PM-6", label: "Financial Request", desc: "Payment demanded to \"resolve\" legal matter", type: "danger" }
-    ],
-    evidence: "Sender domain does not match any legitimate police communication channel. Message template matches known authority impersonation corpus (92% similarity). No legitimate police contact exists in protected user's history.",
-    reasoning: "Authority impersonation scams targeting elderly Japanese citizens commonly use police, tax office, or bank identities. This message uses all three canonical markers: false authority, legal threat, and financial demand. Blocked immediately — no ambiguity."
-  },
-  {
-    id: 5,
-    sender: "佐藤クリニック",
-    senderJp: "佐藤クリニック",
-    date: "2026-06-05",
-    risk: 0.15,
-    status: "released",
-    reason: "Appointment reminder from known clinic — auto-released after review",
-    signals: [
-      { code: "BV-0", label: "Known Contact", desc: "Sender in trusted contact list since 2024-03", type: "" }
-    ],
-    evidence: "Sender matches known medical provider in contact graph. Message pattern consistent with previous appointment reminders. No anomalous signals detected.",
-    reasoning: "Briefly flagged by the velocity filter due to an unusual send time (late evening). Automatic review confirmed the sender identity against the contact graph. Auto-released within 30 seconds — no human intervention needed."
-  },
-  {
-    id: 6,
-    sender: "田中太郎",
-    senderJp: "田中太郎",
-    date: "2026-06-01",
-    risk: 0.45,
-    status: "flagged",
-    reason: "Elder abuse signal — financial control pattern from known contact",
-    signals: [
-      { code: "EA-1", label: "Financial Control", desc: "Repeated requests for account access from close contact", type: "warning" },
-      { code: "EA-3", label: "Isolation Language", desc: "Discouraging contact with other family members", type: "warning" }
-    ],
-    evidence: "田中太郎 is a known contact (friend) but recent messages show a pattern shift: 3 requests for financial information in 2 weeks, combined with language discouraging the protected user from discussing finances with family. Pattern matches EA-1 (financial control) criteria.",
-    reasoning: "Elder abuse detection operates on a different axis than scam detection. This sender is verified and trusted, but the behavioral pattern has shifted toward financial control. The risk is lower than external scams but the signal warrants family review. Flagging without blocking to preserve the relationship while alerting the family guardian."
-  }
-];
-
-const contactNodes = [
-  { id: "hanako", name: "花子", nameEn: "Hanako", type: "center", x: 50, y: 45, detail: "Protected user\n山田花子 (78)\nSaitama, Japan" },
-  { id: "yuki",   name: "ゆき", nameEn: "Grandson", type: "safe", x: 25, y: 20, detail: "Verified grandson\nLast contact: 2 days ago\nTrust level: verified" },
-  { id: "clinic", name: "佐藤C", nameEn: "Clinic", type: "safe", x: 78, y: 18, detail: "佐藤クリニック\nMedical provider\nKnown since 2024-03" },
-  { id: "tanaka", name: "太郎", nameEn: "Friend", type: "safe", x: 80, y: 55, detail: "田中太郎\nLong-time friend\nEA-1 flag active" },
-  { id: "misaki", name: "美咲", nameEn: "Daughter", type: "safe", x: 25, y: 70, detail: "美咲 (Misaki)\nFamily guardian\nAlert recipient" },
-  { id: "kenji",  name: "けんじ", nameEn: "Scammer", type: "danger", x: 78, y: 85, detail: "けんじ (Unknown)\nNo verified connections\nRisk: 0.98 — Blocked" }
-];
-
-const contactEdges = [
-  ["hanako", "yuki"],
-  ["hanako", "clinic"],
-  ["hanako", "tanaka"],
-  ["hanako", "misaki"]
-];
+function renderSidebarFooter(data) {
+  var fm = data.family_member;
+  document.getElementById('sidebar-footer').innerHTML =
+    '<div class="user-badge">' +
+      '<div class="user-avatar">' + fm.initials + '</div>' +
+      '<span>' + fm.name + ' (' + fm.name_en + ')</span>' +
+    '</div>' +
+    fm.role;
+}
 
 // ================================================================
-// QUARANTINE INBOX
+// RENDER: TOPBAR
 // ================================================================
+function renderTopbar(data) {
+  var u = data.user;
+  document.getElementById('topbar-subtitle').innerHTML =
+    'Protecting ' + u.name + ' (' + u.age + ') &mdash; ' + u.location;
+}
 
-function renderQuarantine() {
-  const list = document.getElementById("quarantine-list");
-  list.innerHTML = quarantineItems.map(item => {
-    const riskClass = item.risk >= 0.75 ? "critical" : item.risk >= 0.5 ? "high" : item.risk >= 0.25 ? "medium" : "low";
-    const riskBadgeClass = item.risk >= 0.75 ? "risk-critical" : item.risk >= 0.5 ? "risk-high" : item.risk >= 0.25 ? "risk-medium" : "risk-low";
+// ================================================================
+// RENDER: QUARANTINE INBOX
+// ================================================================
+function renderQuarantine(items) {
+  // Count held items
+  var heldCount = items.filter(function(i) {
+    return i.status === 'held' || i.status === 'blocked' || i.status === 'flagged';
+  }).length;
+  document.getElementById('quarantine-badge').textContent = heldCount + ' held';
 
-    return `
-      <div class="q-item" data-id="${item.id}" onclick="toggleItem(this)">
-        <div class="q-item-summary">
-          <div class="q-risk-badge ${riskBadgeClass}">${item.risk.toFixed(2)}</div>
-          <div class="q-item-info">
-            <div class="q-item-sender">
-              ${item.sender}
-            </div>
-            <div class="q-item-reason">${item.reason}</div>
-          </div>
-          <div class="q-item-meta">
-            <div class="q-item-date">${item.date}</div>
-            <span class="q-status-tag ${item.status}">${item.status}</span>
-          </div>
-        </div>
-        <div class="q-item-details">
-          <div class="q-detail-section">
-            <div class="q-detail-label">Risk Score</div>
-            <div class="risk-gauge">
-              <div class="risk-gauge-fill ${riskClass}" style="width:${item.risk * 100}%"></div>
-            </div>
-            <div class="risk-gauge-value">${item.risk.toFixed(2)} / 1.00</div>
-          </div>
+  var list = document.getElementById("quarantine-list");
+  list.innerHTML = items.map(function(item) {
+    var risk = item.risk_score;
+    var riskClass = risk >= 0.75 ? "critical" : risk >= 0.5 ? "high" : risk >= 0.25 ? "medium" : "low";
+    var riskBadgeClass = risk >= 0.75 ? "risk-critical" : risk >= 0.5 ? "risk-high" : risk >= 0.25 ? "risk-medium" : "risk-low";
 
-          <div class="q-detail-section">
-            <div class="q-detail-label">Detected Signals</div>
-            ${item.signals.map(s => `<span class="signal-tag ${s.type}"><strong>${s.code}</strong> ${s.label} &mdash; ${s.desc}</span>`).join("")}
-          </div>
-
-          <div class="q-detail-section">
-            <div class="q-detail-label">Evidence Summary</div>
-            <div class="evidence-text">${item.evidence}</div>
-          </div>
-
-          <div class="q-detail-section">
-            <div class="q-detail-label">Behavioral Analyzer Reasoning</div>
-            <div class="reasoning-text">${item.reasoning}</div>
-          </div>
-
-          <div class="q-detail-section">
-            <div class="q-detail-label">Message Content</div>
-            <div class="content-redacted">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Content not displayed — signals and evidence shown instead (privacy-preserving design)
-            </div>
-          </div>
-
-          <div class="q-actions">
-            ${item.status !== "released" ?
-              `<button class="btn btn-release" onclick="releaseItem(event, ${item.id})">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Release
-              </button>` : ""}
-            ${item.status !== "blocked" ?
-              `<button class="btn btn-block" onclick="blockItem(event, ${item.id})">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                Block
-              </button>` : ""}
-            <div class="action-confirm" id="confirm-${item.id}"></div>
-          </div>
-        </div>
-      </div>`;
+    return '<div class="q-item" data-id="' + item.id + '" onclick="toggleItem(this)">' +
+      '<div class="q-item-summary">' +
+        '<div class="q-risk-badge ' + riskBadgeClass + '">' + risk.toFixed(2) + '</div>' +
+        '<div class="q-item-info">' +
+          '<div class="q-item-sender">' + item.sender + '</div>' +
+          '<div class="q-item-reason">' + item.reason + '</div>' +
+        '</div>' +
+        '<div class="q-item-meta">' +
+          '<div class="q-item-date">' + item.date + '</div>' +
+          '<span class="q-status-tag ' + item.status + '">' + item.status + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="q-item-details">' +
+        '<div class="q-detail-section">' +
+          '<div class="q-detail-label">Risk Score</div>' +
+          '<div class="risk-gauge">' +
+            '<div class="risk-gauge-fill ' + riskClass + '" style="width:' + (risk * 100) + '%"></div>' +
+          '</div>' +
+          '<div class="risk-gauge-value">' + risk.toFixed(2) + ' / 1.00</div>' +
+        '</div>' +
+        '<div class="q-detail-section">' +
+          '<div class="q-detail-label">Detected Signals</div>' +
+          item.signals.map(function(s) {
+            return '<span class="signal-tag ' + s.type + '"><strong>' + s.code + '</strong> ' + s.label + ' &mdash; ' + s.desc + '</span>';
+          }).join("") +
+        '</div>' +
+        '<div class="q-detail-section">' +
+          '<div class="q-detail-label">Evidence Summary</div>' +
+          '<div class="evidence-text">' + item.evidence_summary + '</div>' +
+        '</div>' +
+        '<div class="q-detail-section">' +
+          '<div class="q-detail-label">Behavioral Analyzer Reasoning</div>' +
+          '<div class="reasoning-text">' + item.reasoning + '</div>' +
+        '</div>' +
+        '<div class="q-detail-section">' +
+          '<div class="q-detail-label">Message Content</div>' +
+          '<div class="content-redacted">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>' +
+            'Content not displayed — signals and evidence shown instead (privacy-preserving design)' +
+          '</div>' +
+        '</div>' +
+        '<div class="q-actions">' +
+          (item.status !== "released" ?
+            '<button class="btn btn-release" onclick="releaseItem(event, ' + item.id + ')">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+              'Release' +
+            '</button>' : "") +
+          (item.status !== "blocked" ?
+            '<button class="btn btn-block" onclick="blockItem(event, ' + item.id + ')">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+              'Block' +
+            '</button>' : "") +
+          '<div class="action-confirm" id="confirm-' + item.id + '"></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }).join("");
 }
 
@@ -1096,72 +973,75 @@ function toggleItem(el) {
   if (el.classList.contains("expanded")) {
     el.classList.remove("expanded");
   } else {
-    document.querySelectorAll(".q-item.expanded").forEach(e => e.classList.remove("expanded"));
+    document.querySelectorAll(".q-item.expanded").forEach(function(e) { e.classList.remove("expanded"); });
     el.classList.add("expanded");
   }
 }
 
 function releaseItem(e, id) {
   e.stopPropagation();
-  const item = document.querySelector(`.q-item[data-id="${id}"]`);
-  const tag = item.querySelector(".q-status-tag");
+  var item = document.querySelector('.q-item[data-id="' + id + '"]');
+  var tag = item.querySelector(".q-status-tag");
   tag.className = "q-status-tag released";
   tag.textContent = "released";
-  const confirm = document.getElementById(`confirm-${id}`);
+  var confirm = document.getElementById("confirm-" + id);
   confirm.className = "action-confirm released-confirm show";
   confirm.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Released — message delivered';
-  item.querySelectorAll(".btn").forEach(b => b.disabled = true);
+  item.querySelectorAll(".btn").forEach(function(b) { b.disabled = true; });
 }
 
 function blockItem(e, id) {
   e.stopPropagation();
-  const item = document.querySelector(`.q-item[data-id="${id}"]`);
-  const tag = item.querySelector(".q-status-tag");
+  var item = document.querySelector('.q-item[data-id="' + id + '"]');
+  var tag = item.querySelector(".q-status-tag");
   tag.className = "q-status-tag blocked";
   tag.textContent = "blocked";
-  const confirm = document.getElementById(`confirm-${id}`);
+  var confirm = document.getElementById("confirm-" + id);
   confirm.className = "action-confirm blocked-confirm show";
   confirm.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Blocked — sender quarantined';
-  item.querySelectorAll(".btn").forEach(b => b.disabled = true);
+  item.querySelectorAll(".btn").forEach(function(b) { b.disabled = true; });
 }
 
 // ================================================================
-// RISK TIMELINE CHART (Canvas)
+// RENDER: RISK TIMELINE CHART (Canvas)
 // ================================================================
-
 function drawRiskChart() {
-  const canvas = document.getElementById("risk-chart");
-  const ctx = canvas.getContext("2d");
-  const dpr = window.devicePixelRatio || 1;
+  if (!dashboardData) return;
 
-  const rect = canvas.parentElement.getBoundingClientRect();
+  var timeline = dashboardData.risk_timeline;
+  var canvas = document.getElementById("risk-chart");
+  var ctx = canvas.getContext("2d");
+  var dpr = window.devicePixelRatio || 1;
+
+  var rect = canvas.parentElement.getBoundingClientRect();
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
   canvas.style.width = rect.width + "px";
   canvas.style.height = rect.height + "px";
   ctx.scale(dpr, dpr);
 
-  const W = rect.width;
-  const H = rect.height;
-  const pad = { top: 20, right: 20, bottom: 36, left: 40 };
-  const cw = W - pad.left - pad.right;
-  const ch = H - pad.top - pad.bottom;
+  var W = rect.width;
+  var H = rect.height;
+  var pad = { top: 20, right: 20, bottom: 36, left: 40 };
+  var cw = W - pad.left - pad.right;
+  var ch = H - pad.top - pad.bottom;
 
-  const data = [0.18, 0.32, 0.50, 0.75, 0.92, 1.00, 1.00];
-  const labels = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
-  const annotations = ["", "", "", "BV-1 flag", "II-1 + SC-2", "PM-3 + PM-6", "BLOCKED"];
+  var dataPoints = timeline.data_points;
+  var data = dataPoints.map(function(p) { return p.risk; });
+  var labels = dataPoints.map(function(p) { return "Day " + p.day; });
+  var annotations = dataPoints.map(function(p) { return p.annotation; });
 
   // Background zones
-  const zones = [
+  var zones = [
     { from: 0, to: 0.25, color: "rgba(22,163,74,0.07)" },
     { from: 0.25, to: 0.50, color: "rgba(245,158,11,0.07)" },
     { from: 0.50, to: 0.75, color: "rgba(234,88,12,0.07)" },
     { from: 0.75, to: 1.00, color: "rgba(220,38,38,0.07)" }
   ];
 
-  zones.forEach(z => {
-    const y1 = pad.top + ch * (1 - z.to);
-    const y2 = pad.top + ch * (1 - z.from);
+  zones.forEach(function(z) {
+    var y1 = pad.top + ch * (1 - z.to);
+    var y2 = pad.top + ch * (1 - z.from);
     ctx.fillStyle = z.color;
     ctx.fillRect(pad.left, y1, cw, y2 - y1);
   });
@@ -1169,8 +1049,8 @@ function drawRiskChart() {
   // Grid lines
   ctx.strokeStyle = "#e2e8f0";
   ctx.lineWidth = 1;
-  [0, 0.25, 0.5, 0.75, 1.0].forEach(v => {
-    const y = pad.top + ch * (1 - v);
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(function(v) {
+    var y = pad.top + ch * (1 - v);
     ctx.beginPath();
     ctx.moveTo(pad.left, y);
     ctx.lineTo(pad.left + cw, y);
@@ -1186,8 +1066,8 @@ function drawRiskChart() {
   ctx.textAlign = "center";
   ctx.fillStyle = "#64748b";
   ctx.font = "11px -apple-system, sans-serif";
-  data.forEach((_, i) => {
-    const x = pad.left + (i / (data.length - 1)) * cw;
+  data.forEach(function(_, i) {
+    var x = pad.left + (i / (data.length - 1)) * cw;
     ctx.fillText(labels[i], x, H - pad.bottom + 18);
   });
 
@@ -1196,33 +1076,33 @@ function drawRiskChart() {
   ctx.strokeStyle = "#dc2626";
   ctx.lineWidth = 2.5;
   ctx.lineJoin = "round";
-  data.forEach((v, i) => {
-    const x = pad.left + (i / (data.length - 1)) * cw;
-    const y = pad.top + ch * (1 - v);
+  data.forEach(function(v, i) {
+    var x = pad.left + (i / (data.length - 1)) * cw;
+    var y = pad.top + ch * (1 - v);
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   });
   ctx.stroke();
 
   // Area fill
   ctx.beginPath();
-  data.forEach((v, i) => {
-    const x = pad.left + (i / (data.length - 1)) * cw;
-    const y = pad.top + ch * (1 - v);
+  data.forEach(function(v, i) {
+    var x = pad.left + (i / (data.length - 1)) * cw;
+    var y = pad.top + ch * (1 - v);
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   });
   ctx.lineTo(pad.left + cw, pad.top + ch);
   ctx.lineTo(pad.left, pad.top + ch);
   ctx.closePath();
-  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  var grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
   grad.addColorStop(0, "rgba(220,38,38,0.15)");
   grad.addColorStop(1, "rgba(220,38,38,0.02)");
   ctx.fillStyle = grad;
   ctx.fill();
 
   // Points and annotations
-  data.forEach((v, i) => {
-    const x = pad.left + (i / (data.length - 1)) * cw;
-    const y = pad.top + ch * (1 - v);
+  data.forEach(function(v, i) {
+    var x = pad.left + (i / (data.length - 1)) * cw;
+    var y = pad.top + ch * (1 - v);
 
     ctx.beginPath();
     ctx.arc(x, y, 4, 0, Math.PI * 2);
@@ -1236,74 +1116,119 @@ function drawRiskChart() {
       ctx.fillStyle = "#475569";
       ctx.font = "bold 9px -apple-system, sans-serif";
       ctx.textAlign = "center";
-      const offY = i >= 5 ? 18 : -10;
+      var offY = i >= 5 ? 18 : -10;
       ctx.fillText(annotations[i], x, y + offY);
     }
   });
 }
 
 // ================================================================
-// CONTACT NETWORK
+// RENDER: CONTACT NETWORK
 // ================================================================
 
+// Build flat node list from API data for rendering
+function buildContactNodes(network) {
+  var nodes = [];
+
+  // Center node (owner)
+  var cn = network.center_node;
+  nodes.push({
+    id: cn.id, name: cn.name, nameEn: cn.name_en,
+    type: "center", x: cn.x, y: cn.y, detail: cn.detail
+  });
+
+  // Safe contacts
+  network.contacts.forEach(function(c) {
+    nodes.push({
+      id: c.id, name: c.name, nameEn: c.name_en,
+      type: "safe", x: c.x, y: c.y, detail: c.detail
+    });
+  });
+
+  // Threats
+  network.threats.forEach(function(t) {
+    nodes.push({
+      id: t.id, name: t.name, nameEn: t.name_en,
+      type: "danger", x: t.x, y: t.y, detail: t.detail
+    });
+  });
+
+  return nodes;
+}
+
 function renderNetwork() {
-  const container = document.getElementById("network-container");
-  const svgEl = document.getElementById("network-lines");
-  const cw = container.offsetWidth;
-  const ch = container.offsetHeight;
+  if (!dashboardData) return;
+
+  var network = dashboardData.contact_network;
+  var contactNodes = buildContactNodes(network);
+  var contactEdges = network.edges;
+
+  var container = document.getElementById("network-container");
+  var svgEl = document.getElementById("network-lines");
+  var cw = container.offsetWidth;
+  var ch = container.offsetHeight;
 
   // Draw edges
-  let svgContent = "";
-  contactEdges.forEach(([fromId, toId]) => {
-    const from = contactNodes.find(n => n.id === fromId);
-    const to = contactNodes.find(n => n.id === toId);
-    const x1 = (from.x / 100) * cw;
-    const y1 = (from.y / 100) * ch;
-    const x2 = (to.x / 100) * cw;
-    const y2 = (to.y / 100) * ch;
-    svgContent += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,4"/>`;
+  var svgContent = "";
+  contactEdges.forEach(function(edge) {
+    var fromId = edge[0];
+    var toId = edge[1];
+    var from = contactNodes.find(function(n) { return n.id === fromId; });
+    var to = contactNodes.find(function(n) { return n.id === toId; });
+    var x1 = (from.x / 100) * cw;
+    var y1 = (from.y / 100) * ch;
+    var x2 = (to.x / 100) * cw;
+    var y2 = (to.y / 100) * ch;
+    svgContent += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,4"/>';
   });
   svgEl.innerHTML = svgContent;
 
   // Remove old nodes
-  container.querySelectorAll(".network-node").forEach(n => n.remove());
+  container.querySelectorAll(".network-node").forEach(function(n) { n.remove(); });
 
   // Render nodes
-  contactNodes.forEach(node => {
-    const el = document.createElement("div");
+  contactNodes.forEach(function(node) {
+    var el = document.createElement("div");
     el.className = "network-node";
-    el.style.left = `calc(${node.x}% - 21px)`;
-    el.style.top = `calc(${node.y}% - 21px)`;
+    el.style.left = "calc(" + node.x + "% - 21px)";
+    el.style.top = "calc(" + node.y + "% - 21px)";
     if (node.type === "center") {
-      el.style.left = `calc(${node.x}% - 28px)`;
-      el.style.top = `calc(${node.y}% - 28px)`;
+      el.style.left = "calc(" + node.x + "% - 28px)";
+      el.style.top = "calc(" + node.y + "% - 28px)";
     }
-    el.innerHTML = `
-      <div class="node-circle ${node.type}">${node.name}</div>
-      <span class="node-label-en">${node.nameEn}</span>
-    `;
-    el.addEventListener("mouseenter", (e) => showTooltip(e, node));
+    el.innerHTML =
+      '<div class="node-circle ' + node.type + '">' + node.name + '</div>' +
+      '<span class="node-label-en">' + node.nameEn + '</span>';
+    el.addEventListener("mouseenter", function(e) { showTooltip(e, node); });
     el.addEventListener("mouseleave", hideTooltip);
-    el.addEventListener("click", (e) => { e.stopPropagation(); });
+    el.addEventListener("click", function(e) { e.stopPropagation(); });
     container.appendChild(el);
   });
+
+  // Network alert
+  var alertEl = document.getElementById("network-alert");
+  if (network.threats.length > 0) {
+    var threat = network.threats[0];
+    alertEl.innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' +
+      '<span>' + threat.name + ' ' + threat.claim + ' to anyone in the network</span>';
+  }
 }
 
 function showTooltip(e, node) {
-  const tt = document.getElementById("contact-tooltip");
-  const lines = node.detail.split("\n");
-  tt.innerHTML = `<div class="tt-name">${lines[0]}</div>` +
-    lines.slice(1).map(l => `<div class="tt-detail">${l}</div>`).join("");
+  var tt = document.getElementById("contact-tooltip");
+  var lines = node.detail.split("\n");
+  tt.innerHTML = '<div class="tt-name">' + lines[0] + '</div>' +
+    lines.slice(1).map(function(l) { return '<div class="tt-detail">' + l + '</div>'; }).join("");
   tt.classList.add("show");
 
-  const container = document.getElementById("network-container");
-  const rect = container.getBoundingClientRect();
-  const nodeRect = e.currentTarget.getBoundingClientRect();
+  var container = document.getElementById("network-container");
+  var rect = container.getBoundingClientRect();
+  var nodeRect = e.currentTarget.getBoundingClientRect();
 
-  let left = nodeRect.left - rect.left + nodeRect.width / 2;
-  let top = nodeRect.top - rect.top - 10;
+  var left = nodeRect.left - rect.left + nodeRect.width / 2;
+  var top = nodeRect.top - rect.top - 10;
 
-  // Keep within bounds
   if (left > rect.width - 120) left = rect.width - 140;
   if (left < 60) left = 60;
 
@@ -1316,26 +1241,97 @@ function hideTooltip() {
 }
 
 // ================================================================
-// ALERT PREFS
+// RENDER: PROTECTION SUMMARY
 // ================================================================
+function renderProtectionStats(stats) {
+  var grid = document.getElementById("stats-grid");
+  grid.innerHTML =
+    '<div class="stat-card">' +
+      '<div class="stat-value danger">' + stats.scams_blocked_month + '</div>' +
+      '<div class="stat-label">Scams blocked<br>this month</div>' +
+    '</div>' +
+    '<div class="stat-card">' +
+      '<div class="stat-value warn">' + stats.outbound_held + '</div>' +
+      '<div class="stat-label">Outbound message<br>held</div>' +
+    '</div>' +
+    '<div class="stat-card">' +
+      '<div class="stat-value safe">' + stats.false_positives_released + '</div>' +
+      '<div class="stat-label">False positives<br>released</div>' +
+    '</div>' +
+    '<div class="stat-card">' +
+      '<div class="stat-value">' + stats.days_since_last_threat + '</div>' +
+      '<div class="stat-label">Days since<br>last threat</div>' +
+    '</div>';
+}
+
+function renderAlertPrefs(prefs) {
+  var section = document.getElementById("alert-prefs-section");
+  section.innerHTML =
+    '<div class="summary-section-title">Alert Preferences</div>' +
+    '<div class="alert-prefs">' +
+      prefs.options.map(function(opt) {
+        var cls = opt === prefs.active ? "alert-pref active" : "alert-pref";
+        return '<button class="' + cls + '" onclick="selectPref(this)">' + opt + '</button>';
+      }).join("") +
+    '</div>';
+}
+
+function renderLastAlert(alert) {
+  var section = document.getElementById("last-alert-section");
+  section.innerHTML =
+    '<div class="summary-section-title">Last Alert Sent</div>' +
+    '<div class="last-alert">' +
+      '<strong>' + alert.date + '</strong> to ' + alert.recipient + '<br>' +
+      'Ore-ore sagi blocked &mdash; risk score ' + alert.risk_score +
+    '</div>';
+}
 
 function selectPref(el) {
-  el.parentElement.querySelectorAll(".alert-pref").forEach(b => b.classList.remove("active"));
+  el.parentElement.querySelectorAll(".alert-pref").forEach(function(b) { b.classList.remove("active"); });
   el.classList.add("active");
 }
 
 // ================================================================
-// INIT
+// RENDER: TIMELINE TITLE
 // ================================================================
+function renderTimelineTitle(timeline) {
+  document.getElementById("timeline-title").innerHTML =
+    'Risk Timeline &mdash; ' + timeline.sender_name;
+}
 
-function init() {
-  renderQuarantine();
+// ================================================================
+// INIT — fetch data and render
+// ================================================================
+async function init() {
+  try {
+    var response = await fetch("/api/dashboard/data");
+    dashboardData = await response.json();
+  } catch (e) {
+    console.error("Failed to fetch dashboard data:", e);
+    // Fallback: try loading from a local path for static file serving
+    try {
+      var fallback = await fetch("/data/dashboard_seed.json");
+      dashboardData = await fallback.json();
+    } catch (e2) {
+      console.error("Fallback also failed:", e2);
+      document.getElementById("topbar-subtitle").textContent = "Error loading dashboard data";
+      return;
+    }
+  }
+
+  renderSidebarFooter(dashboardData);
+  renderTopbar(dashboardData);
+  renderQuarantine(dashboardData.quarantine);
+  renderTimelineTitle(dashboardData.risk_timeline);
   drawRiskChart();
   renderNetwork();
+  renderProtectionStats(dashboardData.protection_stats);
+  renderAlertPrefs(dashboardData.alert_preferences);
+  renderLastAlert(dashboardData.protection_stats.last_alert);
 }
 
 window.addEventListener("load", init);
-window.addEventListener("resize", () => {
+window.addEventListener("resize", function() {
   drawRiskChart();
   renderNetwork();
 });
