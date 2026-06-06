@@ -1833,9 +1833,6 @@ body {
     // Add day divider to thread
     var thread = $('thread');
 
-    // Remove welcome prompt if present
-    var welcome = document.getElementById('thread-welcome');
-    if (welcome) welcome.remove();
     var sep = document.createElement('div');
     sep.className = 'day-divider';
     sep.id = 'day-div-' + day.day;
@@ -1949,6 +1946,10 @@ body {
   //  SELECT CHOICE — all choices go through live Gemini
   // =========================================================
   function selectChoice(choiceIdx) {
+    // Remove welcome prompt on first interaction
+    var welcome = document.getElementById('thread-welcome');
+    if (welcome) welcome.remove();
+
     var day = DAYS[state.currentDay];
     var c = day.choices[choiceIdx];
     state.choices.push(choiceIdx);
