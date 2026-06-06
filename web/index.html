@@ -2118,40 +2118,47 @@ body {
   //  REVEAL
   // =========================================================
   function showReveal() {
+    var threadCol = document.querySelector('.thread-col');
     var thread = $('thread');
-    var choicesDiv = $('choices');
+    var bottomBar = $('bottom-bar');
     var revealScreen = $('screen-reveal');
 
-    // Build tab bar above the thread
+    // Hide the choices bar
+    bottomBar.style.display = 'none';
+
+    // Prepare reveal content
+    revealScreen.classList.remove('screen');
+    revealScreen.style.display = 'none'; // hidden initially, Results tab shows it
+
+    // Insert tab bar after the header, before the thread
+    var header = threadCol.querySelector('.thread-col-header');
     var tabBar = document.createElement('div');
     tabBar.className = 'sim-tabs';
     tabBar.innerHTML =
       '<button class="sim-tab" id="tab-chat">Conversation</button>' +
       '<button class="sim-tab active" id="tab-results">Results</button>';
-    thread.parentNode.insertBefore(tabBar, thread);
+    header.after(tabBar);
 
-    // Prepare reveal content
-    revealScreen.classList.remove('screen');
-    revealScreen.style.display = 'block';
-    revealScreen.id = 'results-panel';
+    // Insert reveal content after the thread
+    thread.after(revealScreen);
 
-    // Hide chat, show results by default
+    // Show Results tab by default
     thread.style.display = 'none';
-    choicesDiv.style.display = 'none';
-    thread.parentNode.insertBefore(revealScreen, choicesDiv);
+    revealScreen.style.display = 'block';
 
     // Tab switching
-    document.getElementById('tab-chat').addEventListener('click', function() {
-      thread.style.display = '';
-      revealScreen.style.display = 'none';
-      this.classList.add('active');
-      document.getElementById('tab-results').classList.remove('active');
-    });
-    document.getElementById('tab-results').addEventListener('click', function() {
-      thread.style.display = 'none';
-      revealScreen.style.display = 'block';
-      this.classList.add('active');
-      document.getElementById('tab-chat').classList.remove('active');
+    tabBar.addEventListener('click', function(e) {
+      var btn = e.target.closest('.sim-tab');
+      if (!btn) return;
+      tabBar.querySelectorAll('.sim-tab').forEach(function(t) { t.classList.remove('active'); });
+      btn.classList.add('active');
+      if (btn.id === 'tab-chat') {
+        thread.style.display = '';
+        revealScreen.style.display = 'none';
+      } else {
+        thread.style.display = 'none';
+        revealScreen.style.display = 'block';
+      }
     });
 
     // Count how many messages the per-message classifier flagged
