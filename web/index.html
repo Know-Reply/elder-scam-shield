@@ -2390,7 +2390,12 @@ body {
         financial: '\u2014'
       }
     };
-    $('thread').innerHTML = '';
+    $('thread').innerHTML =
+      '<div id="thread-welcome" class="thread-welcome">' +
+        '<div class="welcome-arrow">&#8595;</div>' +
+        '<div class="welcome-title">Choose a message below to begin</div>' +
+        '<div class="welcome-sub">Pick one of the three approaches — or write your own.<br>Watch how Elder Scam Shield analyzes each message compared to traditional protection.</div>' +
+      '</div>';
     $('choices').innerHTML = '';
     $('sp-risk-fill').style.width = '5%';
     $('sp-risk-fill').className = 'risk-gauge-fill risk-low';
