@@ -221,6 +221,7 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   overflow: hidden;
+  margin-bottom: 32px;
 }
 
 .thread-col-header {
@@ -1168,7 +1169,7 @@ body {
             </div>
           </div>
           <div class="systems-comparison-line" id="sp-systems-compare">
-            <strong>Per-message:</strong> 0 of 0 flagged &nbsp;|&nbsp; <strong>Behavioral:</strong> tracking since Day 1
+            <strong>Per-message:</strong> 0 of 0 flagged &nbsp;|&nbsp; <strong>Behavioral:</strong> monitoring
           </div>
         </div>
 
@@ -1200,7 +1201,7 @@ body {
           <div class="sp-field"><span class="sp-field-label">Locations</span><span class="sp-field-value" id="sp-locations">&mdash;</span></div>
           <div class="sp-field"><span class="sp-field-label">Contradictions</span><span class="sp-field-value" id="sp-contradictions">0</span></div>
           <div class="sp-field"><span class="sp-field-label">Financial Asks</span><span class="sp-field-value" id="sp-financial">&mdash;</span></div>
-          <div class="sp-field"><span class="sp-field-label">Days Active</span><span class="sp-field-value" id="sp-days">0</span></div>
+          <div class="sp-field"><span class="sp-field-label">Interactions</span><span class="sp-field-value" id="sp-days">0</span></div>
           <div class="sp-field"><span class="sp-field-label">Messages</span><span class="sp-field-value" id="sp-messages">0</span></div>
         </div>
 
@@ -1679,8 +1680,8 @@ body {
       '<strong>Per-message:</strong> ' + state.perMsgFlagged + ' of ' + state.messages + ' flagged' +
       ' &nbsp;|&nbsp; <strong>Behavioral:</strong> ' +
       (state.behavioralFirstFlag > 0
-        ? 'risk climbing since Day ' + riskClimbDay
-        : 'tracking since Day 1');
+        ? 'risk elevated at message ' + riskClimbDay
+        : 'monitoring');
 
     // Profile fields
     $('sp-messages').textContent = state.messages;
@@ -2337,7 +2338,7 @@ body {
     $('sp-risk-status').textContent = 'SAFE';
     $('sp-risk-status').className = 'risk-status-label risk-status-safe';
     $('sp-systems-compare').innerHTML =
-      '<strong>Per-message:</strong> 0 of 0 flagged &nbsp;|&nbsp; <strong>Behavioral:</strong> tracking since Day 1';
+      '<strong>Per-message:</strong> 0 of 0 flagged &nbsp;|&nbsp; <strong>Behavioral:</strong> monitoring';
     $('sp-messages').textContent = '0';
     $('sp-days').textContent = '0';
     $('sp-identity').textContent = '\u2014';
