@@ -1,0 +1,1624 @@
+{
+  "timestamp": "20260606_124935",
+  "model": "gemini-3.1-flash-lite",
+  "total_cases": 80,
+  "exact_match_rate": 0.8625,
+  "detection_match_rate": 0.9375,
+  "precision": 0.8936,
+  "recall": 1.0,
+  "f1_score": 0.9438,
+  "confusion_matrix": {
+    "true_positives": 42,
+    "false_positives": 5,
+    "false_negatives": 0,
+    "true_negatives": 29
+  },
+  "per_category": {
+    "scam": {
+      "total": 38,
+      "correct": 38,
+      "accuracy": 1.0
+    },
+    "safe": {
+      "total": 36,
+      "correct": 28,
+      "accuracy": 0.7778
+    },
+    "suspicious": {
+      "total": 4,
+      "correct": 2,
+      "accuracy": 0.5
+    },
+    "unknown": {
+      "total": 1,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "spam": {
+      "total": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    }
+  },
+  "failures": [
+    {
+      "eval_id": "safe_known_contact_borrow_money",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "scam",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [
+        "PM-3"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.04,
+      "reasoning": "The message uses urgency (PM-1) and a direct request for money (PM-3), which are hallmark signs of 'Ore-Ore' style fraud (impersonation/emergency appeal). Although the corpus returned no exact matches"
+    },
+    {
+      "eval_id": "edge_legitimate_urgent_family",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "scam",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [
+        "PM-1",
+        "PM-10"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.23,
+      "reasoning": "This message exhibits classic 'Ore-Ore' (impersonation) scam patterns. It uses PM-1 (urgency: '今すぐ来て'), PM-10 (emotional crisis: accident, hospital, injury), and PM-11 (relationship claim). While no e"
+    },
+    {
+      "eval_id": "edge_legitimate_financial_advisor",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "suspicious",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [],
+      "predicted_signals": [
+        "PM-4"
+      ],
+      "predicted_confidence": 0.6,
+      "elapsed_seconds": 6.27,
+      "reasoning": "The message claims to be from a financial institution (authority claim, PM-4). As the sender is not in the user's contact list and it is a request for a meeting based on financial information, it is c"
+    },
+    {
+      "eval_id": "en_legit_irs_notice",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "suspicious",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [],
+      "predicted_signals": [
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_confidence": 0.75,
+      "elapsed_seconds": 4.52,
+      "reasoning": "The message claims to be from the IRS (PM-4) and requests the user to input sensitive information like a Social Security number via a link (PM-7). While it references an official-looking number, the c"
+    },
+    {
+      "eval_id": "en_edge_legit_friend_borrow",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "suspicious",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [
+        "PM-3"
+      ],
+      "predicted_signals": [
+        "PM-3"
+      ],
+      "predicted_confidence": 0.65,
+      "elapsed_seconds": 4.12,
+      "reasoning": "The message contains a direct request for money (PM-3), which is a common indicator of both personal pleas and financial scams. The corpus search returned no direct scam matches, but the request for a"
+    }
+  ],
+  "all_results": [
+    {
+      "eval_id": "obvious_scam_billing",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_confidence": 1,
+      "elapsed_seconds": 6.21,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "safe_grandchild_message",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-11"
+      ],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.51,
+      "reasoning": "The message contains no urgent or suspicious signals. It matches the pattern of benign messages from family members in the corpus (e.g., npa_v2_034/036). It is classified as safe."
+    },
+    {
+      "eval_id": "romance_scam_day5",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "suspicious",
+      "predicted_classification": "scam",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-10",
+        "PM-11",
+        "PM-12"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 0.9,
+      "elapsed_seconds": 4.14,
+      "reasoning": "The message exhibits classic 'Ore-Ore' (impersonation) scam patterns, specifically PM-10 (emotional crisis: emergency hospitalization) and PM-11 (relationship claim: son). The rapid change in location"
+    },
+    {
+      "eval_id": "outbound_bank_details",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "unknown",
+      "predicted_classification": "no_response",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": null,
+      "elapsed_seconds": 0.55,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "safe_clinic_appointment",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.89,
+      "reasoning": "The message is a standard appointment confirmation from a medical clinic. It contains no signals of fraud (no urgency, no financial requests, no threats). The corpus search returned no matches for sca"
+    },
+    {
+      "eval_id": "scam_oreore_basic",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 5.82,
+      "reasoning": "This message is a classic example of 'Ore-Ore' (it's me) fraud. It exhibits multiple high-risk signals including urgent financial demand (PM-1, PM-3), secrecy demand (PM-2), crisis fabrication (PM-10)"
+    },
+    {
+      "eval_id": "scam_oreore_sophisticated",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 0.98,
+      "elapsed_seconds": 4.44,
+      "reasoning": "This message is a textbook 'Ore-ore' (impersonation) scam. It exhibits multiple high-risk signals: PM-11 (family relationship impersonation), PM-2 (secrecy demand to avoid parent), PM-3 (financial sol"
+    },
+    {
+      "eval_id": "scam_oreore_lawyer_handoff",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.06,
+      "reasoning": "The message exhibits classic 'Ore-ore' (impersonation) scam indicators. It claims an emergency involving a family member (grandchild) requiring immediate financial resolution (200万円). It uses urgency "
+    },
+    {
+      "eval_id": "scam_fake_grandchild_generic",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-11"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.95,
+      "reasoning": "This message exhibits classic signs of 'Ore-ore sagi' (impersonation scam). The sender claims to be a grandchild in trouble (PM-11), uses urgency language (PM-1), demands secrecy from other family mem"
+    },
+    {
+      "eval_id": "scam_fake_grandchild_new_phone",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-11"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 5.73,
+      "reasoning": "This message is a classic 'Ore-ore' (impersonation) scam. It uses the identity of a grandchild (PM-11), claims a lost phone (common tactic to prevent verification), and requests an urgent transfer of "
+    },
+    {
+      "eval_id": "scam_fake_grandchild_with_real_name",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "suspicious",
+      "predicted_classification": "scam",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-3",
+        "PM-5",
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-11"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.97,
+      "reasoning": "The message exhibits classic 'ore-ore' (impersonation) fraud patterns. It uses urgency (PM-1), a financial request (PM-3), and claims a familial relationship (PM-11). While the corpus contains safe ex"
+    },
+    {
+      "eval_id": "scam_fictitious_billing_invoice",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 6.2,
+      "reasoning": "This message is a classic 'billing fraud' (架空請求) scam. It uses urgent language (PM-1), demands financial payment (PM-3), insists on an unusual/untraceable payment method (Apple Gift Card, PM-5), and t"
+    },
+    {
+      "eval_id": "scam_fictitious_billing_subscription",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-3",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-7"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.87,
+      "reasoning": "The message uses urgency (PM-1), financial solicitation (PM-3), and requests sensitive credential information (PM-7). The corpus search identified similar phishing/credential-harvesting patterns (e.g."
+    },
+    {
+      "eval_id": "scam_refund_tax",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-9"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-5",
+        "PM-9"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 5.63,
+      "reasoning": "This message is a classic 'refund scam' (還付金詐欺) attempting to lure the victim to an ATM under the pretext of a government refund. It utilizes multiple high-risk signals: urgency (PM-1), financial soli"
+    },
+    {
+      "eval_id": "scam_refund_insurance",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7",
+        "PM-9"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-7",
+        "PM-9"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.15,
+      "reasoning": "This message exhibits multiple high-risk signals: PM-1 (urgency/deadline), PM-4 (impersonating a government institution), PM-7 (requesting sensitive credentials like PINs), and PM-9 (refund lure). Whi"
+    },
+    {
+      "eval_id": "scam_lottery_classic",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-5",
+        "PM-8"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5",
+        "PM-8"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.13,
+      "reasoning": "The message exhibits classic 'advance-fee' scam patterns (PM-8 prize notification requiring PM-3/PM-5 payment). It matches multiple cases in the corpus (e.g., npa_v2_073, npa_v2_082). The use of high-"
+    },
+    {
+      "eval_id": "scam_lottery_modern",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-7",
+        "PM-8"
+      ],
+      "predicted_signals": [
+        "PM-3",
+        "PM-5",
+        "PM-7",
+        "PM-8"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.03,
+      "reasoning": "The message exhibits classic '当選通知詐欺' (prize notification scam) characteristics. It impersonates a well-known brand (LINE), promises a financial reward (50,000 yen gift card), and requests sensitive P"
+    },
+    {
+      "eval_id": "scam_fake_bank_phishing",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-6",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-6",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.97,
+      "reasoning": "The message uses classic phishing tactics including urgency (PM-1), impersonation of a financial institution (PM-4), legal/account threats (PM-6), and credential harvesting via a suspicious external l"
+    },
+    {
+      "eval_id": "scam_fake_bank_card",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.9,
+      "reasoning": "The message uses urgency (PM-1), claims to be from a major bank (PM-4), and explicitly asks for sensitive credentials (PM-7) including PIN and card details, which are classic phishing tactics. While t"
+    },
+    {
+      "eval_id": "scam_gov_tax_office",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7",
+        "PM-9"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7",
+        "PM-9"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.97,
+      "reasoning": "The message impersonates a government agency (国税局) to solicit sensitive information (マイナンバー, bank account details) under the guise of a tax refund (還付金詐欺). It exhibits clear urgency (3日以内) and uses a "
+    },
+    {
+      "eval_id": "scam_gov_pension",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-4",
+        "PM-6",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 5.71,
+      "reasoning": "The message impersonates the Japan Pension Service (PM-4) to create urgency (PM-1) regarding pension suspension, and demands sensitive personal information such as the basic pension number and date of"
+    },
+    {
+      "eval_id": "scam_romance_trust_building",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-3",
+        "PM-12"
+      ],
+      "predicted_signals": [
+        "PM-3",
+        "PM-12"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.96,
+      "reasoning": "The message exhibits classic 'Romance Scam' indicators. It uses high flattery (PM-12) to build false trust and initiates a financial solicitation (PM-3) promising profits from investments. While the c"
+    },
+    {
+      "eval_id": "scam_romance_financial_request",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-2",
+        "PM-3",
+        "PM-10",
+        "PM-12"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-10",
+        "PM-12"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.08,
+      "reasoning": "The message exhibits multiple strong indicators of an 'Ore-ore' or emotional exploitation scam. It uses high-urgency language (PM-1), demands secrecy ('only to you', PM-2), makes a direct financial so"
+    },
+    {
+      "eval_id": "scam_fake_police_badge",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-5",
+        "PM-10"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.16,
+      "reasoning": "The message exhibits classic 'police impersonation' (警察なりすまし) and 'ore-ore' scam patterns. It uses authority claims (PM-4: police), targets family relations (PM-11: grandchild), creates emotional/fina"
+    },
+    {
+      "eval_id": "scam_fake_police_safe_account",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-4",
+        "PM-5"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-4",
+        "PM-10"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.42,
+      "reasoning": "The message exhibits classic 'fake police' scam tactics: impersonating a law enforcement official (PM-4), creating extreme urgency (PM-1), demanding secrecy to isolate the victim (PM-2), and instructi"
+    },
+    {
+      "eval_id": "safe_real_grandson_tuition",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "no_response",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-11"
+      ],
+      "predicted_signals": [],
+      "predicted_confidence": null,
+      "elapsed_seconds": 10.7,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "safe_grandson_new_phone",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "suspicious",
+      "predicted_classification": "suspicious",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-11"
+      ],
+      "predicted_confidence": 0.6,
+      "elapsed_seconds": 6.05,
+      "reasoning": "The message uses a common 'grandchild impersonation' pattern (PM-11). While the content is currently friendly and lacks explicit financial solicitations or threats, it establishes a new communication "
+    },
+    {
+      "eval_id": "safe_real_bank_card_expiry",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.76,
+      "reasoning": "The message is informational and matches legitimate notification patterns from banking institutions (similar to corpus entry npa_v2_107). It does not contain pressure, threats, or requests for sensiti"
+    },
+    {
+      "eval_id": "safe_real_pension_notification",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.74,
+      "reasoning": "The message provides standard informational content regarding pension payment schedules and directs the user to official channels (nenkin-net or physical offices). It contains no urgent demands, finan"
+    },
+    {
+      "eval_id": "safe_clinic_appointment",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.72,
+      "reasoning": "The message is a standard medical appointment reminder from a clinic. It contains no scam indicators (PM-1 to PM-13). No matches were found in the scam corpus, confirming its likely legitimacy as rout"
+    },
+    {
+      "eval_id": "safe_pharmacy_reminder",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.02,
+      "reasoning": "The message is a standard notification from a pharmacy regarding prescription readiness. No scam signals (PM-1 to PM-13) were detected. Corpus search returned no similar matches, as the provided resul"
+    },
+    {
+      "eval_id": "safe_chonaikai_meeting",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.76,
+      "reasoning": "The message is a standard community notification from a known neighborhood association (chonaikai). It contains no urgency, financial solicitation, or other scam indicators. No matches found in the sc"
+    },
+    {
+      "eval_id": "safe_friend_thanking",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.5,
+      "reasoning": "The message is a polite social invitation to lunch. No scam signals (PM-1 to PM-13) were detected. The corpus search returned no similar matches, supporting its classification as safe."
+    },
+    {
+      "eval_id": "safe_delivery_notification",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.83,
+      "reasoning": "The message provides a standard delivery notification from a reputable source (Yamato Transport). The URL provided matches the official Yamato Transport domain (kuronekoyamato.co.jp). No scam indicato"
+    },
+    {
+      "eval_id": "safe_real_estate_maintenance",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.73,
+      "reasoning": "The message is a standard, professional notification regarding building maintenance from a known entity type (property management). It lacks any indicators of financial solicitation, urgency, or decep"
+    },
+    {
+      "eval_id": "safe_known_contact_borrow_money",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "scam",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [
+        "PM-3"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.04,
+      "reasoning": "The message uses urgency (PM-1) and a direct request for money (PM-3), which are hallmark signs of 'Ore-Ore' style fraud (impersonation/emergency appeal). Although the corpus returned no exact matches"
+    },
+    {
+      "eval_id": "safe_alumni_reunion",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "no_response",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": null,
+      "elapsed_seconds": 4.13,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "safe_religious_donation",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.77,
+      "reasoning": "The message is a routine notification from a religious institution (temple) regarding a scheduled annual event. While it mentions a donation ('御布施'), it does not use high-pressure tactics, threats, or"
+    },
+    {
+      "eval_id": "safe_insurance_renewal",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.85,
+      "elapsed_seconds": 4.59,
+      "reasoning": "The message appears to be a standard administrative notification from a known insurance company. It lacks the urgency, financial request, or threat-based language typical of 'tokushu sagi' (scams). Wh"
+    },
+    {
+      "eval_id": "safe_utility_bill",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.97,
+      "reasoning": "The message appears to be a standard billing notification from a utility company. It contains no urgent requests for action, links to suspicious sites, or indicators of fraud. Corpus search returned n"
+    },
+    {
+      "eval_id": "safe_disaster_preparedness",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.16,
+      "reasoning": "The message appears to be a legitimate public announcement from the Meguro Ward office regarding a disaster drill. There are no financial solicitations, urgency indicators, or other signs of phishing "
+    },
+    {
+      "eval_id": "safe_family_travel_plans",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.46,
+      "reasoning": "The message matches the pattern of a typical family communication. There are no scam signals present (no financial requests, no urgency, no threats). The corpus search confirms this type of communicat"
+    },
+    {
+      "eval_id": "safe_nhk_fee",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.71,
+      "reasoning": "The message is a standard transactional notice from NHK regarding a subscription fee. It contains no urgent or high-pressure language, no request for sensitive credentials (like passwords or full acco"
+    },
+    {
+      "eval_id": "safe_department_store_points",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.87,
+      "reasoning": "The message is a standard notification regarding store points with no urgency, secrecy demands, or request for sensitive information. The search corpus returned no relevant scam patterns for this mess"
+    },
+    {
+      "eval_id": "safe_hospital_discharge",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.85,
+      "reasoning": "The message follows standard hospital communication patterns regarding prescriptions and follow-up appointments. No high-risk signals (PM-1 to PM-13) were detected. No similar scams were found in the "
+    },
+    {
+      "eval_id": "edge_language_switch",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-5"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.85,
+      "reasoning": "The message exhibits classic 'police impersonation' (PM-4) and 'urgent financial solicitation' (PM-1, PM-3) patterns commonly associated with tokushu-sagi. While the provided corpus search results did"
+    },
+    {
+      "eval_id": "edge_romance_day3_no_financial",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "no_response",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-12"
+      ],
+      "predicted_signals": [],
+      "predicted_confidence": null,
+      "elapsed_seconds": 3.84,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "edge_legitimate_urgent_family",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "scam",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [
+        "PM-1",
+        "PM-10"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.23,
+      "reasoning": "This message exhibits classic 'Ore-Ore' (impersonation) scam patterns. It uses PM-1 (urgency: '今すぐ来て'), PM-10 (emotional crisis: accident, hospital, injury), and PM-11 (relationship claim). While no e"
+    },
+    {
+      "eval_id": "edge_scammer_uses_real_grandson_name",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-5",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-11"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 6.06,
+      "reasoning": "The message exhibits classic 'Ore-Ore' (impersonation) fraud patterns, including claiming an urgent financial crisis involving debt/guarantor status, requesting money, and demanding secrecy from other"
+    },
+    {
+      "eval_id": "edge_fake_police_with_case_number",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_confidence": 0.98,
+      "elapsed_seconds": 4.27,
+      "reasoning": "The message uses classic 'fake police' scam tactics. It claims to be from the Metropolitan Police Department (authority_claim PM-4), uses urgency (PM-1), and explicitly demands sensitive financial/ide"
+    },
+    {
+      "eval_id": "edge_legitimate_financial_advisor",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "suspicious",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [],
+      "predicted_signals": [
+        "PM-4"
+      ],
+      "predicted_confidence": 0.6,
+      "elapsed_seconds": 6.27,
+      "reasoning": "The message claims to be from a financial institution (authority claim, PM-4). As the sender is not in the user's contact list and it is a request for a meeting based on financial information, it is c"
+    },
+    {
+      "eval_id": "edge_fake_clinic_unknown_sender",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.16,
+      "reasoning": "The message exhibits classic phishing patterns, including a sense of urgency (PM-1), impersonation of a health institution (PM-4), and a direct request for sensitive personal credentials (PM-7). It ma"
+    },
+    {
+      "eval_id": "edge_birthday_surprise_secrecy",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-2",
+        "PM-3"
+      ],
+      "predicted_signals": [
+        "PM-2"
+      ],
+      "predicted_confidence": 0.9,
+      "elapsed_seconds": 3.94,
+      "reasoning": "While the message uses secrecy (PM-2, 'don't tell father'), the context is a common family social event (birthday surprise) and lacks the characteristic high-urgency or crisis-driven narrative found i"
+    },
+    {
+      "eval_id": "edge_legitimate_charity_emotional",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.9,
+      "elapsed_seconds": 3.82,
+      "reasoning": "The message appears to be a legitimate solicitation for donations from a well-known organization (Japanese Red Cross Society) regarding the Noto Peninsula earthquake. It lacks high-pressure tactics or"
+    },
+    {
+      "eval_id": "edge_scam_isolation_no_money",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "suspicious",
+      "predicted_classification": "suspicious",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-2",
+        "PM-12"
+      ],
+      "predicted_signals": [
+        "PM-2",
+        "PM-12"
+      ],
+      "predicted_confidence": 0.85,
+      "elapsed_seconds": 3.86,
+      "reasoning": "The message exhibits classic psychological manipulation tactics (grooming) often used in romance scams or long-term trust-building scams. By isolating the user from their family (PM-2) and using flatt"
+    },
+    {
+      "eval_id": "edge_scam_polite_keigo_institutional",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 6.14,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "edge_spam_not_scam",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "spam",
+      "predicted_classification": "spam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [
+        "PM-1"
+      ],
+      "predicted_confidence": 0.9,
+      "elapsed_seconds": 4.03,
+      "reasoning": "The message is a standard unsolicited commercial advertisement. It uses urgency language ('期間限定', '今だけ') common in marketing. No strong indicators for tokushu-sagi (financial fraud/impersonation) were"
+    },
+    {
+      "eval_id": "edge_angry_legitimate_contact",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.9,
+      "elapsed_seconds": 3.98,
+      "reasoning": "The message expresses personal frustration regarding a community association (町内会) matter. While it is aggressive or demanding in tone (potentially violating social etiquette), it does not contain any"
+    },
+    {
+      "eval_id": "edge_bilingual_friend_abroad",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.69,
+      "reasoning": "The message is a casual, personal communication expressing a desire to meet and bring a souvenir. It contains no signals of urgency, financial solicitation, or known scam patterns. Corpus search yield"
+    },
+    {
+      "eval_id": "edge_refund_scam_as_tax_office",
+      "source_file": "scam_detection_full.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-4",
+        "PM-5",
+        "PM-9"
+      ],
+      "predicted_signals": [
+        "PM-4",
+        "PM-5",
+        "PM-9"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.03,
+      "reasoning": "This message is a classic 'refund scam' (還付金詐欺). It impersonates a government agency (PM-4: 目黒税務署) to lure the user into performing ATM operations (PM-5: unusual payment/handling method) under the gui"
+    },
+    {
+      "eval_id": "en_nigerian_419",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-7",
+        "PM-12"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.97,
+      "reasoning": "This is a classic 'Nigerian Prince' style advance-fee scam. The message exhibits strong urgency (PM-1), financial solicitation (PM-3), and credential solicitation (PM-7). The corpus matches multiple s"
+    },
+    {
+      "eval_id": "en_romance_scam_investment",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-3",
+        "PM-5",
+        "PM-12"
+      ],
+      "predicted_signals": [
+        "PM-3",
+        "PM-5",
+        "PM-12"
+      ],
+      "predicted_confidence": 0.98,
+      "elapsed_seconds": 4.83,
+      "reasoning": "The message exhibits classic hallmarks of a 'pig-butchering' romance scam: building trust over time, high-pressure financial solicitation, and promises of unrealistic returns (40% monthly) on an unkno"
+    },
+    {
+      "eval_id": "en_irs_impersonation",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.32,
+      "reasoning": "The message exhibits classic 'government impersonation' scam characteristics. It uses extreme urgency, threats of legal action (arrest/seizure), and demands payment via non-traceable methods (gift car"
+    },
+    {
+      "eval_id": "en_tech_support_scam",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-6",
+        "PM-10"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-6",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.07,
+      "reasoning": "The message uses extreme urgency (PM-1), impersonates a major institution (Microsoft) to claim authority (PM-4), threatens computer lockout (PM-6), and intends to solicit credentials (PM-7). The corpu"
+    },
+    {
+      "eval_id": "en_bank_phishing",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-4",
+        "PM-6",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-6",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.24,
+      "reasoning": "This message exhibits classic phishing patterns including urgent threats (PM-1, PM-6), financial solicitation/freezing threats (PM-3), impersonation of a financial institution (PM-4), and explicit req"
+    },
+    {
+      "eval_id": "en_lottery_prize_scam",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-3",
+        "PM-4",
+        "PM-5",
+        "PM-7",
+        "PM-8"
+      ],
+      "predicted_signals": [
+        "PM-3",
+        "PM-5",
+        "PM-7",
+        "PM-8"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 5.87,
+      "reasoning": "This message is a classic advance-fee scam (lottery scam). It matches multiple entries in the scam corpus involving fake prize notifications requiring upfront payments. It triggers signals for financi"
+    },
+    {
+      "eval_id": "en_grandparent_scam",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-5",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-2",
+        "PM-3",
+        "PM-4",
+        "PM-5",
+        "PM-6",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 6.16,
+      "reasoning": "This message is a classic 'Ore-Ore' (it's me) scam. It exhibits multiple high-risk signals including extreme urgency (PM-1), demand for secrecy (PM-2), request for financial transfer (PM-3), impersona"
+    },
+    {
+      "eval_id": "en_fake_police_ssn",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-6",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-6",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.18,
+      "reasoning": "The message uses classic government impersonation, urgent legal threats, and requests for sensitive credentials (SSN) and fund transfers. It matches 5 known government-impersonation scam patterns in t"
+    },
+    {
+      "eval_id": "en_fake_invoice_subscription",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-7",
+        "PM-9"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-7",
+        "PM-9"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.06,
+      "reasoning": "This message is a classic refund/billing scam. It uses PM-1 (urgency to call immediately), PM-3 (financial transaction amount), PM-9 (refund bait), and PM-7 (soliciting bank card info). While the corp"
+    },
+    {
+      "eval_id": "en_charity_scam_disaster",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5",
+        "PM-12"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.46,
+      "reasoning": "The message exhibits classic scam indicators: extreme urgency (PM-1), financial solicitation (PM-3), and the request for unusual/untraceable payment methods like gift cards (PM-5). While the corpus se"
+    },
+    {
+      "eval_id": "en_legit_bank_fraud_alert",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.9,
+      "elapsed_seconds": 3.9,
+      "reasoning": "The message follows standard bank security notification protocols (instructing the user to call the number on the back of their card and explicitly advising against sharing credentials). The corpus se"
+    },
+    {
+      "eval_id": "en_legit_grandchild_textbook",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-11"
+      ],
+      "predicted_signals": [
+        "PM-11"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.96,
+      "reasoning": "The message uses identity claim (PM-11) but lacks any pressure, urgency, or suspicious payment methods. The request is conditional ('if I can't find them cheaper') and lacks the 'imminent crisis' typi"
+    },
+    {
+      "eval_id": "en_legit_gofundme_friend",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.9,
+      "elapsed_seconds": 4.15,
+      "reasoning": "The message is a typical neighborhood communication regarding a charity fundraiser. No scam indicators (PM-1 to PM-10) are present. The sender identifies as a neighbor. The search of the scam corpus r"
+    },
+    {
+      "eval_id": "en_legit_irs_notice",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "suspicious",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [],
+      "predicted_signals": [
+        "PM-4",
+        "PM-7"
+      ],
+      "predicted_confidence": 0.75,
+      "elapsed_seconds": 4.52,
+      "reasoning": "The message claims to be from the IRS (PM-4) and requests the user to input sensitive information like a Social Security number via a link (PM-7). While it references an official-looking number, the c"
+    },
+    {
+      "eval_id": "en_legit_password_reset",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 3.97,
+      "reasoning": "This message is a standard Google security notification. While it mentions a sign-in attempt, it provides official URLs and does not contain signs of social engineering or coercion. The search corpus "
+    },
+    {
+      "eval_id": "en_edge_sophisticated_419",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-2",
+        "PM-3",
+        "PM-7"
+      ],
+      "predicted_signals": [
+        "PM-2",
+        "PM-3",
+        "PM-5",
+        "PM-7"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.45,
+      "reasoning": "The message is a classic Advance-Fee (419) scam. It demands secrecy (PM-2), requests a payment of $2,800 for a fake probate filing (PM-3/PM-5), and solicits credentials/IDs (PM-7). The corpus search c"
+    },
+    {
+      "eval_id": "en_edge_legit_friend_borrow",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "suspicious",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [
+        "PM-3"
+      ],
+      "predicted_signals": [
+        "PM-3"
+      ],
+      "predicted_confidence": 0.65,
+      "elapsed_seconds": 4.12,
+      "reasoning": "The message contains a direct request for money (PM-3), which is a common indicator of both personal pleas and financial scams. The corpus search returned no direct scam matches, but the request for a"
+    },
+    {
+      "eval_id": "en_edge_english_to_japanese_scam",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "scam",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-4",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 4.15,
+      "reasoning": "The message exhibits multiple clear scam indicators: PM-1 (urgency: 'immediately'), PM-3 (financial solicitation: '$500'), PM-4 (authority claim: 'police'), PM-5 (unusual payment method: 'Apple gift c"
+    },
+    {
+      "eval_id": "en_edge_legit_red_cross",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-1"
+      ],
+      "predicted_signals": [
+        "PM-1"
+      ],
+      "predicted_confidence": 0.9,
+      "elapsed_seconds": 4.22,
+      "reasoning": "This message is a standard charitable solicitation from a known organization (American Red Cross). While it contains urgent language (PM-1), it does not exhibit the characteristics of tokushu-sagi or "
+    },
+    {
+      "eval_id": "en_edge_romance_early_stage",
+      "source_file": "scam_detection_english.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-12"
+      ],
+      "predicted_signals": [],
+      "predicted_confidence": 0.85,
+      "elapsed_seconds": 4.14,
+      "reasoning": "The message appears to be a standard introductory message from a dating site. It contains no urgent language, financial solicitations, or other scam indicators. While romance scams often start with si"
+    }
+  ]
+}

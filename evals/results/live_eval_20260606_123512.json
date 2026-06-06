@@ -1,0 +1,140 @@
+{
+  "timestamp": "20260606_123512",
+  "model": "gemini-3.1-flash-lite",
+  "total_cases": 5,
+  "exact_match_rate": 0.2,
+  "detection_match_rate": 0.8,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "confusion_matrix": {
+    "true_positives": 1,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "true_negatives": 1
+  },
+  "per_category": {
+    "scam": {
+      "total": 1,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "safe": {
+      "total": 2,
+      "correct": 1,
+      "accuracy": 0.5
+    },
+    "suspicious": {
+      "total": 1,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "unknown": {
+      "total": 1,
+      "correct": 0,
+      "accuracy": 0.0
+    }
+  },
+  "failures": [
+    {
+      "eval_id": "obvious_scam_billing",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "no_response",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_signals": [],
+      "predicted_confidence": null,
+      "elapsed_seconds": 6.81,
+      "reasoning": ""
+    }
+  ],
+  "all_results": [
+    {
+      "eval_id": "obvious_scam_billing",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "scam",
+      "predicted_classification": "no_response",
+      "exact_match": false,
+      "detection_match": false,
+      "expected_signals": [
+        "PM-1",
+        "PM-3",
+        "PM-5",
+        "PM-6"
+      ],
+      "predicted_signals": [],
+      "predicted_confidence": null,
+      "elapsed_seconds": 6.81,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "safe_grandchild_message",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "no_response",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-11"
+      ],
+      "predicted_signals": [],
+      "predicted_confidence": null,
+      "elapsed_seconds": 4.72,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "romance_scam_day5",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "suspicious",
+      "predicted_classification": "scam",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [
+        "PM-10",
+        "PM-11",
+        "PM-12"
+      ],
+      "predicted_signals": [
+        "PM-1",
+        "PM-10",
+        "PM-11"
+      ],
+      "predicted_confidence": 0.95,
+      "elapsed_seconds": 4.02,
+      "reasoning": "The message exhibits classic 'Ore-Ore' (impersonation) scam patterns. It uses an emotional crisis (PM-10: emergency hospitalization), urgent language (PM-1: needs to go to Tokyo immediately), and clai"
+    },
+    {
+      "eval_id": "outbound_bank_details",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "unknown",
+      "predicted_classification": "no_response",
+      "exact_match": false,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": null,
+      "elapsed_seconds": 0.61,
+      "reasoning": ""
+    },
+    {
+      "eval_id": "safe_clinic_appointment",
+      "source_file": "scam_detection.evalset.json",
+      "expected_classification": "safe",
+      "predicted_classification": "safe",
+      "exact_match": true,
+      "detection_match": true,
+      "expected_signals": [],
+      "predicted_signals": [],
+      "predicted_confidence": 1.0,
+      "elapsed_seconds": 3.83,
+      "reasoning": "The message appears to be a standard, legitimate appointment confirmation from a medical clinic. It contains no scam indicators (no urgency, no financial requests, no suspicious links). The corpus sea"
+    }
+  ]
+}
