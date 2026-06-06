@@ -253,6 +253,39 @@ body {
 .thread-scroll::-webkit-scrollbar { width: 4px; }
 .thread-scroll::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
 
+/* Welcome prompt */
+.thread-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+  color: var(--gray-400);
+  padding: 40px 20px;
+}
+.welcome-arrow {
+  font-size: 2.5rem;
+  animation: welcomeBounce 2s ease infinite;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+@keyframes welcomeBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+.welcome-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+.welcome-sub {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  max-width: 400px;
+}
+
 /* Day dividers */
 .day-divider {
   display: flex;
@@ -1154,7 +1187,13 @@ body {
           <span class="thread-col-title">Can You Scam Grandma?</span>
           <span class="thread-col-sub">Choose messages. Watch the system react.</span>
         </div>
-        <div class="thread-scroll" id="thread"></div>
+        <div class="thread-scroll" id="thread">
+          <div id="thread-welcome" class="thread-welcome">
+            <div class="welcome-arrow">&#8595;</div>
+            <div class="welcome-title">Choose a message below to begin</div>
+            <div class="welcome-sub">Pick one of the three approaches — or write your own.<br>Watch how Elder Scam Shield analyzes each message compared to traditional protection.</div>
+          </div>
+        </div>
         <div class="bottom-bar" id="bottom-bar">
           <div class="bottom-bar-header">
             <span class="bottom-bar-day" id="day-label">Day 1 of 6</span>
@@ -1792,6 +1831,10 @@ body {
 
     // Add day divider to thread
     var thread = $('thread');
+
+    // Remove welcome prompt if present
+    var welcome = document.getElementById('thread-welcome');
+    if (welcome) welcome.remove();
     var sep = document.createElement('div');
     sep.className = 'day-divider';
     sep.id = 'day-div-' + day.day;
