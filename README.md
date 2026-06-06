@@ -140,6 +140,20 @@ Per-message F1 drops 0.01 — because each hardening round moved intelligence OU
 
 This is the ADK optimization story: we didn't need a bigger model. We needed better tools, better data, and better architecture. The cheapest Gemini model now does what the most expensive model couldn't do alone — detect trust-building attacks 3 days before the money request.
 
+### Corpus search: from zero matches to evidence-backed
+
+Upgraded from Jaccard bag-of-words to dual TF-IDF (word + character n-gram). Japanese queries that returned zero results now find relevant corpus matches:
+
+| Query | Before (Jaccard) | After (TF-IDF) |
+|---|---|---|
+| Japanese ore-ore sagi | 0.111 relevance | **0.297** (+168%) |
+| Japanese billing scam | 0 matches | **0.518** (new) |
+| Subtle trust-building | 0 matches | **0.264** (new) |
+| Romance pattern | 0 matches | **0.136** (new) |
+| Japanese safe message | 0 matches | **0.521** (new) |
+
+5 of 7 test queries went from zero corpus evidence to relevant matches. The classifier's grounding went from "my prompt says so" to "this matches confirmed cases in our corpus."
+
 ## Demo
 
 Live at [shield.faxi.jp](https://shield.faxi.jp):
