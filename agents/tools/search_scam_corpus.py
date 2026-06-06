@@ -79,11 +79,13 @@ def _search_vertex(query: str, top_k: int = 5) -> list[dict]:
 _LOCAL_CORPUS: Optional[list[dict]] = None
 _TFIDF_VECTORIZER = None
 _TFIDF_MATRIX = None
+_TFIDF_CHAR_VECTORIZER = None  # Character n-gram vectorizer for Japanese
+_TFIDF_CHAR_MATRIX = None
 
 
 def _load_local_corpus() -> list[dict]:
     """Load the processed JSONL corpus into memory and fit TF-IDF."""
-    global _LOCAL_CORPUS, _TFIDF_VECTORIZER, _TFIDF_MATRIX
+    global _LOCAL_CORPUS, _TFIDF_VECTORIZER, _TFIDF_MATRIX, _TFIDF_CHAR_VECTORIZER, _TFIDF_CHAR_MATRIX
     if _LOCAL_CORPUS is not None:
         return _LOCAL_CORPUS
 
@@ -106,26 +108,45 @@ def _load_local_corpus() -> list[dict]:
                     if line:
                         _LOCAL_CORPUS.append(json.loads(line))
 
-    # Fit TF-IDF on corpus texts
+    # Fit TF-IDF on corpus texts — two vectorizers:
+    #   1. Word-level for English (standard tokenization)
+    #   2. Character n-gram for Japanese (no word boundaries in Japanese)
     if _LOCAL_CORPUS:
         try:
             from sklearn.feature_extraction.text import TfidfVectorizer
-            from sklearn.metrics.pairwise import cosine_similarity as _cos_sim
 
             texts = [entry.get("text", "") for entry in _LOCAL_CORPUS]
-            # Token pattern handles ASCII + CJK characters
+
+            # Word-level vectorizer (English + romaji)
             _TFIDF_VECTORIZER = TfidfVectorizer(
                 max_features=50000,
-                token_pattern=r'(?u)\b\w[\w\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]+\b|[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]',
                 ngram_range=(1, 2),
                 min_df=2,
                 max_df=0.95,
                 sublinear_tf=True,
             )
             _TFIDF_MATRIX = _TFIDF_VECTORIZER.fit_transform(texts)
-        except ImportError:
+
+            # Character n-gram vectorizer (Japanese + cross-language)
+            _TFIDF_CHAR_VECTORIZER = TfidfVectorizer(
+                analyzer='char_wb',
+                ngram_range=(2, 4),
+                max_features=100000,
+                min_df=1,
+                max_df=0.98,
+                sublinear_tf=True,
+            )
+            _TFIDF_CHAR_MATRIX = _TFIDF_CHAR_VECTORIZER.fit_transform(texts)
+        except ImportError as e:
+            print(f"[search_scam_corpus] sklearn not available: {e}")
             _TFIDF_VECTORIZER = None
             _TFIDF_MATRIX = None
+            _TFIDF_CHAR_VECTORIZER = None
+            _TFIDF_CHAR_MATRIX = None
+        except Exception as e:
+            print(f"[search_scam_corpus] TF-IDF build error: {e}")
+            _TFIDF_CHAR_VECTORIZER = None
+            _TFIDF_CHAR_MATRIX = None
 
     return _LOCAL_CORPUS
 
@@ -136,12 +157,32 @@ def _search_local(query: str, top_k: int = 5, label_filter: str = None) -> list[
     if not corpus:
         return []
 
-    # TF-IDF search (much better than Jaccard)
+    # TF-IDF search — use word vectorizer for English, char vectorizer for Japanese,
+    # merge results for mixed-language queries
     if _TFIDF_VECTORIZER is not None and _TFIDF_MATRIX is not None:
         from sklearn.metrics.pairwise import cosine_similarity
+        import numpy as np
 
-        query_vec = _TFIDF_VECTORIZER.transform([query])
-        scores = cosine_similarity(query_vec, _TFIDF_MATRIX).flatten()
+        # Detect if query has CJK characters
+        has_cjk = bool(re.search(r'[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]', query))
+
+        # Word-level scores (always compute — works for English)
+        word_scores = cosine_similarity(
+            _TFIDF_VECTORIZER.transform([query]), _TFIDF_MATRIX
+        ).flatten()
+
+        # Character n-gram scores (better for Japanese)
+        char_scores = np.zeros(len(corpus))
+        if _TFIDF_CHAR_VECTORIZER is not None and _TFIDF_CHAR_MATRIX is not None:
+            char_scores = cosine_similarity(
+                _TFIDF_CHAR_VECTORIZER.transform([query]), _TFIDF_CHAR_MATRIX
+            ).flatten()
+
+        # Blend: for CJK queries weight char higher, for English weight word higher
+        if has_cjk:
+            scores = 0.3 * word_scores + 0.7 * char_scores
+        else:
+            scores = 0.7 * word_scores + 0.3 * char_scores
 
         # Apply label filter
         if label_filter:
@@ -150,7 +191,7 @@ def _search_local(query: str, top_k: int = 5, label_filter: str = None) -> list[
                     scores[i] = 0.0
 
         # Get top-k
-        top_indices = scores.argsort()[::-1][:top_k * 3]  # oversample then filter
+        top_indices = scores.argsort()[::-1][:top_k * 3]
         results = []
         for idx in top_indices:
             if scores[idx] < 0.01:
