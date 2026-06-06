@@ -1,0 +1,130 @@
+{
+  "description": "12 adversarial scenarios across 4 categories. From adversarial design review. 7 runnable tests, 3 documented honest-fails, 2 discipline collisions.",
+  "source": "adversarial design review package 2026-06-06",
+
+  "category_a_legitimate_looking_scammy": [
+    {
+      "id": "A1",
+      "name": "Real grandchild emergency in scam-shape language",
+      "runnable_test": true,
+      "message": "おばあちゃん、ゆきです！大変なことになった。自転車で転んで携帯壊れちゃって、今友達の電話借りてる。病院に行きたいんだけどお金持ってなくて...3000円だけ貸してもらえない？",
+      "message_en": "Grandma, it's Yuki! Something happened. I fell off my bike and broke my phone, I'm borrowing a friend's phone. I want to go to the hospital but I don't have money... Can you lend me just 3000 yen?",
+      "sender": "unknown_number_friend_phone",
+      "expected_classification": "suspicious",
+      "why_it_trips": "PM-10 (emotional crisis), PM-3 (financial request), PM-11 (identity claim) from an unknown sender. Looks exactly like ore-ore sagi.",
+      "what_should_happen": "Flag but don't block. The amount (¥3,000) is small. The system should alert the family AND suggest the elder call Yuki's known number to verify.",
+      "failure_mode": "If blocked, the real grandchild can't get help. If passed, a scammer using the same shape gets through.",
+      "hostile_question_defense": "The system flags it and alerts the family. It doesn't block a ¥3,000 request — it escalates. The family member can verify in 30 seconds by calling Yuki's registered number."
+    },
+    {
+      "id": "A3",
+      "name": "Legitimate bank fraud alert",
+      "runnable_test": true,
+      "message": "【三菱UFJ銀行】お客様の口座に不審なログインがありました。心当たりがない場合は至急お電話ください。0120-860-777（24時間対応）",
+      "message_en": "[MUFG Bank] Suspicious login detected on your account. If you don't recognize this, please call immediately. 0120-860-777 (24 hours)",
+      "sender": "alert@bk.mufg.jp",
+      "expected_classification": "safe",
+      "why_it_trips": "PM-1 (urgency), PM-4 (authority claim). Looks like fake-bank phishing.",
+      "what_should_happen": "Classify as safe — legitimate bank fraud alerts exist and blocking them harms the user. Verify sender domain matches known bank.",
+      "failure_mode": "If blocked, user misses a real fraud alert on their own account.",
+      "hostile_question_defense": "The sender domain matches the known bank. The phone number is the real MUFG helpline. The system passes it through but logs it for pattern tracking."
+    },
+    {
+      "id": "A4",
+      "name": "Adult daughter requesting password via text",
+      "runnable_test": true,
+      "message": "お母さん、美咲です。実家のWiFiのパスワード何だっけ？今度帰る時に使いたいんだけど。",
+      "message_en": "Mom, it's Misaki. What's the WiFi password at home? I want to use it when I visit next time.",
+      "sender": "contact_misaki_daughter",
+      "expected_classification": "safe",
+      "why_it_trips": "PM-7 (credential solicitation — asking for a password). From a known contact.",
+      "what_should_happen": "Safe. Known verified contact. WiFi password is not a financial credential. Graph-validated sender.",
+      "failure_mode": "If flagged, the system is too aggressive on known family members asking routine questions.",
+      "hostile_question_defense": "Graph validation confirms this is a verified family member with 5+ years of history. WiFi password is not in the financial credential category. The system distinguishes credential types."
+    }
+  ],
+
+  "category_b_sophisticated_evasions": [
+    {
+      "id": "B1",
+      "name": "30-day slow-burn trust-build under velocity thresholds",
+      "runnable_test": true,
+      "description": "Scammer contacts once every 3-4 days, never escalates faster than baseline. Shared hobby conversations for 25 days. Financial ask on Day 30. Velocity scoring never triggers because the rate is within normal bounds.",
+      "what_should_happen": "Credibility seeding (BV-4) and help positioning (BV-5) should still accumulate even at low velocity. By Day 20, the cumulative score should cross monitoring threshold. Financial ask on Day 30 hits an already-flagged sender.",
+      "failure_mode": "If velocity is the only signal, this evades detection entirely.",
+      "hostile_question_defense": "Velocity is one of five behavioral signals. Credibility seeding and isolation index accumulate regardless of pace. A sender who volunteers personal details in 10 of 10 messages has a credibility score of 1.0 even at one message per week."
+    },
+    {
+      "id": "B3",
+      "name": "Family insider with phone access",
+      "runnable_test": true,
+      "description": "A nephew with legitimate access to grandma's phone adds himself as a contact, then starts requesting money transfers. The sender is now graph-validated.",
+      "what_should_happen": "EA-1 (financial control from known contact) and EA-4 (communication shift — nephew who messaged annually now messages daily about finances). The elder abuse detection layer catches this even though graph validation passes.",
+      "failure_mode": "If graph validation is the only trust signal, insider threats bypass all detection.",
+      "hostile_question_defense": "Graph validation reduces risk for known contacts but doesn't eliminate it. The EA signals specifically detect abuse patterns from trusted insiders — financial control, authority escalation, and communication shifts."
+    },
+    {
+      "id": "B2",
+      "name": "Cross-platform persona (documented honest-fail)",
+      "runnable_test": false,
+      "documented_honest_fail": true,
+      "description": "Scammer contacts via LINE (not monitored) to build trust, then switches to email (monitored) for the financial ask. The email system sees only one message — the ask — with no behavioral history.",
+      "what_should_happen": "The system should classify the email as suspicious (financial request from low-history sender) but cannot detect the cross-platform trust-building.",
+      "known_limitation": "Single-channel systems cannot correlate across platforms. This is a documented architectural boundary. Future: multi-channel fusion (LINE/SMS/email/fax).",
+      "hostile_question_defense": "We document this as a known boundary. No single-channel system can solve it. Our roadmap includes multi-channel fusion. In the meantime, the financial request from a low-history sender still triggers PM-3 and the sender's empty profile raises BV-1 velocity flags."
+    },
+    {
+      "id": "B4",
+      "name": "LLM-cloned grandson voice (documented honest-fail)",
+      "runnable_test": false,
+      "documented_honest_fail": true,
+      "description": "Scammer uses AI voice cloning to impersonate the real grandson over phone, then follows up via email referencing the phone call.",
+      "known_limitation": "Text-based analysis cannot detect voice-cloned phone calls. The email follow-up references a conversation the system never saw.",
+      "hostile_question_defense": "Voice cloning is a cross-modal attack that no text-based system can fully address. Our system would still flag the email if it contains financial requests, urgency, or secrecy demands. The behavioral profile would show a new pattern (grandson never emailed about money before = EA-4 communication shift)."
+    }
+  ],
+
+  "category_c_system_trust_collapse": [
+    {
+      "id": "C1",
+      "name": "Self-fulfilling fear loop",
+      "runnable_test": false,
+      "documented_honest_fail": true,
+      "description": "False positive → family alarm → grandma feels surveilled → grandma uninstalls → real scam lands unprotected. The system's false positive causes the very harm it was designed to prevent.",
+      "what_should_happen": "This is why false positive rate matters more than detection rate for elderly users. The system must err on the side of letting marginal messages through rather than generating alarm fatigue.",
+      "hostile_question_defense": "This is why we measure precision (0.894) not just recall (1.000). Every false positive risks triggering this cascade. Our adaptive baselines (Round 5) specifically reduce false positives on known contacts to prevent this."
+    },
+    {
+      "id": "C2",
+      "name": "Counter-system social engineering",
+      "runnable_test": true,
+      "message": "花子さん、最近ご家族があなたの電話やメールを監視するソフトを入れたそうですね。それはプライバシーの侵害です。私が削除の方法を教えましょう。",
+      "message_en": "Hanako-san, I heard your family recently installed software to monitor your phone and email. That's a privacy violation. Let me show you how to remove it.",
+      "sender": "unknown_privacy_advocate",
+      "expected_classification": "scam",
+      "why_it_trips": "The scammer is trying to get the elder to disable the protection system itself. This is meta-social-engineering.",
+      "what_should_happen": "Immediate block + critical family alert. This is the highest-priority threat — an attacker who knows the system exists and is trying to remove it.",
+      "hostile_question_defense": "Any message suggesting the elder remove or disable protection software is an automatic block. This is not a privacy concern — it's an attack vector. The system was installed with the elder's knowledge and family consent."
+    }
+  ],
+
+  "category_d_discipline_collision": [
+    {
+      "id": "D1",
+      "name": "Held legitimate message costs critical access (documented honest-fail)",
+      "runnable_test": false,
+      "documented_honest_fail": true,
+      "description": "System holds a legitimate time-sensitive message (e.g., medical appointment change) because the sender's risk score is elevated from a previous false positive. By the time the family reviews and releases it, the appointment window has passed.",
+      "known_limitation": "Any hold system creates latency. Time-sensitive legitimate messages from flagged senders are the worst-case scenario. Future: sender-specific hold duration calibration.",
+      "hostile_question_defense": "This is the fundamental trade-off of any protection system. We mitigate it with adaptive baselines that reduce false positives on known contacts, and with the 4-hour family response deadline on critical alerts."
+    },
+    {
+      "id": "D2",
+      "name": "Elder requests to see what was held",
+      "runnable_test": true,
+      "description": "The elder asks: 'What messages did you block? I want to see them.' The 'never show content' principle says no. But the elder has the right to see their own messages.",
+      "what_should_happen": "The system should provide an evidence summary (risk factors, signal breakdown) without showing the raw scam content. If the elder insists, the family member (not the system) makes the decision to show or not show.",
+      "hostile_question_defense": "The elder's autonomy is respected — the family member, not the system, makes the final decision. The system provides evidence summaries that explain WHY a message was held without exposing the manipulative content that the elder would act on emotionally."
+    }
+  ]
+}
