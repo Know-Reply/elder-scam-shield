@@ -1,118 +1,118 @@
 {
-  "corpus_size": 22389,
-  "scam_count": 9332,
+  "corpus_size": 22979,
+  "scam_count": 9922,
   "safe_count": 13057,
   "signal_stats": {
     "PM-1": {
-      "scam_count": 1622,
+      "scam_count": 1600,
       "safe_count": 779,
-      "prevalence_in_scam": 0.1738,
+      "prevalence_in_scam": 0.1613,
       "prevalence_in_safe": 0.0597,
-      "precision_for_scam": 0.6756,
-      "lift_over_safe": 2.91
+      "precision_for_scam": 0.6726,
+      "lift_over_safe": 2.7
     },
     "PM-10": {
-      "scam_count": 235,
+      "scam_count": 221,
       "safe_count": 242,
-      "prevalence_in_scam": 0.0252,
+      "prevalence_in_scam": 0.0223,
       "prevalence_in_safe": 0.0185,
-      "precision_for_scam": 0.4927,
-      "lift_over_safe": 1.36
+      "precision_for_scam": 0.4773,
+      "lift_over_safe": 1.2
     },
     "PM-11": {
       "scam_count": 307,
       "safe_count": 277,
-      "prevalence_in_scam": 0.0329,
+      "prevalence_in_scam": 0.0309,
       "prevalence_in_safe": 0.0212,
       "precision_for_scam": 0.5257,
-      "lift_over_safe": 1.55
+      "lift_over_safe": 1.46
     },
     "PM-12": {
-      "scam_count": 2100,
+      "scam_count": 2092,
       "safe_count": 1617,
-      "prevalence_in_scam": 0.225,
+      "prevalence_in_scam": 0.2108,
       "prevalence_in_safe": 0.1238,
-      "precision_for_scam": 0.565,
-      "lift_over_safe": 1.82
+      "precision_for_scam": 0.564,
+      "lift_over_safe": 1.7
     },
     "PM-2": {
-      "scam_count": 369,
+      "scam_count": 367,
       "safe_count": 215,
-      "prevalence_in_scam": 0.0395,
+      "prevalence_in_scam": 0.037,
       "prevalence_in_safe": 0.0165,
-      "precision_for_scam": 0.6318,
-      "lift_over_safe": 2.4
+      "precision_for_scam": 0.6306,
+      "lift_over_safe": 2.25
     },
     "PM-3": {
-      "scam_count": 3010,
+      "scam_count": 2996,
       "safe_count": 1808,
-      "prevalence_in_scam": 0.3225,
+      "prevalence_in_scam": 0.302,
       "prevalence_in_safe": 0.1385,
-      "precision_for_scam": 0.6247,
-      "lift_over_safe": 2.33
+      "precision_for_scam": 0.6236,
+      "lift_over_safe": 2.18
     },
     "PM-4": {
-      "scam_count": 2021,
+      "scam_count": 2016,
       "safe_count": 1374,
-      "prevalence_in_scam": 0.2166,
+      "prevalence_in_scam": 0.2032,
       "prevalence_in_safe": 0.1052,
-      "precision_for_scam": 0.5953,
-      "lift_over_safe": 2.06
+      "precision_for_scam": 0.5947,
+      "lift_over_safe": 1.93
     },
     "PM-5": {
       "scam_count": 530,
       "safe_count": 77,
-      "prevalence_in_scam": 0.0568,
+      "prevalence_in_scam": 0.0534,
       "prevalence_in_safe": 0.0059,
       "precision_for_scam": 0.8731,
-      "lift_over_safe": 9.63
+      "lift_over_safe": 9.06
     },
     "PM-6": {
       "scam_count": 712,
       "safe_count": 805,
-      "prevalence_in_scam": 0.0763,
+      "prevalence_in_scam": 0.0718,
       "prevalence_in_safe": 0.0617,
       "precision_for_scam": 0.4693,
-      "lift_over_safe": 1.24
+      "lift_over_safe": 1.16
     },
     "PM-7": {
-      "scam_count": 1469,
+      "scam_count": 1477,
       "safe_count": 330,
-      "prevalence_in_scam": 0.1574,
+      "prevalence_in_scam": 0.1489,
       "prevalence_in_safe": 0.0253,
-      "precision_for_scam": 0.8166,
-      "lift_over_safe": 6.23
+      "precision_for_scam": 0.8174,
+      "lift_over_safe": 5.89
     },
     "PM-8": {
-      "scam_count": 901,
+      "scam_count": 891,
       "safe_count": 434,
-      "prevalence_in_scam": 0.0965,
+      "prevalence_in_scam": 0.0898,
       "prevalence_in_safe": 0.0332,
-      "precision_for_scam": 0.6749,
-      "lift_over_safe": 2.9
+      "precision_for_scam": 0.6725,
+      "lift_over_safe": 2.7
     },
     "PM-9": {
       "scam_count": 754,
       "safe_count": 131,
-      "prevalence_in_scam": 0.0808,
+      "prevalence_in_scam": 0.076,
       "prevalence_in_safe": 0.01,
       "precision_for_scam": 0.852,
-      "lift_over_safe": 8.05
+      "lift_over_safe": 7.57
     }
   },
   "derived_weights": {
-    "PM-1": 0.0867,
-    "PM-10": 0.0632,
-    "PM-11": 0.0674,
-    "PM-12": 0.0725,
-    "PM-2": 0.081,
-    "PM-3": 0.0801,
-    "PM-4": 0.0764,
-    "PM-5": 0.112,
-    "PM-6": 0.0602,
-    "PM-7": 0.1047,
-    "PM-8": 0.0866,
-    "PM-9": 0.1093
+    "PM-1": 0.0865,
+    "PM-10": 0.0614,
+    "PM-11": 0.0676,
+    "PM-12": 0.0726,
+    "PM-2": 0.0811,
+    "PM-3": 0.0802,
+    "PM-4": 0.0765,
+    "PM-5": 0.1123,
+    "PM-6": 0.0604,
+    "PM-7": 0.1052,
+    "PM-8": 0.0865,
+    "PM-9": 0.1096
   },
   "pattern_profiles": {
     "advance-fee-419": {
@@ -190,108 +190,108 @@
       }
     },
     "credential-phishing": {
-      "corpus_count": 541,
+      "corpus_count": 1012,
       "signal_prevalence": {
-        "PM-1": {
-          "count": 217,
-          "prevalence": 0.4011
-        },
         "PM-7": {
+          "count": 215,
+          "prevalence": 0.2125
+        },
+        "PM-1": {
           "count": 206,
-          "prevalence": 0.3808
+          "prevalence": 0.2036
         },
         "PM-3": {
-          "count": 206,
-          "prevalence": 0.3808
+          "count": 204,
+          "prevalence": 0.2016
         },
         "PM-12": {
-          "count": 156,
-          "prevalence": 0.2884
+          "count": 153,
+          "prevalence": 0.1512
         },
         "PM-6": {
           "count": 80,
-          "prevalence": 0.1479
+          "prevalence": 0.0791
         },
         "PM-4": {
-          "count": 39,
-          "prevalence": 0.0721
+          "count": 40,
+          "prevalence": 0.0395
         },
         "PM-9": {
           "count": 33,
-          "prevalence": 0.061
+          "prevalence": 0.0326
         },
         "PM-5": {
           "count": 24,
-          "prevalence": 0.0444
-        },
-        "PM-10": {
-          "count": 13,
-          "prevalence": 0.024
+          "prevalence": 0.0237
         },
         "PM-11": {
           "count": 8,
-          "prevalence": 0.0148
+          "prevalence": 0.0079
+        },
+        "PM-10": {
+          "count": 6,
+          "prevalence": 0.0059
         },
         "PM-8": {
           "count": 3,
-          "prevalence": 0.0055
+          "prevalence": 0.003
         },
         "PM-2": {
           "count": 2,
-          "prevalence": 0.0037
+          "prevalence": 0.002
         }
       }
     },
     "fake-bank": {
-      "corpus_count": 194,
+      "corpus_count": 331,
       "signal_prevalence": {
         "PM-3": {
-          "count": 80,
-          "prevalence": 0.4124
+          "count": 79,
+          "prevalence": 0.2387
         },
         "PM-12": {
-          "count": 60,
-          "prevalence": 0.3093
-        },
-        "PM-1": {
-          "count": 41,
-          "prevalence": 0.2113
+          "count": 61,
+          "prevalence": 0.1843
         },
         "PM-7": {
-          "count": 38,
-          "prevalence": 0.1959
+          "count": 40,
+          "prevalence": 0.1208
+        },
+        "PM-1": {
+          "count": 39,
+          "prevalence": 0.1178
         },
         "PM-11": {
           "count": 4,
-          "prevalence": 0.0206
+          "prevalence": 0.0121
         },
         "PM-6": {
           "count": 3,
-          "prevalence": 0.0155
+          "prevalence": 0.0091
         },
         "PM-5": {
           "count": 3,
-          "prevalence": 0.0155
+          "prevalence": 0.0091
         },
         "PM-4": {
           "count": 3,
-          "prevalence": 0.0155
+          "prevalence": 0.0091
         },
         "PM-8": {
           "count": 2,
-          "prevalence": 0.0103
+          "prevalence": 0.006
         },
         "PM-2": {
           "count": 2,
-          "prevalence": 0.0103
+          "prevalence": 0.006
         },
         "PM-10": {
           "count": 2,
-          "prevalence": 0.0103
+          "prevalence": 0.006
         },
         "PM-9": {
           "count": 1,
-          "prevalence": 0.0052
+          "prevalence": 0.003
         }
       }
     },
@@ -382,55 +382,55 @@
       }
     },
     "fictitious-billing": {
-      "corpus_count": 262,
+      "corpus_count": 259,
       "signal_prevalence": {
         "PM-3": {
-          "count": 82,
-          "prevalence": 0.313
+          "count": 75,
+          "prevalence": 0.2896
         },
         "PM-12": {
-          "count": 63,
-          "prevalence": 0.2405
+          "count": 57,
+          "prevalence": 0.2201
         },
         "PM-1": {
-          "count": 37,
-          "prevalence": 0.1412
-        },
-        "PM-8": {
-          "count": 18,
-          "prevalence": 0.0687
-        },
-        "PM-7": {
-          "count": 14,
-          "prevalence": 0.0534
+          "count": 32,
+          "prevalence": 0.1236
         },
         "PM-6": {
           "count": 13,
-          "prevalence": 0.0496
+          "prevalence": 0.0502
+        },
+        "PM-7": {
+          "count": 12,
+          "prevalence": 0.0463
+        },
+        "PM-8": {
+          "count": 8,
+          "prevalence": 0.0309
         },
         "PM-10": {
-          "count": 7,
-          "prevalence": 0.0267
+          "count": 4,
+          "prevalence": 0.0154
         },
         "PM-11": {
           "count": 2,
-          "prevalence": 0.0076
+          "prevalence": 0.0077
         },
         "PM-2": {
           "count": 2,
-          "prevalence": 0.0076
+          "prevalence": 0.0077
         },
         "PM-4": {
           "count": 2,
-          "prevalence": 0.0076
+          "prevalence": 0.0077
         },
         "PM-5": {
           "count": 2,
-          "prevalence": 0.0076
+          "prevalence": 0.0077
         },
         "PM-9": {
           "count": 1,
-          "prevalence": 0.0038
+          "prevalence": 0.0039
         }
       }
     },
@@ -484,55 +484,55 @@
       }
     },
     "gov-impersonation": {
-      "corpus_count": 817,
+      "corpus_count": 802,
       "signal_prevalence": {
         "PM-4": {
-          "count": 701,
-          "prevalence": 0.858
+          "count": 695,
+          "prevalence": 0.8666
         },
         "PM-7": {
-          "count": 442,
-          "prevalence": 0.541
+          "count": 441,
+          "prevalence": 0.5499
         },
         "PM-3": {
-          "count": 375,
-          "prevalence": 0.459
+          "count": 371,
+          "prevalence": 0.4626
         },
         "PM-1": {
-          "count": 318,
-          "prevalence": 0.3892
+          "count": 314,
+          "prevalence": 0.3915
         },
         "PM-12": {
           "count": 225,
-          "prevalence": 0.2754
+          "prevalence": 0.2805
         },
         "PM-6": {
           "count": 180,
-          "prevalence": 0.2203
+          "prevalence": 0.2244
         },
         "PM-5": {
           "count": 122,
-          "prevalence": 0.1493
+          "prevalence": 0.1521
         },
         "PM-2": {
-          "count": 47,
-          "prevalence": 0.0575
+          "count": 45,
+          "prevalence": 0.0561
         },
         "PM-8": {
           "count": 40,
-          "prevalence": 0.049
+          "prevalence": 0.0499
         },
         "PM-11": {
           "count": 37,
-          "prevalence": 0.0453
+          "prevalence": 0.0461
         },
         "PM-9": {
           "count": 18,
-          "prevalence": 0.022
+          "prevalence": 0.0224
         },
         "PM-10": {
-          "count": 13,
-          "prevalence": 0.0159
+          "count": 9,
+          "prevalence": 0.0112
         }
       }
     },
