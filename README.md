@@ -64,7 +64,7 @@ Six rounds of iterative hardening from baseline to production:
 | 1 | Basic classifier with 8-category taxonomy | F1 0.933 baseline |
 | 2 | Behavioral velocity scoring (BV-1..5) | Day 4 early detection before any scam signal |
 | 3 | Corpus grounding (22,979 entries, 7 sources) | Evidence-backed classification via Vertex AI Search |
-| 4 | Social graph validation | Imposter detection against known contacts |
+| 4 | Social graph validation | Imposter detection against contact network (see below) |
 | 5 | Adaptive baselines + elder abuse signals | False positive reduction (6 -> 5) |
 | 6 | Family safety dashboard | Human-in-the-loop proof of intervention |
 
@@ -83,6 +83,22 @@ Day 7  Reply with bank transfer        BLOCKED by Outbound Interceptor
 ```
 
 The system flags at **Day 4** -- before any explicit scam signal -- based on behavioral velocity alone.
+
+### Social Graph: How Contact Networks Are Built
+
+The social graph validates sender claims against the user's actual contact network. Graph distance determines trust: known contacts get risk reduction (-0.2), unconnected senders claiming relationships get risk boost (+0.3).
+
+**How the graph is populated in production:**
+
+1. **Message history** (highest confidence) — anyone the user has exchanged messages with for 3+ months becomes a known contact. Reciprocity, frequency, and formality are tracked automatically. A contact with 17 months of reciprocal communication is unambiguously real.
+
+2. **Relationship extraction** — the Inbound Classifier already extracts facts from every message. When grandma's email says "ゆきが来週来る" (Yuki is coming next week), the system infers a Yuki→grandma edge. When daughter's email says "ゆきと一緒に行くね" (I'll go with Yuki), the Yuki→daughter edge is corroborated from both sides.
+
+3. **Family portal registration** — when a family member signs up for the dashboard, they're added as a verified node with their stated relationship.
+
+4. **Community detection** — contacts cluster into natural groups (family, neighborhood/町内会, medical, commercial) based on mutual references, shared events, and formality patterns. Japanese keigo level encodes relationship hierarchy — a "grandson" using 尊敬語 (honorific language) instead of casual タメ口 is structurally suspicious.
+
+**What this enables:** Impersonation becomes structurally detectable. Claiming to be "Tanaka's son" means nothing if Tanaka's node has no edge to the sender. The graph strengthens with every message — a 2-year graph is nearly impossible to penetrate with a fake identity.
 
 ## Results
 
