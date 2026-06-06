@@ -16,9 +16,10 @@ from pathlib import Path
 class _FakeFS:
     def Client(self, *a, **kw): return None
     def __getattr__(self, n): return None
-if os.environ.get("FIRESTORE_EMULATOR_HOST") or not os.environ.get("GOOGLE_CLOUD_PROJECT"):
-    sys.modules.setdefault('google.cloud.firestore', _FakeFS())
-    sys.modules.setdefault('google.cloud.firestore_v1', _FakeFS())
+# Always stub Firestore for demo — use FIRESTORE_ENABLED=true to connect for real
+if os.environ.get("FIRESTORE_ENABLED", "").lower() != "true":
+    sys.modules['google.cloud.firestore'] = _FakeFS()
+    sys.modules['google.cloud.firestore_v1'] = _FakeFS()
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
