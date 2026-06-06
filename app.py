@@ -1,4 +1,4 @@
-"""Elder Scam Shield — FastAPI application entry point.
+"""Elder Shield — FastAPI application entry point.
 
 Serves the web demo, exposes the agent pipeline as REST endpoints,
 and provides the 7-day demo scenario data for judges to walk through.
@@ -55,7 +55,7 @@ _classifier_runner = Runner(
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title="Elder Scam Shield",
+    title="Elder Shield",
     description="Multi-agent scam protection for elderly Japanese users",
     version="0.1.0",
 )
@@ -150,7 +150,7 @@ async def dashboard():
     path = Path(__file__).parent / "web" / "dashboard.html"
     if not path.exists():
         return HTMLResponse(
-            content="<h1>Elder Scam Shield</h1><p>Dashboard not built yet.</p>",
+            content="<h1>Elder Shield</h1><p>Dashboard not built yet.</p>",
             status_code=200,
         )
     return HTMLResponse(content=path.read_text(encoding="utf-8"))
@@ -299,7 +299,7 @@ async def get_demo_scenario():
     """Return the pre-built 7-day demo scenario data.
 
     This is the scripted walkthrough that demonstrates how
-    Elder Scam Shield detects a multi-day social engineering attack
+    Elder Shield detects a multi-day social engineering attack
     against an elderly Japanese user.
     """
     if not SCENARIO_PATH.exists():

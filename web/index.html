@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tuned Shield — Interactive Demo</title>
+  <title>Elder Shield — Test the Shield</title>
   <style>
 /* ========================================
-   Tuned Shield — Scam Simulator v3
+   Tuned Elder Shield — Scam Simulator v3
    Two-system comparison: Per-Message vs Behavioral
    ======================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1159,7 +1159,7 @@ body {
         <path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div>
-        <span class="logo-text">Tuned Elder Scam Shield</span>
+        <span class="logo-text">Elder Shield</span>
         <span class="logo-sub">Multi-Agent Fraud Protection</span>
       </div>
     </a>
@@ -1173,7 +1173,7 @@ body {
 <!-- ===== SCREEN: LANDING ===== -->
 <div class="screen" id="screen-landing">
   <div class="landing">
-    <h1>Tuned Elder Scam Shield</h1>
+    <h1>Elder Shield</h1>
     <p class="subtitle">
       Elder fraud is a <span class="landing-stat">$77.7 billion global problem</span> (Nasdaq).<br>
       Our multi-agent system protects elderly users through behavioral analysis,
@@ -1183,7 +1183,7 @@ body {
       <button class="entry-btn entry-btn-primary" id="btn-start-sim">
         <div>
           <div class="btn-label">Play the Simulator</div>
-          <div class="btn-desc">Can you scam Grandma? See the system react in real-time.</div>
+          <div class="btn-desc">Test the Shield See the system react in real-time.</div>
         </div>
         <span class="btn-arrow">&rarr;</span>
       </button>
@@ -1205,14 +1205,14 @@ body {
       <!-- Left: conversation thread -->
       <div class="thread-col">
         <div class="thread-col-header">
-          <span class="thread-col-title">Can You Scam Grandma?</span>
+          <span class="thread-col-title">Test the Shield</span>
           <span class="thread-col-sub">Choose messages. Watch the system react.</span>
         </div>
         <div class="thread-scroll" id="thread">
           <div id="thread-welcome" class="thread-welcome">
             <div class="welcome-arrow">&#8595;</div>
             <div class="welcome-title">Choose a message below to begin</div>
-            <div class="welcome-sub">Pick one of the three approaches — or write your own.<br>Watch how Tuned Shield analyzes each message compared to traditional protection.</div>
+            <div class="welcome-sub">Pick one of the three approaches — or write your own.<br>Watch how Tuned Elder Shield analyzes each message compared to traditional protection.</div>
           </div>
         </div>
         <div class="bottom-bar" id="bottom-bar">
@@ -1230,7 +1230,7 @@ body {
         <div class="risk-gauge-section">
           <div class="sp-title" style="display:flex; align-items:center; justify-content:center; gap:6px;">
             <svg viewBox="0 0 32 40" width="16" height="20"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Tuned Elder Scam Shield
+            Tuned Elder Shield
           </div>
           <div class="risk-gauge-source">Behavioral Analyzer</div>
           <div class="risk-big-number" id="sp-risk-val" style="color:var(--green)">0.05</div>
@@ -1251,7 +1251,7 @@ body {
         <div class="sp-section">
           <div class="sp-title" style="display:flex; align-items:center; gap:6px;">
             <svg viewBox="0 0 32 40" width="14" height="18"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Tuned Shield
+            Tuned Elder Shield
           </div>
           <div class="risk-timeline-mini" id="sp-timeline">
             <div class="rtm-bar-wrap" data-day="1"><div class="rtm-empty"></div><span class="rtm-label">1</span></div>
@@ -1807,7 +1807,7 @@ body {
   }
 
   function updateTimelineMini() {
-    // Tuned Shield timeline (main)
+    // Tuned Elder Shield timeline (main)
     var wraps = $('sp-timeline').querySelectorAll('.rtm-bar-wrap');
     for (var i = 0; i < wraps.length; i++) {
       var inner = wraps[i].querySelector('.rtm-bar, .rtm-empty');
@@ -2205,9 +2205,9 @@ body {
     // VS divider
     html += '<div class="vs-divider">VS</div>';
 
-    // Right: Tuned Shield (wider, with details)
+    // Right: Tuned Elder Shield (wider, with details)
     html += '<div class="vs-right">';
-    html += '<div class="vs-label vs-label-tuned">Tuned Elder Scam Shield</div>';
+    html += '<div class="vs-label vs-label-tuned">Tuned Elder Shield</div>';
     html += '<span class="ai-badge ' + behBadgeClass + '">' + behavioralClass + '</span>';
     html += '<div class="vs-metric">risk ' + behavioralRisk.toFixed(2) + '</div>';
     if (sigHtml) html += '<div class="ai-signals">' + sigHtml + '</div>';
@@ -2457,7 +2457,7 @@ body {
       '<div id="thread-welcome" class="thread-welcome">' +
         '<div class="welcome-arrow">&#8595;</div>' +
         '<div class="welcome-title">Choose a message below to begin</div>' +
-        '<div class="welcome-sub">Pick one of the three approaches — or write your own.<br>Watch how Tuned Shield analyzes each message compared to traditional protection.</div>' +
+        '<div class="welcome-sub">Pick one of the three approaches — or write your own.<br>Watch how Tuned Elder Shield analyzes each message compared to traditional protection.</div>' +
       '</div>';
     $('choices').innerHTML = '';
     $('sp-risk-fill').style.width = '5%';

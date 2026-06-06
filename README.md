@@ -1,4 +1,4 @@
-# Elder Scam Shield
+# Elder Shield
 
 Multi-agent protection system that detects elder fraud through behavioral analysis, social graph inference, and outbound interception. Built on Google ADK 2.0 with Gemini.
 
@@ -94,15 +94,15 @@ Both systems eventually catch the scam. The question is when — and what happen
 ```
 "Did you catch the scam?"
   Pre-ADK:        Yes (at Day 7, when "send me ¥500,000" arrives)
-  Elder Scam Shield:  Yes (at Day 3, from behavioral velocity alone)
+  Elder Shield:  Yes (at Day 3, from behavioral velocity alone)
 
 "Did you catch it BEFORE the money request?"
   Pre-ADK:        No — only catches the explicit ask
-  Elder Scam Shield:  Yes — flagged 3 days earlier
+  Elder Shield:  Yes — flagged 3 days earlier
 
 "What if the scammer calls grandma on the phone for the close?"
   Pre-ADK:        Misses entirely — never sees the phone call
-  Elder Scam Shield:  Already flagged — family was alerted at Day 3
+  Elder Shield:  Already flagged — family was alerted at Day 3
 ```
 
 This is the difference between catching a scam and **preventing** one. A system that flags at Day 7 is documenting a crime. A system that flags at Day 3 is preventing it.
@@ -111,7 +111,7 @@ This is the difference between catching a scam and **preventing** one. A system 
 
 A single-message classifier -- no matter how good the model -- structurally cannot detect trust-building attacks. Each individual message in a 7-day scam sequence is genuinely safe. The improvement isn't a better F1 score. It's capabilities that didn't exist before:
 
-| Capability | Pre-ADK Tuning | Elder Scam Shield |
+| Capability | Pre-ADK Tuning | Elder Shield |
 |---|---|---|
 | Obvious scam detection | Yes | Yes |
 | Multi-day trust-building detection | **Impossible** — no cross-message state | **Day 4 flag** (3 days before money ask) |
@@ -123,7 +123,7 @@ A single-message classifier -- no matter how good the model -- structurally cann
 
 ### Classification accuracy (80-case eval, live Gemini)
 
-| Metric | Pre-ADK | Elder Scam Shield | Delta |
+| Metric | Pre-ADK | Elder Shield | Delta |
 |--------|-------------|-------------------|-------|
 | F1 Score | 0.933 | **0.944** | +0.011 |
 | Precision | 0.875 | **0.894** | +0.019 |
@@ -137,7 +137,7 @@ The F1 improvement is modest because Gemini is already good at per-message class
 Live at [shield.faxi.jp](https://shield.faxi.jp):
 
 - **/shield** -- Overview with trust-building scam walkthrough, real eval results, and architecture explanation.
-- **/simulator** -- Interactive "Can You Scam Grandma?" with live Gemini classification. Write a scam message, watch it get classified in real time.
+- **/simulator** -- Interactive "Test the Shield" — send messages and watch the protection system respond in real time via live Gemini.
 - **/dashboard** -- Family safety dashboard with quarantine inbox, risk timeline, contact graph visualization, and protection summary.
 
 ## Tech Stack
