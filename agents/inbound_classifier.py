@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from google.adk import Agent
 from agents.tools.search_scam_corpus import search_scam_corpus
 from agents.tools.graph_builder import update_graph_from_message
+from agents.tools.pipeline import run_pre_classification_pipeline, decision_synthesis
 try:
     from google.cloud import firestore
     db = firestore.Client()
@@ -88,14 +89,20 @@ message text. Your classification MUST cite evidence:
 If the corpus returns no matches, say so — but still classify based on signals.
 Never classify based on prompt instructions alone when corpus evidence is available.
 
-## Social graph building
-After classifying every message, call update_graph_from_message with the sender_id
-and the extracted_facts. This builds the user's contact network over time:
-- Each message strengthens the sender's node
-- Mentioned contacts create cross-reference edges
-- Senders who accumulate enough history get promoted to known contacts
-The graph is how we validate relationships — not from a single claim, but from
-months of accumulated cross-references across multiple contacts."""
+## 8-STEP HARDENED PIPELINE
+Your first action on EVERY message should be to call run_pre_classification_pipeline.
+This runs 4 pre-processing steps BEFORE you classify:
+  Step 1: Linguistic analysis (style fingerprint, manipulation density)
+  Step 2: Entity extraction (names, amounts, locations, institutions)
+  Step 3: Corpus search (TF-IDF over 22,979 entries)
+  Step 4: Social graph validation (graph distance, imposter detection)
+
+The pipeline returns pre-computed context. YOUR JOB is step 5: read the
+pre-computed evidence and make a classification judgment. You don't need
+to reason from scratch — the infrastructure did the heavy lifting.
+
+After classifying, call update_graph_from_message to build the contact
+network over time."""
 
 
 
@@ -158,5 +165,5 @@ inbound_classifier = Agent(
         "for longitudinal behavioral analysis."
     ),
     instruction=SYSTEM_PROMPT,
-    tools=[read_contact_list, write_classification, publish_classified_event, search_scam_corpus, update_graph_from_message],
+    tools=[run_pre_classification_pipeline, read_contact_list, write_classification, publish_classified_event, search_scam_corpus, update_graph_from_message, decision_synthesis],
 )

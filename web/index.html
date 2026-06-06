@@ -2044,16 +2044,22 @@ body {
     loadingCard.id = 'loading-card';
     loadingCard.innerHTML =
       '<div class="loading-steps">' +
-        '<div class="loading-step active" id="ls-1"><span class="ls-dot"></span> Searching scam corpus (22,979 entries)...</div>' +
-        '<div class="loading-step" id="ls-2"><span class="ls-dot"></span> Running per-message classification with Gemini...</div>' +
-        '<div class="loading-step" id="ls-3"><span class="ls-dot"></span> Running Behavioral Analyzer across all messages...</div>' +
+        '<div class="loading-step active" id="ls-1"><span class="ls-dot"></span> Step 1: Linguistic analysis</div>' +
+        '<div class="loading-step" id="ls-2"><span class="ls-dot"></span> Step 2: Entity extraction</div>' +
+        '<div class="loading-step" id="ls-3"><span class="ls-dot"></span> Step 3: Corpus search (22,979 entries)</div>' +
+        '<div class="loading-step" id="ls-4"><span class="ls-dot"></span> Step 4: Social graph validation</div>' +
+        '<div class="loading-step" id="ls-5"><span class="ls-dot"></span> Step 5: Classification (Gemini Flash Lite)</div>' +
+        '<div class="loading-step" id="ls-6"><span class="ls-dot"></span> Step 6-8: Behavioral + decision synthesis</div>' +
       '</div>';
     msgGroup.appendChild(loadingCard);
     thread.scrollTop = thread.scrollHeight;
 
-    // Animate loading steps
-    setTimeout(function() { var s = document.getElementById('ls-2'); if (s) s.classList.add('active'); }, 1000);
-    setTimeout(function() { var s = document.getElementById('ls-3'); if (s) s.classList.add('active'); }, 2000);
+    // Animate loading steps progressively
+    setTimeout(function() { var s = document.getElementById('ls-2'); if (s) s.classList.add('active'); }, 300);
+    setTimeout(function() { var s = document.getElementById('ls-3'); if (s) s.classList.add('active'); }, 600);
+    setTimeout(function() { var s = document.getElementById('ls-4'); if (s) s.classList.add('active'); }, 900);
+    setTimeout(function() { var s = document.getElementById('ls-5'); if (s) s.classList.add('active'); }, 1200);
+    setTimeout(function() { var s = document.getElementById('ls-6'); if (s) s.classList.add('active'); }, 1800);
 
     // Call live Gemini API for per-message classification
     var messageForApi = c.jp || c.en || msgText;
