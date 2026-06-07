@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elder Shield — Conversation Analyzer</title>
+  <link rel="stylesheet" href="/static/shared-nav.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -23,13 +24,7 @@
     html { font-size: 16px; } body { font-family: var(--font); color: var(--gray-700); background: var(--gray-50); height: 100vh; display: flex; flex-direction: column; }
 
     /* Nav */
-    .nav { background: var(--navy); padding: 10px 20px; flex-shrink: 0; }
-    .nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-    .nav-brand { color: #fff; text-decoration: none; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
-    .nav-links { display: flex; gap: 4px; list-style: none; }
-    .nav-links a { color: var(--gray-300); text-decoration: none; font-size: 0.8rem; padding: 5px 10px; border-radius: 6px; }
-    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
-    .nav-links a.nav-app { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
+    /* Nav + tabs loaded from shared-nav.css */
 
     /* Main layout */
     .main { flex: 1; display: grid; grid-template-columns: 1fr 420px; gap: 0; overflow: hidden; max-width: 1400px; margin: 0 auto; width: 100%; }
@@ -126,27 +121,24 @@
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="/shield" class="nav-brand">
-      <svg viewBox="0 0 32 40" width="20" height="25"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<nav class="sim-nav">
+  <div class="sim-nav-inner">
+    <a href="/shield" class="sim-nav-brand">
+      <svg viewBox="0 0 32 40" width="22" height="28"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Elder Shield
     </a>
-    <ul class="nav-links">
+    <ul class="sim-nav-links">
       <li><a href="/shield">Overview</a></li>
-      <li><a href="/simulator" class="nav-app">Simulator</a></li>
-      <li><a href="/technical" class="nav-app">Technical</a></li>
+      <li><a href="/technical" class="sim-nav-btn">Technical</a></li>
+      <li><a href="/dashboard" class="sim-nav-btn">Dashboard</a></li>
     </ul>
   </div>
 </nav>
-
-<div style="display:flex; gap:2px; max-width:1400px; margin:0 auto; padding:0 24px; background:var(--navy);">
-  <a href="/simulator" style="padding:10px 24px; font-size:0.82rem; font-weight:600; text-decoration:none; border-radius:8px 8px 0 0; background:rgba(255,255,255,0.1); color:var(--gray-400); margin-top:8px;">
-    Scam Simulator
-  </a>
-  <a href="/analyzer" style="padding:10px 24px; font-size:0.82rem; font-weight:700; text-decoration:none; border-radius:8px 8px 0 0; background:#fff; color:var(--navy); margin-top:8px;">
-    Conversation Analyzer
-  </a>
+<div class="sim-tab-bar">
+  <div class="sim-tab-bar-inner">
+    <a href="/simulator" class="sim-tab sim-tab-inactive">Scam Simulator</a>
+    <a href="/analyzer" class="sim-tab sim-tab-active">Conversation Analyzer</a>
+  </div>
 </div>
 
 <div class="main">

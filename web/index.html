@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elder Shield — Test the Shield</title>
+  <link rel="stylesheet" href="/static/shared-nav.css">
   <style>
 /* ========================================
    Tuned Elder Shield — Scam Simulator v3
@@ -53,67 +54,7 @@ body {
   flex-direction: column;
 }
 
-/* ---- Header (dark nav) ---- */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--navy);
-}
-.header-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 10px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #fff;
-}
-.shield-icon { flex-shrink: 0; }
-.logo-text {
-  font-size: 1rem;
-  font-weight: 800;
-  color: #fff;
-  display: block;
-  line-height: 1.2;
-}
-.logo-sub {
-  font-size: 0.7rem;
-  color: var(--gray-400);
-  display: block;
-}
-.header-nav {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-.header-nav a {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  text-decoration: none;
-  color: var(--gray-300);
-  transition: all 0.2s;
-}
-.header-nav a:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.08);
-}
-.header-nav a.nav-app {
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff;
-  font-weight: 600;
-}
+/* Header + tabs loaded from shared-nav.css */
 
 /* ---- Screens ---- */
 .screen { display: none; }
@@ -1157,25 +1098,19 @@ body {
 </head>
 <body>
 
-<header class="header">
-  <div class="header-inner">
-    <a href="/shield" class="logo" style="text-decoration:none;color:inherit;">
-      <svg class="shield-icon" viewBox="0 0 32 40" width="26" height="32">
-        <path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/>
-        <path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div>
-        <span class="logo-text">Elder Shield</span>
-        <span class="logo-sub">Multi-Agent Elder Protection</span>
-      </div>
+<nav class="sim-nav">
+  <div class="sim-nav-inner">
+    <a href="/shield" class="sim-nav-brand">
+      <svg viewBox="0 0 32 40" width="22" height="28"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Elder Shield
     </a>
-    <nav class="header-nav">
-      <a href="/shield">Overview</a>
-      <a href="/technical" class="nav-app">Technical</a>
-      <a href="/dashboard" class="nav-app">Dashboard</a>
-    </nav>
+    <ul class="sim-nav-links">
+      <li><a href="/shield">Overview</a></li>
+      <li><a href="/technical" class="sim-nav-btn">Technical</a></li>
+      <li><a href="/dashboard" class="sim-nav-btn">Dashboard</a></li>
+    </ul>
   </div>
-</header>
+</nav>
 
 <!-- ===== SCREEN: LANDING ===== -->
 <div class="screen" id="screen-landing">
@@ -1205,14 +1140,11 @@ body {
   </div>
 </div>
 
-<!-- ===== SIMULATOR TABS ===== -->
-<div style="display:flex; gap:2px; max-width:1400px; margin:0 auto; padding:0 24px; background:var(--navy);">
-  <a href="/simulator" style="padding:10px 24px; font-size:0.82rem; font-weight:700; text-decoration:none; border-radius:8px 8px 0 0; background:#fff; color:var(--navy); margin-top:8px;">
-    Scam Simulator
-  </a>
-  <a href="/analyzer" style="padding:10px 24px; font-size:0.82rem; font-weight:600; text-decoration:none; border-radius:8px 8px 0 0; background:rgba(255,255,255,0.1); color:var(--gray-400); margin-top:8px;">
-    Conversation Analyzer
-  </a>
+<div class="sim-tab-bar">
+  <div class="sim-tab-bar-inner">
+    <a href="/simulator" class="sim-tab sim-tab-active">Scam Simulator</a>
+    <a href="/analyzer" class="sim-tab sim-tab-inactive">Conversation Analyzer</a>
+  </div>
 </div>
 
 <!-- ===== SCREEN: SIMULATOR ===== -->

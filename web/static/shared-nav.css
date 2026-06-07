@@ -1,0 +1,91 @@
+/* Shared navigation + tab bar for all simulator pages */
+
+.sim-nav {
+  background: #0f172a;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.sim-nav-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sim-nav-brand {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sim-nav-links {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+}
+.sim-nav-links a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.sim-nav-links a:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+}
+.sim-nav-links a.sim-nav-btn {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  font-weight: 600;
+}
+.sim-nav-links a.sim-nav-btn:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+/* Tab bar */
+.sim-tab-bar {
+  background: #0f172a;
+  padding: 0 24px;
+}
+.sim-tab-bar-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  gap: 2px;
+  padding-top: 6px;
+}
+.sim-tab {
+  padding: 10px 24px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.2s;
+}
+.sim-tab-active {
+  background: #fff;
+  color: #0f172a;
+  font-weight: 700;
+}
+.sim-tab-inactive {
+  background: rgba(255,255,255,0.08);
+  color: #94a3b8;
+}
+.sim-tab-inactive:hover {
+  background: rgba(255,255,255,0.15);
+  color: #cbd5e1;
+}
+
+@media (max-width: 768px) {
+  .sim-nav-links { display: none; }
+  .sim-tab { padding: 8px 16px; font-size: 0.78rem; }
+}
