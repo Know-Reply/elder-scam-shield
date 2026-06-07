@@ -9,7 +9,7 @@
 .sim-nav-inner {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 10px 24px;
+  padding: 12px 24px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -51,37 +51,42 @@
   background: rgba(255,255,255,0.22);
 }
 
-/* Tab bar */
+/* Tab bar — sits between nav and content */
 .sim-tab-bar {
   background: #0f172a;
-  padding: 0 24px;
 }
 .sim-tab-bar-inner {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 0 24px;
   display: flex;
-  gap: 2px;
-  padding-top: 6px;
+  gap: 0;
+  align-items: flex-end;
+  height: 42px;
 }
 .sim-tab {
-  padding: 10px 24px;
-  font-size: 0.85rem;
+  padding: 9px 28px;
+  font-size: 0.88rem;
   font-weight: 600;
   text-decoration: none;
-  border-radius: 8px 8px 0 0;
-  transition: all 0.2s;
+  border-radius: 10px 10px 0 0;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
 }
 .sim-tab-active {
   background: #fff;
   color: #0f172a;
   font-weight: 700;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
 }
 .sim-tab-inactive {
-  background: rgba(255,255,255,0.08);
-  color: #94a3b8;
+  background: rgba(255,255,255,0.06);
+  color: #64748b;
+  margin-right: 2px;
 }
 .sim-tab-inactive:hover {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.14);
   color: #cbd5e1;
 }
 
