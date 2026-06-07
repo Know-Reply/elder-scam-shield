@@ -6,7 +6,6 @@ from .graph_builder import update_graph_from_message, check_cross_references
 from .pipeline import (
     run_pre_classification_pipeline,
     linguistic_analysis,
-    entity_extraction,
     decision_synthesis,
 )
 
@@ -15,5 +14,5 @@ __all__ = [
     "validate_social_graph",
     "update_graph_from_message", "check_cross_references",
     "run_pre_classification_pipeline", "linguistic_analysis",
-    "entity_extraction", "decision_synthesis",
+    "decision_synthesis",
 ]

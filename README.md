@@ -93,7 +93,7 @@ Six rounds of iterative hardening, each compounding on the last:
 | 4 | Social graph validation | Imposter detection against contact network | Agent Simulation |
 | 5 | Adaptive baselines + elder abuse signals (EA-1..4) | False positive reduction (6 to 5) | Memory Bank |
 | 6 | Family safety dashboard | Human-in-the-loop proof of intervention | -- |
-| 7 | 8-step pipeline (linguistic + entity + TF-IDF + graph → LLM → behavioral → synthesis) | Same F1 on cheapest model, 5 new capabilities | Agent Observability |
+| 7 | 7-step pipeline (linguistic + TF-IDF + graph + contra-indicators → LLM classification + entity extraction → behavioral → synthesis) | Same F1 on cheapest model, 5 new capabilities | Agent Observability |
 
 ### How ADK tools drove the optimization
 
@@ -263,7 +263,7 @@ The system doesn't decide "safe or scam." It decides "scam, family support, or a
 ### How the pipeline creates judgment, not just pattern matching
 
 Each step moves intelligence OUT of the model and INTO infrastructure:
-- Steps 1-4 run **before** the LLM — linguistic analysis, entity extraction, TF-IDF corpus search, graph validation, **contra-indicator analysis**. Pure code, no API calls, ~50ms.
+- Steps 1-3 run **before** the LLM — linguistic analysis, TF-IDF corpus search, graph validation, contra-indicator analysis. Pure code, no API calls, ~50ms.
 - Step 5 is the LLM call — but now its job is simpler: "given this pre-computed evidence from both sides, what's your judgment?"
 - Steps 6-8 run **after** — profile updates, behavioral scoring, decision synthesis with full evidence chain.
 

@@ -226,7 +226,7 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
 <h3>Production Execution Model</h3>
 <pre>Hot path (per message, &lt;1s):         Async path (per sender profile):
   Message → FunctionNode               Classification facts accumulate
-    (Steps 1-4: pre-processing)           in sender profile via session state
+    (Steps 1-3: pre-processing)           in sender profile via session state
   → Inbound Classifier (Agent)        → Behavioral Analyzer (Agent)
     output_key → session state           triggered by accumulated evidence
   → Response                          → Family Alerter (if risk &gt; 0.6)</pre>

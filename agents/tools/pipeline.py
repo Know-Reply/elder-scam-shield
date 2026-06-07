@@ -1,21 +1,19 @@
-"""Multi-step hardened pipeline — moves intelligence OUT of the model.
+"""Multi-step hardened pipeline — pre-processing + LLM judgment.
 
-8-step pipeline that runs pre-processing BEFORE the LLM classifier,
-so by the time Gemini sees the message, it already has metadata signals,
-extracted entities, corpus matches, and graph validation as context.
-
-The model confirms or overrides pre-computed signals — it doesn't reason
-from scratch. This is what enables running on smaller/cheaper models.
+Pre-processing runs BEFORE the LLM classifier, providing linguistic
+analysis, corpus matches, graph validation, and contra-indicators
+as context. The LLM extracts entities and classifies — entity extraction
+is the LLM's job, not regex.
 
 Steps:
-  1. Linguistic Analysis    (new — lightweight NLP, no LLM)
-  2. Entity Extraction      (rule-based pre-extraction)
-  3. Corpus Search          (TF-IDF, upgraded from Jaccard)
-  4. Social Graph Validation
-  5. Per-Message Classification (LLM — consumes steps 1-4 as context)
-  6. Sender Profile Update
-  7. Behavioral Velocity Scoring
-  8. Decision Synthesis + Action Routing
+  1. Linguistic Analysis    (structural NLP, no LLM)
+  2. Corpus Search          (TF-IDF over 22,979 entries)
+  3. Social Graph Validation
+  3.5 Contra-Indicator Check
+  4. Per-Message Classification + Entity Extraction (LLM)
+  5. Sender Profile Update
+  6. Behavioral Velocity Scoring
+  7. Decision Synthesis + Action Routing
 """
 
 import re
@@ -142,105 +140,10 @@ def linguistic_analysis(text: str, sender_style_baseline: dict = None) -> dict:
     }
 
 
-# ── Step 2: Entity Extraction (rule-based) ──────────────────────────────
-
-_AMOUNT_PATTERN = re.compile(
-    r'(?:¥|￥|\\)?\s*(\d{1,3}(?:,\d{3})*(?:\.\d+)?)\s*(?:万)?(?:円|yen|usd|\$|dollars?)?'
-    r'|(\d+)\s*万\s*円'
-    r'|\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d+)?)',
-    re.I
-)
-
-_JP_RELATIONSHIP_WORDS = {
-    "孫": "grandchild", "息子": "son", "娘": "daughter",
-    "甥": "nephew", "姪": "niece", "おばあちゃん": "grandmother",
-    "おじいちゃん": "grandfather", "お母さん": "mother", "お父さん": "father",
-    "姉": "older sister", "兄": "older brother", "妹": "younger sister",
-    "弟": "younger brother", "奥さん": "wife", "主人": "husband",
-}
-
-_EN_RELATIONSHIP_WORDS = {
-    "grandson": "grandson", "granddaughter": "granddaughter",
-    "grandchild": "grandchild", "son": "son", "daughter": "daughter",
-    "nephew": "nephew", "niece": "niece", "grandmother": "grandmother",
-    "grandfather": "grandfather", "grandma": "grandmother",
-    "grandpa": "grandfather", "mother": "mother", "father": "father",
-    "mom": "mother", "dad": "father", "wife": "wife", "husband": "husband",
-}
-
-_JP_LOCATION_PATTERN = re.compile(
-    r'(東京|大阪|横浜|名古屋|京都|神戸|福岡|札幌|仙台|広島|さいたま|千葉|'
-    r'渋谷|新宿|池袋|目黒|品川|上野|浅草|秋葉原|銀座)'
-)
-
-_INSTITUTION_PATTERN = re.compile(
-    r'(警察|警視庁|市役所|税務署|年金|役所|銀行|病院|クリニック|'
-    r'裁判所|弁護士|証券|保険|郵便局|NTT|au|ソフトバンク|'
-    r'police|hospital|bank|IRS|FBI|government|court)',
-    re.I
-)
-
-
-def entity_extraction(text: str) -> dict:
-    """Step 2: Rule-based entity extraction — no LLM needed.
-
-    Extracts structured facts from message text using patterns.
-    Runs BEFORE the LLM classifier so every downstream agent
-    has pre-extracted entities available.
-    """
-    language = _detect_language(text)
-
-    # Names (look for Japanese name patterns or quoted names)
-    names = []
-    # Japanese: look for relationship + name combos
-    for jp_word, en_word in _JP_RELATIONSHIP_WORDS.items():
-        if jp_word in text:
-            names.append({"word": jp_word, "relationship": en_word})
-
-    for en_word, rel in _EN_RELATIONSHIP_WORDS.items():
-        if re.search(r'\b' + en_word + r'\b', text, re.I):
-            names.append({"word": en_word, "relationship": rel})
-
-    # Financial amounts
-    amounts = []
-    for m in _AMOUNT_PATTERN.finditer(text):
-        raw = m.group()
-        amounts.append(raw.strip())
-
-    # Locations
-    locations = _JP_LOCATION_PATTERN.findall(text)
-
-    # Institutions
-    institutions = _INSTITUTION_PATTERN.findall(text)
-
-    # Deadlines / urgency markers
-    has_deadline = bool(re.search(
-        r'今日中|本日中|within 24|by today|by tomorrow|明日まで|期限',
-        text, re.I
-    ))
-
-    # Third-party references (people mentioned but not the sender)
-    third_parties = []
-    # Japanese: "Xさんが/に/の" pattern
-    jp_refs = re.findall(r'([ぁ-ん]{2,}|[ァ-ヶ]{2,}|[一-龥]{1,4})(?:さん|くん|ちゃん)', text)
-    third_parties.extend(jp_refs)
-
-    return {
-        "relationships_claimed": names,
-        "financial_amounts": amounts,
-        "locations": locations,
-        "institutions": institutions,
-        "has_deadline": has_deadline,
-        "third_party_references": third_parties,
-        "entity_count": len(names) + len(amounts) + len(locations) + len(institutions),
-    }
-
-
-# ── Step 8: Decision Synthesis ──────────────────────────────────────────
+# ── Step 7: Decision Synthesis ──────────────────────────────────────────
 
 def decision_synthesis(
     linguistic: dict,
-    entities: dict,
     corpus_matches: list,
     graph_validation: dict,
     classification: dict,
@@ -272,22 +175,6 @@ def decision_synthesis(
             "signal": "style_deviation",
             "value": linguistic["style_deviation"],
             "detail": "Writing style deviates significantly from sender baseline",
-        })
-
-    # Entity signals
-    if entities.get("financial_amounts"):
-        evidence_chain.append({
-            "source": "entity_extraction",
-            "signal": "financial_amounts_detected",
-            "value": entities["financial_amounts"],
-            "detail": f"Financial amounts found: {', '.join(entities['financial_amounts'])}",
-        })
-    if entities.get("has_deadline"):
-        evidence_chain.append({
-            "source": "entity_extraction",
-            "signal": "deadline_pressure",
-            "value": True,
-            "detail": "Message contains deadline/urgency markers",
         })
 
     # Corpus evidence
@@ -404,7 +291,7 @@ def victim_state_analysis(text: str) -> dict:
 
 # ── Full pipeline runner ────────────────────────────────────────────────
 
-def _contra_indicator_check(text: str, entities: dict, linguistic: dict) -> dict:
+def _contra_indicator_check(text: str, linguistic: dict) -> dict:
     """Step 4.5: Check for signs that a scam-shaped message may be legitimate.
 
     Scams and real family requests can look structurally identical.
@@ -485,36 +372,29 @@ def run_pre_classification_pipeline(
     """Run steps 1-4 of the pipeline BEFORE the LLM classifier.
 
     Returns a context bundle that the Classifier consumes.
-    The Classifier's job becomes: "given this pre-computed evidence,
-    what's your classification?"
-
-    This is what makes smaller models viable — the heavy lifting
-    is done before the LLM sees the message.
+    The LLM extracts entities and classifies. Pre-processing provides
+    context the LLM can't compute itself (corpus matches, graph state).
     """
     from agents.tools.search_scam_corpus import search_scam_corpus
     from agents.tools.social_graph import validate_social_graph
 
-    # Step 1: Linguistic Analysis
+    # Step 1: Linguistic Analysis (structural, no LLM)
     linguistic = linguistic_analysis(message_text, sender_style_baseline)
 
-    # Step 2: Entity Extraction
-    entities = entity_extraction(message_text)
-
-    # Step 3: Corpus Search (TF-IDF)
+    # Step 2: Corpus Search (TF-IDF)
     corpus_result = search_scam_corpus(message_text, top_k=5)
 
-    # Step 4: Social Graph Validation
+    # Step 3: Social Graph Validation
     graph = validate_social_graph(user_id, sender_id)
 
-    # Step 4.5: Contra-indicator analysis
-    contra = _contra_indicator_check(message_text, entities, linguistic)
+    # Step 3.5: Contra-indicator analysis
+    contra = _contra_indicator_check(message_text, linguistic)
 
     return {
         "linguistic": linguistic,
-        "entities": entities,
         "corpus_matches": corpus_result.get("matches", []),
         "corpus_stats": corpus_result.get("corpus_stats", {}),
         "graph_validation": graph,
         "contra_indicators": contra,
-        "pipeline_version": "v2_8step",
+        "pipeline_version": "v2_7step",
     }
