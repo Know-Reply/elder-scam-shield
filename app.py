@@ -330,23 +330,14 @@ async def classify_message(req: ClassifyRequest):
             "pipeline_context": pipeline_ctx,
         })
 
-        # Update conversation knowledge graph (inbound turn)
-        turn_index = len(session.state.get("fact_ledger", {}).get("turns", []))
-        graph_update = process_conversation_turn(
-            content, "inbound", turn_index,
-            session_state=session.state,
-        )
-        session.state["fact_ledger"] = graph_update["fact_ledger"]
-        session.state["epistemic_state"] = graph_update["epistemic_state"]
-        session.state["knowledge_graph"] = graph_update["knowledge_graph"]
-
-        # Include graph signals in prompt context
-        graph_signals = graph_update.get("graph_signals", {})
+        # Include existing graph context in prompt (from prior turns)
+        existing_graph = session.state.get("knowledge_graph", {})
+        existing_signals = existing_graph.get("graph_signals", {})
         graph_context = ""
-        if graph_signals.get("echo_grounded_identity"):
+        if existing_signals.get("echo_grounded_identity"):
             graph_context = "\nWARNING: Sender's identity claim is echo-grounded — built from facts the elder revealed first."
-        if graph_signals.get("echo_ratio", 0) > 0.5:
-            graph_context += f"\nEcho ratio: {graph_signals['echo_ratio']} — sender is mostly repeating elder's own information."
+        if existing_signals.get("echo_ratio", 0) > 0.5:
+            graph_context += f"\nEcho ratio: {existing_signals['echo_ratio']} — sender is mostly repeating elder's own information."
 
         prompt = (
             f"新着メッセージを分析してください。送信者: {sender}, "
@@ -411,6 +402,19 @@ async def classify_message(req: ClassifyRequest):
 
         if "reasoning" not in result:
             result["reasoning"] = ""
+
+        # Update conversation knowledge graph with LLM-extracted facts
+        llm_facts = result.get("extracted_facts", {})
+        if llm_facts:
+            turn_index = len(session.state.get("fact_ledger", {}).get("turns", []))
+            graph_update = process_conversation_turn(
+                content, "inbound", turn_index,
+                session_state=session.state,
+                extracted_facts=llm_facts,
+            )
+            session.state["fact_ledger"] = graph_update["fact_ledger"]
+            session.state["epistemic_state"] = graph_update["epistemic_state"]
+            session.state["knowledge_graph"] = graph_update["knowledge_graph"]
 
         return {"result": result, "sender": sender, "live": True}
     except Exception as e:
@@ -574,15 +578,14 @@ async def intercept_outbound(req: InterceptRequest):
             "user_id": "demo_user",
         })
 
-        # Update conversation knowledge graph (outbound turn — elder's reply)
+        # Update epistemic state (structural — no LLM needed) before interceptor
         turn_index = len(session.state.get("fact_ledger", {}).get("turns", []))
         graph_update = process_conversation_turn(
             req.content, "outbound", turn_index,
             session_state=session.state,
+            extracted_facts=None,  # facts come after LLM
         )
-        session.state["fact_ledger"] = graph_update["fact_ledger"]
         session.state["epistemic_state"] = graph_update["epistemic_state"]
-        session.state["knowledge_graph"] = graph_update["knowledge_graph"]
 
         # Build epistemic context for the interceptor
         graph_signals = graph_update.get("graph_signals", {})
@@ -634,13 +637,64 @@ _analyzer_states: dict[str, dict] = {}
 async def conversation_turn(req: ConversationTurnRequest):
     """Process a single conversation turn through the knowledge graph.
 
-    No LLM call — pure Python graph operations. Returns the full
-    updated state: fact ledger, epistemic state, knowledge graph signals.
+    Calls the classifier LLM to extract facts (multilingual, context-aware),
+    then feeds them into the provenance-tracking knowledge graph.
     """
     state = _analyzer_states.get(req.session_id, {})
 
+    # Call the classifier to get LLM-extracted facts
+    extracted_facts = {}
+    try:
+        session = await _session_service.create_session(
+            app_name="elder_scam_shield", user_id="analyzer"
+        )
+        msg = genai_types.Content(
+            role="user",
+            parts=[genai_types.Part(text=f"Classify and extract facts:\n\n{req.content}")],
+        )
+        async for event in _classifier_runner.run_async(
+            user_id="analyzer", session_id=session.id, new_message=msg
+        ):
+            if not (hasattr(event, "content") and event.content and event.content.parts):
+                continue
+            for part in event.content.parts:
+                if hasattr(part, "text") and part.text:
+                    text = part.text.strip()
+                    if text.startswith("```"):
+                        text = re.sub(r'^```\w*\s*', '', text)
+                        text = re.sub(r'\s*```$', '', text)
+                    start = text.find("{")
+                    if start >= 0:
+                        depth = 0
+                        end = start
+                        for i in range(start, len(text)):
+                            if text[i] == "{": depth += 1
+                            elif text[i] == "}": depth -= 1
+                            if depth == 0:
+                                end = i + 1
+                                break
+                        try:
+                            parsed = json.loads(text[start:end])
+                            if parsed.get("extracted_facts"):
+                                extracted_facts = parsed["extracted_facts"]
+                        except json.JSONDecodeError:
+                            pass
+
+        # Also check session state (output_key)
+        updated = await _session_service.get_session(
+            app_name="elder_scam_shield", user_id="analyzer", session_id=session.id,
+        )
+        if updated and updated.state.get("classification"):
+            state_result = updated.state["classification"]
+            if isinstance(state_result, dict) and state_result.get("extracted_facts"):
+                extracted_facts = state_result["extracted_facts"]
+    except Exception:
+        pass  # If LLM fails, graph still updates epistemic state structurally
+
+    # Update knowledge graph with LLM-extracted facts
     result = process_conversation_turn(
-        req.content, req.direction, req.turn_index, state
+        req.content, req.direction, req.turn_index, state,
+        extracted_facts=extracted_facts if extracted_facts else None,
     )
 
     _analyzer_states[req.session_id] = result
@@ -649,6 +703,7 @@ async def conversation_turn(req: ConversationTurnRequest):
         "epistemic_state": result["epistemic_state"],
         "knowledge_graph": result["knowledge_graph"],
         "graph_signals": result["graph_signals"],
+        "extracted_facts": extracted_facts,
     }
 
 

@@ -17,51 +17,52 @@ Updated per-message. Pure Python — no LLM call needed.
 
 from __future__ import annotations
 
-import re
-
-from .pipeline import entity_extraction
-
-# Japanese name patterns — catches names in direct address
-# Kanji names: 健二、 / 美咲は / 太郎だよ (2-3 kanji before address markers)
-# Kana names: ゆきです / みきちゃん / ケンジだよ (katakana/hiragana given names)
-_JP_KANJI_NAME = re.compile(r'([一-龥]{2,3})(?:[、。！？\s]|だよ|です|なの|から|とは|には|と[は話])')
-_JP_KANA_NAME = re.compile(r'([ぁ-ん]{2,5}|[ァ-ヶー]{2,5})(?:です|だよ|だけど|なの|ちゃん|くん|さん|から|とは|には|と[は話]|の[口銀]|や[お姉]|銀行|の口座)')
-
 
 # ── Fact Ledger (Signal layer) ────────────────────────────────────────
 
-def _extract_fact_keys(entities: dict, raw_text: str = "") -> list[dict]:
-    """Convert extracted entities into normalized fact entries."""
+def _facts_from_llm_extraction(extracted_facts: dict) -> list[dict]:
+    """Convert LLM-extracted facts into normalized fact entries.
+
+    Takes the extracted_facts dict from ClassificationResult or
+    InterceptDecision — LLM-extracted, multilingual, context-aware.
+    No regex. Works in any language the LLM understands.
+    """
     facts = []
-    seen_names = set()
+    if not extracted_facts:
+        return facts
 
-    for name in entities.get("relationships_claimed", []):
-        val = name.get("word", "").strip()
-        if val:
-            facts.append({"value": val, "type": "name", "category": name.get("relationship", "unknown")})
-            seen_names.add(val.lower())
+    # Names and relationships
+    name = extracted_facts.get("claimed_name")
+    if name:
+        facts.append({"value": name, "type": "name",
+                       "category": extracted_facts.get("claimed_relationship", "person")})
 
-    # Catch standalone Japanese names not found by relationship patterns
-    _common_words = {"あなた", "わたし", "あした", "きのう", "いま", "ここ",
-                     "そこ", "あそこ", "みんな", "だれか", "なにか"}
-    if raw_text:
-        for pattern in (_JP_KANJI_NAME, _JP_KANA_NAME):
-            for match in pattern.findall(raw_text):
-                if match.lower() not in seen_names and match not in _common_words:
-                    facts.append({"value": match, "type": "name", "category": "person"})
-                    seen_names.add(match.lower())
-    for loc in entities.get("locations", []):
-        if loc.strip():
-            facts.append({"value": loc.strip(), "type": "location"})
-    for inst in entities.get("institutions", []):
-        if inst.strip():
-            facts.append({"value": inst.strip(), "type": "institution"})
-    for amt in entities.get("financial_amounts", []):
-        if amt.strip():
-            facts.append({"value": amt.strip(), "type": "amount"})
-    for ref in entities.get("third_party_references", []):
-        if ref.strip():
-            facts.append({"value": ref.strip(), "type": "reference"})
+    relationship = extracted_facts.get("claimed_relationship")
+    if relationship:
+        facts.append({"value": relationship, "type": "relationship"})
+
+    # Location
+    location = extracted_facts.get("claimed_location")
+    if location:
+        facts.append({"value": location, "type": "location"})
+
+    # Institution
+    institution = extracted_facts.get("claimed_institution")
+    if institution:
+        facts.append({"value": institution, "type": "institution"})
+
+    # Financial
+    fin = extracted_facts.get("financial_mention")
+    if fin and isinstance(fin, dict):
+        amount = fin.get("amount")
+        if amount:
+            facts.append({"value": str(amount), "type": "amount"})
+
+    # Other facts — free-text observations from the LLM
+    for other in extracted_facts.get("other_facts", []):
+        if other and isinstance(other, str) and len(other) < 100:
+            facts.append({"value": other, "type": "observation"})
+
     return facts
 
 
@@ -71,15 +72,16 @@ def _make_fact_id(fact_type: str, value: str) -> str:
 
 
 def update_fact_ledger(
-    text: str,
+    extracted_facts: dict,
     direction: str,
     turn_index: int,
     ledger: dict | None = None,
 ) -> dict:
-    """Append facts from a new message to the conversation fact ledger.
+    """Append LLM-extracted facts to the conversation fact ledger.
 
     Args:
-        text: message content
+        extracted_facts: dict from ClassificationResult.extracted_facts
+            or InterceptDecision — LLM-extracted, multilingual.
         direction: "inbound" (from sender) or "outbound" (from elder)
         turn_index: position in conversation (0-based)
         ledger: existing ledger from session state, or None for first message
@@ -89,8 +91,7 @@ def update_fact_ledger(
     if ledger is None:
         ledger = {"facts": {}, "turns": [], "contradiction_log": []}
 
-    entities = entity_extraction(text)
-    raw_facts = _extract_fact_keys(entities, raw_text=text)
+    raw_facts = _facts_from_llm_extraction(extracted_facts)
     speaker = "elder" if direction == "outbound" else "sender"
     other_speaker = "sender" if speaker == "elder" else "elder"
 
@@ -369,24 +370,30 @@ def process_conversation_turn(
     direction: str,
     turn_index: int,
     session_state: dict,
+    extracted_facts: dict | None = None,
 ) -> dict:
     """Process a single conversation turn and update all three graph layers.
 
     Call this on every message — both inbound (sender) and outbound (elder).
 
     Args:
-        text: message content
+        text: message content (used for epistemic state — structural analysis)
         direction: "inbound" or "outbound"
         turn_index: position in conversation
         session_state: dict with fact_ledger, epistemic_state, knowledge_graph keys
+        extracted_facts: LLM-extracted facts dict (from ClassificationResult or
+            InterceptDecision). If None, fact ledger is not updated.
 
     Returns dict with updated state for all three layers + graph_signals for risk assessment.
     """
-    # Layer 1: Update fact ledger (both directions)
-    ledger = update_fact_ledger(
-        text, direction, turn_index,
-        ledger=session_state.get("fact_ledger"),
-    )
+    # Layer 1: Update fact ledger from LLM-extracted facts (both directions)
+    if extracted_facts:
+        ledger = update_fact_ledger(
+            extracted_facts, direction, turn_index,
+            ledger=session_state.get("fact_ledger"),
+        )
+    else:
+        ledger = session_state.get("fact_ledger") or {"facts": {}, "turns": [], "contradiction_log": []}
 
     # Layer 2: Update epistemic state (outbound only — elder's replies)
     epistemic = update_epistemic_state(
