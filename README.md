@@ -22,34 +22,30 @@ The key insight: move intelligence OUT of the model and INTO pre-processing infr
 ```
   Inbound Message
        |
-  ┌────┴─────────────────── PRE-LLM (no API calls) ─────────────────────┐
-  │ Step 1: Linguistic Analysis                                          │
+  ┌────┴──────────────── PRE-LLM (pure Python, ~50ms) ───────────────────┐
+  │ 1. Linguistic Analysis                                               │
   │   → style fingerprint, manipulation density (urgency/guilt/flattery) │
-  │ Step 2: Entity Extraction                                            │
-  │   → names, relationships, amounts, locations, deadlines              │
-  │ Step 3: Corpus Search (TF-IDF, 22,979 entries)                       │
+  │ 2. Corpus Search (TF-IDF, 22,979 entries)                            │
   │   → similar known scams with relevance scores                        │
-  │ Step 4: Social Graph Validation                                      │
-  │   → graph distance, imposter detection, trust modifier               │
+  │ 3. Social Graph Validation + Contra-Indicator Check                  │
+  │   → graph distance, imposter detection, legitimacy evidence          │
   └──────────────────────────────┬────────────────────────────────────────┘
                                  │ pre-computed context
                                  v
-  ┌──────────────────── LLM (Gemini Flash Lite) ─────────────────────────┐
-  │ Step 5: Per-Message Classification                                   │
-  │   → given pre-computed evidence, what's your judgment?               │
+  ┌──────────────── LLM (Gemini Flash Lite, ~0.9s) ─────────────────────┐
+  │ 4. Classification + Entity Extraction                                │
+  │   → classify with pre-computed evidence; extract all facts           │
   └──────────────────────────────┬────────────────────────────────────────┘
                                  │ classification + extracted facts
                                  v
-  ┌──────────────────── POST-CLASSIFICATION ─────────────────────────────┐
-  │ Step 6: Sender Profile Update (fact accumulation, graph building)     │
-  │ Step 7: Behavioral Velocity Scoring (cross-message pattern analysis) │
-  │ Step 8: Decision Synthesis (compound risk + evidence chain + routing) │
-  │   → PASS / MONITOR / FLAG / BLOCK                                    │
-  │   → Outbound Interceptor armed / Family Alerter triggered            │
+  ┌──────────── POST-CLASSIFICATION (Workflow agents, async) ────────────┐
+  │ Behavioral Analyzer — longitudinal profiling, velocity scoring       │
+  │ Conversation Knowledge Graph — provenance tracking, friction scoring │
+  │ Family Alerter — triggered when risk > 0.6                           │
   └──────────────────────────────────────────────────────────────────────┘
 ```
 
-Steps 1-4 run **before the LLM** — pure infrastructure, no API calls, ~50ms total. This is what enables running on the cheapest Gemini model: the model's job is simpler because the infrastructure did the heavy lifting.
+Steps 1-3 run **before the LLM** — pure Python, no API calls, ~50ms total. The LLM's job is simpler because it receives pre-computed evidence. Post-classification agents run asynchronously in the Workflow.
 
 ### Production Execution Model
 
@@ -264,8 +260,8 @@ The system doesn't decide "safe or scam." It decides "scam, family support, or a
 
 Each step moves intelligence OUT of the model and INTO infrastructure:
 - Steps 1-3 run **before** the LLM — linguistic analysis, TF-IDF corpus search, graph validation, contra-indicator analysis. Pure code, no API calls, ~50ms.
-- Step 5 is the LLM call — but now its job is simpler: "given this pre-computed evidence from both sides, what's your judgment?"
-- Steps 6-8 run **after** — profile updates, behavioral scoring, decision synthesis with full evidence chain.
+- The LLM call classifies and extracts entities — its job is simpler because it receives pre-computed evidence from both sides.
+- Post-classification, the **Behavioral Analyzer** and **Conversation Knowledge Graph** run asynchronously — profile updates, provenance tracking, friction scoring.
 
 The system sees what the corpus sees (5 scam matches) AND what the graph sees (verified daughter) AND what the contra-indicator check sees (no secrecy, mundane context). The LLM gets evidence for both sides and makes a judgment call. A pattern matcher can't do this. An LLM with the right infrastructure can.
 

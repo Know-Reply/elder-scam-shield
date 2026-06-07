@@ -2038,9 +2038,7 @@ body {
   //  HANDLE CLASSIFICATION RESULTS — shared by scripted + custom paths
   // =========================================================
   function handleClassificationResults(c, choice, data, naiveData) {
-    // Step 5 complete — light up steps 6-8
-    var ls6 = document.getElementById('ls-6');
-    if (ls6) ls6.classList.add('active');
+    // Classification complete
 
     var result = data.result || {};
     var livePerMsgClass = (result.classification || '').toUpperCase();
@@ -2149,28 +2147,24 @@ body {
     loadingCard.id = 'loading-card';
     loadingCard.innerHTML =
       '<div class="loading-steps">' +
-        '<div class="loading-step active" id="ls-1"><span class="ls-dot"></span> Step 1: Linguistic analysis</div>' +
-        '<div class="loading-step" id="ls-2"><span class="ls-dot"></span> Step 2: Entity extraction</div>' +
-        '<div class="loading-step" id="ls-3"><span class="ls-dot"></span> Step 3: Corpus search (22,979 entries)</div>' +
-        '<div class="loading-step" id="ls-4"><span class="ls-dot"></span> Step 4: Social graph validation</div>' +
-        '<div class="loading-step" id="ls-5"><span class="ls-dot"></span> Step 5: Classification (Gemini Flash Lite)</div>' +
-        '<div class="loading-step" id="ls-6"><span class="ls-dot"></span> Step 6-8: Behavioral + decision synthesis</div>' +
+        '<div class="loading-step active" id="ls-1"><span class="ls-dot"></span> Linguistic analysis</div>' +
+        '<div class="loading-step" id="ls-2"><span class="ls-dot"></span> Corpus search (22,979 entries)</div>' +
+        '<div class="loading-step" id="ls-3"><span class="ls-dot"></span> Social graph + contra-indicators</div>' +
+        '<div class="loading-step" id="ls-4"><span class="ls-dot"></span> Classification + entity extraction (Gemini)</div>' +
       '</div>';
     msgGroup.appendChild(loadingCard);
     thread.scrollTop = thread.scrollHeight;
 
-    // Steps 1-4: pre-processing (genuinely fast — no LLM)
+    // Steps 1-3: pre-processing (genuinely fast — no LLM)
     setTimeout(function() { var s = document.getElementById('ls-2'); if (s) s.classList.add('active'); }, 200);
     setTimeout(function() { var s = document.getElementById('ls-3'); if (s) s.classList.add('active'); }, 400);
-    setTimeout(function() { var s = document.getElementById('ls-4'); if (s) s.classList.add('active'); }, 600);
-    // Step 5 lights up when API call starts (below)
-    // Steps 6-8 light up when API response arrives (in .then())
+    // Step 4 lights up when API call starts (below)
 
     // If the choice already has classification results (e.g. from custom handler),
     // skip API calls and render directly
     // If the choice already has both results (e.g. from custom message handler), skip API calls
     if (c.classification && c.naiveClassification) {
-      for (var si = 1; si <= 8; si++) {
+      for (var si = 1; si <= 4; si++) {
         var stepEl = document.getElementById('ls-' + si);
         if (stepEl) stepEl.classList.add('active');
       }
@@ -2187,8 +2181,8 @@ body {
       return;
     }
 
-    // Call live Gemini API — step 5 starts now
-    setTimeout(function() { var s = document.getElementById('ls-5'); if (s) s.classList.add('active'); }, 800);
+    // Call live Gemini API — step 4 starts now
+    setTimeout(function() { var s = document.getElementById('ls-4'); if (s) s.classList.add('active'); }, 600);
     var messageForApi = c.jp || c.en || msgText;
     var classifyBody = JSON.stringify({ sender: 'scammer_day' + (state.currentDay + 1), content: messageForApi });
 
