@@ -204,13 +204,38 @@
 <script>
 // Pre-scripted ore-ore sagi conversation
 var TURNS = [
-  { direction: 'outbound', en: 'Kenji, is that you? How are you doing?', jp: '健二、あなたなの？元気にしてる？' },
-  { direction: 'inbound', en: "Yes grandma, it's Kenji! Long time no see. I'm doing well in Osaka.", jp: 'うん、健二だよ！おばあちゃん、久しぶり。大阪で元気にしてるよ。' },
-  { direction: 'outbound', en: "That's good. How's Osaka? Are you enjoying it?", jp: 'そう、よかった。大阪は楽しい？' },
-  { direction: 'inbound', en: "It's great! I started a new job. But actually, things have been a bit tough financially...", jp: '楽しいよ！新しい仕事を始めたんだ。でも実はちょっとお金のことで困ってて...' },
-  { direction: 'outbound', en: "Oh no, what happened? Are you okay?", jp: 'えっ、どうしたの？大丈夫？' },
-  { direction: 'inbound', en: "I got into a car accident. The other driver is demanding 500,000 yen right now. Please send it to this account. Don't tell dad.", jp: '交通事故を起こしちゃって。相手が今すぐ50万円払えって。この口座に振り込んで。お父さんには絶対言わないで。' },
-  { direction: 'outbound', en: "Understood. I'll go to the bank tomorrow morning and transfer it. Don't worry.", jp: 'わかった。明日朝一で銀行に行って振り込むね。心配しないで。' },
+  // Turn 1: Scammer opens — introduces name + relationship (independent facts)
+  { direction: 'inbound',
+    en: "Grandma, it's Kenji! It's been so long. I moved to Osaka for a new job.",
+    jp: 'おばあちゃん、健二だよ！久しぶり。大阪で新しい仕事を始めたんだ。' },
+  // Turn 2: Elder reveals facts — mentions Takeshi (real grandson), her bank, her schedule
+  { direction: 'outbound',
+    en: "Kenji? Oh my! Takeshi told me you were busy. I was just at Mizuho Bank this morning. How is Osaka?",
+    jp: '健二？まあ！たけしから忙しいって聞いてたわ。今朝みずほ銀行に行ってきたところよ。大阪はどう？' },
+  // Turn 3: Scammer echoes — uses Takeshi's name + Mizuho (learned from elder)
+  { direction: 'inbound',
+    en: "Yes, Takeshi and I talked last week! By the way, Mizuho has good rates. Things are going well here.",
+    jp: 'うん、たけしとは先週話したよ！みずほ銀行はいいよね。こっちは順調だよ。' },
+  // Turn 4: Elder reveals more — mentions she lives alone, her routine
+  { direction: 'outbound',
+    en: "I'm glad. It's quiet here since your grandfather passed. I go to the clinic on Tuesdays.",
+    jp: 'よかった。おじいちゃんが亡くなってから静かよ。火曜日はクリニックに通ってるの。' },
+  // Turn 5: Scammer pivots — uses isolation fact, introduces crisis
+  { direction: 'inbound',
+    en: "I worry about you being alone. Actually, I'm in trouble. I had a car accident and the other driver wants 500,000 yen immediately. Can you help from your Mizuho account?",
+    jp: '一人で心配だよ。実は大変なことになって。交通事故を起こして相手が50万円を今すぐ要求してる。みずほの口座から助けてくれない？' },
+  // Turn 6: Elder starts complying — short reply, agrees, no questions
+  { direction: 'outbound',
+    en: "Oh no! Of course. How much exactly? I can go to the bank tomorrow.",
+    jp: '大変！もちろんよ。いくら必要？明日銀行に行けるわ。' },
+  // Turn 7: Scammer closes — secrecy demand, urgency, specific amount
+  { direction: 'inbound',
+    en: "500,000 yen to this account. Please don't tell Takeshi or your daughter, they'll worry. I need it today.",
+    jp: 'この口座に50万円。たけしやお姉ちゃんには言わないで、心配するから。今日中にお願い。' },
+  // Turn 8: Elder fully compliant — friction collapsed
+  { direction: 'outbound',
+    en: "Understood. I won't tell anyone. I'll go to Mizuho now.",
+    jp: 'わかった。誰にも言わないわ。今からみずほに行ってくる。' },
 ];
 
 var turnIndex = 0;
