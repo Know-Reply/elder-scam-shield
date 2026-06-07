@@ -11,9 +11,10 @@ from tests.conftest import FakeDocRef, FakeDocSnapshot
 @pytest.fixture(autouse=True)
 def _patch_firestore(monkeypatch):
     mock_client = MagicMock()
-    monkeypatch.setattr(
-        "google.cloud.firestore.Client", lambda *a, **kw: mock_client
-    )
+    monkeypatch.setattr("agents.outbound_interceptor.db", mock_client)
+    monkeypatch.setattr("agents.outbound_interceptor.PROFILES", mock_client.collection("sender_profiles"))
+    monkeypatch.setattr("agents.outbound_interceptor.HOLDS", mock_client.collection("hold_records"))
+    monkeypatch.setattr("agents.outbound_interceptor.KNOWN_PAYEES", mock_client.collection("known_payees"))
     return mock_client
 
 
@@ -48,25 +49,19 @@ class TestCompoundRisk:
     def test_bank_details_high_sender_triggers_max_risk(self):
         from agents.outbound_interceptor import _compound_risk
 
-        # OB-2 (bank details) weight=0.7, sender_risk=0.9
         risk = _compound_risk(["OB-2"], sender_risk=0.9)
-        # (0.7 / 2.0) * max(0.9, 0.5) = 0.35 * 0.9 = 0.315
         assert 0.3 < risk < 0.4
 
     def test_transfer_instruction_high_risk(self):
         from agents.outbound_interceptor import _compound_risk
 
-        # OB-3 (transfer) weight=0.8
         risk = _compound_risk(["OB-3"], sender_risk=0.8)
-        # (0.8 / 2.0) * 0.8 = 0.32
         assert risk > 0.3
 
     def test_cm4_urgency_compound_near_max(self):
         from agents.outbound_interceptor import _compound_risk
 
-        # CM-4 weight=0.9
         risk = _compound_risk(["CM-4"], sender_risk=0.95)
-        # (0.9 / 2.0) * 0.95 = 0.4275
         assert risk > 0.4
 
     def test_multiple_signals_accumulate(self):
@@ -79,7 +74,6 @@ class TestCompoundRisk:
     def test_low_sender_risk_floors_at_half(self):
         from agents.outbound_interceptor import _compound_risk
 
-        # Even with sender_risk=0.0, max(0.0, 0.5) = 0.5 is used
         risk = _compound_risk(["OB-2"], sender_risk=0.0)
         expected = min(min(0.7 / 2.0, 1.0) * 0.5, 1.0)
         assert risk == pytest.approx(expected)
@@ -117,8 +111,8 @@ class TestHoldOutbound:
             reason="Bank account details detected in reply to high-risk sender",
         )
 
-        assert result["a2a_publish"]["event"] == "outbound.held"
-        assert "held_content_hash" in result["a2a_publish"]
+        assert result["pipeline_event"]["event"] == "outbound.held"
+        assert "held_content_hash" in result["pipeline_event"]
         # Content must NOT appear in the record or event
         assert "口座番号" not in str(result["hold"])
         assert "1234567890" not in str(result["hold"])
@@ -144,7 +138,6 @@ class TestHoldOutbound:
         hold_str = str(result["hold"])
         assert "123456789012" not in hold_str
         assert "マイナンバー" not in hold_str
-        # But the hash IS present
         expected_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
         assert result["hold"]["held_content_hash"] == expected_hash
 
@@ -176,13 +169,10 @@ class TestCheckSenderRisk:
 
 
 class TestLowRiskSenderPiiWarn:
-    """Low-risk sender + PII only should result in lower compound risk (warn territory)."""
+    """Low-risk sender + PII only should result in lower compound risk."""
 
     def test_pii_only_low_sender_low_compound(self):
         from agents.outbound_interceptor import _compound_risk
 
-        # OB-1 (PII) weight=0.3, sender_risk=0.1 -> floors at 0.5
         risk = _compound_risk(["OB-1"], sender_risk=0.1)
-        # (0.3 / 2.0) * 0.5 = 0.075
         assert risk < 0.1
-        # This is in warn territory per the agent's decision logic

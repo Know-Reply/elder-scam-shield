@@ -11,10 +11,16 @@ ADK primitives: INTERPRET + JUDGE
 Signals: LG-1..LG-10 (legacy), BV-1..BV-5 (behavioral velocity), EA-1..EA-4 (elder abuse)
 """
 
+import json as _json
 from datetime import date, datetime, timezone
+from pathlib import Path as _Path
 
 from google.adk import Agent
+from agents.db import db as _shared_db
 from agents.schemas import RiskAssessment
+from agents.tools.graph_builder import check_cross_references
+from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
+from agents.tools.social_graph import validate_social_graph
 
 
 # ---------------------------------------------------------------------------
@@ -44,13 +50,6 @@ def _inject_sender_context(callback_context, llm_request):
             f"Signals: {', '.join(classification.get('detected_signals', []))}."
         ])
     return None
-from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
-from agents.tools.social_graph import validate_social_graph
-from agents.tools.graph_builder import update_graph_from_message, check_cross_references
-from agents.db import db as _shared_db
-
-import json as _json
-from pathlib import Path as _Path
 
 _BASELINES_PATH = _Path(__file__).parent.parent / "data" / "processed" / "corpus_baselines.json"
 

@@ -12,7 +12,10 @@ Publishes `message.classified` events for downstream agents.
 from datetime import datetime, timezone
 
 from google.adk import Agent
+from agents.db import db
 from agents.schemas import ClassificationResult
+from agents.tools.search_scam_corpus import search_scam_corpus
+
 
 # ---------------------------------------------------------------------------
 # ADK Callbacks — native observability and validation
@@ -32,12 +35,7 @@ def _trace_tool_call(tool, args, tool_context):
 
 def _validate_classification(callback_context, llm_response):
     """after_model_callback: validate that classification is a known value."""
-    # Return None to accept the response as-is.
-    # ADK's output_schema handles structural validation;
-    # this callback is for runtime logging and guardrails.
     return None
-from agents.tools.search_scam_corpus import search_scam_corpus
-from agents.db import db
 
 SYSTEM_PROMPT = """You are Inbound Classifier, a scam-detection SENSE agent protecting
 elderly Japanese users. You receive one message at a time and produce a structured JSON

@@ -19,9 +19,6 @@ Steps:
 """
 
 import re
-import math
-from collections import Counter
-from typing import Optional
 
 
 # ── Step 1: Linguistic Analysis ─────────────────────────────────────────

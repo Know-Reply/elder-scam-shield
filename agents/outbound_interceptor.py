@@ -13,7 +13,13 @@ import hashlib
 from datetime import datetime, timezone
 
 from google.adk import Agent
+from agents.db import db
 from agents.schemas import InterceptDecision
+
+
+# ---------------------------------------------------------------------------
+# ADK Callbacks
+# ---------------------------------------------------------------------------
 
 
 def _trace_tool_call(tool, args, tool_context):
@@ -25,7 +31,6 @@ def _trace_tool_call(tool, args, tool_context):
         "ts": datetime.now(timezone.utc).isoformat(),
     })
     return None
-from agents.db import db
 PROFILES = db.collection("sender_profiles") if db else None
 HOLDS = db.collection("hold_records") if db else None
 KNOWN_PAYEES = db.collection("known_payees") if db else None
