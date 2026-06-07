@@ -260,7 +260,15 @@ function sendCustomTurn() {
   processTurn(dir, text, text, '');
 }
 
+var _processing = false;
+
 function processTurn(direction, content, en, jp) {
+  if (_processing) return;
+  _processing = true;
+  document.getElementById('next-btn').disabled = true;
+  document.getElementById('next-btn').textContent = 'Analyzing...';
+  document.querySelector('.custom-send').disabled = true;
+
   // Add message to thread
   var thread = document.getElementById('thread');
   var turnDiv = document.createElement('div');
@@ -324,6 +332,17 @@ function processTurn(direction, content, en, jp) {
     }
 
     updateGraphPanel(data, direction);
+    _processing = false;
+    var btn = document.getElementById('next-btn');
+    btn.disabled = (turnIndex >= TURNS.length);
+    btn.textContent = turnIndex >= TURNS.length ? 'Conversation complete' : 'Send next message';
+    document.querySelector('.custom-send').disabled = false;
+  })
+  .catch(function(err) {
+    _processing = false;
+    document.getElementById('next-btn').disabled = false;
+    document.getElementById('next-btn').textContent = 'Retry';
+    document.querySelector('.custom-send').disabled = false;
   });
 
   turnIndex++;
