@@ -1597,6 +1597,62 @@
 </section>
 
 <!-- ================================================================
+     SECTION 3c: CONVERSATION KNOWLEDGE GRAPH
+     ================================================================ -->
+<section id="provenance">
+  <div class="section-inner">
+    <span class="section-label">Information Provenance</span>
+    <h2 class="section-title">Who Knew What First?</h2>
+    <p class="section-subtitle">The scammer doesn't know your grandson's name. But if you say it first, they'll use it like they always knew. Elder Shield tracks who revealed every fact &mdash; and whether the sender's identity is built from information the elder gave away.</p>
+
+    <div style="max-width:700px; margin:0 auto 24px;">
+      <!-- Conversation flow showing provenance -->
+      <div style="display:grid; grid-template-columns:80px 1fr auto; gap:8px; align-items:center; font-size:0.85rem;">
+
+        <div style="font-size:0.72rem; font-weight:700; color:var(--gray-400); text-align:right;">Turn 1</div>
+        <div style="background:var(--blue-light, #dbeafe); border:1px solid var(--blue-mid, #93c5fd); border-radius:8px; padding:10px 14px; color:var(--gray-700);">
+          Grandmother: &ldquo;Kenji, is that you?&rdquo;
+        </div>
+        <div style="font-size:0.72rem; color:var(--blue); font-weight:600;">Reveals: <strong>Kenji</strong></div>
+
+        <div style="font-size:0.72rem; font-weight:700; color:var(--gray-400); text-align:right;">Turn 2</div>
+        <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:10px 14px; color:var(--gray-700);">
+          Sender: &ldquo;Yes grandma, it's Kenji! I'm in Osaka now.&rdquo;
+        </div>
+        <div style="font-size:0.72rem;">
+          <span style="color:var(--red); font-weight:600;">Echoes: Kenji</span><br>
+          <span style="color:var(--green); font-weight:600;">Introduces: Osaka</span>
+        </div>
+
+        <div style="font-size:0.72rem; font-weight:700; color:var(--gray-400); text-align:right;">Turn 3</div>
+        <div style="background:var(--blue-light, #dbeafe); border:1px solid var(--blue-mid, #93c5fd); border-radius:8px; padding:10px 14px; color:var(--gray-700);">
+          Grandmother: &ldquo;Oh good! How's Osaka?&rdquo;
+        </div>
+        <div style="font-size:0.72rem; color:var(--blue); font-weight:600;">Echoes: Osaka<br>Friction: high ✓</div>
+
+        <div style="font-size:0.72rem; font-weight:700; color:var(--gray-400); text-align:right;">Turn 5</div>
+        <div style="background:var(--blue-light, #dbeafe); border:1px solid var(--blue-mid, #93c5fd); border-radius:8px; padding:10px 14px; color:var(--gray-700);">
+          Grandmother: &ldquo;OK. I'll transfer it tomorrow.&rdquo;
+        </div>
+        <div style="font-size:0.72rem; color:var(--red); font-weight:600;">Friction: collapsed ⚠</div>
+      </div>
+
+      <!-- Provenance verdict -->
+      <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="padding:14px; background:var(--red-bg); border-radius:var(--radius-lg);">
+          <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--red); margin-bottom:4px;">Echo-Grounded Identity</div>
+          <div style="font-size:0.82rem; color:var(--gray-700); line-height:1.5;">The sender's claim to be &ldquo;Kenji&rdquo; is built from a name the grandmother volunteered. Not independent knowledge &mdash; playback.</div>
+        </div>
+        <div style="padding:14px; background:#fef3c7; border-radius:var(--radius-lg);">
+          <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#92400e; margin-bottom:4px;">Friction Declining</div>
+          <div style="font-size:0.82rem; color:var(--gray-700); line-height:1.5;">The grandmother went from asking questions (healthy skepticism) to short agreement without questions (compliance). The scam is working.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
      SECTION 4: INTERCEPTION — BOTH DIRECTIONS
      ================================================================ -->
 <section class="intercept-section" id="interception">

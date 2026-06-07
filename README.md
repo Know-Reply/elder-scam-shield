@@ -13,6 +13,7 @@ Elder fraud costs **$77.7 billion globally** (Nasdaq 2024). Japan's tokushu sagi
 - **Elder abuse detection from trusted contacts** -- detects the same manipulation mechanics (isolation, financial control, authority escalation) regardless of whether the sender is a stranger or a known family member. References Japan's Elder Abuse Prevention Act (2006).
 - **Outbound interception** -- catches the compliance signal ("I'll go to the bank tomorrow") between conversation and transaction. Blocks bank account numbers and transfer instructions leaving the user, not just scam messages arriving.
 - **Victim state monitoring** -- analyzes the elder's *replies* for signs the scam is working. Compliance acceptance, secrecy adoption, financial commitment, emotional capitulation, urgency mirroring. Most systems watch what the scammer says. Elder Shield also watches whether the elder is falling for it.
+- **Conversation knowledge graph with information provenance** -- tracks WHO revealed WHAT first. If grandma says "Kenji, is that you?" and the scammer then uses "Kenji" — the scammer didn't know the name. The elder gave it to them. Every fact is tagged: independent (the sender knew it) vs echo-grounded (the sender learned it from the elder). A scammer whose entire identity claim is built from facts the elder volunteered is structurally different from someone with genuine prior knowledge.
 
 ## Architecture: 8-Step Hardened Pipeline
 
@@ -132,6 +133,44 @@ Five-layer inference builds the graph from communication, not manual entry:
 5. **Anomaly detection** -- claiming to be "Tanaka's son" means nothing if Tanaka's node has no edge to the sender. Graph distance determines trust: known contacts get risk reduction (-0.2), unconnected senders claiming relationships get risk boost (+0.3).
 
 Confidence levels: VERIFIED > OBSERVED > ESTABLISHED > RECOGNIZED > CORROBORATED > INFERRED > CLAIMED > UNCONNECTED.
+
+## Conversation Knowledge Graph: Information Provenance
+
+Most fraud detection systems ask: "is this message a scam?" Elder Shield asks: "who knows what, and how did they learn it?"
+
+The conversation knowledge graph tracks every fact across both sides of the dialogue through three layers:
+
+### Layer 1: Fact Ledger (Signal)
+
+Append-only per turn. Every entity (name, location, institution, amount) is tagged with who stated it first and whether the other party echoed it.
+
+```
+Turn 0 (elder):  "Kenji, is that you?"     → name:健二 first_stated_by: elder
+Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."  → name:健二 echo_detected: true, echo_by: sender
+                                                     → location:大阪 first_stated_by: sender (independent)
+```
+
+The sender didn't know Kenji's name. The elder gave it to them. Every subsequent use of "Kenji" by the sender is echoed knowledge, not proof of identity.
+
+### Layer 2: Epistemic State (Interpretation)
+
+The elder's psychological trajectory: `skeptical → engaged → trusting → compliant`. Measured by **epistemic friction** — how much the elder resists new claims.
+
+- Questions in replies = maintaining friction (healthy)
+- Short agreeing replies without questions = friction declining (dangerous)
+- `friction_trajectory: "collapsed"` = the scam has landed
+
+Language-agnostic: measured by structural patterns (question count, reply length), not keyword matching.
+
+### Layer 3: Knowledge Graph (Interpretation)
+
+Assembles the fact ledger and epistemic state into actionable signals:
+
+- **Echo ratio** -- fraction of sender-stated facts that the elder introduced first. Above 0.6 = sender is mostly parroting the elder's own information.
+- **Echo-grounded identity** -- the sender's identity claim is built entirely from facts the elder volunteered. Structurally different from someone with genuine prior knowledge.
+- **Information asymmetry** -- `sender_echoing` (impersonation signal), `sender_knows_more` (suspicious independent knowledge), or `balanced`.
+
+These signals feed directly into the risk assessment evidence chain.
 
 ## Results
 
