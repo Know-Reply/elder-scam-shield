@@ -34,6 +34,7 @@ from google.genai import types as genai_types
 from agents.root_agent import root_agent
 from agents.inbound_classifier import inbound_classifier
 from agents.naive_classifier import naive_classifier
+from agents.fact_extractor import fact_extractor
 from agents.outbound_interceptor import outbound_interceptor
 from agents.tools.pipeline import run_pre_classification_pipeline, victim_state_analysis
 from agents.tools.conversation_graph import process_conversation_turn
@@ -53,6 +54,13 @@ _session_service = InMemorySessionService()
 _classifier_runner = Runner(
     agent=inbound_classifier,
     app_name="elder_scam_shield",
+    session_service=_session_service,
+)
+
+# Fact extractor — lightweight extraction for conversation analyzer (no tools, no corpus)
+_extractor_runner = Runner(
+    agent=fact_extractor,
+    app_name="elder_scam_shield_extractor",
     session_service=_session_service,
 )
 
@@ -642,52 +650,27 @@ async def conversation_turn(req: ConversationTurnRequest):
     """
     state = _analyzer_states.get(req.session_id, {})
 
-    # Call the classifier to get LLM-extracted facts
+    # Call lightweight fact extractor (no classification, no tools, ~0.5s)
     extracted_facts = {}
     try:
         session = await _session_service.create_session(
-            app_name="elder_scam_shield", user_id="analyzer"
+            app_name="elder_scam_shield_extractor", user_id="analyzer"
         )
         msg = genai_types.Content(
             role="user",
-            parts=[genai_types.Part(text=f"Classify and extract facts:\n\n{req.content}")],
+            parts=[genai_types.Part(text=req.content)],
         )
-        async for event in _classifier_runner.run_async(
+        async for event in _extractor_runner.run_async(
             user_id="analyzer", session_id=session.id, new_message=msg
         ):
-            if not (hasattr(event, "content") and event.content and event.content.parts):
-                continue
-            for part in event.content.parts:
-                if hasattr(part, "text") and part.text:
-                    text = part.text.strip()
-                    if text.startswith("```"):
-                        text = re.sub(r'^```\w*\s*', '', text)
-                        text = re.sub(r'\s*```$', '', text)
-                    start = text.find("{")
-                    if start >= 0:
-                        depth = 0
-                        end = start
-                        for i in range(start, len(text)):
-                            if text[i] == "{": depth += 1
-                            elif text[i] == "}": depth -= 1
-                            if depth == 0:
-                                end = i + 1
-                                break
-                        try:
-                            parsed = json.loads(text[start:end])
-                            if parsed.get("extracted_facts"):
-                                extracted_facts = parsed["extracted_facts"]
-                        except json.JSONDecodeError:
-                            pass
-
-        # Also check session state (output_key)
+            pass
         updated = await _session_service.get_session(
-            app_name="elder_scam_shield", user_id="analyzer", session_id=session.id,
+            app_name="elder_scam_shield_extractor", user_id="analyzer", session_id=session.id,
         )
-        if updated and updated.state.get("classification"):
-            state_result = updated.state["classification"]
-            if isinstance(state_result, dict) and state_result.get("extracted_facts"):
-                extracted_facts = state_result["extracted_facts"]
+        if updated and updated.state.get("extracted_facts"):
+            ef = updated.state["extracted_facts"]
+            if isinstance(ef, dict):
+                extracted_facts = ef
     except Exception:
         pass  # If LLM fails, graph still updates epistemic state structurally
 
