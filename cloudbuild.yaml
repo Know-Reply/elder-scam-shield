@@ -41,10 +41,10 @@ steps:
       - '--memory=1Gi'
       - '--cpu=1'
       - '--timeout=300'
-      - '--set-env-vars=GOOGLE_CLOUD_PROJECT=$PROJECT_ID,VERTEX_AI_LOCATION=${_REGION}'
+      - '--set-env-vars=GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GOOGLE_GENAI_USE_VERTEXAI=TRUE'
 
 substitutions:
-  _REGION: 'asia-northeast1'
+  _REGION: 'us-central1'
   _SERVICE_NAME: 'elder-scam-shield'
 
 images:
