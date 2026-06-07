@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elder Shield — Conversation Analyzer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f172a; --blue: #1a56db; --blue-light: #dbeafe; --blue-mid: #93c5fd;
+      --green: #16a34a; --green-bg: #f0fdf4;
+      --yellow: #f59e0b; --orange: #ea580c;
+      --red: #dc2626; --red-bg: #fef2f2;
+      --purple: #7c3aed; --purple-bg: #f3e8ff;
+      --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1; --gray-400: #94a3b8; --gray-500: #64748b;
+      --gray-600: #475569; --gray-700: #334155;
+      --radius: 8px; --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      --font-mono: "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+    }
+    html { font-size: 16px; } body { font-family: var(--font); color: var(--gray-700); background: var(--gray-50); height: 100vh; display: flex; flex-direction: column; }
+
+    /* Nav */
+    .nav { background: var(--navy); padding: 10px 20px; flex-shrink: 0; }
+    .nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { color: #fff; text-decoration: none; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+    .nav-links { display: flex; gap: 4px; list-style: none; }
+    .nav-links a { color: var(--gray-300); text-decoration: none; font-size: 0.8rem; padding: 5px 10px; border-radius: 6px; }
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-links a.nav-app { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
+
+    /* Main layout */
+    .main { flex: 1; display: grid; grid-template-columns: 1fr 420px; gap: 0; overflow: hidden; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    /* Left: conversation */
+    .conv-col { display: flex; flex-direction: column; background: #fff; border-right: 1px solid var(--gray-200); }
+    .conv-header { padding: 14px 20px; border-bottom: 1px solid var(--gray-100); }
+    .conv-header h2 { font-size: 1rem; font-weight: 700; color: var(--navy); }
+    .conv-header p { font-size: 0.78rem; color: var(--gray-500); margin-top: 2px; }
+
+    .conv-thread { flex: 1; overflow-y: auto; padding: 16px 20px; }
+
+    .turn { margin-bottom: 12px; display: flex; gap: 10px; }
+    .turn-inbound { flex-direction: row; }
+    .turn-outbound { flex-direction: row-reverse; }
+    .turn-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); flex-shrink: 0; width: 52px; padding-top: 8px; }
+    .turn-outbound .turn-label { text-align: right; }
+    .turn-bubble { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 0.88rem; line-height: 1.5; }
+    .turn-inbound .turn-bubble { background: var(--gray-100); border-bottom-left-radius: 4px; }
+    .turn-outbound .turn-bubble { background: var(--blue-light); border: 1px solid var(--blue-mid); border-bottom-right-radius: 4px; }
+    .turn-en { margin-bottom: 4px; }
+    .turn-jp { font-size: 0.8rem; color: var(--gray-500); font-style: italic; }
+
+    .turn-provenance { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .prov-tag { font-size: 0.68rem; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
+    .prov-independent { background: var(--green-bg); color: var(--green); }
+    .prov-echoed { background: var(--red-bg); color: var(--red); }
+    .prov-new { background: #e0e7ff; color: #3730a3; }
+
+    /* Controls */
+    .conv-controls { padding: 12px 20px; border-top: 1px solid var(--gray-100); background: var(--gray-50); }
+    .next-btn { width: 100%; padding: 10px; border: none; border-radius: var(--radius); background: var(--blue); color: #fff; font-weight: 700; font-size: 0.88rem; cursor: pointer; }
+    .next-btn:hover { background: #1e40af; }
+    .next-btn:disabled { background: var(--gray-300); cursor: default; }
+    .custom-row { display: flex; gap: 8px; margin-top: 8px; }
+    .custom-input { flex: 1; padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: var(--radius); font-size: 0.85rem; font-family: var(--font); }
+    .custom-dir { padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: var(--radius); font-size: 0.82rem; background: #fff; }
+    .custom-send { padding: 8px 14px; border: none; border-radius: var(--radius); background: var(--navy); color: #fff; font-weight: 600; font-size: 0.82rem; cursor: pointer; }
+
+    /* Right: graph panel */
+    .graph-col { display: flex; flex-direction: column; overflow-y: auto; background: #fff; }
+    .graph-section { padding: 14px 18px; border-bottom: 1px solid var(--gray-100); }
+    .graph-section h3 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-400); margin-bottom: 10px; }
+
+    /* Friction meter */
+    .friction-bar { height: 12px; background: var(--gray-200); border-radius: 6px; overflow: hidden; margin-bottom: 4px; }
+    .friction-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease, background 0.3s; }
+    .friction-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--gray-500); }
+
+    /* Trust stage */
+    .trust-stages { display: flex; gap: 4px; margin-bottom: 8px; }
+    .trust-stage { flex: 1; padding: 6px 4px; text-align: center; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: var(--gray-100); color: var(--gray-400); transition: all 0.3s; }
+    .trust-stage.active { color: #fff; }
+    .trust-skeptical.active { background: var(--green); }
+    .trust-engaged.active { background: var(--yellow); }
+    .trust-trusting.active { background: var(--orange); }
+    .trust-compliant.active { background: var(--red); }
+
+    /* Fact list */
+    .fact-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--gray-50); font-size: 0.82rem; }
+    .fact-value { font-weight: 600; color: var(--navy); }
+    .fact-source { font-size: 0.7rem; font-weight: 600; padding: 1px 6px; border-radius: 3px; }
+    .fact-elder { background: var(--blue-light); color: var(--blue); }
+    .fact-sender { background: var(--gray-100); color: var(--gray-600); }
+    .fact-echo { background: var(--red-bg); color: var(--red); font-size: 0.68rem; margin-left: 4px; }
+
+    /* Identity claims */
+    .identity-row { padding: 6px 0; border-bottom: 1px solid var(--gray-50); }
+    .identity-name { font-weight: 700; color: var(--navy); font-size: 0.88rem; }
+    .identity-cred { font-size: 0.72rem; font-weight: 600; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
+    .cred-independent { background: var(--green-bg); color: var(--green); }
+    .cred-echo { background: var(--red-bg); color: var(--red); }
+    .cred-elder { background: var(--blue-light); color: var(--blue); }
+
+    /* Asymmetry */
+    .asym-bar { display: flex; height: 20px; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+    .asym-sender { background: var(--gray-300); transition: flex 0.5s; }
+    .asym-echo { background: var(--red); transition: flex 0.5s; }
+    .asym-label { font-size: 0.72rem; color: var(--gray-500); text-align: center; }
+
+    /* Signals list */
+    .signal-row { font-size: 0.78rem; padding: 3px 0; }
+    .signal-code { font-family: var(--font-mono); font-weight: 700; margin-right: 4px; }
+    .signal-danger { color: var(--red); }
+    .signal-warn { color: #92400e; }
+
+    .empty-state { color: var(--gray-400); font-size: 0.82rem; font-style: italic; padding: 8px 0; }
+
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+      .graph-col { max-height: 40vh; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/shield" class="nav-brand">
+      <svg viewBox="0 0 32 40" width="20" height="25"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Elder Shield
+    </a>
+    <ul class="nav-links">
+      <li><a href="/shield">Overview</a></li>
+      <li><a href="/simulator" class="nav-app">Simulator</a></li>
+      <li><a href="/technical" class="nav-app">Technical</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="main">
+  <!-- Left: Conversation -->
+  <div class="conv-col">
+    <div class="conv-header">
+      <h2>Conversation Analyzer</h2>
+      <p>Watch the knowledge graph build as each message is sent. Who knew what first?</p>
+    </div>
+    <div class="conv-thread" id="thread"></div>
+    <div class="conv-controls">
+      <button class="next-btn" id="next-btn" onclick="sendNextTurn()">Send next message</button>
+      <div class="custom-row">
+        <select class="custom-dir" id="custom-dir">
+          <option value="inbound">Sender</option>
+          <option value="outbound">Elder</option>
+        </select>
+        <input class="custom-input" id="custom-input" placeholder="Type a custom message..." />
+        <button class="custom-send" onclick="sendCustomTurn()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Knowledge Graph -->
+  <div class="graph-col">
+    <div class="graph-section">
+      <h3>Epistemic Friction</h3>
+      <div class="trust-stages" id="trust-stages">
+        <div class="trust-stage trust-skeptical active" id="ts-skeptical">Skeptical</div>
+        <div class="trust-stage trust-engaged" id="ts-engaged">Engaged</div>
+        <div class="trust-stage trust-trusting" id="ts-trusting">Trusting</div>
+        <div class="trust-stage trust-compliant" id="ts-compliant">Compliant</div>
+      </div>
+      <div class="friction-bar"><div class="friction-fill" id="friction-fill" style="width:80%; background:var(--green);"></div></div>
+      <div class="friction-label"><span id="friction-value">0.80</span><span id="friction-trajectory">stable_high</span></div>
+    </div>
+
+    <div class="graph-section">
+      <h3>Information Asymmetry</h3>
+      <div class="asym-bar" id="asym-bar">
+        <div class="asym-sender" id="asym-sender" style="flex:1;"></div>
+        <div class="asym-echo" id="asym-echo" style="flex:0;"></div>
+      </div>
+      <div class="asym-label" id="asym-label">No data yet</div>
+    </div>
+
+    <div class="graph-section">
+      <h3>Identity Claims</h3>
+      <div id="identity-list"><div class="empty-state">No identity claims yet</div></div>
+    </div>
+
+    <div class="graph-section">
+      <h3>Fact Ledger</h3>
+      <div id="fact-list"><div class="empty-state">No facts extracted yet</div></div>
+    </div>
+
+    <div class="graph-section">
+      <h3>Graph Signals</h3>
+      <div id="signal-list"><div class="empty-state">Waiting for conversation</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Pre-scripted ore-ore sagi conversation
+var TURNS = [
+  { direction: 'outbound', en: 'Kenji, is that you? How are you doing?', jp: '健二、あなたなの？元気にしてる？' },
+  { direction: 'inbound', en: "Yes grandma, it's Kenji! Long time no see. I'm doing well in Osaka.", jp: 'うん、健二だよ！おばあちゃん、久しぶり。大阪で元気にしてるよ。' },
+  { direction: 'outbound', en: "That's good. How's Osaka? Are you enjoying it?", jp: 'そう、よかった。大阪は楽しい？' },
+  { direction: 'inbound', en: "It's great! I started a new job. But actually, things have been a bit tough financially...", jp: '楽しいよ！新しい仕事を始めたんだ。でも実はちょっとお金のことで困ってて...' },
+  { direction: 'outbound', en: "Oh no, what happened? Are you okay?", jp: 'えっ、どうしたの？大丈夫？' },
+  { direction: 'inbound', en: "I got into a car accident. The other driver is demanding 500,000 yen right now. Please send it to this account. Don't tell dad.", jp: '交通事故を起こしちゃって。相手が今すぐ50万円払えって。この口座に振り込んで。お父さんには絶対言わないで。' },
+  { direction: 'outbound', en: "Understood. I'll go to the bank tomorrow morning and transfer it. Don't worry.", jp: 'わかった。明日朝一で銀行に行って振り込むね。心配しないで。' },
+];
+
+var turnIndex = 0;
+var sessionId = 'analyzer_' + Date.now();
+
+function sendNextTurn() {
+  if (turnIndex >= TURNS.length) {
+    document.getElementById('next-btn').disabled = true;
+    document.getElementById('next-btn').textContent = 'Conversation complete';
+    return;
+  }
+  var turn = TURNS[turnIndex];
+  processTurn(turn.direction, turn.jp || turn.en, turn.en, turn.jp);
+}
+
+function sendCustomTurn() {
+  var input = document.getElementById('custom-input');
+  var dir = document.getElementById('custom-dir').value;
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  processTurn(dir, text, text, '');
+}
+
+function processTurn(direction, content, en, jp) {
+  // Add message to thread
+  var thread = document.getElementById('thread');
+  var turnDiv = document.createElement('div');
+  turnDiv.className = 'turn turn-' + direction;
+  turnDiv.id = 'turn-' + turnIndex;
+
+  var label = document.createElement('div');
+  label.className = 'turn-label';
+  label.textContent = direction === 'inbound' ? 'Sender' : 'Elder';
+
+  var bubble = document.createElement('div');
+  bubble.className = 'turn-bubble';
+  if (en && jp && en !== jp) {
+    bubble.innerHTML = '<div class="turn-en">' + en + '</div><div class="turn-jp">' + jp + '</div>';
+  } else {
+    bubble.textContent = en || content;
+  }
+
+  turnDiv.appendChild(label);
+  turnDiv.appendChild(bubble);
+  thread.appendChild(turnDiv);
+  thread.scrollTop = thread.scrollHeight;
+
+  // Call API
+  fetch('/api/conversation/turn', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      content: content,
+      direction: direction,
+      turn_index: turnIndex,
+      session_id: sessionId,
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    // Add provenance tags to the bubble
+    var entries = data.fact_ledger.turns;
+    var lastTurn = entries[entries.length - 1];
+    if (lastTurn && lastTurn.fact_ids.length > 0) {
+      var provDiv = document.createElement('div');
+      provDiv.className = 'turn-provenance';
+      lastTurn.fact_ids.forEach(function(fid) {
+        var fact = data.fact_ledger.facts[fid];
+        if (!fact) return;
+        var tag = document.createElement('span');
+        tag.className = 'prov-tag';
+        if (fact.echo_detected && fact.echo_by === (direction === 'inbound' ? 'sender' : 'elder')) {
+          tag.className += ' prov-echoed';
+          tag.textContent = fact.value + ' (echoed)';
+        } else if (fact.first_stated_by === (direction === 'inbound' ? 'sender' : 'elder') && lastTurn.turn_index === fact.first_turn) {
+          tag.className += ' prov-new';
+          tag.textContent = fact.value + ' (new)';
+        } else {
+          tag.className += ' prov-independent';
+          tag.textContent = fact.value;
+        }
+        provDiv.appendChild(tag);
+      });
+      bubble.appendChild(provDiv);
+    }
+
+    updateGraphPanel(data);
+  });
+
+  turnIndex++;
+  if (turnIndex >= TURNS.length) {
+    document.getElementById('next-btn').textContent = 'Send final message';
+  }
+}
+
+function updateGraphPanel(data) {
+  var es = data.epistemic_state;
+  var kg = data.knowledge_graph;
+  var gs = data.graph_signals;
+  var facts = data.fact_ledger.facts;
+
+  // Trust stages
+  ['skeptical', 'engaged', 'trusting', 'compliant'].forEach(function(s) {
+    var el = document.getElementById('ts-' + s);
+    el.classList.toggle('active', es.trust_stage === s);
+  });
+
+  // Friction bar
+  var friction = es.friction_score;
+  var fill = document.getElementById('friction-fill');
+  fill.style.width = Math.round(friction * 100) + '%';
+  fill.style.background = friction >= 0.6 ? 'var(--green)' : friction >= 0.4 ? 'var(--yellow)' : friction >= 0.2 ? 'var(--orange)' : 'var(--red)';
+  document.getElementById('friction-value').textContent = friction.toFixed(2);
+  document.getElementById('friction-trajectory').textContent = es.friction_trajectory;
+
+  // Asymmetry bar
+  var independent = gs.sender_independent_facts || 0;
+  var echoed = gs.sender_echoed_facts || 0;
+  var total = independent + echoed;
+  if (total > 0) {
+    document.getElementById('asym-sender').style.flex = independent;
+    document.getElementById('asym-echo').style.flex = echoed;
+    var verdict = kg.information_asymmetry.asymmetry_verdict;
+    var echoRatio = gs.echo_ratio;
+    document.getElementById('asym-label').textContent =
+      'Independent: ' + independent + ' | Echoed: ' + echoed + ' | Ratio: ' + echoRatio + ' — ' + verdict;
+  }
+
+  // Identity claims
+  var idList = document.getElementById('identity-list');
+  var claims = kg.identity_claim_analysis || [];
+  if (claims.length > 0) {
+    idList.innerHTML = '';
+    claims.forEach(function(ic) {
+      if (ic.type !== 'name') return; // only show name-type identities
+      var row = document.createElement('div');
+      row.className = 'identity-row';
+      var credClass = ic.credibility === 'independent' ? 'cred-independent' : ic.credibility === 'echo_grounded' ? 'cred-echo' : 'cred-elder';
+      row.innerHTML = '<span class="identity-name">' + ic.name + '</span>' +
+        '<span class="identity-cred ' + credClass + '">' + ic.credibility + '</span>';
+      idList.appendChild(row);
+    });
+  }
+
+  // Fact ledger
+  var factList = document.getElementById('fact-list');
+  var factKeys = Object.keys(facts);
+  if (factKeys.length > 0) {
+    factList.innerHTML = '';
+    factKeys.forEach(function(fid) {
+      var f = facts[fid];
+      var row = document.createElement('div');
+      row.className = 'fact-row';
+      var sourceClass = f.first_stated_by === 'elder' ? 'fact-elder' : 'fact-sender';
+      var echoHtml = f.echo_detected ? '<span class="fact-echo">echoed by ' + f.echo_by + '</span>' : '';
+      row.innerHTML = '<span class="fact-value">' + f.value + '</span>' +
+        '<span><span class="fact-source ' + sourceClass + '">' + f.first_stated_by + ' (T' + f.first_turn + ')</span>' + echoHtml + '</span>';
+      factList.appendChild(row);
+    });
+  }
+
+  // Graph signals
+  var sigList = document.getElementById('signal-list');
+  sigList.innerHTML = '';
+  if (gs.echo_grounded_identity) {
+    sigList.innerHTML += '<div class="signal-row"><span class="signal-code signal-danger">ECHO-ID</span> Sender identity is echo-grounded</div>';
+  }
+  if (gs.friction_collapsed) {
+    sigList.innerHTML += '<div class="signal-row"><span class="signal-code signal-danger">FRICTION</span> Elder friction has collapsed</div>';
+  }
+  if (gs.echo_ratio > 0.5) {
+    sigList.innerHTML += '<div class="signal-row"><span class="signal-code signal-warn">ECHO</span> Echo ratio: ' + gs.echo_ratio + '</div>';
+  }
+  if (gs.contradictions > 0) {
+    sigList.innerHTML += '<div class="signal-row"><span class="signal-code signal-danger">CONTRA</span> ' + gs.contradictions + ' contradiction(s) detected</div>';
+  }
+  sigList.innerHTML += '<div class="signal-row" style="color:var(--gray-400);">Trust: ' + gs.trust_stage + ' | Friction: ' + gs.friction_score.toFixed(2) + ' | Turns: ' + gs.turns_analyzed + '</div>';
+}
+</script>
+</body>
+</html>

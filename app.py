@@ -251,6 +251,15 @@ async def shield():
     return HTMLResponse(content=path.read_text(encoding="utf-8"))
 
 
+@app.get("/analyzer", response_class=HTMLResponse)
+async def analyzer():
+    """Conversation Analyzer — knowledge graph provenance demo."""
+    path = Path(__file__).parent / "web" / "analyzer.html"
+    if not path.exists():
+        return HTMLResponse(content="<h1>Analyzer not built yet.</h1>", status_code=200)
+    return HTMLResponse(content=path.read_text(encoding="utf-8"))
+
+
 @app.get("/technical", response_class=HTMLResponse)
 async def technical():
     """Technical deep dive — architecture, research, benchmarks."""
@@ -607,6 +616,47 @@ async def intercept_outbound(req: InterceptRequest):
         return {"result": result, "recipient": req.recipient}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+class ConversationTurnRequest(BaseModel):
+    """Single conversation turn for knowledge graph analysis."""
+    content: str
+    direction: str  # "inbound" or "outbound"
+    turn_index: int = 0
+    session_id: str = "analyzer"
+
+
+# In-memory graph state per analyzer session
+_analyzer_states: dict[str, dict] = {}
+
+
+@app.post("/api/conversation/turn")
+async def conversation_turn(req: ConversationTurnRequest):
+    """Process a single conversation turn through the knowledge graph.
+
+    No LLM call — pure Python graph operations. Returns the full
+    updated state: fact ledger, epistemic state, knowledge graph signals.
+    """
+    state = _analyzer_states.get(req.session_id, {})
+
+    result = process_conversation_turn(
+        req.content, req.direction, req.turn_index, state
+    )
+
+    _analyzer_states[req.session_id] = result
+    return {
+        "fact_ledger": result["fact_ledger"],
+        "epistemic_state": result["epistemic_state"],
+        "knowledge_graph": result["knowledge_graph"],
+        "graph_signals": result["graph_signals"],
+    }
+
+
+@app.post("/api/conversation/reset")
+async def conversation_reset(session_id: str = "analyzer"):
+    """Reset the conversation graph state for a new analysis."""
+    _analyzer_states.pop(session_id, None)
+    return {"status": "reset"}
 
 
 @app.get("/api/dashboard/data")
