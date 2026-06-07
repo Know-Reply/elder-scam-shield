@@ -1672,6 +1672,13 @@ body {
     'OB-3':  'Transfer instruction — wire transfer or payment outbound',
     'OB-4':  'Response to flagged sender — replying to elevated risk contact',
     'OB-5':  'Compliance language — agreement to comply with request',
+    'VS-1':  'Compliance acceptance — agreeing to requests',
+    'VS-2':  'Secrecy adoption — accepting secrecy demands',
+    'VS-3':  'Financial commitment — committing to send money',
+    'VS-4':  'Emotional capitulation — reassuring the scammer',
+    'VS-5':  'Urgency mirroring — adopting scammer deadline language',
+    'VS-6':  'Question cessation — stopped asking questions (longitudinal)',
+    'VS-7':  'Deference shift — assertive to submissive (longitudinal)',
   };
   var SIGNAL_WEIGHTS = {
     'PM-1': 0.3, 'PM-2': 0.4, 'PM-3': 0.7, 'PM-4': 0.5, 'PM-5': 0.6,
@@ -1683,6 +1690,7 @@ body {
     'EA-1': 0.5, 'EA-2': 0.6, 'EA-3': 0.4, 'EA-4': 0.3,
     'CM-1': 0.3,
     'OB-1': 0.3, 'OB-2': 0.7, 'OB-3': 0.8, 'OB-4': 0.4, 'OB-5': 0.3,
+    'VS-1': 0.15, 'VS-2': 0.35, 'VS-3': 0.40, 'VS-4': 0.10, 'VS-5': 0.20, 'VS-6': 0.25, 'VS-7': 0.20,
   };
   var SIGNAL_TYPES = {
     'PM-1': 'danger', 'PM-2': 'danger', 'PM-3': 'danger', 'PM-4': 'danger',
@@ -1696,6 +1704,7 @@ body {
     'EA-1': 'danger', 'EA-2': 'danger', 'EA-3': 'warn', 'EA-4': 'warn',
     'CM-1': 'warn',
     'OB-1': 'warn', 'OB-2': 'danger', 'OB-3': 'danger', 'OB-4': 'warn', 'OB-5': 'warn',
+    'VS-1': 'warn', 'VS-2': 'danger', 'VS-3': 'danger', 'VS-4': 'warn', 'VS-5': 'warn', 'VS-6': 'warn', 'VS-7': 'warn',
   };
 
   // =========================================================

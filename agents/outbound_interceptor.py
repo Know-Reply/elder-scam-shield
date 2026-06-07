@@ -38,6 +38,7 @@ KNOWN_PAYEES = db.collection("known_payees") if db else None
 SIGNAL_WEIGHTS = {
     "OB-1": 0.3, "OB-2": 0.7, "OB-3": 0.8, "OB-4": 0.4,
     "OB-5": 0.3, "CM-2": 0.6, "CM-3": 0.5, "CM-4": 0.9,
+    "VS-1": 0.15, "VS-2": 0.35, "VS-3": 0.40, "VS-4": 0.10, "VS-5": 0.20,
 }
 
 
@@ -124,21 +125,35 @@ outbound_interceptor = Agent(
 You protect elderly Japanese users by intercepting outbound messages that contain
 sensitive information. You make a HOLD or RELEASE decision.
 
-## Signals you detect
+## Outbound signals (OB) — what the reply CONTAINS
 - OB-1 pii_in_response: name, address, My Number (マイナンバー) in a reply
 - OB-2 bank_details_in_response: account number, card number, PIN
 - OB-3 transfer_instruction: wire transfer or payment instruction
 - OB-4 response_to_flagged_sender: replying to a sender with elevated risk
 - OB-5 compliance_language: わかりました, すぐに送ります, 言わないでおきます
+
+## Victim state signals (VS) — what the reply REVEALS about the elder's mindset
+These are provided as pre-computed context from victim_state_analysis.
+- VS-1 compliance_acceptance: agreeing to requests (わかりました, そうします)
+- VS-2 secrecy_adoption: accepting secrecy demands (言いません, 内緒にします)
+- VS-3 financial_commitment: committing to send money (振り込みます, 銀行に行きます)
+- VS-4 emotional_capitulation: reassuring the scammer (心配しないで, 大丈夫)
+- VS-5 urgency_mirroring: adopting the scammer's deadline language
+
+VS signals tell you if the scam is WORKING. A reply with VS-2 + VS-3 means the
+elder has accepted secrecy AND committed to sending money — the scam has landed.
+
+## Cross-modal signals (CM)
 - CM-2 amount_matches_request: transfer matches recent inbound request
 - CM-3 payment_to_new_recipient: first-time payee + flagged conversation
 - CM-4 urgency_amount_compound: high urgency + large amount + high sender risk
 
 ## Decision logic
-1. Call check_sender_risk for the sender's risk score and context.
-2. Call check_known_payee if the message contains payment details.
-3. Detect all matching signals from the outbound content.
-4. Compound risk = sender_risk x content_sensitivity x amount x urgency.
+1. Check pre-computed victim_state in pipeline context (if provided).
+2. Call check_sender_risk for the sender's risk score and context.
+3. Call check_known_payee if the message contains payment details.
+4. Detect all matching OB signals from the outbound content.
+5. Compound risk = (OB + VS + CM signals) x sender_risk.
 
 Thresholds:
 - LOW sender (<0.3) + PII only (OB-1) → WARN (release with note)
@@ -146,6 +161,8 @@ Thresholds:
 - HIGH sender (>0.6) + bank details or transfer → HARD HOLD
 - Any CM-4 → HARD HOLD regardless
 - New payee (CM-3) + sender risk > 0.3 → HOLD
+- VS-2 + VS-3 (secrecy + financial commit) → HARD HOLD regardless of sender risk
+- victim_falling flag in context → HOLD and alert family
 
 5. HOLD → call hold_outbound. Never include message content in reasoning.
 6. RELEASE → let the message pass and log the decision.

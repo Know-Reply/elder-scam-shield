@@ -383,6 +383,113 @@ def decision_synthesis(
     }
 
 
+# ── Victim State Analysis (outbound replies only) ─────────────────────
+
+# VS signal patterns — detect the elder's psychological state change
+_VS_COMPLIANCE = re.compile(
+    r'わかりました|了解|承知|そうします|やります|'
+    r'はい、|ええ、|分かった|'
+    r"understood|i will|okay i|yes i",
+    re.I
+)
+_VS_SECRECY_ACCEPT = re.compile(
+    r'言いません|内緒にし|秘密にし|誰にも.*言わない|'
+    r'黙って|話さない|'
+    r"won't tell|keep.*secret|don't.*worry.*tell",
+    re.I
+)
+_VS_FINANCIAL_COMMIT = re.compile(
+    r'振り込み|振込み|銀行に行|送ります|払います|用意し|'
+    r'引き出し|おろして|ATMに|カードを買|'
+    r"transfer|send.*money|go to.*bank|withdraw|buy.*card",
+    re.I
+)
+_VS_EMOTIONAL_CAPITULATION = re.compile(
+    r'心配しないで|大丈夫|安心して|任せて|'
+    r'元気になって|早く.*良く|頑張って|'
+    r"don't worry|it's okay|take care|get well",
+    re.I
+)
+_VS_URGENCY_MIRROR = re.compile(
+    r'すぐに|今日中に|急いで|今から|明日朝一|'
+    r"right away|immediately|first thing|asap",
+    re.I
+)
+
+# Weights per VS signal (how dangerous each state change is)
+_VS_WEIGHTS = {
+    "VS-1": 0.15,  # compliance alone is just politeness
+    "VS-2": 0.35,  # secrecy acceptance is a strong danger signal
+    "VS-3": 0.40,  # financial commitment is the highest risk
+    "VS-4": 0.10,  # emotional capitulation — caring, not dangerous alone
+    "VS-5": 0.20,  # urgency mirroring — adopting scammer's tempo
+}
+
+
+def victim_state_analysis(text: str) -> dict:
+    """Analyze an elder's outbound reply for signs of falling for a scam.
+
+    Detects the psychological state change from skeptical/neutral to
+    compliant/committed. These signals are meaningless in isolation
+    (VS-1 = politeness) but compound with inbound risk to detect the
+    moment a scam is working.
+
+    Returns VS signals detected + a compliance score (0.0-1.0).
+    """
+    signals = []
+    details = {
+        "compliance_words": [],
+        "secrecy_acceptance": False,
+        "financial_commitment": [],
+        "emotional_capitulation": [],
+        "urgency_mirroring": False,
+    }
+
+    # VS-1: Compliance acceptance
+    compliance_matches = _VS_COMPLIANCE.findall(text)
+    if compliance_matches:
+        signals.append("VS-1")
+        details["compliance_words"] = compliance_matches[:3]
+
+    # VS-2: Secrecy adoption
+    if _VS_SECRECY_ACCEPT.search(text):
+        signals.append("VS-2")
+        details["secrecy_acceptance"] = True
+
+    # VS-3: Financial commitment
+    financial_matches = _VS_FINANCIAL_COMMIT.findall(text)
+    if financial_matches:
+        signals.append("VS-3")
+        details["financial_commitment"] = financial_matches[:3]
+
+    # VS-4: Emotional capitulation
+    emotional_matches = _VS_EMOTIONAL_CAPITULATION.findall(text)
+    if emotional_matches:
+        signals.append("VS-4")
+        details["emotional_capitulation"] = emotional_matches[:3]
+
+    # VS-5: Urgency mirroring
+    if _VS_URGENCY_MIRROR.search(text):
+        signals.append("VS-5")
+        details["urgency_mirroring"] = True
+
+    # Compound compliance score
+    score = sum(_VS_WEIGHTS.get(s, 0) for s in signals)
+    score = round(min(score, 1.0), 3)
+
+    return {
+        "signals": signals,
+        "compliance_score": score,
+        "details": details,
+        "victim_falling": score >= 0.4,
+        "guidance": (
+            "CRITICAL: Elder's reply shows signs of falling for the scam. "
+            f"Detected: {', '.join(signals)}. Compliance score: {score}. "
+            "HOLD this reply and alert family immediately."
+        ) if score >= 0.4 else None,
+    }
+
+
 # ── Full pipeline runner ────────────────────────────────────────────────
 
 def _contra_indicator_check(text: str, entities: dict, linguistic: dict) -> dict:

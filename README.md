@@ -12,6 +12,7 @@ Elder fraud costs **$77.7 billion globally** (Nasdaq 2024). Japan's tokushu sagi
 - **Social graph inference** -- builds contact networks from message history, cross-references identity claims across contacts, and structurally detects imposters who have no graph connection to anyone the user knows.
 - **Elder abuse detection from trusted contacts** -- detects the same manipulation mechanics (isolation, financial control, authority escalation) regardless of whether the sender is a stranger or a known family member. References Japan's Elder Abuse Prevention Act (2006).
 - **Outbound interception** -- catches the compliance signal ("I'll go to the bank tomorrow") between conversation and transaction. Blocks bank account numbers and transfer instructions leaving the user, not just scam messages arriving.
+- **Victim state monitoring** -- analyzes the elder's *replies* for signs the scam is working. Compliance acceptance, secrecy adoption, financial commitment, emotional capitulation, urgency mirroring. Most systems watch what the scammer says. Elder Shield also watches whether the elder is falling for it.
 
 ## Architecture: 8-Step Hardened Pipeline
 
