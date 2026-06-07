@@ -251,6 +251,15 @@ async def shield():
     return HTMLResponse(content=path.read_text(encoding="utf-8"))
 
 
+@app.get("/technical", response_class=HTMLResponse)
+async def technical():
+    """Technical deep dive — architecture, research, benchmarks."""
+    path = Path(__file__).parent / "web" / "technical.html"
+    if not path.exists():
+        return HTMLResponse(content="<h1>Technical page not built yet.</h1>", status_code=200)
+    return HTMLResponse(content=path.read_text(encoding="utf-8"))
+
+
 @app.get("/simulator", response_class=HTMLResponse)
 async def simulator():
     """Interactive scam simulator — choose-your-adventure style."""

@@ -172,6 +172,16 @@ Assembles the fact ledger and epistemic state into actionable signals:
 
 These signals feed directly into the risk assessment evidence chain.
 
+### Research Foundations
+
+The conversation knowledge graph draws on recent advances in epistemic logic and dialogue analysis:
+
+- **Dynamic Epistemic Friction in Dialogue** (Gutiérrez-Basulto et al., 2025) -- operationalizes epistemic states and shows that friction reliably indicates how smoothly participants integrate new evidence. Our friction score implementation draws from this framework. [arXiv:2506.10934](https://arxiv.org/abs/2506.10934)
+- **Joint Detection of Fraud and Concept Drift** (Sadat et al., 2025) -- treats concept drift and fraud detection together to avoid false positives from flagging normal topic changes. Our contra-indicator pipeline implements a similar dual-evidence approach. [arXiv:2505.07852](https://arxiv.org/abs/2505.07852)
+- **Speaker-Oriented Dialogue Relation Extraction** (Yu et al., 2021) -- emphasizes tracking speaker-related information within dialogue context. Our fact provenance ledger implements speaker-attributed extraction at the turn level. [arXiv:2109.05182](https://arxiv.org/abs/2109.05182)
+
+Full technical deep dive with all citations: [/technical](/technical)
+
 ## Results
 
 ### The metric that matters: WHEN, not IF

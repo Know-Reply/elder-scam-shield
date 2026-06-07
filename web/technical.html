@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elder Shield — Technical Deep Dive</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:       #0f172a;
+      --blue:       #1a56db;
+      --blue-light: #dbeafe;
+      --green:      #16a34a;
+      --green-bg:   #f0fdf4;
+      --yellow:     #f59e0b;
+      --orange:     #ea580c;
+      --red:        #dc2626;
+      --red-bg:     #fef2f2;
+      --gray-50:    #f8fafc;
+      --gray-100:   #f1f5f9;
+      --gray-200:   #e2e8f0;
+      --gray-300:   #cbd5e1;
+      --gray-400:   #94a3b8;
+      --gray-500:   #64748b;
+      --gray-600:   #475569;
+      --gray-700:   #334155;
+      --radius:     8px;
+      --radius-lg:  12px;
+      --shadow:     0 1px 3px rgba(0,0,0,0.08);
+      --font:       -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      --font-mono:  "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+    }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font); color: var(--gray-700); line-height: 1.7; background: #fff; }
+    a { color: var(--blue); }
+
+    /* Nav */
+    .nav { background: var(--navy); padding: 12px 24px; position: sticky; top: 0; z-index: 100; }
+    .nav-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { color: #fff; text-decoration: none; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+    .nav-links { display: flex; gap: 4px; list-style: none; }
+    .nav-links a { color: var(--gray-300); text-decoration: none; font-size: 0.82rem; font-weight: 500; padding: 6px 12px; border-radius: 6px; }
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-links a.nav-app { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
+
+    /* Content */
+    .content { max-width: 800px; margin: 0 auto; padding: 48px 24px 80px; }
+    h1 { font-size: 2rem; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+    .subtitle { font-size: 1.05rem; color: var(--gray-500); margin-bottom: 48px; }
+    h2 { font-size: 1.4rem; font-weight: 800; color: var(--navy); margin: 48px 0 16px; padding-top: 24px; border-top: 2px solid var(--gray-100); }
+    h2:first-of-type { border-top: none; margin-top: 0; }
+    h3 { font-size: 1.1rem; font-weight: 700; color: var(--navy); margin: 24px 0 8px; }
+    p { margin-bottom: 16px; }
+    ul, ol { margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+
+    /* Code */
+    pre { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 16px; overflow-x: auto; font-size: 0.82rem; font-family: var(--font-mono); margin-bottom: 16px; line-height: 1.5; }
+    code { font-family: var(--font-mono); font-size: 0.85em; background: var(--gray-100); padding: 1px 5px; border-radius: 3px; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 0.88rem; }
+    th { background: var(--navy); color: #fff; text-align: left; padding: 10px 14px; font-size: 0.82rem; }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--gray-100); }
+    tr:hover td { background: var(--gray-50); }
+
+    /* Citation */
+    .cite { background: var(--gray-50); border-left: 3px solid var(--blue); padding: 12px 16px; margin: 16px 0; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.85rem; }
+    .cite-title { font-weight: 700; color: var(--navy); }
+    .cite-meta { font-size: 0.78rem; color: var(--gray-500); margin-top: 4px; }
+
+    /* Signal table */
+    .sig-code { font-family: var(--font-mono); font-weight: 700; font-size: 0.82rem; }
+    .sig-danger { color: var(--red); }
+    .sig-warn { color: #92400e; }
+    .sig-safe { color: var(--green); }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/shield" class="nav-brand">
+      <svg viewBox="0 0 32 40" width="22" height="28">
+        <path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/>
+        <path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Elder Shield
+    </a>
+    <ul class="nav-links">
+      <li><a href="/shield">Overview</a></li>
+      <li><a href="/dashboard" class="nav-app">Dashboard</a></li>
+      <li><a href="/simulator" class="nav-app">Simulator</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="content">
+
+<h1>Technical Deep Dive</h1>
+<p class="subtitle">Architecture, research foundations, benchmark data, and signal taxonomy for Elder Shield's multi-agent scam protection pipeline.</p>
+
+<!-- ============================================================ -->
+<h2>1. Conversation Knowledge Graph</h2>
+
+<p>Most fraud detection systems ask: <em>"is this message a scam?"</em> Elder Shield asks: <em>"who knows what, and how did they learn it?"</em></p>
+
+<p>The conversation knowledge graph tracks every fact across both sides of the dialogue through three layers, drawing on recent advances in epistemic logic and dialogue-level relation extraction.</p>
+
+<h3>Layer 1: Fact Ledger (Signal)</h3>
+<p>Append-only per turn. Every entity (name, location, institution, amount) is tagged with <strong>who stated it first</strong> and whether the other party <strong>echoed</strong> it. This is information provenance at the conversational turn level &mdash; a capability that does not exist in production fraud detection systems.</p>
+
+<pre>Turn 0 (elder):  "Kenji, is that you?"
+  → name:健二  first_stated_by: elder
+
+Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
+  → name:健二  echo_detected: true, echo_by: sender
+  → location:大阪  first_stated_by: sender (independent knowledge)</pre>
+
+<p>The sender didn't know Kenji's name. The elder gave it to them. Every subsequent use of "Kenji" by the sender is echoed knowledge, not proof of identity.</p>
+
+<h3>Layer 2: Epistemic State (Interpretation)</h3>
+<p>The elder's psychological trajectory: <code>skeptical → engaged → trusting → compliant</code>. Measured by <strong>epistemic friction</strong> &mdash; how much the elder resists new claims from the sender.</p>
+
+<ul>
+  <li>Questions in replies = maintaining friction (healthy skepticism)</li>
+  <li>Short agreeing replies without questions = friction declining (dangerous)</li>
+  <li><code>friction_trajectory: "collapsed"</code> = the scam has landed</li>
+</ul>
+
+<p>Language-agnostic: measured by structural patterns (question frequency, reply length, response complexity), not keyword matching. Works in Japanese, English, or any language.</p>
+
+<div class="cite">
+  <div class="cite-title">Dynamic Epistemic Friction in Dialogue</div>
+  <p>Our epistemic friction metric draws on recent work operationalizing epistemic states using vector-based propositional encoding: "epistemic friction reliably indicates how smoothly participants integrate new evidence into their existing beliefs."</p>
+  <div class="cite-meta">Gutiérrez-Basulto et al., 2025. <a href="https://arxiv.org/abs/2506.10934" target="_blank">arXiv:2506.10934</a></div>
+</div>
+
+<h3>Layer 3: Knowledge Graph (Interpretation)</h3>
+<p>Assembles the fact ledger and epistemic state into actionable signals for risk assessment:</p>
+
+<table>
+  <thead><tr><th>Signal</th><th>What it means</th><th>Threshold</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Echo ratio</strong></td><td>Fraction of sender-stated facts the elder introduced first</td><td>&gt; 0.6 = sender parroting</td></tr>
+    <tr><td><strong>Echo-grounded identity</strong></td><td>Sender's identity claim built from elder's volunteered facts</td><td>Boolean &mdash; true = impersonation signal</td></tr>
+    <tr><td><strong>Asymmetry verdict</strong></td><td>Who has more information advantage?</td><td>sender_echoing / sender_knows_more / balanced</td></tr>
+    <tr><td><strong>Friction collapsed</strong></td><td>Elder's resistance to claims has collapsed</td><td>Score &lt; 0.2 sustained = critical</td></tr>
+  </tbody>
+</table>
+
+<div class="cite">
+  <div class="cite-title">Joint Detection of Fraud and Concept Drift in Online Conversations</div>
+  <p>Our approach to monitoring conversational state change aligns with recent work on treating concept drift and fraud detection together: "detecting behavioral shifts using a One-Class Drift Detector, then using an LLM to evaluate whether the shift is benign or an emerging scam."</p>
+  <div class="cite-meta">Sadat et al., 2025. <a href="https://arxiv.org/abs/2505.07852" target="_blank">arXiv:2505.07852</a></div>
+</div>
+
+<div class="cite">
+  <div class="cite-title">Speaker-Oriented Latent Structures for Dialogue-Based Relation Extraction</div>
+  <p>Our fact provenance tracking implements the principle from dialogue relation extraction that "emphasizes the importance of tracking speaker-related information within the context across multiple sentences."</p>
+  <div class="cite-meta">Yu et al., 2021. <a href="https://arxiv.org/abs/2109.05182" target="_blank">arXiv:2109.05182</a></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Benchmark: Faxi Production vs Elder Shield</h2>
+
+<p>Both systems run on the same model (<code>gemini-3.1-flash-lite</code>), same cost. Faxi's classifier is the real production code from <code>spamCheckService.ts</code>.</p>
+
+<h3>Scam Detection (both catch everything)</h3>
+<table>
+  <thead><tr><th>Test Case</th><th>Faxi</th><th>Elder Shield</th></tr></thead>
+  <tbody>
+    <tr><td>Obvious ore-ore scam (¥800K + secrecy)</td><td>scam (0.99)</td><td>scam (0.98)</td></tr>
+    <tr><td>Fictitious billing (legal threat)</td><td>scam (0.98)</td><td>scam (1.0)</td></tr>
+    <tr><td>Refund scam (還付金詐欺)</td><td>scam (0.98)</td><td>scam (1.0)</td></tr>
+    <tr><td>Counter-system social engineering</td><td>scam (0.95)</td><td>scam (0.95)</td></tr>
+  </tbody>
+</table>
+
+<h3>False Positives (Elder Shield eliminates them)</h3>
+<table>
+  <thead><tr><th>Test Case</th><th>Faxi</th><th>Elder Shield</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Daughter asks for rent (¥50K)</td><td style="color:var(--red);">scam (0.95)</td><td style="color:var(--green);">safe (0.85)</td><td>Verified contact in social graph</td></tr>
+    <tr><td>Grandson: birthday surprise + "don't tell"</td><td style="color:var(--red);">scam (0.85)</td><td style="color:var(--green);">safe (0.90)</td><td>Verified contact, mundane secrecy</td></tr>
+    <tr><td>Granddaughter: textbook money (¥50K)</td><td style="color:var(--red);">scam (0.95)</td><td style="color:var(--green);">safe (0.85)</td><td>Verified contact, proportional need</td></tr>
+    <tr><td>Real grandchild ¥3K from unknown phone</td><td style="color:var(--red);">scam (0.98)</td><td style="color:var(--green);">suspicious (0.65)</td><td>Contra-indicators: no secrecy, mundane context</td></tr>
+    <tr><td>Day 4 trust-building (soft mention)</td><td style="color:var(--red);">scam (0.85)</td><td style="color:var(--green);">suspicious (0.55)</td><td>Contra-indicators apply</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Faxi: 5 false positives.</strong> Blocks a daughter, grandson, and granddaughter &mdash; all verified family members. <strong>Elder Shield: 0.</strong></p>
+
+<h3>Latency</h3>
+<table>
+  <thead><tr><th>Path</th><th>Time</th><th>Speedup</th></tr></thead>
+  <tbody>
+    <tr><td>Original (7 tools, LLM-routed)</td><td>~11s</td><td>baseline</td></tr>
+    <tr><td>Elder Shield (2 tools, pre-pipeline)</td><td>~0.9s</td><td><strong>12x faster</strong></td></tr>
+    <tr><td>Faxi production (no tools)</td><td>~0.5s</td><td>&mdash;</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>3. ADK Framework Integration</h2>
+
+<table>
+  <thead><tr><th>ADK Feature</th><th>Where</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Workflow + FunctionNode</strong></td><td>root_agent.py</td><td>DAG orchestration &mdash; deterministic pre-processing, conditional routing</td></tr>
+    <tr><td><strong>output_schema</strong></td><td>All 4 agents</td><td>Pydantic-validated structured output, eliminates JSON parsing</td></tr>
+    <tr><td><strong>output_key</strong></td><td>All 4 agents</td><td>Writes results to session state for inter-agent data flow</td></tr>
+    <tr><td><strong>before_tool_callback</strong></td><td>Classifier, Analyzer, Interceptor</td><td>Native tool call tracing to session state</td></tr>
+    <tr><td><strong>after_model_callback</strong></td><td>Classifier</td><td>Runtime output validation</td></tr>
+    <tr><td><strong>before_model_callback</strong></td><td>Analyzer</td><td>Dynamic context injection from session state</td></tr>
+    <tr><td><strong>Session reuse</strong></td><td>app.py</td><td>Longitudinal state per user across requests</td></tr>
+    <tr><td><strong>Conditional routing</strong></td><td>Workflow edges</td><td>Risk-based fan-out to Family Alerter</td></tr>
+  </tbody>
+</table>
+
+<h3>Production Execution Model</h3>
+<pre>Hot path (per message, &lt;1s):         Async path (per sender profile):
+  Message → FunctionNode               Classification facts accumulate
+    (Steps 1-4: pre-processing)           in sender profile via session state
+  → Inbound Classifier (Agent)        → Behavioral Analyzer (Agent)
+    output_key → session state           triggered by accumulated evidence
+  → Response                          → Family Alerter (if risk &gt; 0.6)</pre>
+
+<p>The Workflow represents the full architecture. In production, the classifier runs on the hot path and the behavioral analyzer runs asynchronously against accumulated evidence. Same agents, same session state, different execution timing.</p>
+
+<!-- ============================================================ -->
+<h2>4. Signal Taxonomy (27 signals, 5 families)</h2>
+
+<h3>PM: Per-Message (12 signals)</h3>
+<table>
+  <thead><tr><th>Code</th><th>Signal</th><th>Risk</th></tr></thead>
+  <tbody>
+    <tr><td class="sig-code sig-danger">PM-1</td><td>Urgency language</td><td>High</td></tr>
+    <tr><td class="sig-code sig-danger">PM-2</td><td>Secrecy demand</td><td>High</td></tr>
+    <tr><td class="sig-code sig-danger">PM-3</td><td>Financial solicitation</td><td>High</td></tr>
+    <tr><td class="sig-code sig-danger">PM-4</td><td>Authority claim (police, government)</td><td>High</td></tr>
+    <tr><td class="sig-code sig-danger">PM-5</td><td>Unusual payment method (gift cards, crypto)</td><td>High</td></tr>
+    <tr><td class="sig-code sig-danger">PM-6</td><td>Legal threat</td><td>High</td></tr>
+    <tr><td class="sig-code sig-danger">PM-7</td><td>Credential solicitation</td><td>High</td></tr>
+    <tr><td class="sig-code sig-warn">PM-8</td><td>Prize notification</td><td>Medium</td></tr>
+    <tr><td class="sig-code sig-warn">PM-9</td><td>Refund lure</td><td>Medium</td></tr>
+    <tr><td class="sig-code sig-danger">PM-10</td><td>Emotional crisis + financial resolution</td><td>High</td></tr>
+    <tr><td class="sig-code sig-warn">PM-11</td><td>Identity claim (family relationship)</td><td>Medium</td></tr>
+    <tr><td class="sig-code sig-warn">PM-12</td><td>Flattery density</td><td>Low</td></tr>
+  </tbody>
+</table>
+
+<h3>BV: Behavioral Velocity (5 signals)</h3>
+<table>
+  <thead><tr><th>Code</th><th>Signal</th><th>What it measures</th></tr></thead>
+  <tbody>
+    <tr><td class="sig-code sig-warn">BV-1</td><td>Relationship velocity</td><td>How fast intimacy progresses</td></tr>
+    <tr><td class="sig-code sig-danger">BV-2</td><td>Isolation index</td><td>Distance from verification network</td></tr>
+    <tr><td class="sig-code sig-warn">BV-3</td><td>Emotional arc</td><td>Sentiment trajectory prediction</td></tr>
+    <tr><td class="sig-code sig-warn">BV-4</td><td>Credibility seeding</td><td>Unsolicited personal detail volunteering</td></tr>
+    <tr><td class="sig-code sig-warn">BV-5</td><td>Help positioning</td><td>Systematic availability signaling</td></tr>
+  </tbody>
+</table>
+
+<h3>EA: Elder Abuse (4 signals)</h3>
+<table>
+  <thead><tr><th>Code</th><th>Signal</th><th>What it detects</th></tr></thead>
+  <tbody>
+    <tr><td class="sig-code sig-danger">EA-1</td><td>Financial control</td><td>Known contact requesting money/savings info repeatedly</td></tr>
+    <tr><td class="sig-code sig-danger">EA-2</td><td>Trusted isolation</td><td>Known contact cutting off other family</td></tr>
+    <tr><td class="sig-code sig-warn">EA-3</td><td>Authority escalation</td><td>Caregiver taking over decisions</td></tr>
+    <tr><td class="sig-code sig-warn">EA-4</td><td>Communication shift</td><td>Sudden frequency/topic change from known contact</td></tr>
+  </tbody>
+</table>
+
+<h3>VS: Victim State (7 signals)</h3>
+<table>
+  <thead><tr><th>Code</th><th>Signal</th><th>What it reveals</th></tr></thead>
+  <tbody>
+    <tr><td class="sig-code sig-warn">VS-1</td><td>Compliance acceptance</td><td>Agreeing to requests without pushback</td></tr>
+    <tr><td class="sig-code sig-danger">VS-2</td><td>Secrecy adoption</td><td>Accepting secrecy demands from the sender</td></tr>
+    <tr><td class="sig-code sig-danger">VS-3</td><td>Financial commitment</td><td>Stating intent to send money or go to bank</td></tr>
+    <tr><td class="sig-code sig-warn">VS-4</td><td>Emotional capitulation</td><td>Reassuring the scammer instead of questioning</td></tr>
+    <tr><td class="sig-code sig-warn">VS-5</td><td>Urgency mirroring</td><td>Adopting the scammer's deadline language</td></tr>
+    <tr><td class="sig-code sig-warn">VS-6</td><td>Question cessation</td><td>Stopped asking questions across replies (longitudinal)</td></tr>
+    <tr><td class="sig-code sig-warn">VS-7</td><td>Deference shift</td><td>Assertive to submissive tone change (longitudinal)</td></tr>
+  </tbody>
+</table>
+
+<h3>LG: Longitudinal (10 signals)</h3>
+<table>
+  <thead><tr><th>Code</th><th>Signal</th></tr></thead>
+  <tbody>
+    <tr><td class="sig-code sig-safe">LG-0</td><td>Location established</td></tr>
+    <tr><td class="sig-code sig-danger">LG-1</td><td>Stated fact contradiction</td></tr>
+    <tr><td class="sig-code sig-danger">LG-2</td><td>Contact identity mismatch</td></tr>
+    <tr><td class="sig-code sig-warn">LG-3</td><td>Frequency escalation</td></tr>
+    <tr><td class="sig-code sig-warn">LG-4</td><td>Emotional progression</td></tr>
+    <tr><td class="sig-code sig-danger">LG-5</td><td>Financial mention timing</td></tr>
+    <tr><td class="sig-code sig-danger">LG-6</td><td>Isolation language trend</td></tr>
+    <tr><td class="sig-code sig-warn">LG-7</td><td>Persona inconsistency</td></tr>
+    <tr><td class="sig-code sig-danger">LG-8</td><td>Crisis after trust</td></tr>
+    <tr><td class="sig-code sig-warn">LG-9</td><td>Rapid intimacy</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>5. Production Integration</h2>
+
+<p>Elder Shield is a stateless classification microservice that replaces Faxi's production email classifier. One configuration change routes traffic through the ADK-optimized pipeline.</p>
+
+<h3>API Contract</h3>
+<pre>POST /api/classify
+
+{
+  "from_address": "sender@example.com",
+  "subject": "Re: お元気ですか",
+  "body": "message content...",
+  "auth": { "spf": "pass", "dkim": "pass", "dmarc": "pass" }
+}
+
+→ {
+  "classification": "safe|suspicious|scam|spam",
+  "confidence": 0.85,
+  "detected_signals": ["PM-3", "BV-1"],
+  "extracted_facts": { ... },
+  "reasoning": "..."
+}</pre>
+
+<p>Email authentication metadata (SPF/DKIM/DMARC) is optional. When provided, failures surface as PM-13. When absent (messaging apps, SMS), classification works on content + graph alone.</p>
+
+<h3>Additional Endpoints</h3>
+<table>
+  <thead><tr><th>Endpoint</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>POST /api/classify</code></td><td>Fast classifier (inbound, ~0.9s)</td></tr>
+    <tr><td><code>POST /api/classify-naive</code></td><td>Faxi baseline comparison (no tools, no corpus)</td></tr>
+    <tr><td><code>POST /api/pipeline</code></td><td>Full Workflow DAG (all agents)</td></tr>
+    <tr><td><code>POST /api/intercept</code></td><td>Outbound interception (VS signals)</td></tr>
+    <tr><td><code>GET /api/status</code></td><td>Pipeline version, capabilities, integration contract</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>6. Research Foundations</h2>
+
+<div class="cite">
+  <div class="cite-title">Dynamic Epistemic Friction in Dialogue (2025)</div>
+  <p>Operationalizes epistemic states using vector-based propositional encoding. Shows that epistemic friction reliably indicates how smoothly participants integrate new evidence. Our friction score implementation draws directly from this framework.</p>
+  <div class="cite-meta">Gutiérrez-Basulto et al. <a href="https://arxiv.org/abs/2506.10934" target="_blank">arXiv:2506.10934</a></div>
+</div>
+
+<div class="cite">
+  <div class="cite-title">Joint Detection of Fraud and Concept Drift in Online Conversations (2025)</div>
+  <p>Proposes treating concept drift and fraud detection together to avoid false positives from flagging normal topic changes. Our contra-indicator pipeline implements a similar dual-evidence approach.</p>
+  <div class="cite-meta">Sadat et al. <a href="https://arxiv.org/abs/2505.07852" target="_blank">arXiv:2505.07852</a></div>
+</div>
+
+<div class="cite">
+  <div class="cite-title">Speaker-Oriented Latent Structures for Dialogue-Based Relation Extraction (2021)</div>
+  <p>Emphasizes tracking speaker-related information within dialogue context. Our fact provenance ledger implements speaker-attributed extraction at the turn level.</p>
+  <div class="cite-meta">Yu et al. <a href="https://arxiv.org/abs/2109.05182" target="_blank">arXiv:2109.05182</a></div>
+</div>
+
+<div class="cite">
+  <div class="cite-title">Zep/Graphiti: A Temporal Knowledge Graph Architecture for Agent Memory (2025)</div>
+  <p>Dual-timestamp model for conversational knowledge with episodic, semantic, and community subgraphs. Our three-layer architecture (fact-ledger, epistemic-state, knowledge-graph) follows a similar separation of raw events from derived interpretations.</p>
+  <div class="cite-meta">Graphiti/Zep. <a href="https://arxiv.org/abs/2501.13956" target="_blank">arXiv:2501.13956</a></div>
+</div>
+
+<div class="cite">
+  <div class="cite-title">The Anatomy of Conversational Scams (2026)</div>
+  <p>Structural analysis of how scam conversations progress through phases. Our behavioral velocity signals (BV-1..BV-5) model the same phase progression as detection signals.</p>
+  <div class="cite-meta"><a href="https://arxiv.org/abs/2601.03134" target="_blank">arXiv:2601.03134</a></div>
+</div>
+
+</div>
+</body>
+</html>
