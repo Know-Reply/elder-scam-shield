@@ -469,20 +469,21 @@ body {
 }
 
 .ai-signals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
   margin-top: 5px;
 }
-.ai-signal-pill {
-  font-size: 0.7rem;
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-weight: 600;
+.ai-signal-line {
+  font-size: 0.75rem;
+  padding: 2px 0;
+  line-height: 1.4;
 }
-.ai-signal-pill.sig-warn   { background: var(--yellow-bg); color: #92400e; }
-.ai-signal-pill.sig-danger { background: var(--red-bg); color: #991b1b; }
-.ai-signal-pill.sig-safe   { background: var(--green-bg); color: var(--green); }
+.ai-signal-code {
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  margin-right: 4px;
+}
+.ai-signal-line.sig-warn   { color: #92400e; }
+.ai-signal-line.sig-danger { color: #991b1b; }
+.ai-signal-line.sig-safe   { color: var(--green); }
 
 .ai-reasoning-short {
   margin-top: 5px;
@@ -1672,6 +1673,17 @@ body {
     'OB-4':  'Response to flagged sender — replying to elevated risk contact',
     'OB-5':  'Compliance language — agreement to comply with request',
   };
+  var SIGNAL_WEIGHTS = {
+    'PM-1': 0.3, 'PM-2': 0.4, 'PM-3': 0.7, 'PM-4': 0.5, 'PM-5': 0.6,
+    'PM-6': 0.6, 'PM-7': 0.7, 'PM-8': 0.4, 'PM-9': 0.5, 'PM-10': 0.8,
+    'PM-11': 0.2, 'PM-12': 0.2, 'PM-13': 0.3,
+    'BV-1': 0.4, 'BV-2': 0.5, 'BV-3': 0.3, 'BV-4': 0.3, 'BV-5': 0.2,
+    'LG-0': 0.05, 'LG-1': 0.6, 'LG-2': 0.5, 'LG-3': 0.3, 'LG-4': 0.3,
+    'LG-5': 0.6, 'LG-6': 0.5, 'LG-7': 0.3, 'LG-8': 0.7, 'LG-9': 0.3, 'LG-10': 0.3,
+    'EA-1': 0.5, 'EA-2': 0.6, 'EA-3': 0.4, 'EA-4': 0.3,
+    'CM-1': 0.3,
+    'OB-1': 0.3, 'OB-2': 0.7, 'OB-3': 0.8, 'OB-4': 0.4, 'OB-5': 0.3,
+  };
   var SIGNAL_TYPES = {
     'PM-1': 'danger', 'PM-2': 'danger', 'PM-3': 'danger', 'PM-4': 'danger',
     'PM-5': 'danger', 'PM-6': 'danger', 'PM-7': 'danger', 'PM-8': 'warn',
@@ -2246,11 +2258,11 @@ body {
     var behRowClass = systemsDiverge ? 'system-row system-row-primary' : 'system-row';
     var behBadgeClass = classBadge(behavioralClass);
 
-    // Signals
+    // Signals — one per line with code + description
     var sigHtml = '';
     c.signals.forEach(function(s) {
       var cls = s.type === 'danger' ? 'sig-danger' : s.type === 'warn' ? 'sig-warn' : 'sig-safe';
-      sigHtml += '<span class="ai-signal-pill ' + cls + '" title="' + (s.text || '') + '">' + s.code + '</span>';
+      sigHtml += '<div class="ai-signal-line ' + cls + '"><span class="ai-signal-code">' + s.code + '</span> ' + (s.text || '') + '</div>';
     });
 
     // Side-by-side VS layout
@@ -2329,6 +2341,9 @@ body {
     // Remove overflow constraints so reveal can expand fully
     threadCol.style.overflow = 'visible';
     threadCol.style.maxHeight = 'none';
+    threadCol.style.height = 'auto';
+    threadCol.style.minHeight = 'auto';
+    threadCol.parentElement.style.alignItems = 'start';
 
     // Insert reveal content after the thread
     thread.after(revealScreen);

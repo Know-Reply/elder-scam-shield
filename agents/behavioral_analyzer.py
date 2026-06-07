@@ -390,8 +390,14 @@ def compute_risk_score(detected_signals: list[str],
     """
     baselines = user_baselines or {}
 
-    # Base score from signal weights
-    base_score = sum(SIGNAL_WEIGHTS.get(s, 0.0) for s in detected_signals)
+    # Base score from signal weights — build per-signal evidence chain
+    base_score = 0.0
+    evidence_chain = []
+    for s in detected_signals:
+        w = SIGNAL_WEIGHTS.get(s, 0.0)
+        base_score += w
+        if w > 0:
+            evidence_chain.append({"signal": s, "weight": round(w, 3)})
 
     # ── Adaptive baseline adjustments (Round 5) ────────────────────────
     # Known contacts with established history get risk reduction.
@@ -455,9 +461,20 @@ def compute_risk_score(detected_signals: list[str],
     else:
         rec = "safe"
 
+    # Add composite scores to evidence chain
+    if bv_score > 0:
+        evidence_chain.append({"signal": "BV-composite", "weight": round(bv_score * 0.4, 3)})
+    if ea_score > 0:
+        evidence_chain.append({"signal": "EA-composite", "weight": round(ea_score * 0.4, 3)})
+    if graph_risk_modifier != 0:
+        evidence_chain.append({"signal": "graph-modifier", "weight": round(graph_risk_modifier, 3)})
+    if adaptive_modifier != 0:
+        evidence_chain.append({"signal": "adaptive-baseline", "weight": round(adaptive_modifier, 3)})
+
     return {
         "risk_score": score,
         "recommendation": rec,
+        "evidence_chain": sorted(evidence_chain, key=lambda e: abs(e["weight"]), reverse=True),
         "breakdown": {
             "signal_weight_score": round(base_score, 3),
             "behavioral_velocity_score": round(bv_score, 3),

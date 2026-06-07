@@ -73,7 +73,31 @@ PM-13 spf_dkim_fail — provided in metadata; email authentication failure
 - 警察なりすまし: fake police (10,936 cases, ¥98.5B in 2025)
 - 銀行/役所なりすまし: impersonating banks or government offices
 
-## Classification rules
+## Classification rules (check sender context FIRST)
+
+### Step A: Check sender relationship from graph_validation in pipeline context
+The same message means different things depending on who sent it.
+
+**If sender is a VERIFIED or KNOWN contact (is_known_contact: true):**
+- Do NOT classify as scam based on per-message signals alone.
+- Financial requests from known contacts are normal family behavior —
+  classify as **safe** and extract facts. The Behavioral Analyzer will
+  monitor for EA (elder abuse) patterns over time if they recur.
+- EXCEPTION: if the writing style deviates sharply from baseline OR the
+  message contains third-party account + secrecy + urgency (possible
+  account compromise), classify as **suspicious**.
+
+**If sender is UNKNOWN (is_known_contact: false):**
+- Apply standard classification with contra-indicator check below.
+
+### Step B: Contra-indicator check (unknown senders, BEFORE classifying as scam)
+If a message from an unknown sender has scam-shaped signals but the
+contra_indicators.may_be_legitimate flag is true in pipeline context,
+classify as **suspicious** (NOT scam), confidence ≤ 0.65, and recommend
+verification. This means: no secrecy demand, no third-party account,
+mundane context. The system flags for verification, not blocking.
+
+### Step C: Standard classification (unknown senders, no contra-indicators)
 - **scam**: 2+ strong signals (PM-3..PM-10) or 1 strong + context match
 - **suspicious**: 1 signal present or pattern partially matches
 - **spam**: unsolicited commercial, no scam indicators

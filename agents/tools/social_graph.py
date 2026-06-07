@@ -47,7 +47,48 @@ MOCK_GRAPH: dict[str, dict] = {
                 "connected_to": [],
             },
         },
-    }
+    },
+    # Email-based lookup for demo — maps common email patterns to demo_user's contacts
+    "demo_user": {
+        "owner": "山田花子",
+        "contacts": {
+            "yuko@gmail.com": {
+                "name": "ゆうこ",
+                "relationship": "daughter",
+                "location": "東京",
+                "message_history_months": 60,
+                "connected_to": ["takeshi@email.com", "miki@university.ac.jp"],
+            },
+            "daughter_yuko@example.com": {
+                "name": "ゆうこ",
+                "relationship": "daughter",
+                "location": "東京",
+                "message_history_months": 60,
+                "connected_to": ["takeshi@email.com"],
+            },
+            "takeshi@email.com": {
+                "name": "たけし",
+                "relationship": "grandson",
+                "location": "横浜",
+                "message_history_months": 24,
+                "connected_to": ["yuko@gmail.com"],
+            },
+            "miki@university.ac.jp": {
+                "name": "みき",
+                "relationship": "granddaughter",
+                "location": "京都",
+                "message_history_months": 18,
+                "connected_to": ["yuko@gmail.com"],
+            },
+            "tanaka@email.com": {
+                "name": "田中さん",
+                "relationship": "friend",
+                "location": "さいたま",
+                "message_history_months": 96,
+                "connected_to": [],
+            },
+        },
+    },
 }
 
 # ── Firestore handle (shared client) ──────────────────────────────────

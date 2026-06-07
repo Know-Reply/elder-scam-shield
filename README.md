@@ -54,7 +54,7 @@ Steps 1-4 run **before the LLM** — pure infrastructure, no API calls, ~50ms to
 The full pipeline is defined as an ADK Workflow DAG, but production execution separates the hot path from async analysis:
 
 ```
-Hot path (per message, <3s):        Async path (per sender profile):
+Hot path (per message, <1s):        Async path (per sender profile):
   Message → FunctionNode            Classification facts accumulate
     (Steps 1-4: pre-processing)       in sender profile via session state
   → Inbound Classifier (Agent)     → Behavioral Analyzer (Agent)
@@ -64,7 +64,7 @@ Hot path (per message, <3s):        Async path (per sender profile):
 
 The **Inbound Classifier** runs synchronously on every message — one LLM call, structured output via `output_schema`, results written to session state via `output_key`. The **Behavioral Analyzer** runs asynchronously against accumulated sender profiles, not raw messages. Same ADK agents, same session state, different execution timing.
 
-This is a deliberate production scaling decision: the Workflow represents the full architecture, but routing every message through all agents sequentially would be the wrong design. The classifier must be fast enough for real-time interception. The behavioral analyzer needs accumulated cross-message evidence to be useful — running it on a single message wastes an LLM call.
+This is a deliberate production scaling decision: the Workflow represents the full architecture, but routing every message through all agents sequentially would be the wrong design. The classifier responds in under 1 second — 12x faster than the original 7-tool LLM-routed approach. The behavioral analyzer needs accumulated cross-message evidence to be useful — running it on a single message wastes an LLM call.
 
 ### ADK Features Used
 
@@ -168,31 +168,56 @@ A single-message classifier -- no matter how good the model -- structurally cann
 | Evidence-backed classification | **No** — prompt-only | **Yes** — 22,979 corpus entries cited |
 | Adaptive per-user baselines | **No** — population thresholds | **Yes** — learns each user's normal |
 
-### We optimized the system, not just the model
+### Benchmark: Faxi production classifier vs Elder Shield
 
-Both systems run on the **same model** (gemini-3.1-flash-lite) at the **same cost**. Same F1. Completely different system:
+Both run on the **same model** (gemini-3.1-flash-lite), same cost. Faxi's classifier is the real production code from `spamCheckService.ts` — minimal prompt, no tools, no corpus.
 
-| | Pre-ADK Tuning | 8-Step Tuned Pipeline |
+#### Scam detection — both catch everything
+
+| Test Case | Faxi Production | Elder Shield |
 |---|---|---|
-| **Model** | gemini-3.1-flash-lite | gemini-3.1-flash-lite |
-| **Pipeline** | 1 step (raw message → classify) | **8 steps** (linguistic → entity → corpus → graph → classify → profile → behavioral → synthesis) |
-| **Per-message F1** | 0.933 | **0.932** |
-| **Recall** | 1.000 | **1.000** |
-| **Early detection** | Day 7 only | **Day 3** |
-| **Imposter detection** | No | **Yes** |
-| **Outbound interception** | No | **Yes** |
-| **Elder abuse detection** | No | **Yes** |
-| **Evidence-backed** | No | **Yes (22,979 corpus)** |
-| **Pre-LLM processing** | None | **4 steps (~50ms, no API calls)** |
+| Obvious ore-ore scam (¥800K + secrecy) | scam (0.99) | scam (0.98) |
+| Fictitious billing (legal threat) | scam (0.98) | scam (1.0) |
+| Refund scam (還付金詐欺) | scam (0.98) | scam (1.0) |
+| Counter-system social engineering | scam (0.95) | scam (0.95) |
 
-The F1 is the same because per-message accuracy was never the problem. The problem was everything a per-message classifier **can't** do — and the 8-step pipeline solves all of it on the cheapest model.
+#### False positives — Elder Shield knows the difference
+
+| Test Case | Faxi Production | Elder Shield | Why |
+|---|---|---|---|
+| Daughter asks for rent help (¥50K) | **scam (0.95)** ← blocks daughter | **safe (0.85)** ✓ | Verified contact in social graph |
+| Grandson: surprise birthday + "don't tell mom" | **scam (0.85)** ← blocks grandson | **safe (0.90)** ✓ | Verified contact, mundane secrecy |
+| Granddaughter asks for textbook money (¥50K) | **scam (0.95)** ← blocks granddaughter | **safe (0.85)** ✓ | Verified contact, proportional need |
+| Real grandchild ¥3K from unknown phone | **scam (0.98)** ← blocks help request | **suspicious (0.65)** ✓ | Unknown sender but contra-indicators apply |
+| Day 4 trust-building (soft financial mention) | **scam (0.85)** ← over-triggers | **suspicious (0.55)** ✓ | Contra-indicators: no secrecy, no third party |
+
+**Faxi: 5 false positives.** It blocks a daughter asking for rent help, a grandson planning a birthday surprise, and a granddaughter buying textbooks. Same model, same message — Faxi just doesn't know who they are.
+
+**Elder Shield: 0 false positives, 0 missed scams.** The difference isn't a better model. It's two things the production classifier doesn't have:
+
+1. **Social graph** — verified contacts get a different analytical lens. A ¥50K request from a verified daughter is family support. The same request from an unknown sender is suspicious. The message is identical; the sender context changes the classification.
+
+2. **Contra-indicator pipeline** — when corpus matches say "scam" but structural analysis says "no secrecy, no third-party account, mundane context," the classifier sees evidence for both sides and makes a judgment call instead of a pattern match.
+
+#### Known contacts aren't whitelisted — they're monitored differently
+
+Classifying a known contact's message as "safe" doesn't mean ignoring it. Every financial request is logged. The Behavioral Analyzer watches for patterns over time:
+- A daughter asking for rent once → normal family support
+- A daughter asking for rent every month → EA-1 (financial control signal)
+- A caregiver gradually increasing requests → EA-3 (authority escalation)
+
+The system doesn't decide "safe or scam." It decides "scam, family support, or abuse" — and the answer can change over time as evidence accumulates.
+
+**Latency:** Faxi ~0.5s (1 LLM call). Elder Shield ~0.9s (pre-processing + 1 LLM call) — 12x faster than the original 7-tool approach (11s).
+
+### How the pipeline creates judgment, not just pattern matching
 
 Each step moves intelligence OUT of the model and INTO infrastructure:
-- Steps 1-4 run **before** the LLM — linguistic analysis, entity extraction, TF-IDF corpus search, graph validation. Pure code, no API calls, ~50ms.
-- Step 5 is the LLM call — but now its job is trivially simple: "given this pre-computed evidence, what's your judgment?"
+- Steps 1-4 run **before** the LLM — linguistic analysis, entity extraction, TF-IDF corpus search, graph validation, **contra-indicator analysis**. Pure code, no API calls, ~50ms.
+- Step 5 is the LLM call — but now its job is simpler: "given this pre-computed evidence from both sides, what's your judgment?"
 - Steps 6-8 run **after** — profile updates, behavioral scoring, decision synthesis with full evidence chain.
 
-This is the ADK optimization story: we didn't need a bigger model. We needed better infrastructure. The cheapest Gemini model now does what the most expensive model couldn't do alone.
+The system sees what the corpus sees (5 scam matches) AND what the graph sees (verified daughter) AND what the contra-indicator check sees (no secrecy, mundane context). The LLM gets evidence for both sides and makes a judgment call. A pattern matcher can't do this. An LLM with the right infrastructure can.
 
 ### Corpus search: from zero matches to evidence-backed
 

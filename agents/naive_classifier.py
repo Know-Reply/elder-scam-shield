@@ -1,38 +1,34 @@
-"""Naive Classifier — baseline for Pre-ADK Tuning comparison.
+"""Faxi Production Classifier — the real baseline for Pre-ADK comparison.
 
-Same model (gemini-3.1-flash-lite), minimal prompt, no tools, no corpus,
-no pipeline context. Represents what you'd get out of the box with a
-single LLM call and a basic prompt. Used by the simulator to show the
-gap between raw LLM classification and the tuned Elder Shield pipeline.
+This replicates Faxi's actual spamCheckService.ts prompt and behavior:
+same model (gemini-3.1-flash-lite), same minimal prompt, same 3 categories,
+no tools, no corpus, no signals, no behavioral analysis.
+
+The simulator uses this to show what Faxi's production classifier sees
+vs what Elder Shield's ADK-tuned pipeline sees.
 """
 
 from google.adk import Agent
 from agents.schemas import ClassificationResult
 
-NAIVE_PROMPT = """You are a message classifier. Classify the following message as one of:
-safe, suspicious, scam, or spam.
+# Mirrors Faxi's spamCheckService.buildPrompt() — same wording, same rules
+FAXI_PROMPT = """You are a spam and safety classifier for an email-to-fax service used by elderly Japanese users.
 
-Output strict JSON:
-{
-  "classification": "safe|suspicious|scam|spam",
-  "confidence": 0.0-1.0,
-  "detected_signals": [],
-  "extracted_facts": {
-    "claimed_name": null,
-    "claimed_relationship": null,
-    "claimed_location": null,
-    "claimed_institution": null,
-    "financial_mention": null,
-    "other_facts": []
-  },
-  "reasoning": "brief explanation"
-}"""
+Classify the following message into one of these categories:
+- "spam": unsolicited marketing, bulk advertising, adult content, malware links
+- "scam": targeted fraud, impersonation, credential theft, emotional manipulation, phishing
+- "safe": personal correspondence, business communication, newsletters the user may have signed up for, transactional emails (receipts, confirmations)
+
+RULES:
+- When in doubt, lean toward "safe" — false positives (blocking legitimate email) are worse than false negatives (letting borderline email through)
+
+Output strict JSON with classification (use "suspicious" for borderline scam signals), confidence 0.0-1.0, detected_signals (empty list), extracted_facts, and reasoning."""
 
 naive_classifier = Agent(
     model="gemini-3.1-flash-lite",
     name="naive_classifier",
-    description="Baseline single-pass classifier with no tools or domain knowledge.",
-    instruction=NAIVE_PROMPT,
+    description="Faxi production classifier — same model, minimal prompt, no tools or domain knowledge.",
+    instruction=FAXI_PROMPT,
     output_schema=ClassificationResult,
     output_key="naive_classification",
 )

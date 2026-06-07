@@ -388,6 +388,78 @@ def decision_synthesis(
 
 # ── Full pipeline runner ────────────────────────────────────────────────
 
+def _contra_indicator_check(text: str, entities: dict, linguistic: dict) -> dict:
+    """Step 4.5: Check for signs that a scam-shaped message may be legitimate.
+
+    Scams and real family requests can look structurally identical.
+    This step surfaces the distinguishing features so the LLM has
+    pre-computed evidence for both sides, not just corpus matches.
+    """
+    # Secrecy demands — strong scam indicator when present
+    secrecy_patterns = re.compile(
+        r'誰にも言わないで|内緒|言わないで|秘密|他の人には|'
+        r'お父さんには.*言わないで|お母さんには.*言わないで|'
+        r"don't tell|keep.*secret|between us",
+        re.I
+    )
+    has_secrecy = bool(secrecy_patterns.search(text))
+
+    # Third-party account — scams demand transfer to someone else's account
+    third_party_account = bool(re.search(
+        r'この口座|相手の口座|以下の口座|振込先|'
+        r"this account|their account|transfer to",
+        text, re.I
+    ))
+
+    # External deadline pressure — someone ELSE demanding payment
+    external_pressure = bool(re.search(
+        r'相手が.*払え|相手が.*要求|警察.*呼ぶ|訴える|法的|'
+        r'今すぐ.*払|期限.*まで|'
+        r"they.*demand|police.*call|sue|legal",
+        text, re.I
+    ))
+
+    # Mundane need — proportional, everyday request
+    mundane_patterns = re.compile(
+        r'タクシー|バス|電車|ランチ|昼ごはん|教科書|文房具|'
+        r'携帯.*壊れ|自転車|財布.*落|忘れ|'
+        r"taxi|bus|lunch|textbook|phone.*broke|wallet|forgot",
+        re.I
+    )
+    has_mundane_context = bool(mundane_patterns.search(text))
+
+    # Manipulation density from linguistic analysis
+    manipulation = linguistic.get("manipulation", {})
+    low_manipulation = manipulation.get("manipulation_density", 0) == 0
+
+    # Count contra-indicators present
+    contra_count = sum([
+        not has_secrecy,        # no secrecy demand
+        not third_party_account, # no third-party account
+        not external_pressure,   # no external deadline
+        has_mundane_context,     # mundane everyday need
+        low_manipulation,        # no manipulation language
+    ])
+
+    may_be_legitimate = contra_count >= 3 and not has_secrecy and not third_party_account
+
+    return {
+        "has_secrecy_demand": has_secrecy,
+        "has_third_party_account": third_party_account,
+        "has_external_pressure": external_pressure,
+        "has_mundane_context": has_mundane_context,
+        "low_manipulation": low_manipulation,
+        "contra_indicator_count": contra_count,
+        "may_be_legitimate": may_be_legitimate,
+        "guidance": (
+            "IMPORTANT: This message has strong contra-indicators suggesting it may be "
+            "a legitimate family request, not a scam. No secrecy demand, no third-party "
+            "account, mundane context. Classify as SUSPICIOUS (not scam) and recommend "
+            "verification by calling the sender's known number."
+        ) if may_be_legitimate else None,
+    }
+
+
 def run_pre_classification_pipeline(
     message_text: str,
     sender_id: str,
@@ -418,11 +490,15 @@ def run_pre_classification_pipeline(
     # Step 4: Social Graph Validation
     graph = validate_social_graph(user_id, sender_id)
 
+    # Step 4.5: Contra-indicator analysis
+    contra = _contra_indicator_check(message_text, entities, linguistic)
+
     return {
         "linguistic": linguistic,
         "entities": entities,
         "corpus_matches": corpus_result.get("matches", []),
         "corpus_stats": corpus_result.get("corpus_stats", {}),
         "graph_validation": graph,
+        "contra_indicators": contra,
         "pipeline_version": "v2_8step",
     }
