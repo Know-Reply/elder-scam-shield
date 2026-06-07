@@ -630,13 +630,13 @@ body {
 .custom-send-btn:hover { background: #1e293b; }
 
 /* Tabs for chat / results toggle */
-.sim-tabs {
+.reveal-tabs {
   display: flex;
   gap: 0;
   border-bottom: 2px solid var(--gray-200);
   margin-bottom: 0;
 }
-.sim-tab {
+.reveal-tab {
   flex: 1;
   padding: 10px 16px;
   background: none;
@@ -649,8 +649,8 @@ body {
   margin-bottom: -2px;
   transition: all 0.2s;
 }
-.sim-tab:hover { color: var(--gray-700); }
-.sim-tab.active {
+.reveal-tab:hover { color: var(--gray-700); }
+.reveal-tab.active {
   color: var(--blue);
   border-bottom-color: var(--blue);
 }
@@ -1083,8 +1083,7 @@ body {
   .choices-row { flex-direction: column; }
   .landing h1 { font-size: 1.7rem; }
   .comparison-grid { grid-template-columns: 1fr; }
-  .header-nav { gap: 4px; }
-  .header-nav a { padding: 6px 10px; font-size: 0.78rem; }
+  /* header-nav removed — using shared-nav.css */
 }
 @media (max-width: 480px) {
   .landing { padding: 48px 16px 40px; }
@@ -2254,10 +2253,10 @@ body {
     // Insert tab bar after the header, before the thread
     var header = threadCol.querySelector('.thread-col-header');
     var tabBar = document.createElement('div');
-    tabBar.className = 'sim-tabs';
+    tabBar.className = 'reveal-tabs';
     tabBar.innerHTML =
-      '<button class="sim-tab" id="tab-chat">Conversation</button>' +
-      '<button class="sim-tab active" id="tab-results">Results</button>';
+      '<button class="reveal-tab" id="tab-chat">Conversation</button>' +
+      '<button class="reveal-tab active" id="tab-results">Results</button>';
     header.after(tabBar);
 
     // Remove overflow constraints so reveal can expand fully
@@ -2276,9 +2275,9 @@ body {
 
     // Tab switching
     tabBar.addEventListener('click', function(e) {
-      var btn = e.target.closest('.sim-tab');
+      var btn = e.target.closest('.reveal-tab');
       if (!btn) return;
-      tabBar.querySelectorAll('.sim-tab').forEach(function(t) { t.classList.remove('active'); });
+      tabBar.querySelectorAll('.reveal-tab').forEach(function(t) { t.classList.remove('active'); });
       btn.classList.add('active');
       if (btn.id === 'tab-chat') {
         thread.style.display = '';
