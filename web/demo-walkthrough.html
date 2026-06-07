@@ -1231,7 +1231,7 @@
           <div class="day-analysis-card">
             <div class="analysis-title">Behavioral Analyzer</div>
             <p class="analysis-text">New sender claiming grandson relationship. No existing profile. Identity claim logged, verification pending against contact book.</p>
-            <div class="signal-tags">
+            <div class="signal-tags"><span style="font-size:0.68rem;font-weight:700;color:var(--gray-400);margin-right:4px;">Flags:</span>
               <span class="signal-tag">LG-1 greeting</span>
               <span class="signal-tag">LG-3 family-claim</span>
             </div>
@@ -1252,7 +1252,7 @@
           <div class="day-analysis-card">
             <div class="analysis-title">Behavioral Analyzer</div>
             <p class="analysis-text">Health/welfare questions and isolation mapping. Sender is building a profile of the target's living situation. BV-2 isolation language detected.</p>
-            <div class="signal-tags">
+            <div class="signal-tags"><span style="font-size:0.68rem;font-weight:700;color:var(--gray-400);margin-right:4px;">Flags:</span>
               <span class="signal-tag warn">BV-2 isolation</span>
               <span class="signal-tag">LG-2 health-inquiry</span>
             </div>
@@ -1273,7 +1273,7 @@
           <div class="day-analysis-card">
             <div class="analysis-title">Behavioral Analyzer</div>
             <p class="analysis-text">Volunteering personal details (location, job) to build credibility. Establishing verifiable claims that can be contradicted later. Contact book check: grandson is Takeshi, not Kenji.</p>
-            <div class="signal-tags">
+            <div class="signal-tags"><span style="font-size:0.68rem;font-weight:700;color:var(--gray-400);margin-right:4px;">Flags:</span>
               <span class="signal-tag">LG-5 detail-volunteer</span>
               <span class="signal-tag warn">CM-1 contact-mismatch</span>
             </div>
@@ -1294,7 +1294,7 @@
           <div class="day-analysis-card">
             <div class="analysis-title">Behavioral Analyzer</div>
             <p class="analysis-text"><strong>FLAGGED</strong> -- 3 days before any money request. Behavioral velocity (BV-1) detected: emotional escalation rate exceeds baseline. Help positioning (BV-5) and isolation language (BV-2) form a compound signal.</p>
-            <div class="signal-tags">
+            <div class="signal-tags"><span style="font-size:0.68rem;font-weight:700;color:var(--gray-400);margin-right:4px;">Flags:</span>
               <span class="signal-tag danger">BV-1 velocity</span>
               <span class="signal-tag danger">BV-5 help-positioning</span>
               <span class="signal-tag warn">BV-2 isolation</span>
@@ -1361,7 +1361,7 @@
           <div class="day-analysis-card">
             <div class="analysis-title">Behavioral Analyzer</div>
             <p class="analysis-text"><strong>LOCATION CONTRADICTION</strong>: Claimed Osaka (Day 3), now claims Tokyo hospital (Day 5). 500km shift in 48h with no travel context. Crisis narrative introduced -- classic pre-ask emotional priming.</p>
-            <div class="signal-tags">
+            <div class="signal-tags"><span style="font-size:0.68rem;font-weight:700;color:var(--gray-400);margin-right:4px;">Flags:</span>
               <span class="signal-tag danger">LG-7 contradiction</span>
               <span class="signal-tag danger">EA-1 crisis-narrative</span>
               <span class="signal-tag danger">BV-1 velocity</span>
@@ -1384,7 +1384,7 @@
           <div class="day-analysis-card">
             <div class="analysis-title">Behavioral Analyzer</div>
             <p class="analysis-text">Financial request introduced obliquely. Sender is testing compliance before naming an amount. Combined with accumulated contradictions and confirmed contact mismatch.</p>
-            <div class="signal-tags">
+            <div class="signal-tags"><span style="font-size:0.68rem;font-weight:700;color:var(--gray-400);margin-right:4px;">Flags:</span>
               <span class="signal-tag danger">PM-1 financial-request</span>
               <span class="signal-tag danger">BV-5 help-positioning</span>
               <span class="signal-tag danger">EA-1 crisis-narrative</span>
@@ -1407,7 +1407,7 @@
           <div class="day-analysis-card">
             <div class="analysis-title">Behavioral Analyzer</div>
             <p class="analysis-text"><strong>Ore-ore sagi confirmed.</strong> Explicit money request (&yen;500,000), urgency ("today"), payment to unknown account. Classic trust-building escalation pattern. Message quarantined, family alerted.</p>
-            <div class="signal-tags">
+            <div class="signal-tags"><span style="font-size:0.68rem;font-weight:700;color:var(--gray-400);margin-right:4px;">Flags:</span>
               <span class="signal-tag danger">PM-3 urgency</span>
               <span class="signal-tag danger">PM-5 payment-solicitation</span>
               <span class="signal-tag danger">PM-6 unknown-account</span>
@@ -1501,6 +1501,33 @@
 
     <div class="comparison-punchline">
       A single classifier catches 1 message. We catch the pattern 3 days earlier.
+    </div>
+
+    <!-- Signal category cards — brief "what do the codes mean" -->
+    <h3 style="text-align:center; margin-top:48px; margin-bottom:8px; font-size:1rem; color:var(--navy);">How We Detect It: 4 Signal Families</h3>
+    <p style="text-align:center; font-size:0.85rem; color:var(--gray-500); margin-bottom:24px;">Each message is analyzed across multiple dimensions. The codes you see (PM-3, BV-1, etc.) map to these families:</p>
+
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
+      <div style="padding:16px; background:var(--red-bg); border-radius:10px; border:1px solid var(--red-light);">
+        <div style="font-size:1.1rem; font-weight:800; color:var(--red); margin-bottom:4px;">PM</div>
+        <div style="font-size:0.78rem; font-weight:700; color:var(--gray-700); margin-bottom:6px;">Per-Message</div>
+        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5;">Signals detectable from a single message: urgency, financial requests, authority claims, legal threats, credential phishing.</div>
+      </div>
+      <div style="padding:16px; background:var(--yellow-bg); border-radius:10px; border:1px solid #fde68a;">
+        <div style="font-size:1.1rem; font-weight:800; color:#92400e; margin-bottom:4px;">BV</div>
+        <div style="font-size:0.78rem; font-weight:700; color:var(--gray-700); margin-bottom:6px;">Behavioral Velocity</div>
+        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5;">Patterns across messages over time: relationship speed, isolation tactics, emotional escalation, credibility seeding.</div>
+      </div>
+      <div style="padding:16px; background:var(--blue-light); border-radius:10px; border:1px solid #bfdbfe;">
+        <div style="font-size:1.1rem; font-weight:800; color:var(--blue); margin-bottom:4px;">EA</div>
+        <div style="font-size:0.78rem; font-weight:700; color:var(--gray-700); margin-bottom:6px;">Elder Abuse</div>
+        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5;">Manipulation from trusted contacts: financial control, isolation by family, authority escalation by caregivers.</div>
+      </div>
+      <div style="padding:16px; background:var(--green-bg); border-radius:10px; border:1px solid #bbf7d0;">
+        <div style="font-size:1.1rem; font-weight:800; color:var(--green); margin-bottom:4px;">LG</div>
+        <div style="font-size:0.78rem; font-weight:700; color:var(--gray-700); margin-bottom:6px;">Longitudinal</div>
+        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5;">Cross-message fact checking: contradictions in stated facts, contact mismatches, frequency changes, crisis after trust.</div>
+      </div>
     </div>
   </div>
 </section>
