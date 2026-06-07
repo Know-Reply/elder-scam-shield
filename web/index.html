@@ -1112,34 +1112,6 @@ body {
   </div>
 </nav>
 
-<!-- ===== SCREEN: LANDING ===== -->
-<div class="screen" id="screen-landing">
-  <div class="landing">
-    <h1>Elder Shield</h1>
-    <p class="subtitle">
-      Elder fraud is a <span class="landing-stat">$77.7 billion global problem</span> (Nasdaq).<br>
-      Our multi-agent system protects elderly users through behavioral analysis,
-      sender profiling, and cross-message pattern detection. Try it yourself.
-    </p>
-    <div class="entry-buttons">
-      <button class="entry-btn entry-btn-primary" id="btn-start-sim">
-        <div>
-          <div class="btn-label">Play the Simulator</div>
-          <div class="btn-desc">Test the Shield See the system react in real-time.</div>
-        </div>
-        <span class="btn-arrow">&rarr;</span>
-      </button>
-      <a class="entry-btn" href="/dashboard">
-        <div>
-          <div class="btn-label">View the Dashboard</div>
-          <div class="btn-desc">Explore detection analytics and agent performance.</div>
-        </div>
-        <span class="btn-arrow">&rarr;</span>
-      </a>
-    </div>
-  </div>
-</div>
-
 <div class="sim-tab-bar">
   <div class="sim-tab-bar-inner">
     <a href="/simulator" class="sim-tab sim-tab-active">Scam Simulator</a>
@@ -2529,13 +2501,6 @@ body {
   function init() {
     resetState();
     renderDay();
-
-    var startBtn = $('btn-start-sim');
-    if (startBtn) startBtn.addEventListener('click', function() {
-      resetState();
-      showScreen('screen-sim');
-      renderDay();
-    });
 
     $('btn-restart').addEventListener('click', function() {
       resetState();
