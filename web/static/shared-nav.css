@@ -1,5 +1,13 @@
 /* Shared navigation + tab bar for all simulator pages */
 
+/* Ensure consistent body layout */
+body.sim-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
 .sim-nav {
   background: #0f172a;
   position: sticky;
