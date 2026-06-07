@@ -134,11 +134,50 @@ SCENARIO_PATH = Path(__file__).parent / "scenarios" / "demo_7day.json"
 # Request / response models
 # ---------------------------------------------------------------------------
 
+class EmailAuthMetadata(BaseModel):
+    """Email authentication results from the mail server."""
+    spf: str | None = None        # "pass" | "fail" | "softfail" | "none"
+    dkim: str | None = None       # "pass" | "fail" | "none"
+    dmarc: str | None = None      # "pass" | "fail" | "none"
+
+
 class ClassifyRequest(BaseModel):
-    """Inbound message to classify."""
-    sender: str
-    content: str
-    metadata: dict | None = None
+    """Inbound email to classify.
+
+    Compatible with Faxi's inbound email pipeline. Accepts either:
+    - Production format: {from_address, subject, body, auth}
+    - Simulator format: {sender, content}
+    """
+    # Production email fields
+    from_address: str | None = None
+    subject: str | None = None
+    body: str | None = None
+    auth: EmailAuthMetadata | None = None
+
+    # Simulator fallback fields
+    sender: str | None = None
+    content: str | None = None
+
+    @property
+    def effective_sender(self) -> str:
+        return self.from_address or self.sender or "unknown"
+
+    @property
+    def effective_content(self) -> str:
+        parts = []
+        if self.subject:
+            parts.append(self.subject)
+        if self.body:
+            parts.append(self.body)
+        if parts:
+            return "\n".join(parts)
+        return self.content or ""
+
+    @property
+    def has_auth_failure(self) -> bool:
+        if not self.auth:
+            return False
+        return self.auth.spf == "fail" or self.auth.dkim == "fail"
 
 
 class AnalyzeRequest(BaseModel):
@@ -165,6 +204,35 @@ async def health():
         "status": "healthy",
         "service": "elder-scam-shield",
         "agent": root_agent.name,
+    }
+
+
+@app.get("/api/status")
+async def system_status():
+    """System status for integration monitoring.
+
+    Returns pipeline version, corpus size, model, and capabilities.
+    A production system checks this before routing traffic.
+    """
+    return {
+        "service": "elder-scam-shield",
+        "version": "1.0.0",
+        "pipeline": "v2_8step",
+        "model": "gemini-3.1-flash-lite",
+        "corpus_entries": 22979,
+        "signal_families": 4,
+        "signal_count": 20,
+        "agents": ["inbound-classifier", "behavioral-analyzer", "outbound-interceptor", "family-alerter"],
+        "api": {
+            "classify": {"method": "POST", "path": "/api/classify", "accepts": "email or message"},
+            "pipeline": {"method": "POST", "path": "/api/pipeline", "accepts": "email or message"},
+            "intercept": {"method": "POST", "path": "/api/intercept", "accepts": "outbound content"},
+        },
+        "integration": {
+            "compatible_with": "Faxi inboundEmailPipeline.ts",
+            "replaces": "spamCheckService.checkEmail()",
+            "input_format": {"from_address": "string", "subject": "string", "body": "string", "auth": {"spf": "pass|fail", "dkim": "pass|fail", "dmarc": "pass|fail"}},
+        },
     }
 
 
@@ -222,20 +290,29 @@ async def classify_message(req: ClassifyRequest):
     For the full pipeline including behavioral analysis, use /api/pipeline.
     """
     try:
+        sender = req.effective_sender
+        content = req.effective_content
+
+        # Flag SPF/DKIM failures as PM-13 before pipeline
+        auth_signal = ""
+        if req.has_auth_failure:
+            auth_signal = "\nPM-13 detected: email authentication failure (SPF/DKIM)."
+
         # Steps 1-4: pre-LLM pipeline (~50ms, no API calls)
         pipeline_ctx = run_pre_classification_pipeline(
-            req.content, req.sender, "demo_user"
+            content, sender, "demo_user"
         )
         session = await _get_or_create_session("demo_user", {
-            "message_text": req.content,
-            "sender_id": req.sender,
+            "message_text": content,
+            "sender_id": sender,
             "user_id": "demo_user",
             "pipeline_context": pipeline_ctx,
         })
         prompt = (
-            f"新着メッセージを分析してください。送信者: {req.sender}, "
-            f"ユーザーID: demo_user\n\n「{req.content}」\n\n"
+            f"新着メッセージを分析してください。送信者: {sender}, "
+            f"ユーザーID: demo_user\n\n「{content}」\n\n"
             f"Pre-computed pipeline context:\n{json.dumps(pipeline_ctx, ensure_ascii=False, default=str)}"
+            f"{auth_signal}"
         )
         msg = genai_types.Content(
             role="user", parts=[genai_types.Part(text=prompt)]
@@ -295,7 +372,7 @@ async def classify_message(req: ClassifyRequest):
         if "reasoning" not in result:
             result["reasoning"] = ""
 
-        return {"result": result, "sender": req.sender, "live": True}
+        return {"result": result, "sender": sender, "live": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -314,7 +391,7 @@ async def classify_naive(req: ClassifyRequest):
         )
         msg = genai_types.Content(
             role="user",
-            parts=[genai_types.Part(text=f"Classify this message:\n\n{req.content}")],
+            parts=[genai_types.Part(text=f"Classify this message:\n\n{req.effective_content}")],
         )
         result = {"classification": "safe", "confidence": 0.5, "detected_signals": [], "reasoning": ""}
         async for event in _naive_runner.run_async(
@@ -358,7 +435,7 @@ async def classify_naive(req: ClassifyRequest):
 
         if "reasoning" not in result:
             result["reasoning"] = ""
-        return {"result": result, "sender": req.sender, "live": True}
+        return {"result": result, "sender": req.effective_sender, "live": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -372,14 +449,16 @@ async def run_full_pipeline(req: ClassifyRequest):
     Results are written to session state via output_key on each agent.
     """
     try:
+        sender = req.effective_sender
+        content = req.effective_content
         session = await _get_or_create_session("demo_user", {
-            "message_text": req.content,
-            "sender_id": req.sender,
+            "message_text": content,
+            "sender_id": sender,
             "user_id": "demo_user",
         })
         prompt = (
-            f"新着メッセージを分析してください。送信者: {req.sender}, "
-            f"ユーザーID: demo_user\n\n「{req.content}」"
+            f"新着メッセージを分析してください。送信者: {sender}, "
+            f"ユーザーID: demo_user\n\n「{content}」"
         )
         msg = genai_types.Content(
             role="user", parts=[genai_types.Part(text=prompt)]
@@ -400,7 +479,7 @@ async def run_full_pipeline(req: ClassifyRequest):
             "risk_assessment": state.get("risk_assessment", {}),
             "alert": state.get("alert"),
             "tool_traces": state.get("tool_traces", []),
-            "sender": req.sender,
+            "sender": sender,
             "pipeline": True,
         }
     except Exception as e:
