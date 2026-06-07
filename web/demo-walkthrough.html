@@ -1770,73 +1770,20 @@
   <div class="section-inner">
     <span class="section-label">Try It</span>
     <h2 class="section-title">See It In Action</h2>
-    <p class="section-subtitle">Explore the dashboard, run the interactive simulator, or classify a message right here.</p>
+    <p class="section-subtitle">Test the 8-step pipeline yourself. Send a message and watch the system respond.</p>
 
     <div class="try-buttons">
+      <a href="/simulator" class="try-btn try-btn-demo">
+        Test the Shield
+        <span class="try-btn-sub">Send messages through the 8-step pipeline with live analysis</span>
+      </a>
       <a href="/dashboard" class="try-btn try-btn-dashboard">
         Family Dashboard
-        <span class="try-btn-sub">Real-time monitoring interface</span>
+        <span class="try-btn-sub">Quarantine inbox, risk timeline, contact network</span>
       </a>
-      <a href="/simulator" class="try-btn try-btn-demo">
-        Interactive Simulator
-        <span class="try-btn-sub">Step through a scam scenario</span>
-      </a>
-    </div>
-
-    <h3 style="font-size:1.1rem; color:#fff; margin-bottom:16px;">Simulator</h3>
-    <div class="classify-form">
-      <label for="live-sender">Sender</label>
-      <input id="live-sender" type="text" value="unknown_sender" placeholder="Sender ID or email">
-
-      <label for="live-message">Message</label>
-      <textarea id="live-message" rows="4" placeholder="Type a message in English or Japanese..."></textarea>
-
-      <div class="classify-buttons">
-        <button id="live-classify-btn" class="classify-btn-main">Classify with Live Gemini</button>
-        <button id="live-example-scam" class="classify-btn-example">Example: Scam</button>
-        <button id="live-example-safe" class="classify-btn-example">Example: Safe</button>
-      </div>
-
-      <div id="classify-result" class="classify-result">
-        <div id="classify-loading" class="classify-loading" style="display:none;">
-          Classifying with Gemini 3.1 Flash Lite... <span id="classify-timer">0.0s</span>
-        </div>
-        <div id="classify-output" class="classify-output">
-          <div class="classify-row">
-            <div class="classify-cell" id="classify-class-box">
-              <div class="classify-cell-label">Classification</div>
-              <div class="classify-cell-value" id="classify-class-label"></div>
-            </div>
-            <div class="classify-cell">
-              <div class="classify-cell-label">Confidence</div>
-              <div class="classify-cell-value" id="classify-confidence"></div>
-            </div>
-          </div>
-          <div class="classify-signals-wrap">
-            <h4>Detected Signals</h4>
-            <div id="classify-signals" class="signal-tags"></div>
-          </div>
-          <div>
-            <h4 style="font-size:0.85rem; margin-bottom:8px; color:rgba(255,255,255,0.7);">Extracted Facts</h4>
-            <pre id="classify-facts" class="classify-facts"></pre>
-          </div>
-          <div>
-            <h4 style="font-size:0.85rem; margin-bottom:8px; color:rgba(255,255,255,0.7);">Reasoning</h4>
-            <p id="classify-reasoning" class="classify-reasoning"></p>
-          </div>
-        </div>
-        <div id="classify-error" class="classify-error"></div>
-      </div>
     </div>
   </div>
 </section>
-
-<!-- ================================================================
-     FOOTER
-     ================================================================ -->
-<footer class="site-footer">
-  <p>Elder Shield -- Google for Startups AI Agents Challenge &bull; Track 2: Optimize</p>
-</footer>
 
 <!-- ================================================================
      INLINE JAVASCRIPT
@@ -1931,113 +1878,6 @@
       selectDay(this.dataset.day);
     });
   });
-
-  // ---- Simulator ----
-  var classifyBtn = document.getElementById('live-classify-btn');
-  var msgInput = document.getElementById('live-message');
-  var senderInput = document.getElementById('live-sender');
-  var resultDiv = document.getElementById('classify-result');
-  var loadingDiv = document.getElementById('classify-loading');
-  var outputDiv = document.getElementById('classify-output');
-  var errorDiv = document.getElementById('classify-error');
-  var timerSpan = document.getElementById('classify-timer');
-
-  if (classifyBtn) {
-    // Example buttons
-    document.getElementById('live-example-scam').addEventListener('click', function() {
-      senderInput.value = 'unknown_0x9f3a';
-      msgInput.value = '重要なお知らせ：貴殿のインターネット利用料金に未払いが発生しております。本日中にお支払いいただけない場合、法的措置を取らせていただきます。至急、コンビニにて電子マネーでお支払いください。未払い額：89,000円。';
-    });
-    document.getElementById('live-example-safe').addEventListener('click', function() {
-      senderInput.value = 'contact_yuki_grandson';
-      msgInput.value = 'おばあちゃん、ゆきです！来週の土曜日、横浜から遊びに行くね。何か食べたいものある？お土産持っていくから楽しみにしてて！';
-    });
-
-    classifyBtn.addEventListener('click', function() {
-      var message = msgInput.value.trim();
-      var sender = senderInput.value.trim();
-      if (!message) { msgInput.focus(); return; }
-
-      resultDiv.classList.add('visible');
-      loadingDiv.style.display = 'block';
-      outputDiv.classList.remove('visible');
-      errorDiv.classList.remove('visible');
-      classifyBtn.disabled = true;
-      classifyBtn.textContent = 'Classifying...';
-
-      var startTime = Date.now();
-      var timerInterval = setInterval(function() {
-        timerSpan.textContent = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
-      }, 100);
-
-      fetch('/api/classify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender: sender, content: message })
-      })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          clearInterval(timerInterval);
-          loadingDiv.style.display = 'none';
-          classifyBtn.disabled = false;
-          classifyBtn.textContent = 'Classify with Live Gemini';
-
-          if (data.result && data.result.classification) {
-            outputDiv.classList.add('visible');
-            var res = data.result;
-            var cls = res.classification || 'unknown';
-
-            var classBox = document.getElementById('classify-class-box');
-            var classLabel = document.getElementById('classify-class-label');
-            classLabel.textContent = cls.toUpperCase();
-            classBox.style.background =
-              cls === 'scam' ? 'rgba(220,38,38,0.15)' :
-              cls === 'suspicious' ? 'rgba(245,158,11,0.15)' :
-              cls === 'safe' ? 'rgba(22,163,74,0.15)' : 'rgba(255,255,255,0.05)';
-            classLabel.style.color =
-              cls === 'scam' ? '#fca5a5' :
-              cls === 'suspicious' ? '#fcd34d' :
-              cls === 'safe' ? '#86efac' : '#fff';
-
-            document.getElementById('classify-confidence').textContent =
-              (res.confidence != null ? (res.confidence * 100).toFixed(0) + '%' : 'N/A');
-            document.getElementById('classify-confidence').style.color =
-              cls === 'scam' ? '#fca5a5' :
-              cls === 'suspicious' ? '#fcd34d' :
-              cls === 'safe' ? '#86efac' : '#fff';
-
-            var sigDiv = document.getElementById('classify-signals');
-            sigDiv.innerHTML = '';
-            var signals = res.detected_signals || [];
-            if (signals.length === 0) {
-              sigDiv.innerHTML = '<span style="color:rgba(255,255,255,0.4);">None detected</span>';
-            } else {
-              signals.forEach(function(s) {
-                var span = document.createElement('span');
-                span.className = 'signal-tag' + (s.startsWith('PM-') || s.startsWith('EA-') ? ' danger' : s.startsWith('BV-') ? ' warn' : '');
-                span.textContent = s;
-                sigDiv.appendChild(span);
-              });
-            }
-
-            var facts = res.extracted_facts || {};
-            document.getElementById('classify-facts').textContent = JSON.stringify(facts, null, 2);
-            document.getElementById('classify-reasoning').textContent = res.reasoning || '--';
-          } else {
-            errorDiv.classList.add('visible');
-            errorDiv.textContent = 'Unexpected response: ' + JSON.stringify(data).substring(0, 300);
-          }
-        })
-        .catch(function(err) {
-          clearInterval(timerInterval);
-          loadingDiv.style.display = 'none';
-          errorDiv.classList.add('visible');
-          errorDiv.textContent = 'Error: ' + err.message + '. Is the server running? (uvicorn app:app --port 8080)';
-          classifyBtn.disabled = false;
-          classifyBtn.textContent = 'Classify with Live Gemini';
-        });
-    });
-  }
 
   // Init
   selectDay(1);
