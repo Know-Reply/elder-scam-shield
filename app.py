@@ -56,7 +56,7 @@ _classifier_runner = Runner(
 
 app = FastAPI(
     title="Elder Shield",
-    description="Multi-agent scam protection for elderly Japanese users",
+    description="Multi-agent scam protection for the elderly",
     version="0.1.0",
 )
 

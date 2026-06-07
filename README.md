@@ -236,13 +236,61 @@ This is dignity-preserving design. The elder's autonomy is never undermined.
 
 7 are runnable tests. 3 are documented honest-fails with known limitations named. We document what we cannot catch.
 
+## Signal Glossary
+
+20 detection signals across 4 families:
+
+**PM — Per-Message Signals** (detected from a single message, no history needed)
+
+| Code | Signal | What it detects |
+|---|---|---|
+| PM-1 | Urgency language | 今すぐ, 急いで, ASAP, "act now" |
+| PM-2 | Secrecy demand | 誰にも言わないで, "don't tell anyone" |
+| PM-3 | Financial solicitation | Money requests, 振込, bank transfer |
+| PM-4 | Authority claim | Police, government, bank impersonation |
+| PM-5 | Unusual payment method | Gift cards, crypto, convenience store |
+| PM-6 | Legal threat | 法的措置, lawsuit, arrest |
+| PM-7 | Credential solicitation | Passwords, PINs, My Number |
+| PM-8 | Prize notification | "You've won" with fee requirement |
+| PM-9 | Refund lure | Fake refund requiring bank details |
+| PM-10 | Emotional crisis | Accident, hospital, emergency |
+| PM-11 | Identity claim | Claims specific family relationship |
+| PM-12 | Flattery density | Excessive compliments |
+
+**BV — Behavioral Velocity** (detected across messages over time)
+
+| Code | Signal | What it detects |
+|---|---|---|
+| BV-1 | Relationship velocity | Intimacy progressing too fast for timeline |
+| BV-2 | Isolation index | Distancing from family/verification network |
+| BV-3 | Emotional arc | Sentiment escalating on a schedule |
+| BV-4 | Credibility seeding | Volunteering excessive personal details |
+| BV-5 | Help positioning | Systematic "I'm here for you" from stranger |
+
+**EA — Elder Abuse** (manipulation from known/trusted contacts)
+
+| Code | Signal | What it detects |
+|---|---|---|
+| EA-1 | Financial control | Known contact requesting money or savings info |
+| EA-2 | Trusted isolation | Known contact cutting off other family |
+| EA-3 | Authority escalation | Caregiver taking over decisions |
+| EA-4 | Communication shift | Sudden frequency or topic change |
+
+**CM — Cross-Modal**
+
+| Code | Signal | What it detects |
+|---|---|---|
+| CM-1 | Spending correlation | Conversation intensity matches spending patterns |
+
 ## Quick Start
 
 ```bash
 pip install -r requirements.txt
-export GOOGLE_API_KEY=your-gemini-api-key
+gcloud auth application-default login
+export GOOGLE_GENAI_USE_VERTEXAI=TRUE
 export GOOGLE_CLOUD_PROJECT=your-project-id
-uvicorn app:app --host 0.0.0.0 --port 8080 --reload
+export GOOGLE_CLOUD_LOCATION=global
+PYTHONPATH=. uvicorn app:app --host 0.0.0.0 --port 8080 --reload
 ```
 
 ## Project Structure
