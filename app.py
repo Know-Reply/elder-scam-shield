@@ -31,8 +31,11 @@ from google.adk import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types as genai_types
 
-from agents.inbound_classifier import inbound_classifier
 from agents.root_agent import root_agent
+from agents.inbound_classifier import inbound_classifier
+from agents.naive_classifier import naive_classifier
+from agents.outbound_interceptor import outbound_interceptor
+from agents.tools.pipeline import run_pre_classification_pipeline
 
 # Load .env if present
 _env_path = Path(__file__).parent / ".env"
@@ -42,13 +45,62 @@ if _env_path.exists():
             _k, _v = _line.split("=", 1)
             os.environ.setdefault(_k.strip(), _v.strip())
 
-# ADK runner for live inference
+# ADK runners for live inference
 _session_service = InMemorySessionService()
+
+# Classifier runner — fast path for interactive simulator (1 LLM call)
 _classifier_runner = Runner(
     agent=inbound_classifier,
     app_name="elder_scam_shield",
     session_service=_session_service,
 )
+
+# Naive classifier — baseline for Pre-ADK comparison (no tools, no corpus)
+_naive_runner = Runner(
+    agent=naive_classifier,
+    app_name="elder_scam_shield_naive",
+    session_service=_session_service,
+)
+
+# Full pipeline runner — Workflow DAG for /api/pipeline (pre-processing → classification → behavioral analysis → routing)
+_pipeline_runner = Runner(
+    agent=root_agent,
+    app_name="elder_scam_shield",
+    session_service=_session_service,
+)
+
+# Outbound interception runner — separate flow for user replies
+_intercept_runner = Runner(
+    agent=outbound_interceptor,
+    app_name="elder_scam_shield",
+    session_service=_session_service,
+)
+
+# Session cache — reuse sessions per user for longitudinal state
+_session_cache: dict[str, str] = {}
+
+
+async def _get_or_create_session(user_id: str, state: dict | None = None) -> object:
+    """Reuse existing session or create new one with optional initial state."""
+    if user_id in _session_cache:
+        session = await _session_service.get_session(
+            app_name="elder_scam_shield",
+            user_id=user_id,
+            session_id=_session_cache[user_id],
+        )
+        if session:
+            # Update state with new message data
+            if state:
+                for k, v in state.items():
+                    session.state[k] = v
+            return session
+    session = await _session_service.create_session(
+        app_name="elder_scam_shield",
+        user_id=user_id,
+        state=state or {},
+    )
+    _session_cache[user_id] = session.id
+    return session
 
 # ---------------------------------------------------------------------------
 # App
@@ -162,18 +214,28 @@ async def dashboard():
 
 @app.post("/api/classify")
 async def classify_message(req: ClassifyRequest):
-    """Run an inbound message through the Inbound Classifier with live Gemini.
+    """Classify an inbound message via the Inbound Classifier agent.
 
-    Returns classification (safe / suspicious / scam), detected signals,
-    and extracted facts. This is LIVE inference, not pre-computed.
+    Fast path for the interactive simulator — runs only the classifier
+    (1 LLM call). Pre-processing (Steps 1-4) runs as Python before the
+    LLM call, and results are injected into the prompt as context.
+    For the full pipeline including behavioral analysis, use /api/pipeline.
     """
     try:
-        session = await _session_service.create_session(
-            app_name="elder_scam_shield", user_id="demo_user"
+        # Steps 1-4: pre-LLM pipeline (~50ms, no API calls)
+        pipeline_ctx = run_pre_classification_pipeline(
+            req.content, req.sender, "demo_user"
         )
+        session = await _get_or_create_session("demo_user", {
+            "message_text": req.content,
+            "sender_id": req.sender,
+            "user_id": "demo_user",
+            "pipeline_context": pipeline_ctx,
+        })
         prompt = (
             f"新着メッセージを分析してください。送信者: {req.sender}, "
-            f"ユーザーID: demo_user\n\n「{req.content}」"
+            f"ユーザーID: demo_user\n\n「{req.content}」\n\n"
+            f"Pre-computed pipeline context:\n{json.dumps(pipeline_ctx, ensure_ascii=False, default=str)}"
         )
         msg = genai_types.Content(
             role="user", parts=[genai_types.Part(text=prompt)]
@@ -186,14 +248,86 @@ async def classify_message(req: ClassifyRequest):
             if not (hasattr(event, "content") and event.content and event.content.parts):
                 continue
             for part in event.content.parts:
-                # 1. Text responses — extract top-level JSON object
                 if hasattr(part, "text") and part.text:
                     text = part.text.strip()
-                    # Strip markdown code fences
                     if text.startswith("```"):
                         text = re.sub(r'^```\w*\s*', '', text)
                         text = re.sub(r'\s*```$', '', text)
-                    # Find the outermost JSON object by brace counting
+                    start = text.find("{")
+                    if start >= 0:
+                        depth = 0
+                        end = start
+                        for i in range(start, len(text)):
+                            if text[i] == "{": depth += 1
+                            elif text[i] == "}": depth -= 1
+                            if depth == 0:
+                                end = i + 1
+                                break
+                        try:
+                            parsed = json.loads(text[start:end])
+                            if parsed.get("classification"):
+                                result = parsed
+                        except json.JSONDecodeError:
+                            pass
+                fc = getattr(part, "function_call", None)
+                if fc and hasattr(fc, "args") and fc.args:
+                    args = fc.args
+                    if args.get("classification"):
+                        result.update({
+                            k: args[k] for k in
+                            ("classification", "confidence",
+                             "detected_signals", "extracted_facts",
+                             "reasoning")
+                            if k in args
+                        })
+
+        # Read structured output from session state (via output_key)
+        updated = await _session_service.get_session(
+            app_name="elder_scam_shield",
+            user_id="demo_user",
+            session_id=session.id,
+        )
+        if updated and updated.state.get("classification"):
+            state_result = updated.state["classification"]
+            if isinstance(state_result, dict) and state_result.get("classification"):
+                result = state_result
+
+        if "reasoning" not in result:
+            result["reasoning"] = ""
+
+        return {"result": result, "sender": req.sender, "live": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/classify-naive")
+async def classify_naive(req: ClassifyRequest):
+    """Baseline classification — no tools, no corpus, no pipeline context.
+
+    Same model (flash-lite), minimal prompt. Represents what you'd get
+    out of the box before any ADK tuning. Used by the simulator for the
+    Pre-ADK Tuning column.
+    """
+    try:
+        session = await _session_service.create_session(
+            app_name="elder_scam_shield_naive", user_id="demo_user"
+        )
+        msg = genai_types.Content(
+            role="user",
+            parts=[genai_types.Part(text=f"Classify this message:\n\n{req.content}")],
+        )
+        result = {"classification": "safe", "confidence": 0.5, "detected_signals": [], "reasoning": ""}
+        async for event in _naive_runner.run_async(
+            user_id="demo_user", session_id=session.id, new_message=msg
+        ):
+            if not (hasattr(event, "content") and event.content and event.content.parts):
+                continue
+            for part in event.content.parts:
+                if hasattr(part, "text") and part.text:
+                    text = part.text.strip()
+                    if text.startswith("```"):
+                        text = re.sub(r'^```\w*\s*', '', text)
+                        text = re.sub(r'\s*```$', '', text)
                     start = text.find("{")
                     if start >= 0:
                         depth = 0
@@ -211,55 +345,99 @@ async def classify_message(req: ClassifyRequest):
                         except json.JSONDecodeError:
                             pass
 
-                # 2. Function calls — classification in ANY tool's args
-                fc = getattr(part, "function_call", None)
-                if fc and hasattr(fc, "args") and fc.args:
-                    args = fc.args
-                    if args.get("classification"):
-                        result.update({
-                            k: args[k] for k in
-                            ("classification", "confidence",
-                             "detected_signals", "extracted_facts",
-                             "reasoning")
-                            if k in args
-                        })
+        # Read from session state (output_key)
+        updated = await _session_service.get_session(
+            app_name="elder_scam_shield_naive",
+            user_id="demo_user",
+            session_id=session.id,
+        )
+        if updated and updated.state.get("naive_classification"):
+            state_result = updated.state["naive_classification"]
+            if isinstance(state_result, dict) and state_result.get("classification"):
+                result = state_result
 
-                # 3. Function responses — classification in tool return
-                fr = getattr(part, "function_response", None)
-                if fr and hasattr(fr, "response") and isinstance(fr.response, dict):
-                    resp = fr.response
-                    if resp.get("classification"):
-                        result.update({
-                            k: resp[k] for k in
-                            ("classification", "confidence",
-                             "detected_signals", "extracted_facts")
-                            if k in resp
-                        })
-
-        # Ensure reasoning field exists
         if "reasoning" not in result:
             result["reasoning"] = ""
-
         return {"result": result, "sender": req.sender, "live": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/pipeline")
+async def run_full_pipeline(req: ClassifyRequest):
+    """Run the full Workflow pipeline: pre-processing → classification
+    → behavioral analysis → conditional routing to Family Alerter.
+
+    This is the complete multi-agent pipeline that judges can evaluate.
+    Results are written to session state via output_key on each agent.
+    """
+    try:
+        session = await _get_or_create_session("demo_user", {
+            "message_text": req.content,
+            "sender_id": req.sender,
+            "user_id": "demo_user",
+        })
+        prompt = (
+            f"新着メッセージを分析してください。送信者: {req.sender}, "
+            f"ユーザーID: demo_user\n\n「{req.content}」"
+        )
+        msg = genai_types.Content(
+            role="user", parts=[genai_types.Part(text=prompt)]
+        )
+        async for event in _pipeline_runner.run_async(
+            user_id="demo_user", session_id=session.id, new_message=msg
+        ):
+            pass
+
+        updated = await _session_service.get_session(
+            app_name="elder_scam_shield",
+            user_id="demo_user",
+            session_id=session.id,
+        )
+        state = updated.state if updated else {}
+        return {
+            "classification": state.get("classification", {}),
+            "risk_assessment": state.get("risk_assessment", {}),
+            "alert": state.get("alert"),
+            "tool_traces": state.get("tool_traces", []),
+            "sender": req.sender,
+            "pipeline": True,
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/analyze")
 async def analyze_sender(req: AnalyzeRequest):
-    """Trigger behavioral analysis for a sender.
+    """Trigger behavioral analysis via the full pipeline.
 
-    Runs the Behavioral Analyzer agent to update the sender's
-    longitudinal profile and return the current risk assessment.
+    Runs the Workflow to update the sender's longitudinal profile
+    and return the current risk assessment from session state.
     """
     try:
+        session = await _get_or_create_session("demo_user", {
+            "sender_id": req.sender_id,
+            "user_id": "demo_user",
+        })
         prompt = (
             f"Analyze sender profile.\n"
             f"Sender ID: {req.sender_id}\n"
             f"Message history: {json.dumps(req.message_history or [], ensure_ascii=False)}"
         )
-        response = await root_agent.ainvoke(prompt)
-        return {"result": response, "sender_id": req.sender_id}
+        msg = genai_types.Content(
+            role="user", parts=[genai_types.Part(text=prompt)]
+        )
+        async for event in _pipeline_runner.run_async(
+            user_id="demo_user", session_id=session.id, new_message=msg
+        ):
+            pass
+        updated = await _session_service.get_session(
+            app_name="elder_scam_shield",
+            user_id="demo_user",
+            session_id=session.id,
+        )
+        result = updated.state.get("risk_assessment", {}) if updated else {}
+        return {"result": result, "sender_id": req.sender_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -268,19 +446,34 @@ async def analyze_sender(req: AnalyzeRequest):
 async def intercept_outbound(req: InterceptRequest):
     """Check outbound content before it leaves the protected user.
 
-    The Outbound Interceptor scans for sensitive data (bank accounts,
-    passwords, large money amounts) and holds the message if the
-    recipient has elevated risk.
+    Uses the Outbound Interceptor agent (separate from the inbound
+    Workflow) to scan for sensitive data and make hold/release decisions.
     """
     try:
+        session = await _get_or_create_session("demo_user", {
+            "sender_id": req.recipient,
+            "user_id": "demo_user",
+        })
         prompt = (
             f"Check outbound message.\n"
             f"Recipient: {req.recipient}\n"
             f"Content: {req.content}\n"
             f"Risk context: {json.dumps(req.sender_risk_context or {}, ensure_ascii=False)}"
         )
-        response = await root_agent.ainvoke(prompt)
-        return {"result": response, "recipient": req.recipient}
+        msg = genai_types.Content(
+            role="user", parts=[genai_types.Part(text=prompt)]
+        )
+        async for event in _intercept_runner.run_async(
+            user_id="demo_user", session_id=session.id, new_message=msg
+        ):
+            pass
+        updated = await _session_service.get_session(
+            app_name="elder_scam_shield",
+            user_id="demo_user",
+            session_id=session.id,
+        )
+        result = updated.state.get("intercept_decision", {}) if updated else {}
+        return {"result": result, "recipient": req.recipient}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -1942,18 +1942,31 @@ body {
     btn.disabled = true;
     btn.textContent = 'Classifying...';
 
-    fetch('/api/classify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sender: 'custom_sender', content: msg })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
+    var customBody = JSON.stringify({ sender: 'custom_sender', content: msg });
+    Promise.all([
+      fetch('/api/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: customBody
+      }).then(function(r) { return r.json(); }),
+      fetch('/api/classify-naive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: customBody
+      }).then(function(r) { return r.json(); }).catch(function() { return { result: {} }; })
+    ])
+    .then(function(results) {
+      var data = results[0];
+      var naiveData = results[1];
       var result = data.result || {};
       var cls = (result.classification || 'no_response').toUpperCase();
       var confidence = result.confidence || 0;
       var signals = result.detected_signals || [];
       var reasoning = result.reasoning || '';
+      // Store naive result for Pre-ADK column
+      var naiveResult = naiveData.result || {};
+      var naiveCls = (naiveResult.classification || 'SAFE').toUpperCase();
+      var naiveConf = naiveResult.confidence || 0.5;
 
       var risk;
       if (confidence > 0) {
@@ -1981,6 +1994,8 @@ body {
         tagLabel: 'Live Gemini',
         risk: risk,
         classification: cls,
+        naiveClassification: naiveCls,
+        naiveConfidence: naiveConf,
         signals: signalObjects,
         reasoning: reasoning,
         profile: {}
@@ -1995,6 +2010,74 @@ body {
       btn.disabled = false;
       btn.textContent = 'Error: ' + err.message;
     });
+  }
+
+  // =========================================================
+  //  HANDLE CLASSIFICATION RESULTS — shared by scripted + custom paths
+  // =========================================================
+  function handleClassificationResults(c, choice, data, naiveData) {
+    // Step 5 complete — light up steps 6-8
+    var ls6 = document.getElementById('ls-6');
+    if (ls6) ls6.classList.add('active');
+
+    var result = data.result || {};
+    var livePerMsgClass = (result.classification || '').toUpperCase();
+    var liveConfidence = result.confidence || 0;
+    var liveSignals = result.detected_signals || [];
+    var liveReasoning = result.reasoning || '';
+
+    // Pre-ADK: use naive classifier result (no tools, no corpus, no pipeline)
+    var naiveResult = (naiveData && naiveData.result) ? naiveData.result : {};
+    var perMsgClass = choice.naiveClassification || (naiveResult.classification || '').toUpperCase();
+    if (!perMsgClass || perMsgClass === 'NO_RESPONSE') perMsgClass = (c.classification || 'SAFE');
+    var perMsgConfidence = choice.naiveConfidence || naiveResult.confidence || 0.5;
+
+    // If Gemini returned signals, merge with behavioral signals from DAYS data
+    if (liveSignals.length > 0) {
+      var liveSignalObjects = liveSignals.map(function(s) {
+        return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
+      });
+      var existingCodes = {};
+      c.signals.forEach(function(s) { existingCodes[s.code] = true; });
+      liveSignalObjects.forEach(function(s) {
+        if (!existingCodes[s.code]) {
+          c.signals.push(s);
+        }
+      });
+    }
+    if (liveReasoning && livePerMsgClass !== 'NO_RESPONSE') {
+      c.reasoning = c.reasoning + ' [Gemini per-message: ' + liveReasoning + ']';
+    }
+
+    // Behavioral risk from pre-computed DAYS data (the accumulated pattern)
+    var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
+    var behavioralRisk = c.risk !== null && c.risk !== undefined
+      ? c.risk
+      : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
+    behavioralRisk = Math.max(behavioralRisk, prevRisk * 0.9);
+
+    var behavioralClass = riskStatusLabel(behavioralRisk);
+
+    // Track per-message flagging
+    var perMsgIsFlagged = (perMsgClass === 'SCAM' || perMsgClass === 'SUSPICIOUS' || perMsgClass === 'FLAG' || perMsgClass === 'BLOCK');
+    if (perMsgIsFlagged) {
+      state.perMsgFlagged++;
+    }
+    state.perMsgClassHistory.push(perMsgClass);
+
+    if (state.behavioralFirstFlag < 0 && behavioralRisk >= 0.35) {
+      state.behavioralFirstFlag = state.currentDay + 1;
+    }
+
+    state.riskHistory.push(behavioralRisk);
+    state.classHistory.push(behavioralClass);
+    state.signalHistory.push(c.signals);
+
+    var lc = document.getElementById('loading-card');
+    if (lc) lc.remove();
+
+    var isLive = livePerMsgClass && livePerMsgClass !== 'NO_RESPONSE';
+    renderAnalysisCard(c, behavioralRisk, behavioralClass, perMsgClass, perMsgConfidence, isLive);
   }
 
   // =========================================================
@@ -2061,84 +2144,47 @@ body {
     // Step 5 lights up when API call starts (below)
     // Steps 6-8 light up when API response arrives (in .then())
 
+    // If the choice already has classification results (e.g. from custom handler),
+    // skip API calls and render directly
+    // If the choice already has both results (e.g. from custom message handler), skip API calls
+    if (c.classification && c.naiveClassification) {
+      for (var si = 1; si <= 8; si++) {
+        var stepEl = document.getElementById('ls-' + si);
+        if (stepEl) stepEl.classList.add('active');
+      }
+      var preData = {
+        result: {
+          classification: c.classification,
+          confidence: c.risk || 0.5,
+          detected_signals: c.signals.map(function(s) { return s.code; }),
+          reasoning: c.reasoning
+        }
+      };
+      var preNaive = { result: { classification: c.naiveClassification, confidence: c.naiveConfidence || 0.5 } };
+      setTimeout(function() { handleClassificationResults(c, c, preData, preNaive); }, 100);
+      return;
+    }
+
     // Call live Gemini API — step 5 starts now
     setTimeout(function() { var s = document.getElementById('ls-5'); if (s) s.classList.add('active'); }, 800);
     var messageForApi = c.jp || c.en || msgText;
-    fetch('/api/classify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sender: 'scammer_day' + (state.currentDay + 1), content: messageForApi })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      // Step 5 complete — light up steps 6-8
-      var ls6 = document.getElementById('ls-6');
-      if (ls6) ls6.classList.add('active');
+    var classifyBody = JSON.stringify({ sender: 'scammer_day' + (state.currentDay + 1), content: messageForApi });
 
-      var result = data.result || {};
-      var livePerMsgClass = (result.classification || '').toUpperCase();
-      var liveConfidence = result.confidence || 0;
-      var liveSignals = result.detected_signals || [];
-      var liveReasoning = result.reasoning || '';
-
-      // Per-message classification from Gemini
-      var perMsgClass = (livePerMsgClass && livePerMsgClass !== 'NO_RESPONSE')
-        ? livePerMsgClass
-        : (c.classification || 'SAFE');
-      var perMsgConfidence = liveConfidence || 0.95;
-
-      // If Gemini returned signals, merge with behavioral signals from DAYS data
-      if (liveSignals.length > 0) {
-        var liveSignalObjects = liveSignals.map(function(s) {
-          return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
-        });
-        // Merge: keep behavioral signals from DAYS data, add any new per-message signals from Gemini
-        var existingCodes = {};
-        c.signals.forEach(function(s) { existingCodes[s.code] = true; });
-        liveSignalObjects.forEach(function(s) {
-          if (!existingCodes[s.code]) {
-            c.signals.push(s);
-          }
-        });
-      }
-      // Use live reasoning if available, but prepend our behavioral framing
-      if (liveReasoning && livePerMsgClass !== 'NO_RESPONSE') {
-        // Keep the pre-written behavioral reasoning as primary
-        // Append live reasoning as supplementary
-        c.reasoning = c.reasoning + ' [Gemini per-message: ' + liveReasoning + ']';
-      }
-
-      // Behavioral risk from pre-computed DAYS data (the accumulated pattern)
-      var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
-      var behavioralRisk = c.risk !== null && c.risk !== undefined
-        ? c.risk
-        : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
-      // Behavioral risk never drops (accumulated)
-      behavioralRisk = Math.max(behavioralRisk, prevRisk * 0.9);
-
-      var behavioralClass = riskStatusLabel(behavioralRisk);
-
-      // Track per-message flagging
-      var perMsgIsFlagged = (perMsgClass === 'SCAM' || perMsgClass === 'SUSPICIOUS' || perMsgClass === 'FLAG' || perMsgClass === 'BLOCK');
-      if (perMsgIsFlagged) {
-        state.perMsgFlagged++;
-      }
-      state.perMsgClassHistory.push(perMsgClass);
-
-      // Track when behavioral first crosses 0.35
-      if (state.behavioralFirstFlag < 0 && behavioralRisk >= 0.35) {
-        state.behavioralFirstFlag = state.currentDay + 1;
-      }
-
-      state.riskHistory.push(behavioralRisk);
-      state.classHistory.push(behavioralClass);
-      state.signalHistory.push(c.signals);
-
-      var lc = document.getElementById('loading-card');
-      if (lc) lc.remove();
-
-      var isLive = livePerMsgClass && livePerMsgClass !== 'NO_RESPONSE';
-      renderAnalysisCard(c, behavioralRisk, behavioralClass, perMsgClass, perMsgConfidence, isLive);
+    // Two parallel calls: tuned classifier + naive baseline
+    Promise.all([
+      fetch('/api/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: classifyBody
+      }).then(function(r) { return r.json(); }),
+      fetch('/api/classify-naive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: classifyBody
+      }).then(function(r) { return r.json(); }).catch(function() { return { result: {} }; })
+    ])
+    .then(function(results) {
+      handleClassificationResults(c, c, results[0], results[1]);
     })
     .catch(function(err) {
       // Fallback: use pre-computed data for both

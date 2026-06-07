@@ -6,19 +6,16 @@ even to family. Bilingual (JA primary, EN secondary), rate-limited,
 dignity-preserving.
 
 ADK primitive: CREATE
-A2A subscribes: sender.risk_updated, outbound.held
-A2A publishes:  alert.delivered
+Pipeline subscribes: sender.risk_updated, outbound.held
+Pipeline publishes:  alert.delivered
 """
 
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from google.adk import Agent
-try:
-    from google.cloud import firestore
-    db = firestore.Client()
-except Exception:
-    db = None
+from agents.schemas import AlertRecord
+from agents.db import db
 
 JST = timezone(timedelta(hours=9))
 DEDUP_WINDOW_H = 24
@@ -100,28 +97,33 @@ def generate_alert(
     if not tmpl:
         return {"error": f"Unknown alert_type: {alert_type}"}
 
-    # Load family contact preferences
-    profile = (db.collection("users").document(user_id).get().to_dict() or {})
-    family = profile.get("family_contacts", [{}])[0]
-    family_member_id = family.get("id", "unknown")
-    delivery_channel = family.get("preferred_channel", "email")
-
-    # Dedup & rate-limit within sliding 24 h window
     now = datetime.now(JST)
-    recent = list(
-        db.collection("notifications")
-        .where("user_id", "==", user_id)
-        .where("timestamp", ">=", now - timedelta(hours=DEDUP_WINDOW_H))
-        .stream()
-    )
-    if any(
-        (d := n.to_dict()).get("alert_type") == alert_type
-        and d.get("sender_id") == sender_id
-        for n in recent
-    ):
-        return {"status": "dedup", "message": "Duplicate alert suppressed within 24 h."}
-    if len(recent) >= RATE_LIMIT_PER_DAY:
-        return {"status": "rate_limited", "message": "Daily alert cap reached."}
+
+    # Load family contact preferences
+    if db is not None:
+        profile = (db.collection("users").document(user_id).get().to_dict() or {})
+        family = profile.get("family_contacts", [{}])[0]
+        family_member_id = family.get("id", "unknown")
+        delivery_channel = family.get("preferred_channel", "email")
+
+        # Dedup & rate-limit within sliding 24 h window
+        recent = list(
+            db.collection("notifications")
+            .where("user_id", "==", user_id)
+            .where("timestamp", ">=", now - timedelta(hours=DEDUP_WINDOW_H))
+            .stream()
+        )
+        if any(
+            (d := n.to_dict()).get("alert_type") == alert_type
+            and d.get("sender_id") == sender_id
+            for n in recent
+        ):
+            return {"status": "dedup", "message": "Duplicate alert suppressed within 24 h."}
+        if len(recent) >= RATE_LIMIT_PER_DAY:
+            return {"status": "rate_limited", "message": "Daily alert cap reached."}
+    else:
+        family_member_id = "family-demo"
+        delivery_channel = "email"
 
     # Evidence summary — counts and categories, never raw content
     evidence = {
@@ -166,10 +168,11 @@ def generate_alert(
     }
 
     # Persist notification record to Memory Bank
-    db.collection("notifications").document(alert_id).set(record)
+    if db is not None:
+        db.collection("notifications").document(alert_id).set(record)
 
-    # A2A publish: alert.delivered
-    a2a_event = {
+    # Pipeline event: alert.delivered
+    pipeline_event = {
         "event": "alert.delivered",
         "alert_id": alert_id,
         "family_member_id": family_member_id,
@@ -177,7 +180,7 @@ def generate_alert(
         "response_deadline": deadline,
     }
 
-    return {"alert": record, "a2a": a2a_event}
+    return {"alert": record, "pipeline_event": pipeline_event}
 
 
 family_alerter = Agent(
@@ -200,4 +203,6 @@ family_alerter = Agent(
         "- Fill the provided template structure; do not invent new fields."
     ),
     tools=[generate_alert],
+    output_schema=AlertRecord,
+    output_key="alert",
 )

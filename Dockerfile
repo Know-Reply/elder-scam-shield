@@ -23,5 +23,5 @@ COPY . .
 
 EXPOSE 8080
 
-# Run with uvicorn — Cloud Run sends SIGTERM for graceful shutdown
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run with uvicorn — Cloud Run injects $PORT; shell form for env var expansion
+CMD uvicorn app:app --host 0.0.0.0 --port ${PORT:-8080}

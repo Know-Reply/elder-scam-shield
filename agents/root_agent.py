@@ -1,105 +1,84 @@
-"""Elder Scam Shield — root agent composing 4 sub-agents with A2A event routing.
+"""Elder Scam Shield — Workflow-based pipeline orchestration.
 
-Entry point for ADK. Orchestrates the scam protection pipeline:
-  Inbound Classifier → Behavioral Analyzer → Outbound Interceptor → Family Alerter
+Replaces the LLM-based root agent with an ADK Workflow DAG.
+No LLM call is wasted on routing — deterministic FunctionNodes
+handle pre-processing and conditional routing; Agent nodes handle
+the LLM steps.
 
-A2A event chain:
-  message.classified → sender.risk_updated → outbound.held → alert.delivered
+Pipeline:
+  pre_pipeline (FunctionNode) → Inbound Classifier (Agent)
+  → Behavioral Analyzer (Agent) → route (FunctionNode)
+  → Family Alerter (Agent, conditional on risk > 0.6)
+
+Event chain:
+  pipeline_context → classification → risk_assessment → alert (if triggered)
 """
 
-from google.adk import Agent
-try:
-    from google.cloud import firestore
-except Exception:
-    firestore = None
+from google.adk.agents import Context
+from google.adk.workflow import Workflow, FunctionNode, START
 
 from .inbound_classifier import inbound_classifier
 from .behavioral_analyzer import behavioral_analyzer
-from .outbound_interceptor import outbound_interceptor
 from .family_alerter import family_alerter
-
-try:
-    db = firestore.Client() if firestore else None
-except Exception:
-    db = None
+from .tools.pipeline import run_pre_classification_pipeline
 
 
+# ---------------------------------------------------------------------------
+# FunctionNode: Pre-LLM pipeline (Steps 1-4)
+# ---------------------------------------------------------------------------
 
-def route_classified_event(event: dict) -> dict:
-    """Route a message.classified event to the Behavioral Analyzer.
-
-    Called after the Inbound Classifier produces a classification.
-    Passes sender_id, extracted_facts, and detected_signals to the
-    Behavioral Analyzer for longitudinal profile update.
-    """
-    return {
-        "route_to": "behavioral_analyzer",
-        "event_type": "message.classified",
-        "payload": event,
-    }
-
-
-
-def route_risk_event(event: dict) -> dict:
-    """Route a sender.risk_updated event to downstream agents.
-
-    When the Behavioral Analyzer publishes a risk update:
-    - Outbound Interceptor receives it for hold-decision context.
-    - Family Alerter receives it if risk_score > 0.6 (notification threshold).
-    """
-    targets = ["outbound_interceptor"]
-    if event.get("risk_score", 0) > 0.6:
-        targets.append("family_alerter")
-    return {
-        "route_to": targets,
-        "event_type": "sender.risk_updated",
-        "payload": event,
-    }
+def pre_pipeline(ctx: Context):
+    """Run linguistic analysis, entity extraction, corpus search, and
+    graph validation BEFORE any LLM call. Writes results to session state
+    so the Classifier agent can consume pre-computed evidence."""
+    text = ctx.state.get("message_text", "")
+    sender = ctx.state.get("sender_id", "unknown")
+    user = ctx.state.get("user_id", "demo_user")
+    result = run_pre_classification_pipeline(text, sender, user)
+    ctx.state["pipeline_context"] = result
 
 
-
-def route_hold_event(event: dict) -> dict:
-    """Route an outbound.held event to the Family Alerter.
-
-    Every hold triggers a family notification — the human-in-the-loop
-    decides whether to release.
-    """
-    return {
-        "route_to": "family_alerter",
-        "event_type": "outbound.held",
-        "payload": event,
-    }
+pre_pipeline_node = FunctionNode(func=pre_pipeline, name="pre_pipeline")
 
 
-root_agent = Agent(
-    model="gemini-3.1-flash-lite",
+# ---------------------------------------------------------------------------
+# FunctionNode: Conditional routing after behavioral analysis
+# ---------------------------------------------------------------------------
+
+def route_downstream(ctx: Context):
+    """Route based on risk score. If risk > 0.6, trigger Family Alerter.
+    Otherwise, pipeline ends — classification and risk data are in state."""
+    risk = ctx.state.get("risk_assessment", {})
+    score = risk.get("risk_score", 0) if isinstance(risk, dict) else 0
+    return "alert" if score > 0.6 else "done"
+
+
+route_node = FunctionNode(func=route_downstream, name="route_downstream")
+
+
+# ---------------------------------------------------------------------------
+# FunctionNode: No-op terminal (Workflow requires a node for every route)
+# ---------------------------------------------------------------------------
+
+def end(ctx: Context):
+    """Terminal node — pipeline complete, results in session state."""
+    pass
+
+
+end_node = FunctionNode(func=end, name="end")
+
+
+# ---------------------------------------------------------------------------
+# Workflow DAG
+# ---------------------------------------------------------------------------
+
+root_agent = Workflow(
     name="elder_scam_shield",
-    description=(
-        "Elder Scam Shield — multi-agent scam protection for elderly Japanese "
-        "users. Orchestrates 4 sub-agents via A2A events: classify inbound "
-        "messages, build longitudinal sender profiles, intercept outbound "
-        "sensitive data, and alert family members."
-    ),
-    instruction=(
-        "You are the orchestrator for Elder Scam Shield. Route messages "
-        "through the pipeline:\n\n"
-        "1. INBOUND: Send every incoming message to inbound_classifier.\n"
-        "2. CLASSIFY → ANALYZE: When inbound_classifier returns, call "
-        "route_classified_event to pass the result to behavioral_analyzer.\n"
-        "3. RISK → INTERCEPT/ALERT: When behavioral_analyzer returns, call "
-        "route_risk_event. If risk > 0.6, family_alerter is also notified.\n"
-        "4. OUTBOUND: When the user sends a reply, send it to "
-        "outbound_interceptor with the sender's current risk context.\n"
-        "5. HOLD → ALERT: When outbound_interceptor holds content, call "
-        "route_hold_event to notify the family.\n\n"
-        "Never surface scam message content in your own responses. "
-        "Report pipeline status using signal codes and risk scores only."
-    ),
-    tools=[route_classified_event, route_risk_event, route_hold_event],
-    sub_agents=[
-        inbound_classifier,
-        behavioral_analyzer,
-        outbound_interceptor,
-        family_alerter,
+    edges=[
+        (START, pre_pipeline_node),
+        (pre_pipeline_node, inbound_classifier),
+        (inbound_classifier, behavioral_analyzer),
+        (behavioral_analyzer, route_node),
+        (route_node, {"alert": family_alerter, "done": end_node}),
     ],
 )

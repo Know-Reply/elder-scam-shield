@@ -49,6 +49,36 @@ The key insight: move intelligence OUT of the model and INTO pre-processing infr
 
 Steps 1-4 run **before the LLM** — pure infrastructure, no API calls, ~50ms total. This is what enables running on the cheapest Gemini model: the model's job is simpler because the infrastructure did the heavy lifting.
 
+### Production Execution Model
+
+The full pipeline is defined as an ADK Workflow DAG, but production execution separates the hot path from async analysis:
+
+```
+Hot path (per message, <3s):        Async path (per sender profile):
+  Message → FunctionNode            Classification facts accumulate
+    (Steps 1-4: pre-processing)       in sender profile via session state
+  → Inbound Classifier (Agent)     → Behavioral Analyzer (Agent)
+    output_key → session state        triggered by accumulated evidence
+  → Response                       → Family Alerter (if risk > 0.6)
+```
+
+The **Inbound Classifier** runs synchronously on every message — one LLM call, structured output via `output_schema`, results written to session state via `output_key`. The **Behavioral Analyzer** runs asynchronously against accumulated sender profiles, not raw messages. Same ADK agents, same session state, different execution timing.
+
+This is a deliberate production scaling decision: the Workflow represents the full architecture, but routing every message through all agents sequentially would be the wrong design. The classifier must be fast enough for real-time interception. The behavioral analyzer needs accumulated cross-message evidence to be useful — running it on a single message wastes an LLM call.
+
+### ADK Features Used
+
+| Feature | Where | Purpose |
+|---------|-------|---------|
+| **Workflow + FunctionNode** | `root_agent.py` | DAG orchestration — deterministic pre-processing, conditional routing |
+| **output_schema** | All 4 agents | Pydantic-validated structured output, eliminates JSON parsing |
+| **output_key** | All 4 agents | Writes results to session state for inter-agent data flow |
+| **before_tool_callback** | Classifier, Analyzer, Interceptor | Native tool call tracing to session state |
+| **after_model_callback** | Classifier | Runtime output validation |
+| **before_model_callback** | Analyzer | Dynamic context injection from session state |
+| **Session reuse** | `app.py` | Longitudinal state per user across requests |
+| **Conditional routing** | Workflow edges | Risk-based fan-out to Family Alerter |
+
 ## The Optimization Story (Track 2)
 
 Six rounds of iterative hardening, each compounding on the last:
@@ -193,9 +223,9 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 | Agent framework | Google ADK 2.0 (Python) |
 | Model (all agents) | Gemini 3.1 Flash Lite — cheapest model, infrastructure does the heavy lifting |
 | Memory | Cloud Firestore |
-| Corpus grounding | Vertex AI Search + local Jaccard fallback |
+| Corpus grounding | Vertex AI Search + local TF-IDF fallback |
 | Deployment | Google Cloud Run |
-| Protocol | A2A (Agent-to-Agent) events |
+| Orchestration | ADK Workflow (FunctionNode + Agent DAG) |
 
 ## Data
 
@@ -297,7 +327,7 @@ PYTHONPATH=. uvicorn app:app --host 0.0.0.0 --port 8080 --reload
 
 ```
 agents/
-  root_agent.py            # Root orchestrator with A2A event routing
+  root_agent.py            # ADK Workflow DAG orchestrator
   inbound_classifier.py    # Per-message signal extraction (20 signals)
   behavioral_analyzer.py   # Longitudinal sender profiling (BV + EA + LG)
   outbound_interceptor.py  # Outbound data interception

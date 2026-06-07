@@ -13,11 +13,19 @@ import hashlib
 from datetime import datetime, timezone
 
 from google.adk import Agent
-try:
-    from google.cloud import firestore
-    db = firestore.Client()
-except Exception:
-    db = None
+from agents.schemas import InterceptDecision
+
+
+def _trace_tool_call(tool, args, tool_context):
+    """before_tool_callback: log tool invocations to session state."""
+    traces = tool_context.state.setdefault("tool_traces", [])
+    traces.append({
+        "agent": "outbound_interceptor",
+        "tool": tool.name,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    })
+    return None
+from agents.db import db
 PROFILES = db.collection("sender_profiles") if db else None
 HOLDS = db.collection("hold_records") if db else None
 KNOWN_PAYEES = db.collection("known_payees") if db else None
@@ -40,6 +48,8 @@ def _compound_risk(signals: list[str], sender_risk: float) -> float:
 
 def check_sender_risk(sender_id: str) -> dict:
     """Read sender risk score and recent inbound context from Memory Bank."""
+    if PROFILES is None:
+        return {"sender_id": sender_id, "risk_score": 0.0, "risk_factors": []}
     doc = PROFILES.document(sender_id).get()
     if doc.exists:
         d = doc.to_dict()
@@ -55,6 +65,8 @@ def check_sender_risk(sender_id: str) -> dict:
 
 def check_known_payee(recipient_id: str, user_id: str) -> dict:
     """Check whether recipient is a known payee for this user."""
+    if KNOWN_PAYEES is None:
+        return {"known": False, "recipient_id": recipient_id}
     doc = KNOWN_PAYEES.document(f"{user_id}_{recipient_id}").get()
     return {"known": doc.exists, "recipient_id": recipient_id}
 
@@ -73,20 +85,24 @@ def hold_outbound(
         "evidence_summary": signals, "compound_risk": risk,
         "timestamp": now, "resolution": "pending", "held_content_hash": h,
     }
-    ref = HOLDS.add(record)
-    a2a = {
+    hold_id = f"hold-{now}"
+    if HOLDS is not None:
+        ref = HOLDS.add(record)
+        hold_id = ref[1].id
+    pipeline_event = {
         "event": "outbound.held", "action_type": held_action,
         "recipient_sender_id": recipient_id, "risk_evidence": signals,
         "held_content_hash": h, "compound_risk": risk,
-        "hold_id": ref[1].id, "timestamp": now,
+        "hold_id": hold_id, "timestamp": now,
     }
-    return {"hold": record, "a2a_publish": a2a}
+    return {"hold": record, "pipeline_event": pipeline_event}
 
 
 
 def release_outbound(hold_id: str, reason: str) -> dict:
     """Release a previously held outbound action."""
-    HOLDS.document(hold_id).update({"resolution": "released", "release_reason": reason})
+    if HOLDS is not None:
+        HOLDS.document(hold_id).update({"resolution": "released", "release_reason": reason})
     return {"hold_id": hold_id, "resolution": "released", "reason": reason}
 
 
@@ -133,4 +149,7 @@ Thresholds:
 Describe WHAT was detected (signal codes, amounts, risk factors) but NEVER
 quote or paraphrase held content. Hash for audit; surface evidence only.""",
     tools=[check_sender_risk, check_known_payee, hold_outbound, release_outbound],
+    output_schema=InterceptDecision,
+    output_key="intercept_decision",
+    before_tool_callback=_trace_tool_call,
 )

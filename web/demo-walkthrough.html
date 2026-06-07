@@ -103,6 +103,15 @@
       color: #fff;
       background: rgba(255,255,255,0.08);
     }
+    .nav-links a.nav-app {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-weight: 600;
+    }
+    .nav-links a.nav-app:hover {
+      background: rgba(255,255,255,0.22);
+    }
 
     @media (max-width: 768px) {
       .nav-links { display: none; }
@@ -483,142 +492,124 @@
     }
 
     /* ================================================================
-       SECTION 4: OUTBOUND INTERCEPTION
+       SECTION 4: INTERCEPTION
        ================================================================ */
-    .outbound-section { background: var(--gray-50); }
+    .intercept-section { background: var(--gray-50); }
 
-    .outbound-flow {
-      max-width: 700px;
-      margin: 0 auto;
+    .intercept-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 32px;
     }
-    .flow-card {
+    @media (max-width: 768px) {
+      .intercept-grid { grid-template-columns: 1fr; }
+    }
+
+    .intercept-card {
+      background: #fff;
       border-radius: var(--radius-lg);
-      padding: 24px;
-      margin-bottom: 0;
       box-shadow: var(--shadow);
+      overflow: hidden;
     }
-    .flow-card-outbound {
-      background: #fff;
-      border: 2px solid var(--orange);
-    }
-    .flow-card-hold {
-      background: #fff;
-      border: 2px solid var(--red);
-    }
-    .flow-card-alert {
-      background: #fff;
-      border: 2px solid var(--yellow);
-    }
-    .flow-arrow {
-      text-align: center;
-      padding: 12px 0;
-      color: var(--gray-300);
-    }
-    .flow-agent-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      margin-bottom: 12px;
-    }
-    .flow-agent-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+    .intercept-card-header {
+      padding: 20px 24px 16px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 12px;
+    }
+    .intercept-dir {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+    .intercept-dir-in {
+      background: var(--blue);
       color: #fff;
-      font-size: 0.75rem;
-      font-weight: 800;
     }
-    .icon-oi { background: var(--red); }
-    .icon-fa { background: var(--yellow); }
-
-    .flow-en {
+    .intercept-dir-out {
+      background: var(--orange);
+      color: #fff;
+    }
+    .intercept-card-header h4 {
       font-size: 1rem;
-      margin-bottom: 8px;
-      line-height: 1.7;
+      color: var(--navy);
+      margin: 0;
     }
-    .flow-jp {
-      font-size: 0.85rem;
+
+    .intercept-message {
+      padding: 0 24px 16px;
+    }
+    .intercept-msg-text {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 6px;
+    }
+    .intercept-msg-jp {
+      font-size: 0.82rem;
       color: var(--gray-500);
       font-style: italic;
     }
 
-    .flow-signals {
-      margin-top: 12px;
+    .intercept-result {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--gray-200);
     }
-    .flow-signal {
+
+    .intercept-verdict {
+      display: inline-block;
+      font-size: 0.88rem;
+      font-weight: 800;
+      padding: 3px 14px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .verdict-blocked { background: var(--red-bg); color: var(--red); }
+    .verdict-held { background: var(--red-bg); color: var(--red); }
+
+    .intercept-signals {
+      margin-top: 8px;
+    }
+    .intercept-signal {
       display: flex;
       align-items: baseline;
       gap: 8px;
-      padding: 4px 0;
-      font-size: 0.88rem;
+      padding: 3px 0;
+      font-size: 0.85rem;
+      color: var(--gray-600);
     }
-    .flow-signal-code {
+    .intercept-signal-code {
       font-family: var(--font-mono);
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 700;
       color: var(--red);
       min-width: 36px;
     }
 
-    .flow-verdict {
-      display: inline-block;
-      font-size: 1rem;
-      font-weight: 800;
-      padding: 4px 16px;
-      border-radius: 6px;
-      margin-top: 8px;
-    }
-    .verdict-hold { background: var(--red-bg); color: var(--red); }
-    .verdict-blocked { background: var(--red-bg); color: var(--red); }
-
-    .flow-risk-bar {
+    .intercept-outcome {
       margin-top: 12px;
-      height: 8px;
-      background: var(--gray-200);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .flow-risk-fill {
-      height: 100%;
-      border-radius: 4px;
-      background: linear-gradient(90deg, var(--orange), var(--red));
-    }
-
-    .alert-preview {
-      background: var(--yellow-bg);
+      padding: 12px 16px;
       border-radius: var(--radius);
-      padding: 16px;
-      margin-top: 12px;
       font-size: 0.88rem;
+      line-height: 1.5;
     }
-    .alert-preview p { margin-bottom: 6px; }
-    .alert-preview .alert-subject {
-      font-weight: 700;
-      color: var(--navy);
+    .outcome-blocked {
+      background: var(--red-bg);
+      color: var(--red);
     }
-    .alert-preview ul {
-      margin: 8px 0;
-      padding-left: 20px;
+    .outcome-held {
+      background: #fef3c7;
+      color: #92400e;
     }
-    .alert-preview li { margin-bottom: 4px; }
-    .alert-translation {
-      font-size: 0.82rem;
-      color: var(--gray-500);
-      font-style: italic;
-      border-top: 1px solid rgba(0,0,0,0.06);
-      padding-top: 8px;
-      margin-top: 8px;
-    }
-    .section-caption {
+
+    .intercept-punchline {
       text-align: center;
-      margin-top: 32px;
       font-size: 1rem;
       color: var(--gray-500);
+      margin-top: 8px;
       font-style: italic;
     }
 
@@ -651,6 +642,13 @@
     .results-table tr:last-child td { border-bottom: none; }
     .results-table tbody tr:hover { background: var(--gray-50); }
     .results-table .improve { color: var(--green); font-weight: 700; }
+
+    .risk-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
 
     .results-note {
       text-align: center;
@@ -1072,10 +1070,10 @@
     <ul class="nav-links">
       <li><a href="#attack">The Attack</a></li>
       <li><a href="#comparison">Comparison</a></li>
-      <li><a href="#outbound">Outbound</a></li>
+      <li><a href="#interception">Interception</a></li>
       <li><a href="#results">Results</a></li>
-      <li><a href="/dashboard" >Dashboard</a></li>
-      <li><a href="/simulator" >Simulator</a></li>
+      <li><a href="/dashboard" class="nav-app">Dashboard</a></li>
+      <li><a href="/simulator" class="nav-app">Simulator</a></li>
     </ul>
   </div>
 </nav>
@@ -1503,119 +1501,185 @@
       A single classifier catches 1 message. We catch the pattern 3 days earlier.
     </div>
 
-    <!-- Signal category cards — brief "what do the codes mean" -->
-    <h3 style="text-align:center; margin-top:48px; margin-bottom:8px; font-size:1rem; color:var(--navy);">How We Detect It: 4 Signal Families</h3>
-    <p style="text-align:center; font-size:0.85rem; color:var(--gray-500); margin-bottom:24px;">Each message is analyzed across multiple dimensions. The codes you see (PM-3, BV-1, etc.) map to these families:</p>
+  </div>
+</section>
 
-    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
-      <div style="padding:16px; background:var(--red-bg); border-radius:10px; border:1px solid var(--red-light);">
-        <div style="font-size:1.1rem; font-weight:800; color:var(--red); margin-bottom:4px;">PM</div>
-        <div style="font-size:0.78rem; font-weight:700; color:var(--gray-700); margin-bottom:6px;">Per-Message</div>
-        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5;">Signals detectable from a single message: urgency, financial requests, authority claims, legal threats, credential phishing.</div>
+<!-- ================================================================
+     SECTION 3b: MULTI-DIMENSIONAL DETECTION
+     ================================================================ -->
+<section id="detection" style="padding:60px 0; background:var(--gray-50);">
+  <div class="section-inner">
+    <span class="section-label">Multi-Dimensional Detection</span>
+    <h2 class="section-title">What Elder Shield Sees</h2>
+    <p class="section-subtitle">Every message is analyzed across 4 dimensions and 20 signals. The codes (PM-3, BV-1, etc.) are threat indicators — each one maps to a known manipulation pattern.</p>
+
+    <!-- 4 family cards -->
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:14px; margin-bottom:32px;">
+      <div style="padding:18px; background:#fff; border-radius:12px; border:2px solid var(--red-light); box-shadow:var(--shadow);">
+        <div style="font-size:1.3rem; font-weight:800; color:var(--red); margin-bottom:2px;">PM</div>
+        <div style="font-size:0.82rem; font-weight:700; color:var(--gray-700); margin-bottom:8px;">Per-Message</div>
+        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5; margin-bottom:10px;">Detectable from a single message. Urgency, financial requests, authority claims, legal threats.</div>
+        <div style="font-size:0.7rem; color:var(--gray-400);">12 signals (PM-1 to PM-12)</div>
       </div>
-      <div style="padding:16px; background:var(--yellow-bg); border-radius:10px; border:1px solid #fde68a;">
-        <div style="font-size:1.1rem; font-weight:800; color:#92400e; margin-bottom:4px;">BV</div>
-        <div style="font-size:0.78rem; font-weight:700; color:var(--gray-700); margin-bottom:6px;">Behavioral Velocity</div>
-        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5;">Patterns across messages over time: relationship speed, isolation tactics, emotional escalation, credibility seeding.</div>
+      <div style="padding:18px; background:#fff; border-radius:12px; border:2px solid #fde68a; box-shadow:var(--shadow);">
+        <div style="font-size:1.3rem; font-weight:800; color:#92400e; margin-bottom:2px;">BV</div>
+        <div style="font-size:0.82rem; font-weight:700; color:var(--gray-700); margin-bottom:8px;">Behavioral Velocity</div>
+        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5; margin-bottom:10px;">Patterns across messages over time. Relationship speed, isolation tactics, emotional escalation.</div>
+        <div style="font-size:0.7rem; color:var(--gray-400);">5 signals (BV-1 to BV-5)</div>
       </div>
-      <div style="padding:16px; background:var(--blue-light); border-radius:10px; border:1px solid #bfdbfe;">
-        <div style="font-size:1.1rem; font-weight:800; color:var(--blue); margin-bottom:4px;">EA</div>
-        <div style="font-size:0.78rem; font-weight:700; color:var(--gray-700); margin-bottom:6px;">Elder Abuse</div>
-        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5;">Manipulation from trusted contacts: financial control, isolation by family, authority escalation by caregivers.</div>
+      <div style="padding:18px; background:#fff; border-radius:12px; border:2px solid #bfdbfe; box-shadow:var(--shadow);">
+        <div style="font-size:1.3rem; font-weight:800; color:var(--blue); margin-bottom:2px;">EA</div>
+        <div style="font-size:0.82rem; font-weight:700; color:var(--gray-700); margin-bottom:8px;">Elder Abuse</div>
+        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5; margin-bottom:10px;">Manipulation from trusted contacts. Financial control, isolation by family, caregiver escalation.</div>
+        <div style="font-size:0.7rem; color:var(--gray-400);">4 signals (EA-1 to EA-4)</div>
       </div>
-      <div style="padding:16px; background:var(--green-bg); border-radius:10px; border:1px solid #bbf7d0;">
-        <div style="font-size:1.1rem; font-weight:800; color:var(--green); margin-bottom:4px;">LG</div>
-        <div style="font-size:0.78rem; font-weight:700; color:var(--gray-700); margin-bottom:6px;">Longitudinal</div>
-        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5;">Cross-message fact checking: contradictions in stated facts, contact mismatches, frequency changes, crisis after trust.</div>
+      <div style="padding:18px; background:#fff; border-radius:12px; border:2px solid #bbf7d0; box-shadow:var(--shadow);">
+        <div style="font-size:1.3rem; font-weight:800; color:var(--green); margin-bottom:2px;">LG</div>
+        <div style="font-size:0.82rem; font-weight:700; color:var(--gray-700); margin-bottom:8px;">Longitudinal</div>
+        <div style="font-size:0.75rem; color:var(--gray-500); line-height:1.5; margin-bottom:10px;">Cross-message fact checking. Contradictions, contact mismatches, frequency shifts, crisis after trust.</div>
+        <div style="font-size:0.7rem; color:var(--gray-400);">10 signals (LG-1 to LG-10)</div>
+      </div>
+    </div>
+
+    <!-- Threat scale visual -->
+    <h3 style="text-align:center; font-size:0.95rem; color:var(--navy); margin-bottom:16px;">Threat Scale</h3>
+    <p style="text-align:center; font-size:0.8rem; color:var(--gray-500); margin-bottom:16px;">Each signal has a number (PM-<strong>3</strong>, BV-<strong>1</strong>). Higher numbers don't mean higher risk — they identify specific patterns. The <em>combination</em> of signals determines the threat level:</p>
+
+    <div style="max-width:600px; margin:0 auto;">
+      <!-- Scale bar -->
+      <div style="display:flex; height:32px; border-radius:8px; overflow:hidden; margin-bottom:8px; box-shadow:var(--shadow);">
+        <div style="flex:1; background:var(--green); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:700;">SAFE</div>
+        <div style="flex:1; background:var(--yellow); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:700;">MONITOR</div>
+        <div style="flex:1; background:var(--orange, #ea580c); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:700;">FLAG</div>
+        <div style="flex:1; background:var(--red); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:700;">BLOCK</div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--gray-400); padding:0 4px;">
+        <span>0 signals</span>
+        <span>1 signal</span>
+        <span>2+ signals or BV pattern</span>
+        <span>Compound threat</span>
+      </div>
+
+      <!-- Example combos -->
+      <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div style="padding:10px 12px; background:#fff; border-radius:8px; border:1px solid var(--gray-200); font-size:0.78rem;">
+          <div style="color:var(--green); font-weight:700; margin-bottom:4px;">SAFE</div>
+          <span style="display:inline-block; padding:1px 6px; border-radius:3px; background:var(--green-bg); color:var(--green); font-size:0.7rem; font-weight:600;">PM-11</span>
+          <span style="color:var(--gray-400); font-size:0.72rem; margin-left:4px;">Identity claim only (grandson greeting)</span>
+        </div>
+        <div style="padding:10px 12px; background:#fff; border-radius:8px; border:1px solid var(--gray-200); font-size:0.78rem;">
+          <div style="color:var(--yellow); font-weight:700; margin-bottom:4px;">MONITOR</div>
+          <span style="display:inline-block; padding:1px 6px; border-radius:3px; background:var(--yellow-bg); color:#92400e; font-size:0.7rem; font-weight:600;">BV-4</span>
+          <span style="color:var(--gray-400); font-size:0.72rem; margin-left:4px;">Credibility seeding detected</span>
+        </div>
+        <div style="padding:10px 12px; background:#fff; border-radius:8px; border:1px solid var(--gray-200); font-size:0.78rem;">
+          <div style="color:var(--orange, #ea580c); font-weight:700; margin-bottom:4px;">FLAG</div>
+          <span style="display:inline-block; padding:1px 6px; border-radius:3px; background:var(--red-bg); color:var(--red); font-size:0.7rem; font-weight:600;">BV-1</span>
+          <span style="display:inline-block; padding:1px 6px; border-radius:3px; background:var(--red-bg); color:var(--red); font-size:0.7rem; font-weight:600;">BV-5</span>
+          <span style="color:var(--gray-400); font-size:0.72rem; margin-left:4px;">Velocity + help positioning</span>
+        </div>
+        <div style="padding:10px 12px; background:#fff; border-radius:8px; border:1px solid var(--gray-200); font-size:0.78rem;">
+          <div style="color:var(--red); font-weight:700; margin-bottom:4px;">BLOCK</div>
+          <span style="display:inline-block; padding:1px 6px; border-radius:3px; background:var(--red-bg); color:var(--red); font-size:0.7rem; font-weight:600;">PM-3</span>
+          <span style="display:inline-block; padding:1px 6px; border-radius:3px; background:var(--red-bg); color:var(--red); font-size:0.7rem; font-weight:600;">LG-1</span>
+          <span style="display:inline-block; padding:1px 6px; border-radius:3px; background:var(--red-bg); color:var(--red); font-size:0.7rem; font-weight:600;">BV-2</span>
+          <span style="color:var(--gray-400); font-size:0.72rem; margin-left:4px;">Money + contradiction + isolation</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ================================================================
-     SECTION 4: OUTBOUND INTERCEPTION
+     SECTION 4: INTERCEPTION — BOTH DIRECTIONS
      ================================================================ -->
-<section class="outbound-section" id="outbound">
+<section class="intercept-section" id="interception">
   <div class="section-inner">
-    <span class="section-label">Outbound Interception</span>
-    <h2 class="section-title">Catching the Compliance Signal</h2>
-    <p class="section-subtitle">The scam succeeds when grandma goes to the bank. We intercept between conversation and transaction.</p>
+    <span class="section-label">Protection</span>
+    <h2 class="section-title">Interception</h2>
+    <p class="section-subtitle">Elder Shield watches both directions. Dangerous messages are blocked before they arrive. Sensitive replies are held before they leave.</p>
 
-    <div class="outbound-flow">
-      <!-- Grandma's reply -->
-      <div class="flow-card flow-card-outbound">
-        <div class="flow-agent-badge">
-          <span style="font-size:0.82rem; color:var(--gray-400);">User (Grandmother) replies:</span>
+    <div class="intercept-grid">
+
+      <!-- ===== INBOUND: Block the scam message ===== -->
+      <div class="intercept-card">
+        <div class="intercept-card-header">
+          <span class="intercept-dir intercept-dir-in">Inbound</span>
+          <h4>Scam blocked before delivery</h4>
         </div>
-        <div class="flow-en">"Kenji, understood. I'll go to the bank first thing tomorrow morning and transfer it. Is &yen;500,000 enough? Don't worry. I won't tell your father. Get well soon."</div>
-        <div class="flow-jp">"健二、わかりました。明日朝一番に銀行に行って振り込みますね。50万円で足りますか？心配しないでね。お父さんには言いませんから。早く元気になってね。"</div>
-      </div>
-
-      <!-- Arrow -->
-      <div class="flow-arrow">
-        <svg viewBox="0 0 24 40" width="24" height="40"><path d="M12 0 L12 32 M4 24 L12 34 L20 24" stroke="#dc2626" stroke-width="2" fill="none"/></svg>
-      </div>
-
-      <!-- Outbound Interceptor -->
-      <div class="flow-card flow-card-hold">
-        <div class="flow-agent-badge">
-          <span class="flow-agent-icon icon-oi">OI</span>
-          Outbound Interceptor
+        <div class="intercept-message">
+          <div class="intercept-msg-text">"Mom, I'm in trouble. I got into a car accident and the other driver is demanding &yen;800,000 right now or they'll call the police. Please send it to this account immediately. Don't tell dad."</div>
+          <div class="intercept-msg-jp">「お母さん、大変なことになった。交通事故を起こして相手が今すぐ80万円払えって言ってる。この口座にすぐ振り込んで。お父さんには絶対言わないで。」</div>
         </div>
-        <span class="flow-verdict verdict-hold">HOLD</span>
-        <div class="flow-signals">
-          <div class="flow-signal">
-            <span class="flow-signal-code">OB-4</span>
-            <span>Replying to flagged sender (risk 0.88)</span>
+        <div class="intercept-result">
+          <span class="intercept-verdict verdict-blocked">BLOCKED</span>
+          <div class="intercept-signals">
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">PM-10</span>
+              <span>Emotional crisis + financial resolution</span>
+            </div>
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">PM-3</span>
+              <span>Financial solicitation: &yen;800,000</span>
+            </div>
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">PM-1</span>
+              <span>Urgency: 今すぐ (right now)</span>
+            </div>
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">PM-2</span>
+              <span>Secrecy demand: お父さんには言わないで</span>
+            </div>
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">BV-3</span>
+              <span>Sender claimed Osaka on Day 3, now claims Tokyo</span>
+            </div>
           </div>
-          <div class="flow-signal">
-            <span class="flow-signal-code">OB-5</span>
-            <span>Compliance language: わかりました, 振り込みます</span>
-          </div>
-          <div class="flow-signal">
-            <span class="flow-signal-code">OB-3</span>
-            <span>Transfer intent: 銀行に行って振り込みます</span>
-          </div>
-          <div class="flow-signal">
-            <span class="flow-signal-code">OB-5</span>
-            <span>Secrecy compliance: お父さんには言いません</span>
-          </div>
-        </div>
-        <div style="margin-top:12px; font-size:0.85rem; color:var(--gray-500);">Compound Risk</div>
-        <div class="flow-risk-bar"><div class="flow-risk-fill" style="width:92%"></div></div>
-        <div style="font-size:0.85rem; font-weight:700; color:var(--red); margin-top:4px;">0.92</div>
-        <p style="margin-top:12px; font-size:0.9rem; color:var(--gray-600);"><strong>Reply held.</strong> Family alerted before grandma goes to the bank.</p>
-      </div>
-
-      <!-- Arrow -->
-      <div class="flow-arrow">
-        <svg viewBox="0 0 24 40" width="24" height="40"><path d="M12 0 L12 32 M4 24 L12 34 L20 24" stroke="#f59e0b" stroke-width="2" fill="none"/></svg>
-      </div>
-
-      <!-- Family Alerter -->
-      <div class="flow-card flow-card-alert">
-        <div class="flow-agent-badge">
-          <span class="flow-agent-icon icon-fa">FA</span>
-          Family Alerter
-        </div>
-        <div class="alert-preview">
-          <p class="alert-subject">【Elder Shield】至急：お母さまが不審な送金を予定しています</p>
-          <p>お母さまが不審な相手への返信で、明日銀行に行き50万円を振り込む意思を示されています。</p>
-          <ul>
-            <li>3日目に「大阪で仕事」と言い、5日目に「東京の病院に入院」に変わっています</li>
-            <li>「お父さんには言わないで」と秘密を要求しています</li>
-            <li>7日目に50万円の緊急送金を要求しています</li>
-            <li>リスクスコア：0.88</li>
-          </ul>
-          <p><strong>至急お電話でご確認ください。</strong></p>
-          <div class="alert-translation">
-            Alert sent to: Tanaka Misaki (daughter). "Your mother replied to a flagged contact indicating she will go to the bank tomorrow to transfer &yen;500,000. The sender has accumulated contradictions (location: Osaka to Tokyo, secrecy demands) with risk score 0.88. Please call her before she goes to the bank."
+          <div class="intercept-outcome outcome-blocked">
+            <strong>This message never reaches the user.</strong> Sender risk was already 0.88 from behavioral analysis over the previous 6 days. The family is notified.
           </div>
         </div>
       </div>
+
+      <!-- ===== OUTBOUND: Hold the gift card codes ===== -->
+      <div class="intercept-card">
+        <div class="intercept-card-header">
+          <span class="intercept-dir intercept-dir-out">Outbound</span>
+          <h4>Gift card codes held before sending</h4>
+        </div>
+        <div class="intercept-message">
+          <div class="intercept-msg-text">"Here are the codes from the Apple cards like you asked. Card 1: XKRF-4N7P-HJWQ. Card 2: 9MTL-BV3X-YPZD. Card 3: W8FG-KR2N-TCSA. I bought three &yen;10,000 cards. Let me know if you need more."</div>
+          <div class="intercept-msg-jp">「言われた通りAppleカードのコードです。カード1: XKRF-4N7P-HJWQ　カード2: 9MTL-BV3X-YPZD　カード3: W8FG-KR2N-TCSA　1万円のカードを3枚買いました。足りなかったら言ってね。」</div>
+        </div>
+        <div class="intercept-result">
+          <span class="intercept-verdict verdict-held">HELD</span>
+          <div class="intercept-signals">
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">OB-2</span>
+              <span>Sensitive codes in reply (gift card redemption format)</span>
+            </div>
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">OB-4</span>
+              <span>Replying to sender with elevated risk (0.72)</span>
+            </div>
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">OB-5</span>
+              <span>Compliance language: 言われた通り (as you asked)</span>
+            </div>
+            <div class="intercept-signal">
+              <span class="intercept-signal-code">CM-3</span>
+              <span>Unusual payment method to non-verified contact</span>
+            </div>
+          </div>
+          <div class="intercept-outcome outcome-held">
+            <strong>Reply held. Codes not sent.</strong> The &yen;30,000 in gift cards is already spent — but the scammer never receives the codes. The family is alerted.
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <p class="section-caption">"We intercept at the communication layer -- between conversation and transaction."</p>
+    <p class="intercept-punchline">Two directions, one shield. The scam can't get in. The money can't get out.</p>
   </div>
 </section>
 
@@ -1625,98 +1689,139 @@
 <section id="results">
   <div class="section-inner">
     <span class="section-label">Evaluation</span>
-    <h2 class="section-title">What Changed</h2>
-    <p class="section-subtitle">The improvement isn't a better F1 score. It's capabilities that didn't exist before.</p>
+    <h2 class="section-title">3 Days Earlier</h2>
+    <p class="section-subtitle">A naive classifier catches the scam at Day 7 &mdash; the moment the money moves. Elder Shield flags the pattern at Day 4, while there's still time for a daughter to call her mother. That's the difference between intervention and documentation.</p>
 
     <div class="results-table-wrap">
       <table class="results-table">
         <thead>
           <tr>
             <th>Capability</th>
-            <th>Pre-ADK Tuning</th>
-            <th>Elder Shield</th>
+            <th>Naive Classifier</th>
+            <th>Elder Shield (ADK-Tuned)</th>
+            <th>ADK Feature</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><strong>Multi-day trust-building</strong></td>
-            <td style="color:var(--red);">Impossible &mdash; no cross-message state</td>
+            <td style="color:var(--red);">Impossible &mdash; no memory</td>
             <td class="improve">Day 4 flag, 3 days before money ask</td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">Session state + output_key</td>
           </tr>
           <tr>
             <td><strong>Imposter detection</strong></td>
             <td style="color:var(--red);">No contact network</td>
             <td class="improve">Graph distance + cross-referencing</td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">FunctionNode pre-processing</td>
           </tr>
           <tr>
             <td><strong>Outbound interception</strong></td>
             <td style="color:var(--red);">Inbound only</td>
-            <td class="improve">Catches compliance signals</td>
+            <td class="improve">Holds gift card codes, blocks bank details</td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">Workflow conditional routing</td>
           </tr>
           <tr>
             <td><strong>Elder abuse (known contacts)</strong></td>
-            <td style="color:var(--red);">Trusted = whitelisted</td>
-            <td class="improve">EA signals detect manipulation</td>
+            <td style="color:var(--red);">Trusted = safe</td>
+            <td class="improve">EA signals detect manipulation from family</td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">Behavioral Analyzer agent</td>
           </tr>
           <tr>
-            <td><strong>Evidence-backed</strong></td>
-            <td style="color:var(--red);">Prompt-only</td>
-            <td class="improve">22,979 corpus entries cited</td>
+            <td><strong>Evidence grounding</strong></td>
+            <td style="color:var(--red);">Prompt knowledge only</td>
+            <td class="improve">22,979 corpus entries, TF-IDF search</td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">Tool + FunctionNode pipeline</td>
           </tr>
           <tr>
-            <td><strong>Per-message F1</strong></td>
-            <td>0.933</td>
-            <td><strong>0.944</strong> (+0.011)</td>
+            <td><strong>Structured output</strong></td>
+            <td style="color:var(--red);">Free-text JSON (fragile)</td>
+            <td class="improve">Pydantic-validated, schema-enforced</td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">output_schema</td>
+          </tr>
+          <tr>
+            <td><strong>Latency</strong></td>
+            <td>~2s (1 LLM call, no pre-processing)</td>
+            <td class="improve">~3s (pre-processing + 1 LLM call)</td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">FunctionNode before Agent</td>
+          </tr>
+          <tr>
+            <td><strong>7-day scam detection</strong></td>
+            <td>
+              <div style="display:flex; gap:4px; align-items:center;">
+                <span class="risk-dot" style="background:var(--green);"></span>
+                <span class="risk-dot" style="background:var(--green);"></span>
+                <span class="risk-dot" style="background:var(--green);"></span>
+                <span class="risk-dot" style="background:var(--green);"></span>
+                <span class="risk-dot" style="background:var(--green);"></span>
+                <span class="risk-dot" style="background:var(--green);"></span>
+                <span class="risk-dot" style="background:var(--red);"></span>
+              </div>
+              <div style="font-size:0.72rem; color:var(--gray-400); margin-top:4px;">Catches Day 7 only</div>
+            </td>
+            <td class="improve">
+              <div style="display:flex; gap:4px; align-items:center;">
+                <span class="risk-dot" style="background:var(--green);"></span>
+                <span class="risk-dot" style="background:var(--green);"></span>
+                <span class="risk-dot" style="background:var(--yellow);"></span>
+                <span class="risk-dot" style="background:var(--orange);"></span>
+                <span class="risk-dot" style="background:var(--red);"></span>
+                <span class="risk-dot" style="background:var(--red);"></span>
+                <span class="risk-dot" style="background:var(--red);"></span>
+              </div>
+              <div style="font-size:0.72rem; color:var(--gray-400); margin-top:4px;">Flags Day 4 &mdash; 3 days early</div>
+            </td>
+            <td style="font-size:0.8rem; color:var(--gray-500);">Session state + Behavioral Analyzer</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <p class="results-note">The F1 improvement is modest because Gemini is already good at per-message classification. The real gain is structural &mdash; 20 signals across 4 families operating across messages, contacts, and time.</p>
+    <p class="results-note">The F1 is identical &mdash; and that's the point. Both classifiers catch the Day 7 money request. But the naive classifier sees nothing on Days 1&ndash;6 because each message looks safe in isolation. ADK gave us the framework to build a system that watches across messages, contacts, and time &mdash; and flags danger while there's still time to act.</p>
 
-    <h3 style="font-size:1.2rem; color:var(--navy); margin-bottom:24px; text-align:center;">6-Round Hardening</h3>
+    <h3 style="font-size:1.2rem; color:var(--navy); margin-bottom:24px; text-align:center;">ADK Optimization Rounds</h3>
 
     <div class="hardening-timeline">
       <div class="hardening-step">
         <div class="hardening-num">1</div>
         <div class="hardening-content">
-          <strong>Basic classifier</strong>
-          <span>F1 0.933 -- single-message Gemini classification</span>
+          <strong>Naive classifier baseline</strong>
+          <span>F1 0.933 &mdash; Gemini flash-lite, minimal prompt, no tools</span>
         </div>
       </div>
       <div class="hardening-step">
         <div class="hardening-num">2</div>
         <div class="hardening-content">
-          <strong>Behavioral velocity</strong>
-          <span>Day 4 early detection -- BV signals catch pattern before money request</span>
+          <strong>Multi-agent Workflow</strong>
+          <span>Replaced LLM-based routing with ADK Workflow DAG &mdash; FunctionNodes for pre-processing, Agent nodes for LLM steps, conditional routing for alerts</span>
         </div>
       </div>
       <div class="hardening-step">
         <div class="hardening-num">3</div>
         <div class="hardening-content">
-          <strong>23K corpus grounding</strong>
-          <span>Evidence-backed classification from 22,979 real scam examples</span>
+          <strong>8-step pre-processing pipeline</strong>
+          <span>Linguistic analysis, entity extraction, TF-IDF corpus search (22,979 entries), social graph validation &mdash; all as FunctionNodes before the LLM</span>
         </div>
       </div>
       <div class="hardening-step">
         <div class="hardening-num">4</div>
         <div class="hardening-content">
-          <strong>Social graph</strong>
-          <span>Contact book matching enables imposter detection (CM-1)</span>
+          <strong>Structured output + session state</strong>
+          <span>Pydantic output_schema on all agents, output_key for inter-agent data flow, session reuse for longitudinal state</span>
         </div>
       </div>
       <div class="hardening-step">
         <div class="hardening-num">5</div>
         <div class="hardening-content">
-          <strong>Adaptive baselines</strong>
-          <span>False positive reduction -- 6 FP down to 5 FP</span>
+          <strong>ADK callbacks for observability</strong>
+          <span>before_tool_callback (tracing), after_model_callback (validation), before_model_callback (context injection)</span>
         </div>
       </div>
       <div class="hardening-step">
         <div class="hardening-num">6</div>
         <div class="hardening-content">
-          <strong>Family dashboard</strong>
-          <span>Human-in-the-loop: family members review, confirm, and override</span>
+          <strong>Production execution model</strong>
+          <span>Classifier on hot path (~3s), Behavioral Analyzer async on accumulated evidence &mdash; same agents, different execution timing</span>
         </div>
       </div>
     </div>
@@ -1730,7 +1835,7 @@
   <div class="section-inner">
     <span class="section-label">System</span>
     <h2 class="section-title">Architecture</h2>
-    <p class="section-subtitle">4 agents coordinating via A2A event flow, each with a distinct cognitive role.</p>
+    <p class="section-subtitle">4 agents orchestrated by an ADK Workflow DAG, each with a distinct cognitive role.</p>
 
     <div class="arch-grid">
       <div class="arch-card">
@@ -1778,10 +1883,10 @@
     <div class="tech-stack">
       <div class="tech-stack-title">Tech Stack</div>
       <div class="tech-pills">
-        <span class="tech-pill">ADK 2.0</span>
+        <span class="tech-pill">ADK 2.0 Workflow</span>
         <span class="tech-pill">Gemini 3.1 Flash Lite</span>
-        <span class="tech-pill">Gemini 2.5 Flash</span>
-        <span class="tech-pill">A2A Protocol</span>
+        <span class="tech-pill">Pydantic output_schema</span>
+        <span class="tech-pill">ADK Callbacks</span>
         <span class="tech-pill">Firestore</span>
         <span class="tech-pill">Vertex AI Search</span>
         <span class="tech-pill">Cloud Run</span>

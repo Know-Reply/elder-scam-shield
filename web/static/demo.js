@@ -276,6 +276,9 @@
 
     // Keyboard navigation
     document.addEventListener('keydown', function (e) {
+      // Don't intercept arrows when typing in inputs/textareas
+      var tag = document.activeElement && document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault();
         if (currentScene === 2) {

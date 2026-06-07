@@ -1,6 +1,5 @@
 """Unit tests for Inbound Classifier agent tools and classification logic."""
 
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -16,9 +15,7 @@ from tests.conftest import FakeDocRef, FakeDocSnapshot
 @pytest.fixture(autouse=True)
 def _patch_firestore(monkeypatch):
     mock_client = MagicMock()
-    monkeypatch.setattr(
-        "google.cloud.firestore.Client", lambda *a, **kw: mock_client
-    )
+    monkeypatch.setattr("agents.inbound_classifier.db", mock_client)
     return mock_client
 
 
@@ -55,21 +52,6 @@ class TestWriteClassification:
     def test_writes_scam_classification(self, _patch_firestore):
         from agents.inbound_classifier import write_classification
 
-        classification = json.dumps({
-            "classification": "scam",
-            "confidence": 0.95,
-            "detected_signals": ["PM-6", "PM-3"],
-            "extracted_facts": {
-                "claimed_name": None,
-                "claimed_relationship": None,
-                "claimed_location": None,
-                "claimed_institution": "税務署",
-                "financial_mention": {"amount": "300,000", "urgency": "high"},
-                "other_facts": [],
-            },
-            "reasoning": "Fictitious billing with legal threat and financial demand.",
-        })
-
         mock_set = MagicMock()
         (_patch_firestore.collection.return_value
          .document.return_value
@@ -82,7 +64,17 @@ class TestWriteClassification:
             user_id="user-001",
             sender_id="scammer@example.com",
             message_id="msg-001",
-            classification_result=classification,
+            classification="scam",
+            confidence=0.95,
+            detected_signals=["PM-6", "PM-3"],
+            extracted_facts={
+                "claimed_name": None,
+                "claimed_relationship": None,
+                "claimed_location": None,
+                "claimed_institution": "税務署",
+                "financial_mention": {"amount": "300,000", "urgency": "high"},
+                "other_facts": [],
+            },
         )
 
         assert result["status"] == "written"
@@ -90,21 +82,6 @@ class TestWriteClassification:
 
     def test_writes_safe_classification_with_facts(self, _patch_firestore):
         from agents.inbound_classifier import write_classification
-
-        classification = json.dumps({
-            "classification": "safe",
-            "confidence": 0.90,
-            "detected_signals": [],
-            "extracted_facts": {
-                "claimed_name": "健二",
-                "claimed_relationship": "grandson",
-                "claimed_location": "大阪",
-                "claimed_institution": None,
-                "financial_mention": None,
-                "other_facts": ["says he started a new job"],
-            },
-            "reasoning": "Casual message from someone claiming to be grandson. No threat signals.",
-        })
 
         mock_set = MagicMock()
         (_patch_firestore.collection.return_value
@@ -118,7 +95,17 @@ class TestWriteClassification:
             user_id="user-001",
             sender_id="kenji@example.com",
             message_id="msg-002",
-            classification_result=classification,
+            classification="safe",
+            confidence=0.90,
+            detected_signals=[],
+            extracted_facts={
+                "claimed_name": "健二",
+                "claimed_relationship": "grandson",
+                "claimed_location": "大阪",
+                "claimed_institution": None,
+                "financial_mention": None,
+                "other_facts": ["says he started a new job"],
+            },
         )
 
         assert result["status"] == "written"
@@ -134,8 +121,8 @@ class TestPublishClassifiedEvent:
             sender_id="scammer@example.com",
             classification="scam",
             confidence=0.95,
-            extracted_facts=json.dumps({"claimed_institution": "税務署"}),
-            detected_signals=json.dumps(["PM-6", "PM-3"]),
+            extracted_facts={"claimed_institution": "税務署"},
+            detected_signals=["PM-6", "PM-3"],
         )
 
         assert result["event"] == "message.classified"
@@ -152,8 +139,8 @@ class TestPublishClassifiedEvent:
             sender_id="kenji@example.com",
             classification="safe",
             confidence=0.88,
-            extracted_facts=json.dumps(facts),
-            detected_signals=json.dumps([]),
+            extracted_facts=facts,
+            detected_signals=[],
         )
 
         assert result["classification"] == "safe"
@@ -171,11 +158,11 @@ class TestIdentityClaimDetection:
             sender_id="unknown@example.com",
             classification="suspicious",
             confidence=0.60,
-            extracted_facts=json.dumps({
+            extracted_facts={
                 "claimed_name": "健二",
                 "claimed_relationship": "grandson",
-            }),
-            detected_signals=json.dumps(["PM-11"]),
+            },
+            detected_signals=["PM-11"],
         )
 
         assert "PM-11" in result["detected_signals"]
@@ -194,11 +181,11 @@ class TestMultipleSignalDetection:
             sender_id="invoice-scam@example.com",
             classification="scam",
             confidence=0.97,
-            extracted_facts=json.dumps({
+            extracted_facts={
                 "claimed_institution": "法務省",
                 "financial_mention": {"amount": "980,000", "urgency": "high"},
-            }),
-            detected_signals=json.dumps(signals),
+            },
+            detected_signals=signals,
         )
 
         assert len(result["detected_signals"]) == 3
@@ -214,12 +201,12 @@ class TestMultipleSignalDetection:
             sender_id="impersonator@example.com",
             classification="scam",
             confidence=0.93,
-            extracted_facts=json.dumps({
+            extracted_facts={
                 "claimed_name": "健二",
                 "claimed_relationship": "grandson",
                 "financial_mention": {"amount": "500,000", "urgency": "high"},
-            }),
-            detected_signals=json.dumps(signals),
+            },
+            detected_signals=signals,
         )
 
         assert set(result["detected_signals"]) == {"PM-10", "PM-11", "PM-3"}

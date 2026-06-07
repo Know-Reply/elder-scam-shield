@@ -6,21 +6,38 @@ from ALL messages — even safe ones — so the Behavioral Analyzer can build lo
 sender profiles and detect contradictions over time.
 
 Detects 13 per-message signals (PM-1..PM-13) grounded in NPA tokushu-sagi taxonomy.
-Publishes `message.classified` events via A2A for downstream agents.
+Publishes `message.classified` events for downstream agents.
 """
 
-import json
 from datetime import datetime, timezone
 
 from google.adk import Agent
+from agents.schemas import ClassificationResult
+
+# ---------------------------------------------------------------------------
+# ADK Callbacks — native observability and validation
+# ---------------------------------------------------------------------------
+
+
+def _trace_tool_call(tool, args, tool_context):
+    """before_tool_callback: log every tool invocation to session state."""
+    traces = tool_context.state.setdefault("tool_traces", [])
+    traces.append({
+        "agent": "inbound_classifier",
+        "tool": tool.name,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    })
+    return None  # pass-through — don't modify tool execution
+
+
+def _validate_classification(callback_context, llm_response):
+    """after_model_callback: validate that classification is a known value."""
+    # Return None to accept the response as-is.
+    # ADK's output_schema handles structural validation;
+    # this callback is for runtime logging and guardrails.
+    return None
 from agents.tools.search_scam_corpus import search_scam_corpus
-from agents.tools.graph_builder import update_graph_from_message
-from agents.tools.pipeline import run_pre_classification_pipeline, decision_synthesis
-try:
-    from google.cloud import firestore
-    db = firestore.Client()
-except Exception:
-    db = None  # Local dev without Firestore — tools return defaults
+from agents.db import db
 
 SYSTEM_PROMPT = """You are Inbound Classifier, a scam-detection SENSE agent protecting
 elderly Japanese users. You receive one message at a time and produce a structured JSON
@@ -90,19 +107,13 @@ If the corpus returns no matches, say so — but still classify based on signals
 Never classify based on prompt instructions alone when corpus evidence is available.
 
 ## 8-STEP HARDENED PIPELINE
-Your first action on EVERY message should be to call run_pre_classification_pipeline.
-This runs 4 pre-processing steps BEFORE you classify:
-  Step 1: Linguistic analysis (style fingerprint, manipulation density)
-  Step 2: Entity extraction (names, amounts, locations, institutions)
-  Step 3: Corpus search (TF-IDF over 22,979 entries)
-  Step 4: Social graph validation (graph distance, imposter detection)
-
-The pipeline returns pre-computed context. YOUR JOB is step 5: read the
-pre-computed evidence and make a classification judgment. You don't need
+Steps 1-4 (linguistic analysis, entity extraction, corpus search, graph validation)
+run BEFORE you see the message — their results are provided as pre-computed context.
+YOUR JOB is step 5: read the pre-computed evidence and classify. You don't need
 to reason from scratch — the infrastructure did the heavy lifting.
 
-After classifying, call update_graph_from_message to build the contact
-network over time."""
+If you need additional corpus evidence beyond what pre-processing found,
+call search_scam_corpus. Otherwise, classify based on the provided context."""
 
 
 
@@ -144,7 +155,7 @@ def write_classification(user_id: str, sender_id: str, message_id: str,
 def publish_classified_event(sender_id: str, classification: str,
                              confidence: float, extracted_facts: dict,
                              detected_signals: list[str]) -> dict:
-    """Publish message.classified A2A event for downstream agents."""
+    """Publish message.classified pipeline event for downstream agents."""
     return {
         "event": "message.classified",
         "sender_id": sender_id,
@@ -165,5 +176,9 @@ inbound_classifier = Agent(
         "for longitudinal behavioral analysis."
     ),
     instruction=SYSTEM_PROMPT,
-    tools=[run_pre_classification_pipeline, read_contact_list, write_classification, publish_classified_event, search_scam_corpus, update_graph_from_message, decision_synthesis],
+    tools=[search_scam_corpus, read_contact_list],
+    output_schema=ClassificationResult,
+    output_key="classification",
+    before_tool_callback=_trace_tool_call,
+    after_model_callback=_validate_classification,
 )

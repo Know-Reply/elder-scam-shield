@@ -10,10 +10,7 @@ Round 4 hardening: social graph validation layer.
 
 from __future__ import annotations
 
-try:
-    from google.cloud import firestore
-except ImportError:
-    firestore = None
+from agents.db import db as _db
 
 # ── Mock graph for local dev ──────────────────────────────────────────
 
@@ -53,12 +50,7 @@ MOCK_GRAPH: dict[str, dict] = {
     }
 }
 
-# ── Firestore handle (falls back to mock) ─────────────────────────────
-
-try:
-    _db = firestore.Client() if firestore else None
-except Exception:
-    _db = None
+# ── Firestore handle (shared client) ──────────────────────────────────
 
 _GRAPHS = _db.collection("social_graphs") if _db else None
 

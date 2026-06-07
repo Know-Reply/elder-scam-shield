@@ -14,13 +14,40 @@ Signals: LG-1..LG-10 (legacy), BV-1..BV-5 (behavioral velocity), EA-1..EA-4 (eld
 from datetime import date, datetime, timezone
 
 from google.adk import Agent
+from agents.schemas import RiskAssessment
+
+
+# ---------------------------------------------------------------------------
+# ADK Callbacks
+# ---------------------------------------------------------------------------
+
+
+def _trace_tool_call(tool, args, tool_context):
+    """before_tool_callback: log tool invocations to session state."""
+    traces = tool_context.state.setdefault("tool_traces", [])
+    traces.append({
+        "agent": "behavioral_analyzer",
+        "tool": tool.name,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    })
+    return None
+
+
+def _inject_sender_context(callback_context, llm_request):
+    """before_model_callback: enrich the LLM prompt with sender profile
+    data from session state, so the model has full longitudinal context."""
+    classification = callback_context.state.get("classification")
+    if classification and isinstance(classification, dict):
+        llm_request.append_instructions([
+            f"Prior classification: {classification.get('classification', 'unknown')} "
+            f"(confidence {classification.get('confidence', 0):.2f}). "
+            f"Signals: {', '.join(classification.get('detected_signals', []))}."
+        ])
+    return None
 from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
 from agents.tools.social_graph import validate_social_graph
 from agents.tools.graph_builder import update_graph_from_message, check_cross_references
-try:
-    from google.cloud import firestore
-except ImportError:
-    firestore = None
+from agents.db import db as _shared_db
 
 import json as _json
 from pathlib import Path as _Path
@@ -79,12 +106,9 @@ _total = sum(SIGNAL_WEIGHTS.values())
 if _total > 0:
     SIGNAL_WEIGHTS = {k: round(v / _total, 4) for k, v in SIGNAL_WEIGHTS.items()}
 
-# ── Firestore (optional for local dev) ──────────────────────────────────
+# ── Firestore (shared client) ───────────────────────────────────────────
 
-try:
-    db = firestore.Client() if firestore else None
-except Exception:
-    db = None
+db = _shared_db
 PROFILES = db.collection("sender_profiles") if db else None
 CONTACTS = db.collection("user_contacts") if db else None
 RISK_EVENTS = db.collection("risk_events") if db else None
@@ -455,7 +479,7 @@ def publish_risk_assessment(
     behavioral_velocity: dict = None,
     abuse_indicators: dict = None,
 ) -> dict:
-    """Publish sender.risk_updated event via A2A for downstream agents."""
+    """Publish sender.risk_updated event for downstream agents."""
     event = {
         "event_type": "sender.risk_updated",
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -499,4 +523,8 @@ behavioral_analyzer = Agent(
         check_cross_references,
     ],
     sub_agents=[],
+    output_schema=RiskAssessment,
+    output_key="risk_assessment",
+    before_tool_callback=_trace_tool_call,
+    before_model_callback=_inject_sender_context,
 )

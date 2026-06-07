@@ -22,11 +22,7 @@ from __future__ import annotations
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-try:
-    from google.cloud import firestore
-    _db = firestore.Client()
-except Exception:
-    _db = None
+from agents.db import db as _db
 
 
 # ── Confidence thresholds ───────────────────────────────────────────────
