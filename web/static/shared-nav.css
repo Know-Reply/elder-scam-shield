@@ -1,32 +1,47 @@
-/* Shared navigation + tab bar for all simulator pages */
+/* Shared navigation + tab bar for all simulator pages.
+   Fully self-contained — does not inherit font, line-height,
+   or box-sizing from the host page's styles. */
 
-/* Ensure consistent body layout */
 body.sim-page {
   height: 100vh;
   display: flex;
   flex-direction: column;
   margin: 0;
+  padding: 0;
 }
+
+/* ── Nav bar ─────────────────────────────────────────── */
 
 .sim-nav {
   background: #0f172a;
   position: sticky;
   top: 0;
   z-index: 100;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+.sim-nav *, .sim-nav *::before, .sim-nav *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 .sim-nav-inner {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 12px 24px 0;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 52px;
 }
 .sim-nav-brand {
   color: #fff;
   text-decoration: none;
   font-weight: 800;
   font-size: 0.95rem;
+  line-height: 1;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -35,15 +50,23 @@ body.sim-page {
   display: flex;
   gap: 6px;
   list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sim-nav-links li {
+  margin: 0;
+  padding: 0;
 }
 .sim-nav-links a {
   color: #94a3b8;
   text-decoration: none;
   font-size: 0.82rem;
   font-weight: 500;
-  padding: 6px 14px;
+  line-height: 1;
+  padding: 7px 14px;
   border-radius: 6px;
   transition: all 0.2s;
+  display: inline-block;
 }
 .sim-nav-links a:hover {
   color: #fff;
@@ -59,39 +82,50 @@ body.sim-page {
   background: rgba(255,255,255,0.22);
 }
 
-/* Tab bar — sits between nav and content */
+/* ── Tab bar ─────────────────────────────────────────── */
+
 .sim-tab-bar {
   background: #0f172a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+.sim-tab-bar *, .sim-tab-bar *::before, .sim-tab-bar *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 .sim-tab-bar-inner {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
-  gap: 0;
+  gap: 2px;
   align-items: flex-end;
-  height: 42px;
+  height: 40px;
 }
 .sim-tab {
   padding: 9px 28px;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
+  font-family: inherit;
+  line-height: 1;
   text-decoration: none;
-  border-radius: 10px 10px 0 0;
+  border-radius: 8px 8px 0 0;
   transition: all 0.15s;
   display: inline-flex;
   align-items: center;
+  box-sizing: border-box;
 }
 .sim-tab-active {
   background: #fff;
   color: #0f172a;
   font-weight: 700;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
 }
 .sim-tab-inactive {
   background: rgba(255,255,255,0.06);
   color: #64748b;
-  margin-right: 2px;
 }
 .sim-tab-inactive:hover {
   background: rgba(255,255,255,0.14);
