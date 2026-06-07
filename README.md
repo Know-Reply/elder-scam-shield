@@ -93,7 +93,7 @@ Six rounds of iterative hardening, each compounding on the last:
 | 4 | Social graph validation | Imposter detection against contact network | Agent Simulation |
 | 5 | Adaptive baselines + elder abuse signals (EA-1..4) | False positive reduction (6 to 5) | Memory Bank |
 | 6 | Family safety dashboard | Human-in-the-loop proof of intervention | -- |
-| 7 | 7-step pipeline (linguistic + TF-IDF + graph + contra-indicators → LLM classification + entity extraction → behavioral → synthesis) | Same F1 on cheapest model, 5 new capabilities | Agent Observability |
+| 7 | Pre-processing pipeline (linguistic + TF-IDF + graph + contra-indicators → LLM classification) | Same F1 on cheapest model, 5 new capabilities | Agent Observability |
 
 ### How ADK tools drove the optimization
 

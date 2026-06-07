@@ -1,19 +1,22 @@
-"""Multi-step hardened pipeline — pre-processing + LLM judgment.
+"""Pre-classification pipeline — context the LLM can't compute itself.
 
-Pre-processing runs BEFORE the LLM classifier, providing linguistic
-analysis, corpus matches, graph validation, and contra-indicators
-as context. The LLM extracts entities and classifies — entity extraction
-is the LLM's job, not regex.
+Three pre-processing steps run BEFORE the LLM, providing evidence
+from infrastructure (corpus, graph, structural analysis). The LLM
+then classifies and extracts entities — that's its job, not regex.
 
-Steps:
-  1. Linguistic Analysis    (structural NLP, no LLM)
-  2. Corpus Search          (TF-IDF over 22,979 entries)
-  3. Social Graph Validation
-  3.5 Contra-Indicator Check
-  4. Per-Message Classification + Entity Extraction (LLM)
-  5. Sender Profile Update
-  6. Behavioral Velocity Scoring
-  7. Decision Synthesis + Action Routing
+Pre-LLM steps (pure Python, ~50ms, no API calls):
+  1. Linguistic Analysis       — manipulation density, style fingerprint
+  2. Corpus Search             — TF-IDF over 22,979 entries
+  3. Social Graph Validation   — contact verification, imposter detection
+  3.5 Contra-Indicator Check   — evidence FOR legitimacy, not just against
+
+LLM step (Gemini flash-lite, ~0.9s):
+  4. Classification + Entity Extraction — output_schema enforced
+
+Post-classification (separate agents in Workflow):
+  - Behavioral Analyzer — longitudinal profiling (async)
+  - Family Alerter — conditional on risk > 0.6
+  - Conversation Knowledge Graph — provenance tracking
 """
 
 import re
@@ -137,136 +140,6 @@ def linguistic_analysis(text: str, sender_style_baseline: dict = None) -> dict:
         "manipulation": manipulation,
         "style_deviation": style_deviation,
         "style_deviation_flag": style_deviation > 0.5,
-    }
-
-
-# ── Step 7: Decision Synthesis ──────────────────────────────────────────
-
-def decision_synthesis(
-    linguistic: dict,
-    corpus_matches: list,
-    graph_validation: dict,
-    classification: dict,
-    behavioral_risk: float,
-    behavioral_signals: list,
-) -> dict:
-    """Step 8: Combine ALL signal layers into compound risk score with evidence chain.
-
-    Takes outputs from all previous steps and produces:
-    - Final compound risk score
-    - Complete evidence chain citing every contributing signal
-    - Action routing (PASS / FLAG / HOLD / BLOCK)
-    """
-
-    evidence_chain = []
-
-    # Linguistic signals
-    manip = linguistic.get("manipulation", {})
-    if manip.get("manipulation_density", 0) > 0.3:
-        evidence_chain.append({
-            "source": "linguistic_analysis",
-            "signal": "high_manipulation_density",
-            "value": manip["manipulation_density"],
-            "detail": f"Manipulation signals: {', '.join(manip.get('manipulation_signals', []))}",
-        })
-    if linguistic.get("style_deviation_flag"):
-        evidence_chain.append({
-            "source": "linguistic_analysis",
-            "signal": "style_deviation",
-            "value": linguistic["style_deviation"],
-            "detail": "Writing style deviates significantly from sender baseline",
-        })
-
-    # Corpus evidence
-    scam_matches = [m for m in corpus_matches if m.get("label") == "scam"]
-    if scam_matches:
-        evidence_chain.append({
-            "source": "corpus_search",
-            "signal": "corpus_scam_matches",
-            "value": len(scam_matches),
-            "detail": f"{len(scam_matches)} similar scam messages found in {corpus_matches[0].get('source', 'corpus')}",
-        })
-
-    # Graph signals
-    graph_mod = graph_validation.get("graph_risk_modifier", 0)
-    if graph_mod > 0:
-        evidence_chain.append({
-            "source": "graph_validation",
-            "signal": "graph_risk_boost",
-            "value": graph_mod,
-            "detail": f"Graph distance: {graph_validation.get('graph_distance', '?')}. "
-                      f"{'Imposter signal — claims relationship but no graph connection' if graph_mod >= 0.3 else 'Unknown sender'}",
-        })
-    elif graph_mod < 0:
-        evidence_chain.append({
-            "source": "graph_validation",
-            "signal": "graph_trust",
-            "value": graph_mod,
-            "detail": f"Known contact (distance {graph_validation.get('graph_distance', 0)}), trust modifier {graph_mod}",
-        })
-
-    # Classification result
-    cls = classification.get("classification", "safe")
-    if cls in ("scam", "suspicious"):
-        evidence_chain.append({
-            "source": "classifier",
-            "signal": f"classified_{cls}",
-            "value": classification.get("confidence", 0),
-            "detail": f"Per-message classification: {cls} ({classification.get('confidence', 0):.0%} confidence). "
-                      f"Signals: {', '.join(classification.get('detected_signals', []))}",
-        })
-
-    # Behavioral signals
-    if behavioral_risk > 0.25:
-        evidence_chain.append({
-            "source": "behavioral_analyzer",
-            "signal": "behavioral_risk_elevated",
-            "value": behavioral_risk,
-            "detail": f"Behavioral risk: {behavioral_risk:.2f}. Signals: {', '.join(str(s) for s in behavioral_signals[:5])}",
-        })
-
-    # ── Compound risk score ─────────────────────────────────────────
-    # Weighted combination of all signal layers
-    compound_score = 0.0
-
-    # Linguistic (10%)
-    compound_score += min(manip.get("manipulation_density", 0), 1.0) * 0.10
-
-    # Corpus evidence (15%)
-    if scam_matches:
-        corpus_signal = min(len(scam_matches) / 3, 1.0) * max(m.get("relevance_score", 0) for m in scam_matches)
-        compound_score += corpus_signal * 0.15
-
-    # Graph (15%)
-    compound_score += max(graph_mod, 0) * 0.5  # imposter signal contributes heavily
-    compound_score -= max(-graph_mod, 0) * 0.15  # trust reduces
-
-    # Classification (30%)
-    cls_score = {"safe": 0, "spam": 0.1, "suspicious": 0.5, "scam": 0.9}.get(cls, 0)
-    compound_score += cls_score * classification.get("confidence", 0.5) * 0.30
-
-    # Behavioral (30%)
-    compound_score += behavioral_risk * 0.30
-
-    compound_score = round(max(min(compound_score, 1.0), 0.0), 3)
-
-    # Action routing
-    if compound_score >= 0.7:
-        action = "BLOCK"
-    elif compound_score >= 0.4:
-        action = "FLAG"
-    elif compound_score >= 0.2:
-        action = "MONITOR"
-    else:
-        action = "PASS"
-
-    return {
-        "compound_risk_score": compound_score,
-        "action": action,
-        "evidence_chain": evidence_chain,
-        "evidence_count": len(evidence_chain),
-        "pipeline_steps_completed": 8,
-        "signal_sources": list(set(e["source"] for e in evidence_chain)),
     }
 
 
