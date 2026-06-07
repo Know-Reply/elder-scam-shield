@@ -529,20 +529,19 @@ async def intercept_outbound(req: InterceptRequest):
     Workflow) to scan for sensitive data and make hold/release decisions.
     """
     try:
-        # Analyze elder's reply for victim state signals (rule-based, no LLM)
-        vs_analysis = victim_state_analysis(req.content)
+        # Structural analysis of the reply (language-agnostic, no LLM)
+        reply_context = victim_state_analysis(req.content)
 
         session = await _get_or_create_session("demo_user", {
             "sender_id": req.recipient,
             "user_id": "demo_user",
-            "victim_state": vs_analysis,
         })
         prompt = (
             f"Check outbound message.\n"
             f"Recipient: {req.recipient}\n"
             f"Content: {req.content}\n"
             f"Risk context: {json.dumps(req.sender_risk_context or {}, ensure_ascii=False)}\n\n"
-            f"Victim state analysis:\n{json.dumps(vs_analysis, ensure_ascii=False, default=str)}"
+            f"Reply structure: {json.dumps(reply_context, ensure_ascii=False)}"
         )
         msg = genai_types.Content(
             role="user", parts=[genai_types.Part(text=prompt)]
@@ -557,7 +556,6 @@ async def intercept_outbound(req: InterceptRequest):
             session_id=session.id,
         )
         result = updated.state.get("intercept_decision", {}) if updated else {}
-        result["victim_state"] = vs_analysis
         return {"result": result, "recipient": req.recipient}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -133,15 +133,15 @@ sensitive information. You make a HOLD or RELEASE decision.
 - OB-5 compliance_language: わかりました, すぐに送ります, 言わないでおきます
 
 ## Victim state signals (VS) — what the reply REVEALS about the elder's mindset
-These are provided as pre-computed context from victim_state_analysis.
-- VS-1 compliance_acceptance: agreeing to requests (わかりました, そうします)
-- VS-2 secrecy_adoption: accepting secrecy demands (言いません, 内緒にします)
-- VS-3 financial_commitment: committing to send money (振り込みます, 銀行に行きます)
-- VS-4 emotional_capitulation: reassuring the scammer (心配しないで, 大丈夫)
-- VS-5 urgency_mirroring: adopting the scammer's deadline language
+Detect these from the elder's reply text. These tell you if the scam is WORKING.
+- VS-1 compliance_acceptance: agreeing to do what was asked, accepting instructions
+- VS-2 secrecy_adoption: agreeing to keep the conversation secret from family
+- VS-3 financial_commitment: stating intent to send money, go to bank, buy cards
+- VS-4 emotional_capitulation: reassuring the other party, expressing concern for them
+- VS-5 urgency_mirroring: adopting the other party's sense of urgency or deadlines
 
-VS signals tell you if the scam is WORKING. A reply with VS-2 + VS-3 means the
-elder has accepted secrecy AND committed to sending money — the scam has landed.
+A reply with VS-2 + VS-3 means the elder has accepted secrecy AND committed to
+sending money — the scam has landed. This is the most dangerous combination.
 
 ## Cross-modal signals (CM)
 - CM-2 amount_matches_request: transfer matches recent inbound request
@@ -149,11 +149,10 @@ elder has accepted secrecy AND committed to sending money — the scam has lande
 - CM-4 urgency_amount_compound: high urgency + large amount + high sender risk
 
 ## Decision logic
-1. Check pre-computed victim_state in pipeline context (if provided).
+1. Read the elder's reply and detect all matching OB and VS signals.
 2. Call check_sender_risk for the sender's risk score and context.
 3. Call check_known_payee if the message contains payment details.
-4. Detect all matching OB signals from the outbound content.
-5. Compound risk = (OB + VS + CM signals) x sender_risk.
+4. Compound risk = (OB + VS + CM signals) x sender_risk.
 
 Thresholds:
 - LOW sender (<0.3) + PII only (OB-1) → WARN (release with note)

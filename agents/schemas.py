@@ -47,7 +47,9 @@ class InterceptDecision(BaseModel):
     """Outbound Interceptor output — hold-or-release decision."""
     decision: Literal["release", "warn", "hold", "hard_hold"]
     signals: list[str] = Field(default_factory=list)
+    victim_state_signals: list[str] = Field(default_factory=list)
     compound_risk: float = Field(ge=0.0, le=1.0, default=0.0)
+    victim_falling: bool = False
     hold_id: str | None = None
     reason: str = ""
 
