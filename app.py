@@ -36,6 +36,7 @@ from agents.inbound_classifier import inbound_classifier
 from agents.naive_classifier import naive_classifier
 from agents.outbound_interceptor import outbound_interceptor
 from agents.tools.pipeline import run_pre_classification_pipeline, victim_state_analysis
+from agents.tools.conversation_graph import process_conversation_turn
 
 # Load .env if present
 _env_path = Path(__file__).parent / ".env"
@@ -302,17 +303,38 @@ async def classify_message(req: ClassifyRequest):
         pipeline_ctx = run_pre_classification_pipeline(
             content, sender, "demo_user"
         )
+
+        # Get or create session — retrieve existing graph state
         session = await _get_or_create_session("demo_user", {
             "message_text": content,
             "sender_id": sender,
             "user_id": "demo_user",
             "pipeline_context": pipeline_ctx,
         })
+
+        # Update conversation knowledge graph (inbound turn)
+        turn_index = len(session.state.get("fact_ledger", {}).get("turns", []))
+        graph_update = process_conversation_turn(
+            content, "inbound", turn_index,
+            session_state=session.state,
+        )
+        session.state["fact_ledger"] = graph_update["fact_ledger"]
+        session.state["epistemic_state"] = graph_update["epistemic_state"]
+        session.state["knowledge_graph"] = graph_update["knowledge_graph"]
+
+        # Include graph signals in prompt context
+        graph_signals = graph_update.get("graph_signals", {})
+        graph_context = ""
+        if graph_signals.get("echo_grounded_identity"):
+            graph_context = "\nWARNING: Sender's identity claim is echo-grounded — built from facts the elder revealed first."
+        if graph_signals.get("echo_ratio", 0) > 0.5:
+            graph_context += f"\nEcho ratio: {graph_signals['echo_ratio']} — sender is mostly repeating elder's own information."
+
         prompt = (
             f"新着メッセージを分析してください。送信者: {sender}, "
             f"ユーザーID: demo_user\n\n「{content}」\n\n"
             f"Pre-computed pipeline context:\n{json.dumps(pipeline_ctx, ensure_ascii=False, default=str)}"
-            f"{auth_signal}"
+            f"{auth_signal}{graph_context}"
         )
         msg = genai_types.Content(
             role="user", parts=[genai_types.Part(text=prompt)]
@@ -529,19 +551,35 @@ async def intercept_outbound(req: InterceptRequest):
     Workflow) to scan for sensitive data and make hold/release decisions.
     """
     try:
-        # Structural analysis of the reply (language-agnostic, no LLM)
-        reply_context = victim_state_analysis(req.content)
-
         session = await _get_or_create_session("demo_user", {
             "sender_id": req.recipient,
             "user_id": "demo_user",
         })
+
+        # Update conversation knowledge graph (outbound turn — elder's reply)
+        turn_index = len(session.state.get("fact_ledger", {}).get("turns", []))
+        graph_update = process_conversation_turn(
+            req.content, "outbound", turn_index,
+            session_state=session.state,
+        )
+        session.state["fact_ledger"] = graph_update["fact_ledger"]
+        session.state["epistemic_state"] = graph_update["epistemic_state"]
+        session.state["knowledge_graph"] = graph_update["knowledge_graph"]
+
+        # Build epistemic context for the interceptor
+        graph_signals = graph_update.get("graph_signals", {})
+        epistemic_context = (
+            f"Elder trust stage: {graph_signals.get('trust_stage', 'unknown')}. "
+            f"Friction: {graph_signals.get('friction_score', '?')} ({graph_signals.get('friction_trajectory', '?')}). "
+            f"Echo ratio: {graph_signals.get('echo_ratio', 0)}."
+        )
+
         prompt = (
             f"Check outbound message.\n"
             f"Recipient: {req.recipient}\n"
             f"Content: {req.content}\n"
             f"Risk context: {json.dumps(req.sender_risk_context or {}, ensure_ascii=False)}\n\n"
-            f"Reply structure: {json.dumps(reply_context, ensure_ascii=False)}"
+            f"Conversation graph: {epistemic_context}"
         )
         msg = genai_types.Content(
             role="user", parts=[genai_types.Part(text=prompt)]
@@ -556,6 +594,7 @@ async def intercept_outbound(req: InterceptRequest):
             session_id=session.id,
         )
         result = updated.state.get("intercept_decision", {}) if updated else {}
+        result["graph_signals"] = graph_signals
         return {"result": result, "recipient": req.recipient}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
