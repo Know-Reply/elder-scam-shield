@@ -24,8 +24,8 @@ from .pipeline import entity_extraction
 # Japanese name patterns — catches names in direct address
 # Kanji names: 健二、 / 美咲は / 太郎だよ (2-3 kanji before address markers)
 # Kana names: ゆきです / みきちゃん / ケンジだよ (katakana/hiragana given names)
-_JP_KANJI_NAME = re.compile(r'([一-龥]{2,3})(?:[、。！？\s]|だよ|です|なの)')
-_JP_KANA_NAME = re.compile(r'([ぁ-ん]{2,4}|[ァ-ヶー]{2,5})(?:です|だよ|だけど|なの|ちゃん|くん|さん)')
+_JP_KANJI_NAME = re.compile(r'([一-龥]{2,3})(?:[、。！？\s]|だよ|です|なの|から|とは|には|と[は話])')
+_JP_KANA_NAME = re.compile(r'([ぁ-ん]{2,5}|[ァ-ヶー]{2,5})(?:です|だよ|だけど|なの|ちゃん|くん|さん|から|とは|には|と[は話]|の[口銀]|や[お姉]|銀行|の口座)')
 
 
 # ── Fact Ledger (Signal layer) ────────────────────────────────────────
@@ -210,6 +210,9 @@ def update_epistemic_state(
     elif question_count == 1 and char_count > 50:
         # One question in a longer reply = engaged but cautious
         state["friction_score"] = max(0.0, state["friction_score"] - 0.05)
+    elif question_count == 1 and char_count <= 50:
+        # One question in a short reply = slightly declining but still engaged
+        state["friction_score"] = max(0.0, state["friction_score"] - 0.1)
     elif question_count == 0 and char_count < 50:
         # Very short reply, no questions = strong compliance signal
         state["compliance_events"] += 1
