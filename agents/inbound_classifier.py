@@ -96,10 +96,13 @@ verification. This means: no secrecy demand, no third-party account,
 mundane context. The system flags for verification, not blocking.
 
 ### Step C: Standard classification (unknown senders, no contra-indicators)
+- **safe**: no PM signals detected. An unknown sender alone is NOT suspicious.
+  A friendly greeting, casual conversation, or shared interest with no
+  manipulation signals is SAFE. Do not flag messages just because the sender
+  is unknown — that is the Behavioral Analyzer's job over time.
+- **suspicious**: 1+ PM signal present or scam pattern partially matches
 - **scam**: 2+ strong signals (PM-3..PM-10) or 1 strong + context match
-- **suspicious**: 1 signal present or pattern partially matches
 - **spam**: unsolicited commercial, no scam indicators
-- **safe**: no signals, or only PM-11/PM-12 at low intensity
 
 ## Output format (strict JSON)
 {
