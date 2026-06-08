@@ -125,7 +125,7 @@ body.sim-page {
 }
 .sim-tab-inactive {
   background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.6);
+  color: #ffffff;
 }
 .sim-tab-inactive:hover {
   background: rgba(255,255,255,0.14);
