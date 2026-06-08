@@ -94,20 +94,17 @@ def update_fact_ledger(
     direction: str,
     turn_index: int,
     ledger: dict | None = None,
-    message_text: str = "",
 ) -> dict:
     """Append LLM-extracted facts to the conversation fact ledger.
 
-    The LLM extracts facts. Then deterministic post-processing checks
-    if any existing fact values appear in the message text — catching
-    echoes the LLM missed. LLM does extraction, infrastructure does matching.
+    The LLM handles both extraction AND matching. No string matching.
+    matched_existing contains fact IDs the LLM recognized as referenced.
 
     Args:
         extracted_facts: dict from the fact extractor — LLM-extracted.
         direction: "inbound" (from sender) or "outbound" (from elder)
         turn_index: position in conversation (0-based)
         ledger: existing ledger from session state, or None for first message
-        message_text: raw message text for deterministic echo detection
 
     Returns updated ledger dict.
     """
@@ -127,58 +124,27 @@ def update_fact_ledger(
         "echoed_facts": 0,
     }
 
-    # Deterministic echo detection: check if any existing facts from the
-    # OTHER party appear in this message text. This catches echoes the LLM
-    # missed — we know exactly what to look for (the existing ledger).
-    text_lower = message_text.lower() if message_text else ""
-    already_echoed = set()
-    if text_lower:
-        for fid, fact in ledger["facts"].items():
+    # Echo detection via LLM: matched_existing contains fact IDs from the
+    # existing ledger that the LLM identified as referenced in this message.
+    # No string matching. The LLM handles semantic equivalence.
+    _, matched_ids = _facts_from_llm_extraction(extracted_facts)
+    matched_set = set()
+    for matched_fid in matched_ids:
+        if matched_fid in ledger["facts"]:
+            fact = ledger["facts"][matched_fid]
             if fact["first_stated_by"] == other_speaker and not fact["echo_detected"]:
-                fact_val = fact["value"].lower()
-                fact_type = fact.get("type", "")
-                match = False
-
-                # Full-value substring check (works for all types)
-                if len(fact_val) >= 3 and fact_val in text_lower:
-                    match = True
-
-                # Word-level check for identity facts (4+ char words)
-                elif fact_type in ("name", "location", "institution"):
-                    for word in fact_val.split():
-                        if len(word) >= 4 and word in text_lower:
-                            match = True
-                            break
-
-                # For life_facts: check if 2+ significant words match
-                # Uses first 4 chars as stem to handle "lives"/"live"/"living"
-                elif fact_type == "life_fact":
-                    words = [w for w in fact_val.split() if len(w) >= 5]
-                    if words:
-                        hits = sum(1 for w in words if w[:4] in text_lower)
-                        if hits >= 2:
-                            match = True
-                if match:
-                    fact["echo_detected"] = True
-                    fact["echo_by"] = speaker
-                    fact["echo_at_turn"] = turn_index
-                    turn_entry["echoed_facts"] += 1
-                    turn_entry["fact_ids"].append(fid)
-                    already_echoed.add(fid)
+                fact["echo_detected"] = True
+                fact["echo_by"] = speaker
+                fact["echo_at_turn"] = turn_index
+                turn_entry["echoed_facts"] += 1
+                turn_entry["fact_ids"].append(matched_fid)
+            matched_set.add(matched_fid)
 
     for raw in raw_facts:
         fid = _make_fact_id(raw["type"], raw["value"])
 
-        # Skip if this fact was already detected as an echo of an existing fact
-        # (e.g. "Mizuho" extracted as new, but "Mizuho Bank" already echoed above)
-        skip = False
-        for echoed_fid in already_echoed:
-            existing_val = ledger["facts"][echoed_fid]["value"].lower()
-            new_val = raw["value"].lower()
-            if new_val in existing_val or existing_val in new_val:
-                skip = True
-                break
-        if skip:
+        # Skip if the LLM matched this to an existing fact (dedup)
+        if fid in matched_set:
             continue
 
         turn_entry["fact_ids"].append(fid)
@@ -466,7 +432,6 @@ def process_conversation_turn(
         ledger = update_fact_ledger(
             extracted_facts, direction, turn_index,
             ledger=session_state.get("fact_ledger"),
-            message_text=text,
         )
     else:
         ledger = session_state.get("fact_ledger") or {"facts": {}, "turns": [], "contradiction_log": []}

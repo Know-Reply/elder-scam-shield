@@ -659,9 +659,18 @@ async def conversation_turn(req: ConversationTurnRequest):
 
         from datetime import date
         today = date.today().isoformat()
+
+        # Build existing facts context for semantic matching
+        existing_ledger = state.get("fact_ledger", {}).get("facts", {})
+        existing_section = ""
+        if existing_ledger:
+            lines = [f"- {fid} (by {f['first_stated_by']})"
+                     for fid, f in existing_ledger.items()]
+            existing_section = "\n\nEXISTING FACTS:\n" + "\n".join(lines)
+
         msg = genai_types.Content(
             role="user",
-            parts=[genai_types.Part(text=f"TODAY'S DATE: {today}\n\nNEW MESSAGE:\n{req.content}")],
+            parts=[genai_types.Part(text=f"TODAY'S DATE: {today}{existing_section}\n\nNEW MESSAGE:\n{req.content}")],
         )
         async for event in _extractor_runner.run_async(
             user_id="analyzer", session_id=session.id, new_message=msg

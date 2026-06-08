@@ -1,71 +1,74 @@
-"""Fact Extractor — LLM-based entity extraction + semantic matching.
+"""Fact Extractor — LLM-based extraction + semantic matching.
 
-Extracts provenance-relevant facts from a single message and matches
-them against the existing fact ledger. No regex. Works in any language.
+One call, two jobs:
+1. Extract facts from the new message
+2. Match against existing facts (semantic, not string-based)
 
-The LLM handles both extraction AND matching — it understands that
-"Mizuho Bank" and "your Mizuho account" are the same institution,
-or that "Kenji" and "健二" are the same person.
+The LLM handles both — it understands "being alone" references
+"lives alone", or "Mizuho" references "Mizuho Bank".
 """
 
 from google.adk import Agent
 from agents.schemas import ExtractedFacts
 
-# Base instruction — the existing_facts context is appended per-call by app.py
-EXTRACTOR_PROMPT = """You are a fact extractor for a conversation analysis system.
+EXTRACTOR_PROMPT = """You perform TWO tasks on each message. Both are required.
 
-## TASK
-Extract facts from the NEW MESSAGE below. Return structured JSON.
+## TASK 1: EXTRACT FACTS from the NEW MESSAGE
 
-## WHAT TO EXTRACT
+Identity:
+- claimed_name: a SPECIFIC person's proper name. NOT titles like "Grandma",
+  "Mom", "おばあちゃん". Only: "Kenji", "Takeshi", "田中".
+- referenced_names: ALL OTHER proper names mentioned. Every distinct name
+  must appear in claimed_name or referenced_names.
+- claimed_relationship: relationship type (grandson, daughter, friend)
+- claimed_location: specific places (city, country). NOT "here" or "there".
+- claimed_institution: SPECIFIC organizations ("Mizuho Bank", "Tokyo Police").
+  NOT generic words like "bank", "hospital".
 
-Identity facts:
-- claimed_name: a SPECIFIC person's name (given name, family name, nickname).
-  NOT generic titles like "Grandma", "Mom", "おばあちゃん", "お母さん" — those
-  are address terms, not names. Only proper names: "Kenji", "Takeshi", "田中".
-- referenced_names: ALL OTHER specific person names mentioned in the message.
-  "Takeshi told me" → referenced_names: ["Takeshi"]. Every distinct proper
-  name must appear either in claimed_name or referenced_names. NOT titles.
-- claimed_relationship: relationship claim (grandson, daughter, friend, doctor)
-- claimed_location: places (city, neighborhood, country, specific address)
-- claimed_institution: SPECIFIC organizations only — "Mizuho Bank", "Tokyo
-  Metropolitan Police". NOT generic words like "bank", "hospital", "police".
-  If the message says "I'll go to the bank", that's a life_fact, not an institution.
+Financial:
+- financial_mention: SPECIFIC amounts only. Leave null if no amount stated.
+  "How much?" is a question, not a fact.
 
-Financial facts:
-- financial_mention: SPECIFIC money amounts only with urgency (low/medium/high).
-  If no specific amount is mentioned, leave financial_mention as null.
-  "How much?" is a question, not a financial fact.
+Life facts (details a scammer could exploit):
+- Employment, health, living situation, routines, relationships, vulnerabilities
+- Extract BOTH explicit AND implied: "it's quiet since grandfather passed"
+  → ["grandfather passed away", "lives alone"]
+- Do NOT extract trivial observations
 
-Life facts (significant details a scammer could exploit):
-- Employment: job, company, work schedule, career changes
-- Health: medical conditions, hospital visits, clinic routines
-- Living situation: lives alone, family moved away, spouse passed
-- Daily routines: "I go to the bank on Mondays", "clinic on Tuesdays"
-- Relationships: who they know, who visits, who they trust
-- Vulnerabilities: loneliness, financial concerns, health worries
+## TASK 2: MATCH AGAINST EXISTING FACTS
 
-Extract BOTH explicit AND implied facts:
-- "It's quiet here since grandfather passed" → TWO facts:
-  1. "spouse/grandfather passed away"
-  2. "lives alone" (implied by "quiet here" + loss)
-- "I go to the clinic on Tuesdays" → "regular clinic visits on Tuesdays"
-  (reveals predictable schedule — vulnerability)
+If EXISTING FACTS are listed below, check if the NEW MESSAGE references
+any of them — even if worded differently. Return their fact IDs in
+matched_existing.
 
-Do NOT extract trivial observations ("the weather is nice", "I had lunch").
-Extract only facts that reveal identity, routine, relationships, or vulnerability.
+Examples of what counts as a match:
+- Message says "Mizuho" → matches "institution:mizuho bank" (same bank)
+- Message says "being alone" → matches "life_fact:lives alone" (same concept)
+- Message says "Takeshi" → matches "name:takeshi" (same person)
+- Message says "your bank account" referring to Mizuho → matches "institution:mizuho bank"
+
+When in doubt, include the match.
+
+## EXAMPLE
+
+EXISTING FACTS:
+- name:takeshi (by elder)
+- institution:mizuho bank (by elder)
+- life_fact:lives alone (by elder)
+
+NEW MESSAGE: "I worry about you being alone. Can you help from your Mizuho account?"
+
+Correct output:
+- claimed_name: null
+- life_facts: ["worried about recipient being alone", "needs financial help"]
+- matched_existing: ["life_fact:lives alone", "institution:mizuho bank"]
+
+Note: "being alone" matched "lives alone" (same concept). "Mizuho account"
+matched "Mizuho Bank" (same institution). The matches are semantic, not exact.
 
 ## TIME REFERENCES
-Convert ALL relative time references to absolute dates based on today's
-date (provided below). "Tomorrow" → "2026-06-09", "next week" → "week of
-2026-06-15", "this morning" → "2026-06-08 morning", "last week" → "week of
-2026-06-01". Store the resolved date in the fact, not the relative word.
-This prevents confusion when facts are reviewed months later.
-
-## FOCUS
-Extract facts from the NEW MESSAGE only. Do not infer or repeat facts
-from previous messages. Just extract what THIS message says.
-Leave matched_existing empty — matching is handled by the system.
+Convert relative times to absolute dates using today's date (provided below).
+"Tomorrow" → specific date. "Last week" → specific week.
 """
 
 fact_extractor = Agent(
