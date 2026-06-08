@@ -269,19 +269,19 @@ function processExchange(senderContent, senderEn, senderJp, elderContent, elderE
   var welcome = document.getElementById('welcome-prompt');
   if (welcome) welcome.remove();
 
+  // Capture indices FIRST, then create bubbles with correct IDs
+  var senderIdx = turnIndex++;
+  var elderIdx = turnIndex++;
+
   // Show sender message (English primary, Japanese secondary)
-  addBubble('inbound', senderEn, senderJp || '');
+  addBubble('inbound', senderEn, senderJp || '', senderIdx);
   btn.textContent = 'Extracting facts from sender...';
 
   // Brief pause to show sender message, then show elder reply
   setTimeout(function() {
-    addBubble('outbound', elderEn, elderJp || '');
+    addBubble('outbound', elderEn, elderJp || '', elderIdx);
     btn.textContent = 'Extracting facts from elder reply...';
   }, 300);
-
-  // Process sender message (inbound), then elder reply (outbound)
-  var senderIdx = turnIndex++;
-  var elderIdx = turnIndex++;
 
   fetch('/api/conversation/turn', {
     method: 'POST',
@@ -314,11 +314,11 @@ function processExchange(senderContent, senderEn, senderJp, elderContent, elderE
   });
 }
 
-function addBubble(direction, en, jp) {
+function addBubble(direction, en, jp, idx) {
   var thread = document.getElementById('thread');
   var turnDiv = document.createElement('div');
   turnDiv.className = 'turn turn-' + direction;
-  turnDiv.id = 'turn-' + (direction === 'inbound' ? turnIndex : turnIndex + 1);
+  turnDiv.id = 'turn-' + idx;
 
   var label = document.createElement('div');
   label.className = 'turn-label';
