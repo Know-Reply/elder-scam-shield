@@ -52,8 +52,11 @@
     .prov-tag { font-size: 0.65rem; padding: 0 4px; border-radius: 2px; color: var(--gray-500); }
     .prov-tag::before { content: ''; display: inline-block; width: 5px; height: 5px; border-radius: 50%; margin-right: 3px; vertical-align: middle; }
     .prov-independent::before { background: var(--gray-300); }
-    .prov-echoed { color: var(--red); }
-    .prov-echoed::before { background: var(--red); }
+    .prov-echoed-exploit { color: var(--red); }
+    .prov-echoed-exploit::before { background: var(--red); }
+    .prov-echoed-accept { color: #92400e; }
+    .prov-echoed-accept::before { background: var(--yellow); }
+    .prov-source { font-size: 0.58rem; color: var(--gray-400); margin-left: 1px; }
     .prov-new::before { background: var(--blue); }
 
     /* Controls */
@@ -557,8 +560,15 @@ function addProvenanceTags(turnId, data, direction) {
     tag.className = 'prov-tag';
     var speaker = direction === 'inbound' ? 'sender' : 'elder';
     if (fact.echo_detected && fact.echo_by === speaker) {
-      tag.className += ' prov-echoed';
-      tag.textContent = fact.value;
+      // This speaker is echoing the other party's fact
+      if (direction === 'inbound') {
+        // Sender echoing elder = exploitation (red)
+        tag.className += ' prov-echoed-exploit';
+      } else {
+        // Elder echoing sender = acceptance (amber)
+        tag.className += ' prov-echoed-accept';
+      }
+      tag.innerHTML = fact.value + '<span class="prov-source"> ← T' + fact.first_turn + '</span>';
     } else if (fact.first_stated_by === speaker && lastTurn.turn_index === fact.first_turn) {
       tag.className += ' prov-new';
       tag.textContent = fact.value;
