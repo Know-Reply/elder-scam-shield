@@ -66,10 +66,12 @@ IMPORTANT: Match aggressively. These are all matches:
 When in doubt, include the match. False negatives (missing a match) are
 worse than false positives (matching incorrectly) for provenance tracking.
 
-CRITICAL: If a fact matches an existing one, put ONLY the match ID in
-matched_existing. Do NOT also extract it as a new claimed_name,
-claimed_institution, etc. A matched fact is not a new fact — it's a
-reference to an existing one.
+DEDUPLICATION RULE: If the NEW MESSAGE mentions a fact that already
+exists in EXISTING FACTS, add its fact ID to matched_existing.
+You should STILL extract all named entities (claimed_name, claimed_location,
+claimed_institution) from the message — even if they match existing facts.
+The matched_existing field is ADDITIONAL information, not a replacement
+for extraction. Always extract. Always match. Both.
 """
 
 fact_extractor = Agent(

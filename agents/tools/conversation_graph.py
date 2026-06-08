@@ -139,11 +139,28 @@ def update_fact_ledger(
                 turn_entry["echoed_facts"] += 1
                 turn_entry["fact_ids"].append(matched_fid)
 
+    # Build set of matched fact types to avoid duplicating matched entities
+    matched_types = set()
+    for mfid in matched_ids:
+        if mfid in ledger["facts"]:
+            matched_types.add(ledger["facts"][mfid]["type"])
+
     for raw in raw_facts:
         fid = _make_fact_id(raw["type"], raw["value"])
-        # Skip if this fact was already matched semantically by the LLM
-        if fid in [m for m in matched_ids]:
+
+        # Skip if this fact's type was already handled by a semantic match
+        # (e.g. LLM matched "institution:mizuho bank", don't also add "institution:mizuho")
+        if raw["type"] in matched_types and raw["type"] in ("name", "location", "institution"):
+            # But still record the turn on the matched fact
+            for mfid in matched_ids:
+                if mfid in ledger["facts"] and ledger["facts"][mfid]["type"] == raw["type"]:
+                    if turn_index not in (ledger["facts"][mfid].get("elder_turns", []) + ledger["facts"][mfid].get("sender_turns", [])):
+                        if speaker == "elder":
+                            ledger["facts"][mfid]["elder_turns"].append(turn_index)
+                        else:
+                            ledger["facts"][mfid]["sender_turns"].append(turn_index)
             continue
+
         turn_entry["fact_ids"].append(fid)
 
         if fid not in ledger["facts"]:
