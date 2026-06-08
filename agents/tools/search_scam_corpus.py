@@ -178,11 +178,12 @@ def _search_local(query: str, top_k: int = 5, label_filter: str = None) -> list[
                 _TFIDF_CHAR_VECTORIZER.transform([query]), _TFIDF_CHAR_MATRIX
             ).flatten()
 
-        # Blend: for CJK queries weight char higher, for English weight word higher
+        # Blend: char n-gram is more discriminating for both languages.
+        # Word-level matches too many common words between casual and scam emails.
         if has_cjk:
             scores = 0.3 * word_scores + 0.7 * char_scores
         else:
-            scores = 0.7 * word_scores + 0.3 * char_scores
+            scores = 0.4 * word_scores + 0.6 * char_scores
 
         # Apply label filter
         if label_filter:
