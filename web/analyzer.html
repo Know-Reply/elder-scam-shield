@@ -113,6 +113,18 @@
 
     .empty-state { color: var(--gray-400); font-size: 0.82rem; font-style: italic; padding: 8px 0; }
 
+    /* Inline classification card */
+    .classify-card { margin: 4px 0 12px 62px; padding: 8px 12px; border-radius: 6px; font-size: 0.78rem; border-left: 3px solid var(--gray-300); background: var(--gray-50); }
+    .classify-card.classify-safe { border-left-color: var(--green); }
+    .classify-card.classify-suspicious { border-left-color: var(--orange); }
+    .classify-card.classify-scam { border-left-color: var(--red); background: #fef2f2; }
+    .classify-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 1px 8px; border-radius: 3px; margin-right: 6px; color: #fff; }
+    .classify-badge-safe { background: var(--green); }
+    .classify-badge-suspicious { background: var(--orange); }
+    .classify-badge-scam { background: var(--red); }
+    .classify-signals { margin-top: 4px; font-size: 0.72rem; color: var(--gray-500); }
+    .classify-sig { font-family: var(--font-mono); font-weight: 600; color: var(--red); margin-right: 4px; }
+
     @media (max-width: 900px) {
       .main { grid-template-columns: 1fr; }
       .graph-col { max-height: 40vh; }
@@ -286,14 +298,25 @@ function processExchange(senderContent, senderEn, senderJp, elderContent, elderE
     btn.textContent = 'Extracting facts from elder reply...';
   }, 300);
 
-  fetch('/api/conversation/turn', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content: senderContent, direction: 'inbound', turn_index: senderIdx, session_id: sessionId })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(senderData) {
+  // Run fact extraction + classification in parallel for sender's message
+  Promise.all([
+    fetch('/api/conversation/turn', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: senderContent, direction: 'inbound', turn_index: senderIdx, session_id: sessionId })
+    }).then(function(r) { return r.json(); }),
+    fetch('/api/classify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sender: 'scammer', content: senderContent })
+    }).then(function(r) { return r.json(); }).catch(function() { return { result: {} }; })
+  ])
+  .then(function(results) {
+    var senderData = results[0];
+    var classifyData = results[1];
+
     addProvenanceTags('turn-' + senderIdx, senderData, 'inbound');
+    addClassificationCard(senderIdx, classifyData.result || {});
     btn.textContent = 'Analyzing elder reply + updating graph...';
 
     return fetch('/api/conversation/turn', {
@@ -339,6 +362,43 @@ function addBubble(direction, en, jp, idx) {
   turnDiv.appendChild(label);
   turnDiv.appendChild(bubble);
   thread.appendChild(turnDiv);
+  thread.scrollTop = thread.scrollHeight;
+}
+
+function addClassificationCard(turnIdx, result) {
+  var cls = (result.classification || 'no_response').toLowerCase();
+  var confidence = result.confidence || 0;
+  var signals = result.detected_signals || [];
+  var reasoning = result.reasoning || '';
+
+  if (cls === 'no_response') return;
+
+  var thread = document.getElementById('thread');
+  var card = document.createElement('div');
+  var cardClass = cls === 'scam' ? 'classify-scam' : cls === 'suspicious' ? 'classify-suspicious' : 'classify-safe';
+  var badgeClass = cls === 'scam' ? 'classify-badge-scam' : cls === 'suspicious' ? 'classify-badge-suspicious' : 'classify-badge-safe';
+  card.className = 'classify-card ' + cardClass;
+
+  var html = '<span class="classify-badge ' + badgeClass + '">' + cls.toUpperCase() + '</span>';
+  html += '<span style="color:var(--gray-500);">' + Math.round(confidence * 100) + '% confidence</span>';
+  if (signals.length > 0) {
+    html += '<div class="classify-signals">Signals: ';
+    signals.forEach(function(s) { html += '<span class="classify-sig">' + s + '</span>'; });
+    html += '</div>';
+  }
+  if (reasoning) {
+    html += '<div style="margin-top:4px; font-size:0.72rem; color:var(--gray-400); line-height:1.4;">' + reasoning.substring(0, 150) + (reasoning.length > 150 ? '...' : '') + '</div>';
+  }
+
+  card.innerHTML = html;
+
+  // Insert after the sender's turn bubble
+  var turnEl = document.getElementById('turn-' + turnIdx);
+  if (turnEl && turnEl.nextSibling) {
+    turnEl.parentNode.insertBefore(card, turnEl.nextSibling);
+  } else {
+    thread.appendChild(card);
+  }
   thread.scrollTop = thread.scrollHeight;
 }
 
