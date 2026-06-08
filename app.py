@@ -657,19 +657,11 @@ async def conversation_turn(req: ConversationTurnRequest):
             app_name="elder_scam_shield_extractor", user_id="analyzer"
         )
 
-        # Build prompt with existing facts for semantic matching
-        existing_ledger = state.get("fact_ledger", {}).get("facts", {})
-        existing_context = ""
-        if existing_ledger:
-            fact_list = [f"{fid}: {f['value']} (by {f['first_stated_by']})"
-                        for fid, f in existing_ledger.items()]
-            existing_context = "\n\nEXISTING FACTS (match against these):\n" + "\n".join(fact_list)
-
         from datetime import date
         today = date.today().isoformat()
         msg = genai_types.Content(
             role="user",
-            parts=[genai_types.Part(text=f"TODAY'S DATE: {today}\n\nNEW MESSAGE:\n{req.content}{existing_context}")],
+            parts=[genai_types.Part(text=f"TODAY'S DATE: {today}\n\nNEW MESSAGE:\n{req.content}")],
         )
         async for event in _extractor_runner.run_async(
             user_id="analyzer", session_id=session.id, new_message=msg

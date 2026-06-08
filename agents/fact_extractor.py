@@ -52,32 +52,10 @@ date (provided below). "Tomorrow" → "2026-06-09", "next week" → "week of
 2026-06-01". Store the resolved date in the fact, not the relative word.
 This prevents confusion when facts are reviewed months later.
 
-## MATCHING AGAINST EXISTING FACTS
-
-If EXISTING FACTS are provided below, check if any fact in the NEW MESSAGE
-refers to the same entity or concept as an existing fact — even if worded
-differently, abbreviated, or in a different language.
-
-Return the EXACT fact IDs (e.g. "name:kenji", "institution:mizuho bank")
-from the existing list in the matched_existing field.
-
-IMPORTANT: Match aggressively. These are all matches:
-- "Mizuho" matches "institution:mizuho bank" (abbreviation of same bank)
-- "Mizuho Bank" matches "institution:mizuho bank" (exact)
-- "Kenji" matches "name:kenji" or "name:健二" (same person)
-- "Takeshi" matches "name:takeshi" or "name:たけし" (same person)
-- "the bank" referring to previously mentioned Mizuho matches "institution:mizuho bank"
-- "lives alone" matches a previous "lives alone since spouse passed" (same concept)
-
-When in doubt, include the match. False negatives (missing a match) are
-worse than false positives (matching incorrectly) for provenance tracking.
-
-DEDUPLICATION RULE: If the NEW MESSAGE mentions a fact that already
-exists in EXISTING FACTS, add its fact ID to matched_existing.
-You should STILL extract all named entities (claimed_name, claimed_location,
-claimed_institution) from the message — even if they match existing facts.
-The matched_existing field is ADDITIONAL information, not a replacement
-for extraction. Always extract. Always match. Both.
+## FOCUS
+Extract facts from the NEW MESSAGE only. Do not infer or repeat facts
+from previous messages. Just extract what THIS message says.
+Leave matched_existing empty — matching is handled by the system.
 """
 
 fact_extractor = Agent(
