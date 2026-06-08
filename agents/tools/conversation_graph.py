@@ -22,8 +22,11 @@ from __future__ import annotations
 
 _GENERIC_WORDS = {
     "bank", "hospital", "police", "clinic", "school", "company",
-    "grandfather", "grandmother", "mother", "father", "son", "daughter",
-    "friend", "unknown", "not specified", "none", "n/a", "",
+    "grandfather", "grandmother", "grandma", "grandpa", "mother", "father",
+    "mom", "dad", "son", "daughter", "friend", "brother", "sister",
+    "uncle", "aunt", "nephew", "niece", "wife", "husband",
+    "unknown", "not specified", "none", "n/a", "",
+    "おばあちゃん", "おじいちゃん", "お母さん", "お父さん",
     "銀行", "病院", "警察", "学校",
 }
 
@@ -146,9 +149,19 @@ def update_fact_ledger(
     if text_lower:
         for fid, fact in ledger["facts"].items():
             if fact["first_stated_by"] == other_speaker and not fact["echo_detected"]:
-                # Check if this fact's value appears in the message
+                # Check if this fact's value (or any significant word from it)
+                # appears in the message. "Mizuho Bank" matches "Mizuho".
                 fact_val = fact["value"].lower()
+                match = False
                 if len(fact_val) >= 3 and fact_val in text_lower:
+                    match = True
+                else:
+                    # Check individual words (4+ chars) from multi-word facts
+                    for word in fact_val.split():
+                        if len(word) >= 4 and word in text_lower:
+                            match = True
+                            break
+                if match:
                     fact["echo_detected"] = True
                     fact["echo_by"] = speaker
                     fact["echo_at_turn"] = turn_index
