@@ -315,7 +315,7 @@ def build_knowledge_graph(
     facts = ledger.get("facts", {})
 
     # Information asymmetry analysis
-    sender_facts = [f for f in facts.values() if "sender" in (f.get("sender_turns") and "sender") or f["first_stated_by"] == "sender"]
+    sender_facts = [f for f in facts.values() if f.get("sender_turns") or f["first_stated_by"] == "sender"]
     elder_facts = [f for f in facts.values() if f["first_stated_by"] == "elder"]
 
     # Echo analysis: facts the sender used AFTER the elder introduced them

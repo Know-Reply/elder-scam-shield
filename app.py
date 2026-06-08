@@ -36,7 +36,7 @@ from agents.inbound_classifier import inbound_classifier
 from agents.naive_classifier import naive_classifier
 from agents.fact_extractor import fact_extractor
 from agents.outbound_interceptor import outbound_interceptor
-from agents.tools.pipeline import run_pre_classification_pipeline, victim_state_analysis
+from agents.tools.pipeline import run_pre_classification_pipeline
 from agents.tools.conversation_graph import process_conversation_turn
 
 # Load .env if present
@@ -226,7 +226,7 @@ async def system_status():
     return {
         "service": "elder-scam-shield",
         "version": "1.0.0",
-        "pipeline": "v2_8step",
+        "pipeline": "v2",
         "model": "gemini-3.1-flash-lite",
         "corpus_entries": 22979,
         "signal_families": 4,
@@ -597,10 +597,13 @@ async def intercept_outbound(req: InterceptRequest):
 
         # Build epistemic context for the interceptor
         graph_signals = graph_update.get("graph_signals", {})
+        # Set victim_falling based on epistemic friction
+        victim_falling = graph_signals.get("friction_trajectory") in ("collapsed", "declining") and graph_signals.get("trust_stage") in ("trusting", "compliant")
         epistemic_context = (
             f"Elder trust stage: {graph_signals.get('trust_stage', 'unknown')}. "
             f"Friction: {graph_signals.get('friction_score', '?')} ({graph_signals.get('friction_trajectory', '?')}). "
             f"Echo ratio: {graph_signals.get('echo_ratio', 0)}."
+            f"{' VICTIM FALLING: elder is compliant and friction has collapsed.' if victim_falling else ''}"
         )
 
         prompt = (
@@ -683,8 +686,9 @@ async def conversation_turn(req: ConversationTurnRequest):
             ef = updated.state["extracted_facts"]
             if isinstance(ef, dict):
                 extracted_facts = ef
-    except Exception:
-        pass  # If LLM fails, graph still updates epistemic state structurally
+    except Exception as e:
+        import logging
+        logging.warning(f"Fact extraction failed: {e}")
 
     # Update knowledge graph with LLM-extracted facts
     result = process_conversation_turn(

@@ -143,25 +143,6 @@ def linguistic_analysis(text: str, sender_style_baseline: dict = None) -> dict:
     }
 
 
-def victim_state_analysis(text: str) -> dict:
-    """Lightweight structural analysis of an elder's outbound reply.
-
-    Language-agnostic signals only — the LLM in the outbound interceptor
-    handles the actual VS signal detection across all languages.
-    This provides structural context the LLM can use.
-    """
-    question_count = text.count("?") + text.count("？")
-    exclamation_count = text.count("!") + text.count("！")
-    char_count = len(text)
-
-    return {
-        "reply_length": char_count,
-        "question_count": question_count,
-        "exclamation_count": exclamation_count,
-        "has_questions": question_count > 0,
-    }
-
-
 # ── Full pipeline runner ────────────────────────────────────────────────
 
 def _contra_indicator_check(text: str, linguistic: dict) -> dict:
