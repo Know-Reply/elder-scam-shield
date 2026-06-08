@@ -43,6 +43,13 @@ Life facts (significant details a scammer could exploit):
 - Relationships: who they know, who visits, who they trust
 - Vulnerabilities: loneliness, financial concerns, health worries
 
+Extract BOTH explicit AND implied facts:
+- "It's quiet here since grandfather passed" → TWO facts:
+  1. "spouse/grandfather passed away"
+  2. "lives alone" (implied by "quiet here" + loss)
+- "I go to the clinic on Tuesdays" → "regular clinic visits on Tuesdays"
+  (reveals predictable schedule — vulnerability)
+
 Do NOT extract trivial observations ("the weather is nice", "I had lunch").
 Extract only facts that reveal identity, routine, relationships, or vulnerability.
 
