@@ -1963,35 +1963,32 @@ body {
     var liveSignals = result.detected_signals || [];
     var liveReasoning = result.reasoning || '';
 
-    // Pre-ADK: use naive classifier result (no tools, no corpus, no pipeline)
+    // Pre-ADK: use naive classifier result
     var naiveResult = (naiveData && naiveData.result) ? naiveData.result : {};
-    var perMsgClass = choice.naiveClassification || (naiveResult.classification || '').toUpperCase();
-    if (!perMsgClass || perMsgClass === 'NO_RESPONSE') perMsgClass = (c.classification || 'SAFE');
-    var perMsgConfidence = choice.naiveConfidence || naiveResult.confidence || 0.5;
+    var perMsgClass = (naiveResult.classification || '').toUpperCase();
+    if (!perMsgClass || perMsgClass === 'NO_RESPONSE') perMsgClass = 'SAFE';
+    var perMsgConfidence = naiveResult.confidence || 0.5;
 
-    // If Gemini returned signals, merge with behavioral signals from DAYS data
-    if (liveSignals.length > 0) {
-      var liveSignalObjects = liveSignals.map(function(s) {
-        return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
-      });
-      var existingCodes = {};
-      c.signals.forEach(function(s) { existingCodes[s.code] = true; });
-      liveSignalObjects.forEach(function(s) {
-        if (!existingCodes[s.code]) {
-          c.signals.push(s);
-        }
-      });
-    }
-    if (liveReasoning && livePerMsgClass !== 'NO_RESPONSE') {
-      c.reasoning = c.reasoning + ' [Gemini per-message: ' + liveReasoning + ']';
-    }
+    // ALL signals come from live Gemini — no pre-scripted signals
+    c.signals = liveSignals.map(function(s) {
+      return { code: s, text: SIGNAL_LABELS[s] || s, type: SIGNAL_TYPES[s] || 'warn' };
+    });
 
-    // Behavioral risk from pre-computed DAYS data (the accumulated pattern)
+    // ALL reasoning comes from live Gemini — no pre-scripted text
+    c.reasoning = liveReasoning || '';
+
+    // Risk from live classification confidence — no pre-scripted risk values
     var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
-    var behavioralRisk = c.risk !== null && c.risk !== undefined
-      ? c.risk
-      : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
-    behavioralRisk = Math.max(behavioralRisk, prevRisk * 0.9);
+    var behavioralRisk;
+    if (livePerMsgClass === 'SCAM') {
+      behavioralRisk = Math.max(prevRisk, liveConfidence);
+    } else if (livePerMsgClass === 'SUSPICIOUS') {
+      behavioralRisk = Math.max(prevRisk * 0.95, liveConfidence * 0.7);
+    } else {
+      // Safe message — risk stays or slightly declines, never below 0.05
+      behavioralRisk = Math.max(0.05, prevRisk * 0.85);
+    }
+    behavioralRisk = Math.min(behavioralRisk, 1.0);
 
     var behavioralClass = riskStatusLabel(behavioralRisk);
 
@@ -2120,14 +2117,13 @@ body {
       handleClassificationResults(c, c, results[0], results[1]);
     })
     .catch(function(err) {
-      // Fallback: use pre-computed data for both
+      // Fallback: API failed, show as safe with error note
       var prevRisk = state.riskHistory.length > 0 ? state.riskHistory[state.riskHistory.length - 1] : 0.05;
-      var behavioralRisk = c.risk !== null && c.risk !== undefined
-        ? c.risk
-        : Math.min(0.99, prevRisk + (c.riskDelta || 0.05));
-      behavioralRisk = Math.max(behavioralRisk, prevRisk * 0.9);
+      var behavioralRisk = Math.max(0.05, prevRisk * 0.85);
       var behavioralClass = riskStatusLabel(behavioralRisk);
-      var perMsgClass = c.classification || 'SAFE';
+      var perMsgClass = 'SAFE';
+      c.signals = [];
+      c.reasoning = 'Classification unavailable — API error.';
 
       var perMsgIsFlagged = (perMsgClass === 'SCAM' || perMsgClass === 'SUSPICIOUS' || perMsgClass === 'FLAG' || perMsgClass === 'BLOCK');
       if (perMsgIsFlagged) state.perMsgFlagged++;
