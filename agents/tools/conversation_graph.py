@@ -267,11 +267,11 @@ def update_epistemic_state(
 
     state["friction_history"].append(round(state["friction_score"], 2))
 
-    # Update trust stage based on friction
+    # Update trust stage based on friction — even 25-point bands
     f = state["friction_score"]
-    if f >= 0.6:
+    if f >= 0.7:
         new_stage = "skeptical"
-    elif f >= 0.4:
+    elif f >= 0.45:
         new_stage = "engaged"
     elif f >= 0.2:
         new_stage = "trusting"
