@@ -94,7 +94,7 @@
     /* Identity claims */
     .identity-row { padding: 6px 0; border-bottom: 1px solid var(--gray-50); }
     .identity-name { font-weight: 700; color: var(--navy); font-size: 0.88rem; }
-    .identity-cred { font-size: 0.72rem; font-weight: 600; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
+    .identity-cred { font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 3px; margin-left: 10px; }
     .cred-independent { background: var(--green-bg); color: var(--green); }
     .cred-echo { background: var(--red-bg); color: var(--red); }
     .cred-elder { background: var(--blue-light); color: var(--blue); }
@@ -431,7 +431,7 @@ function updateGraphPanel(data, direction) {
       var sourceClass = f.first_stated_by === 'elder' ? 'fact-elder' : 'fact-sender';
       var echoHtml = f.echo_detected ? '<span class="fact-echo">echoed by ' + f.echo_by + '</span>' : '';
       var typeLabel = {'name':'Name','location':'Location','institution':'Institution','amount':'Amount','life_fact':'Detail','relationship':'Relationship'}[f.type] || 'Fact';
-      row.innerHTML = '<span class="fact-value"><span style="font-size:0.7rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;margin-right:6px;">' + typeLabel + '</span>' + f.value + '</span>' +
+      row.innerHTML = '<span class="fact-value"><span style="font-size:0.68rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;margin-right:8px;min-width:70px;display:inline-block;">' + typeLabel + '</span>' + f.value + '</span>' +
         '<span><span class="fact-source ' + sourceClass + '">' + f.first_stated_by + ' (T' + f.first_turn + ')</span>' + echoHtml + '</span>';
       factList.appendChild(row);
     });

@@ -67,11 +67,11 @@ def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[
     if institution and _is_specific(institution):
         facts.append({"value": institution, "type": "institution"})
 
-    # Financial — amounts are always specific
+    # Financial — only if a real amount, not "unknown"
     fin = extracted_facts.get("financial_mention")
     if fin and isinstance(fin, dict):
         amount = fin.get("amount")
-        if amount and str(amount).strip():
+        if amount and _is_specific(str(amount)):
             facts.append({"value": str(amount), "type": "amount"})
 
     # Life facts — significant details a scammer could exploit
