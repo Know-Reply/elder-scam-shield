@@ -150,14 +150,13 @@
     </div>
     <div class="conv-thread" id="thread"></div>
     <div class="conv-controls">
-      <button class="next-btn" id="next-btn" onclick="sendNextTurn()">Send next message</button>
-      <div class="custom-row">
-        <select class="custom-dir" id="custom-dir">
-          <option value="inbound">Sender</option>
-          <option value="outbound">Elder</option>
-        </select>
-        <input class="custom-input" id="custom-input" placeholder="Type a custom message..." />
-        <button class="custom-send" onclick="sendCustomTurn()">Send</button>
+      <button class="next-btn" id="next-btn" onclick="sendNextExchange()">Next exchange</button>
+      <div style="font-size:0.72rem; color:var(--gray-400); text-align:center; margin-top:6px;" id="exchange-preview"></div>
+      <div style="margin-top:10px; border-top:1px solid var(--gray-200); padding-top:10px;">
+        <div style="font-size:0.72rem; font-weight:600; color:var(--gray-500); margin-bottom:6px;">Custom exchange</div>
+        <input class="custom-input" id="custom-sender" placeholder="Sender says..." style="margin-bottom:6px; width:100%;" />
+        <input class="custom-input" id="custom-elder" placeholder="Elder replies..." style="margin-bottom:6px; width:100%;" />
+        <button class="custom-send" onclick="sendCustomExchange()" style="width:100%;">Send exchange</button>
       </div>
     </div>
   </div>
@@ -203,78 +202,107 @@
 </div>
 
 <script>
-// Pre-scripted ore-ore sagi conversation
-var TURNS = [
-  // Turn 1: Scammer opens — introduces name + relationship (independent facts)
-  { direction: 'inbound',
-    en: "Grandma, it's Kenji! It's been so long. I moved to Osaka for a new job.",
-    jp: 'おばあちゃん、健二だよ！久しぶり。大阪で新しい仕事を始めたんだ。' },
-  // Turn 2: Elder reveals facts — mentions Takeshi (real grandson), her bank, her schedule
-  { direction: 'outbound',
-    en: "Kenji? Oh my! Takeshi told me you were busy. I was just at Mizuho Bank this morning. How is Osaka?",
-    jp: '健二？まあ！たけしから忙しいって聞いてたわ。今朝みずほ銀行に行ってきたところよ。大阪はどう？' },
-  // Turn 3: Scammer echoes — uses Takeshi's name + Mizuho (learned from elder)
-  { direction: 'inbound',
-    en: "Yes, Takeshi and I talked last week! By the way, Mizuho has good rates. Things are going well here.",
-    jp: 'うん、たけしとは先週話したよ！みずほ銀行はいいよね。こっちは順調だよ。' },
-  // Turn 4: Elder reveals more — mentions she lives alone, her routine
-  { direction: 'outbound',
-    en: "I'm glad. It's quiet here since your grandfather passed. I go to the clinic on Tuesdays.",
-    jp: 'よかった。おじいちゃんが亡くなってから静かよ。火曜日はクリニックに通ってるの。' },
-  // Turn 5: Scammer pivots — uses isolation fact, introduces crisis
-  { direction: 'inbound',
-    en: "I worry about you being alone. Actually, I'm in trouble. I had a car accident and the other driver wants 500,000 yen immediately. Can you help from your Mizuho account?",
-    jp: '一人で心配だよ。実は大変なことになって。交通事故を起こして相手が50万円を今すぐ要求してる。みずほの口座から助けてくれない？' },
-  // Turn 6: Elder starts complying — short reply, agrees, no questions
-  { direction: 'outbound',
-    en: "Oh no! Of course. How much exactly? I can go to the bank tomorrow.",
-    jp: '大変！もちろんよ。いくら必要？明日銀行に行けるわ。' },
-  // Turn 7: Scammer closes — secrecy demand, urgency, specific amount
-  { direction: 'inbound',
-    en: "500,000 yen to this account. Please don't tell Takeshi or your daughter, they'll worry. I need it today.",
-    jp: 'この口座に50万円。たけしやお姉ちゃんには言わないで、心配するから。今日中にお願い。' },
-  // Turn 8: Elder fully compliant — friction collapsed
-  { direction: 'outbound',
-    en: "Understood. I won't tell anyone. I'll go to Mizuho now.",
-    jp: 'わかった。誰にも言わないわ。今からみずほに行ってくる。' },
+// Pre-scripted ore-ore sagi — paired exchanges (sender + elder reply)
+var EXCHANGES = [
+  { label: 'Opening — scammer introduces identity',
+    sender: { en: "Grandma, it's Kenji! It's been so long. I moved to Osaka for a new job.", jp: 'おばあちゃん、健二だよ！久しぶり。大阪で新しい仕事を始めたんだ。' },
+    elder:  { en: "Kenji? Oh my! Takeshi told me you were busy. I was just at Mizuho Bank this morning. How is Osaka?", jp: '健二？まあ！たけしから忙しいって聞いてたわ。今朝みずほ銀行に行ってきたところよ。大阪はどう？' },
+  },
+  { label: 'Echoing — scammer uses elder\'s revealed facts',
+    sender: { en: "Yes, Takeshi and I talked last week! By the way, Mizuho has good rates. Things are going well here.", jp: 'うん、たけしとは先週話したよ！みずほ銀行はいいよね。こっちは順調だよ。' },
+    elder:  { en: "I'm glad. It's quiet here since your grandfather passed. I go to the clinic on Tuesdays.", jp: 'よかった。おじいちゃんが亡くなってから静かよ。火曜日はクリニックに通ってるの。' },
+  },
+  { label: 'Pivot — crisis + uses elder\'s bank name',
+    sender: { en: "I worry about you being alone. Actually, I'm in trouble. I had a car accident and the other driver wants 500,000 yen immediately. Can you help from your Mizuho account?", jp: '一人で心配だよ。実は大変なことになって。交通事故を起こして相手が50万円を今すぐ要求してる。みずほの口座から助けてくれない？' },
+    elder:  { en: "Oh no! Of course. How much exactly? I can go to the bank tomorrow.", jp: '大変！もちろんよ。いくら必要？明日銀行に行けるわ。' },
+  },
+  { label: 'Close — secrecy demand + full compliance',
+    sender: { en: "500,000 yen to this account. Please don't tell Takeshi or your daughter, they'll worry. I need it today.", jp: 'この口座に50万円。たけしやお姉ちゃんには言わないで、心配するから。今日中にお願い。' },
+    elder:  { en: "Understood. I won't tell anyone. I'll go to Mizuho now.", jp: 'わかった。誰にも言わないわ。今からみずほに行ってくる。' },
+  },
 ];
 
+var exchangeIndex = 0;
 var turnIndex = 0;
 var sessionId = 'analyzer_' + Date.now();
-
-function sendNextTurn() {
-  if (turnIndex >= TURNS.length) {
-    document.getElementById('next-btn').disabled = true;
-    document.getElementById('next-btn').textContent = 'Conversation complete';
-    return;
-  }
-  var turn = TURNS[turnIndex];
-  processTurn(turn.direction, turn.jp || turn.en, turn.en, turn.jp);
-}
-
-function sendCustomTurn() {
-  var input = document.getElementById('custom-input');
-  var dir = document.getElementById('custom-dir').value;
-  var text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  processTurn(dir, text, text, '');
-}
-
 var _processing = false;
 
-function processTurn(direction, content, en, jp) {
-  if (_processing) return;
-  _processing = true;
-  document.getElementById('next-btn').disabled = true;
-  document.getElementById('next-btn').textContent = 'Analyzing...';
-  document.querySelector('.custom-send').disabled = true;
+function updatePreview() {
+  var preview = document.getElementById('exchange-preview');
+  if (exchangeIndex < EXCHANGES.length) {
+    preview.textContent = 'Next: ' + EXCHANGES[exchangeIndex].label;
+  } else {
+    preview.textContent = '';
+  }
+}
+updatePreview();
 
-  // Add message to thread
+function sendNextExchange() {
+  if (_processing || exchangeIndex >= EXCHANGES.length) return;
+  var ex = EXCHANGES[exchangeIndex];
+  processExchange(ex.sender.jp, ex.sender.en, ex.elder.jp, ex.elder.en);
+  exchangeIndex++;
+}
+
+function sendCustomExchange() {
+  if (_processing) return;
+  var senderText = document.getElementById('custom-sender').value.trim();
+  var elderText = document.getElementById('custom-elder').value.trim();
+  if (!senderText || !elderText) return;
+  document.getElementById('custom-sender').value = '';
+  document.getElementById('custom-elder').value = '';
+  processExchange(senderText, senderText, elderText, elderText);
+}
+
+function processExchange(senderContent, senderEn, elderContent, elderEn) {
+  _processing = true;
+  var btn = document.getElementById('next-btn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing exchange...';
+
+  // Show both messages in thread
+  addBubble('inbound', senderEn, senderContent);
+  addBubble('outbound', elderEn, elderContent);
+
+  // Process sender message (inbound), then elder reply (outbound)
+  var senderIdx = turnIndex++;
+  var elderIdx = turnIndex++;
+
+  fetch('/api/conversation/turn', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: senderContent, direction: 'inbound', turn_index: senderIdx, session_id: sessionId })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(senderData) {
+    addProvenanceTags('turn-' + senderIdx, senderData, 'inbound');
+
+    return fetch('/api/conversation/turn', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: elderContent, direction: 'outbound', turn_index: elderIdx, session_id: sessionId })
+    }).then(function(r) { return r.json(); });
+  })
+  .then(function(elderData) {
+    addProvenanceTags('turn-' + elderIdx, elderData, 'outbound');
+    updateGraphPanel(elderData, 'outbound');
+    _processing = false;
+    btn.disabled = (exchangeIndex >= EXCHANGES.length);
+    btn.textContent = exchangeIndex >= EXCHANGES.length ? 'Conversation complete' : 'Next exchange';
+    updatePreview();
+  })
+  .catch(function(err) {
+    _processing = false;
+    btn.disabled = false;
+    btn.textContent = 'Retry';
+  });
+}
+
+function addBubble(direction, en, jp) {
   var thread = document.getElementById('thread');
   var turnDiv = document.createElement('div');
   turnDiv.className = 'turn turn-' + direction;
-  turnDiv.id = 'turn-' + turnIndex;
+  turnDiv.id = 'turn-' + (direction === 'inbound' ? turnIndex : turnIndex + 1);
 
   var label = document.createElement('div');
   label.className = 'turn-label';
@@ -282,74 +310,47 @@ function processTurn(direction, content, en, jp) {
 
   var bubble = document.createElement('div');
   bubble.className = 'turn-bubble';
+  bubble.id = 'bubble-' + turnDiv.id;
   if (en && jp && en !== jp) {
     bubble.innerHTML = '<div class="turn-en">' + en + '</div><div class="turn-jp">' + jp + '</div>';
   } else {
-    bubble.textContent = en || content;
+    bubble.textContent = en || jp;
   }
 
   turnDiv.appendChild(label);
   turnDiv.appendChild(bubble);
   thread.appendChild(turnDiv);
   thread.scrollTop = thread.scrollHeight;
+}
 
-  // Call API
-  fetch('/api/conversation/turn', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      content: content,
-      direction: direction,
-      turn_index: turnIndex,
-      session_id: sessionId,
-    })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    // Add provenance tags to the bubble
-    var entries = data.fact_ledger.turns;
-    var lastTurn = entries[entries.length - 1];
-    if (lastTurn && lastTurn.fact_ids.length > 0) {
-      var provDiv = document.createElement('div');
-      provDiv.className = 'turn-provenance';
-      lastTurn.fact_ids.forEach(function(fid) {
-        var fact = data.fact_ledger.facts[fid];
-        if (!fact) return;
-        var tag = document.createElement('span');
-        tag.className = 'prov-tag';
-        if (fact.echo_detected && fact.echo_by === (direction === 'inbound' ? 'sender' : 'elder')) {
-          tag.className += ' prov-echoed';
-          tag.textContent = fact.value + ' (echoed)';
-        } else if (fact.first_stated_by === (direction === 'inbound' ? 'sender' : 'elder') && lastTurn.turn_index === fact.first_turn) {
-          tag.className += ' prov-new';
-          tag.textContent = fact.value + ' (new)';
-        } else {
-          tag.className += ' prov-independent';
-          tag.textContent = fact.value;
-        }
-        provDiv.appendChild(tag);
-      });
-      bubble.appendChild(provDiv);
+function addProvenanceTags(turnId, data, direction) {
+  var bubble = document.getElementById('bubble-' + turnId);
+  if (!bubble) return;
+  var entries = data.fact_ledger.turns;
+  var lastTurn = entries[entries.length - 1];
+  if (!lastTurn || lastTurn.fact_ids.length === 0) return;
+
+  var provDiv = document.createElement('div');
+  provDiv.className = 'turn-provenance';
+  lastTurn.fact_ids.forEach(function(fid) {
+    var fact = data.fact_ledger.facts[fid];
+    if (!fact) return;
+    var tag = document.createElement('span');
+    tag.className = 'prov-tag';
+    var speaker = direction === 'inbound' ? 'sender' : 'elder';
+    if (fact.echo_detected && fact.echo_by === speaker) {
+      tag.className += ' prov-echoed';
+      tag.textContent = fact.value + ' (echoed)';
+    } else if (fact.first_stated_by === speaker && lastTurn.turn_index === fact.first_turn) {
+      tag.className += ' prov-new';
+      tag.textContent = fact.value + ' (new)';
+    } else {
+      tag.className += ' prov-independent';
+      tag.textContent = fact.value;
     }
-
-    updateGraphPanel(data, direction);
-    _processing = false;
-    var btn = document.getElementById('next-btn');
-    btn.disabled = (turnIndex >= TURNS.length);
-    btn.textContent = turnIndex >= TURNS.length ? 'Conversation complete' : 'Send next message';
-    document.querySelector('.custom-send').disabled = false;
-  })
-  .catch(function(err) {
-    _processing = false;
-    document.getElementById('next-btn').disabled = false;
-    document.getElementById('next-btn').textContent = 'Retry';
-    document.querySelector('.custom-send').disabled = false;
+    provDiv.appendChild(tag);
   });
-
-  turnIndex++;
-  if (turnIndex >= TURNS.length) {
-    document.getElementById('next-btn').textContent = 'Send final message';
-  }
+  bubble.appendChild(provDiv);
 }
 
 function updateGraphPanel(data, direction) {
