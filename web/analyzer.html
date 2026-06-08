@@ -170,24 +170,22 @@
   <!-- Right: Knowledge Graph -->
   <div class="graph-col">
     <div class="graph-section">
-      <h3>Epistemic Friction</h3>
+      <h3>Elder's Guard</h3>
       <div class="trust-stages" id="trust-stages">
-        <div class="trust-stage trust-skeptical active" id="ts-skeptical">Skeptical</div>
-        <div class="trust-stage trust-engaged" id="ts-engaged">Engaged</div>
-        <div class="trust-stage trust-trusting" id="ts-trusting">Trusting</div>
-        <div class="trust-stage trust-compliant" id="ts-compliant">Compliant</div>
+        <div class="trust-stage trust-skeptical active" id="ts-skeptical">Guarded</div>
+        <div class="trust-stage trust-engaged" id="ts-engaged">Opening Up</div>
+        <div class="trust-stage trust-trusting" id="ts-trusting">Vulnerable</div>
+        <div class="trust-stage trust-compliant" id="ts-compliant">Compromised</div>
       </div>
       <div class="friction-bar"><div class="friction-fill" id="friction-fill" style="width:80%; background:var(--green);"></div></div>
-      <div class="friction-label"><span id="friction-value">0.80</span><span id="friction-trajectory">stable_high</span></div>
+      <div class="friction-label"><span id="friction-value">0.80</span><span id="friction-trajectory"></span></div>
     </div>
 
     <div class="graph-section">
-      <h3>Information Asymmetry</h3>
-      <div class="asym-bar" id="asym-bar">
-        <div class="asym-sender" id="asym-sender" style="flex:1;"></div>
-        <div class="asym-echo" id="asym-echo" style="flex:0;"></div>
+      <h3>Scammer's Advantage</h3>
+      <div id="asym-content" style="font-size:0.82rem; color:var(--gray-600);">
+        <div class="empty-state">No information exchanged yet</div>
       </div>
-      <div class="asym-label" id="asym-label">No data yet</div>
     </div>
 
     <div class="graph-section">
@@ -387,27 +385,41 @@ function updateGraphPanel(data, direction) {
     el.classList.toggle('active', es.trust_stage === s);
   });
 
-  // Friction bar
+  // Guard bar — shows how much resistance the elder has left
   var friction = es.friction_score;
   var fill = document.getElementById('friction-fill');
   fill.style.width = Math.round(friction * 100) + '%';
-  fill.style.background = friction >= 0.6 ? 'var(--green)' : friction >= 0.4 ? 'var(--yellow)' : friction >= 0.2 ? 'var(--orange)' : 'var(--red)';
-  document.getElementById('friction-value').textContent = friction.toFixed(2);
-  document.getElementById('friction-trajectory').textContent = direction === 'inbound'
-    ? es.friction_trajectory + ' (awaiting elder response)'
-    : es.friction_trajectory;
+  fill.style.background = friction >= 0.6 ? 'var(--green)' : friction >= 0.45 ? 'var(--yellow)' : friction >= 0.2 ? 'var(--orange)' : 'var(--red)';
+  document.getElementById('friction-value').textContent = Math.round(friction * 100) + '%';
+  var trajectoryEl = document.getElementById('friction-trajectory');
+  if (direction === 'inbound') {
+    trajectoryEl.textContent = '';
+  } else {
+    var traj = es.friction_trajectory;
+    trajectoryEl.textContent = traj === 'declining' ? '↓ guard dropping' : traj === 'collapsed' ? '⚠ guard collapsed' : traj === 'stable_high' ? 'holding steady' : '';
+    trajectoryEl.style.color = traj === 'declining' ? 'var(--orange)' : traj === 'collapsed' ? 'var(--red)' : 'var(--gray-400)';
+  }
 
-  // Asymmetry bar
+  // Scammer's advantage — what they've learned from the elder
   var independent = gs.sender_independent_facts || 0;
   var echoed = gs.sender_echoed_facts || 0;
-  var total = independent + echoed;
-  if (total > 0) {
-    document.getElementById('asym-sender').style.flex = independent;
-    document.getElementById('asym-echo').style.flex = echoed;
-    var verdict = kg.information_asymmetry.asymmetry_verdict;
-    var echoRatio = gs.echo_ratio;
-    document.getElementById('asym-label').textContent =
-      'Independent: ' + independent + ' | Echoed: ' + echoed + ' | Ratio: ' + echoRatio + ' — ' + verdict;
+  var elderExposed = gs.elder_facts_exposed || 0;
+  var asymContent = document.getElementById('asym-content');
+  if (elderExposed > 0 || echoed > 0) {
+    var echoPercent = (independent + echoed) > 0 ? Math.round(echoed / (independent + echoed) * 100) : 0;
+    var html = '';
+    html += '<div style="margin-bottom:8px;">';
+    html += '<div style="font-size:0.95rem; font-weight:700; color:var(--red);">' + elderExposed + ' facts</div>';
+    html += '<div style="font-size:0.75rem; color:var(--gray-500);">revealed by elder to sender</div>';
+    html += '</div>';
+    if (echoed > 0) {
+      html += '<div style="margin-bottom:8px;">';
+      html += '<div style="font-size:0.95rem; font-weight:700; color:var(--orange);">' + echoPercent + '%</div>';
+      html += '<div style="font-size:0.75rem; color:var(--gray-500);">of sender\'s knowledge built from elder\'s own words</div>';
+      html += '</div>';
+    }
+    html += '<div style="font-size:0.72rem; color:var(--gray-400);">Sender knows ' + independent + ' fact(s) independently, learned ' + echoed + ' from the elder</div>';
+    asymContent.innerHTML = html;
   }
 
   // Identity claims
