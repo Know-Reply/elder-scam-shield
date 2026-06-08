@@ -241,25 +241,26 @@ def update_epistemic_state(
     char_count = len(text)
 
     # Questions = resistance (good). Short agreeing replies = compliance (bad).
+    # Thresholds are language-agnostic: 80 chars handles both English and Japanese
     if question_count >= 2:
-        # Asking questions = maintaining friction
+        # Asking multiple questions = maintaining friction
         state["resistance_events"] += 1
         state["friction_score"] = min(1.0, state["friction_score"] + 0.1)
-    elif question_count == 1 and char_count > 50:
+    elif question_count == 1 and char_count > 80:
         # One question in a longer reply = engaged but cautious
         state["friction_score"] = max(0.0, state["friction_score"] - 0.05)
-    elif question_count == 1 and char_count <= 50:
-        # One question in a short reply = slightly declining but still engaged
+    elif question_count == 1 and char_count <= 80:
+        # One question in a short reply = declining
         state["friction_score"] = max(0.0, state["friction_score"] - 0.1)
-    elif question_count == 0 and char_count < 50:
-        # Very short reply, no questions = strong compliance signal
+    elif question_count == 0 and char_count < 80:
+        # Short reply, no questions = strong compliance signal
         state["compliance_events"] += 1
         state["friction_score"] = max(0.0, state["friction_score"] - 0.3)
-    elif question_count == 0 and char_count < 100:
-        # Short reply, no questions = likely compliance
+    elif question_count == 0 and char_count < 150:
+        # Medium reply, no questions = compliance
         state["compliance_events"] += 1
         state["friction_score"] = max(0.0, state["friction_score"] - 0.2)
-    elif question_count == 0 and char_count >= 100:
+    elif question_count == 0 and char_count >= 150:
         # Long reply, no questions = engaged and trusting
         state["compliance_events"] += 1
         state["friction_score"] = max(0.0, state["friction_score"] - 0.1)
