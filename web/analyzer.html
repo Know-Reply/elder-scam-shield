@@ -368,6 +368,10 @@ function processExchange(senderContent, senderEn, senderJp, elderContent, elderE
     addClassificationCard(senderIdx, classResult);
     updateBehavioralPanel(classResult);
     updateComparisonBars(classResult, naiveResult);
+    // Partially update graph from sender data (full update comes after elder)
+    if (senderData && senderData.graph_signals) {
+      updateGraphPanel(senderData, 'inbound');
+    }
     btn.textContent = 'Analyzing elder reply + updating graph...';
 
     return fetch('/api/conversation/turn', {
