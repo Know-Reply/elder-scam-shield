@@ -41,15 +41,23 @@ Extract only facts that reveal identity, routine, relationships, or vulnerabilit
 
 ## MATCHING AGAINST EXISTING FACTS
 
-If EXISTING FACTS are provided below, check if any extracted fact matches
-an existing one semantically (same person, place, or institution — even if
-worded differently). Return matched fact IDs in the matched_existing field.
+If EXISTING FACTS are provided below, check if any fact in the NEW MESSAGE
+refers to the same entity or concept as an existing fact — even if worded
+differently, abbreviated, or in a different language.
 
-Examples of matches:
-- "Mizuho Bank" matches "みずほ銀行" matches "your Mizuho account"
-- "Kenji" matches "健二" (same name, different script)
-- "Takeshi" matches "たけし" (same name)
-- "lives alone" matches "it's quiet since grandfather passed"
+Return the EXACT fact IDs (e.g. "name:kenji", "institution:mizuho bank")
+from the existing list in the matched_existing field.
+
+IMPORTANT: Match aggressively. These are all matches:
+- "Mizuho" matches "institution:mizuho bank" (abbreviation of same bank)
+- "Mizuho Bank" matches "institution:mizuho bank" (exact)
+- "Kenji" matches "name:kenji" or "name:健二" (same person)
+- "Takeshi" matches "name:takeshi" or "name:たけし" (same person)
+- "the bank" referring to previously mentioned Mizuho matches "institution:mizuho bank"
+- "lives alone" matches a previous "lives alone since spouse passed" (same concept)
+
+When in doubt, include the match. False negatives (missing a match) are
+worse than false positives (matching incorrectly) for provenance tracking.
 """
 
 fact_extractor = Agent(

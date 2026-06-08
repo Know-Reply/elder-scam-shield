@@ -430,7 +430,9 @@ function updateGraphPanel(data, direction) {
       row.className = 'fact-row';
       var sourceClass = f.first_stated_by === 'elder' ? 'fact-elder' : 'fact-sender';
       var echoHtml = f.echo_detected ? '<span class="fact-echo">echoed by ' + f.echo_by + '</span>' : '';
-      row.innerHTML = '<span class="fact-value">' + f.value + '</span>' +
+      var typeLabel = {'name':'person','location':'place','institution':'org','amount':'money','life_fact':'','relationship':''}[f.type] || '';
+      var typeHtml = typeLabel ? '<span style="font-size:0.68rem;color:var(--gray-400);margin-left:4px;">(' + typeLabel + ')</span>' : '';
+      row.innerHTML = '<span class="fact-value">' + f.value + typeHtml + '</span>' +
         '<span><span class="fact-source ' + sourceClass + '">' + f.first_stated_by + ' (T' + f.first_turn + ')</span>' + echoHtml + '</span>';
       factList.appendChild(row);
     });
