@@ -73,10 +73,6 @@ def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[
         if lf and isinstance(lf, str) and len(lf) > 5 and len(lf) < 120:
             facts.append({"value": lf, "type": "life_fact"})
 
-    # Backward compat: also check other_facts
-    for other in extracted_facts.get("other_facts", []):
-        if other and isinstance(other, str) and len(other) > 5 and len(other) < 120:
-            facts.append({"value": other, "type": "life_fact"})
 
     # Matched existing fact IDs (LLM semantic matching)
     matched = extracted_facts.get("matched_existing", [])

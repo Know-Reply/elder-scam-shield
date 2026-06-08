@@ -73,7 +73,7 @@ class TestWriteClassification:
                 "claimed_location": None,
                 "claimed_institution": "税務署",
                 "financial_mention": {"amount": "300,000", "urgency": "high"},
-                "other_facts": [],
+                "life_facts": [],
             },
         )
 
@@ -104,7 +104,7 @@ class TestWriteClassification:
                 "claimed_location": "大阪",
                 "claimed_institution": None,
                 "financial_mention": None,
-                "other_facts": ["says he started a new job"],
+                "life_facts": ["says he started a new job"],
             },
         )
 

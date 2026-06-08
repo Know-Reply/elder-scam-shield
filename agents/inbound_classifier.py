@@ -112,7 +112,7 @@ mundane context. The system flags for verification, not blocking.
     "claimed_location": null or string,
     "claimed_institution": null or string,
     "financial_mention": null or {"amount": str, "urgency": "low|medium|high"},
-    "other_facts": []
+    "life_facts": []
   },
   "reasoning": "brief explanation in English"
 }
