@@ -109,17 +109,25 @@
 
     .empty-state { color: var(--gray-400); font-size: 0.82rem; font-style: italic; padding: 8px 0; }
 
-    /* Inline classification card */
-    .classify-card { margin: 4px 0 12px 62px; padding: 8px 12px; border-radius: 6px; font-size: 0.78rem; border-left: 3px solid var(--gray-300); background: var(--gray-50); }
-    .classify-card.classify-safe { border-left-color: var(--green); }
-    .classify-card.classify-suspicious { border-left-color: var(--orange); }
-    .classify-card.classify-scam { border-left-color: var(--red); background: #fef2f2; }
-    .classify-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 1px 8px; border-radius: 3px; margin-right: 6px; color: #fff; }
+    /* Classification box — sits beside sender message */
+    .classify-card { padding: 10px 14px; border-radius: 8px; font-size: 0.78rem; background: var(--gray-50); border: 1px solid var(--gray-200); max-width: 320px; min-width: 240px; flex-shrink: 0; }
+    .classify-card.classify-safe { border-color: var(--green); }
+    .classify-card.classify-suspicious { border-color: var(--orange); }
+    .classify-card.classify-scam { border-color: var(--red); background: #fef2f2; }
+    .classify-header { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--blue); margin-bottom: 4px; }
+    .classify-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 2px 10px; border-radius: 4px; color: #fff; }
     .classify-badge-safe { background: var(--green); }
     .classify-badge-suspicious { background: var(--orange); }
     .classify-badge-scam { background: var(--red); }
-    .classify-signals { margin-top: 4px; font-size: 0.72rem; color: var(--gray-500); }
-    .classify-sig { font-family: var(--font-mono); font-weight: 600; color: var(--red); margin-right: 4px; }
+    .classify-risk { font-size: 0.82rem; color: var(--gray-500); margin-top: 4px; }
+    .classify-signal-line { font-size: 0.75rem; padding: 2px 0; }
+    .classify-signal-line .sig-code { font-family: var(--font-mono); font-weight: 700; color: var(--red); margin-right: 4px; }
+    .classify-reasoning { font-size: 0.72rem; color: var(--gray-400); line-height: 1.4; margin-top: 6px; cursor: pointer; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .classify-reasoning.expanded { -webkit-line-clamp: unset; }
+
+    /* Sender turn becomes a flex row: bubble left, classification right */
+    .turn-inbound { display: flex; align-items: flex-start; gap: 12px; }
+    .turn-inbound .turn-bubble { flex: 1; }
 
     @media (max-width: 900px) {
       .main { grid-template-columns: 1fr; }
@@ -205,15 +213,15 @@
     </div>
 
     <div class="graph-section">
+      <h3>Risk Signals</h3>
+      <div id="signal-list"><div class="empty-state">Waiting for conversation</div></div>
+    </div>
+
+    <div class="graph-section">
       <h3 style="cursor:pointer;" onclick="var el=document.getElementById('fact-list'); var arrow=document.getElementById('fact-arrow'); if(el.style.display==='none'){el.style.display='';arrow.textContent='▾'}else{el.style.display='none';arrow.textContent='▸'}">
         <span id="fact-arrow">▸</span> Fact Ledger <span id="fact-count" style="font-size:0.7rem; font-weight:400; color:var(--gray-400);"></span>
       </h3>
       <div id="fact-list" style="display:none;"><div class="empty-state">No facts extracted yet</div></div>
-    </div>
-
-    <div class="graph-section">
-      <h3>Risk Signals</h3>
-      <div id="signal-list"><div class="empty-state">Waiting for conversation</div></div>
     </div>
   </div>
 </div>
@@ -369,28 +377,40 @@ function addClassificationCard(turnIdx, result) {
 
   if (cls === 'no_response') return;
 
-  var thread = document.getElementById('thread');
   var card = document.createElement('div');
   var cardClass = cls === 'scam' ? 'classify-scam' : cls === 'suspicious' ? 'classify-suspicious' : 'classify-safe';
   var badgeClass = cls === 'scam' ? 'classify-badge-scam' : cls === 'suspicious' ? 'classify-badge-suspicious' : 'classify-badge-safe';
   card.className = 'classify-card ' + cardClass;
 
-  var html = '<span class="classify-badge ' + badgeClass + '">' + cls.toUpperCase() + '</span>';
-  html += '<span style="color:var(--gray-500);">' + Math.round(confidence * 100) + '%</span>';
+  var html = '<div class="classify-header">Elder Shield</div>';
+  html += '<span class="classify-badge ' + badgeClass + '">' + cls.toUpperCase() + '</span>';
+  html += '<div class="classify-risk">risk ' + confidence.toFixed(2) + '</div>';
+
   if (signals.length > 0) {
-    html += '<span style="color:var(--gray-400); margin-left:8px; font-size:0.7rem;">' + signals.slice(0, 3).join(' ') + '</span>';
+    signals.forEach(function(s) {
+      var LABELS = {
+        'PM-1':'Urgency language','PM-2':'Secrecy demand','PM-3':'Financial solicitation',
+        'PM-4':'Authority claim','PM-5':'Unusual payment','PM-6':'Legal threat',
+        'PM-7':'Credential solicitation','PM-8':'Prize notification','PM-9':'Refund lure',
+        'PM-10':'Emotional crisis','PM-11':'Identity claim','PM-12':'Flattery density',
+        'BV-1':'Relationship velocity','BV-2':'Isolation index','BV-3':'Emotional arc',
+        'BV-4':'Credibility seeding','BV-5':'Help positioning'
+      };
+      html += '<div class="classify-signal-line"><span class="sig-code">' + s + '</span> ' + (LABELS[s] || s) + '</div>';
+    });
+  }
+
+  if (reasoning) {
+    html += '<div class="classify-reasoning" onclick="this.classList.toggle(\'expanded\')">' + reasoning + '</div>';
   }
 
   card.innerHTML = html;
 
-  // Insert after the sender's turn bubble
+  // Append inside the sender's turn div (flex row: bubble + card)
   var turnEl = document.getElementById('turn-' + turnIdx);
-  if (turnEl && turnEl.nextSibling) {
-    turnEl.parentNode.insertBefore(card, turnEl.nextSibling);
-  } else {
-    thread.appendChild(card);
+  if (turnEl) {
+    turnEl.appendChild(card);
   }
-  thread.scrollTop = thread.scrollHeight;
 }
 
 function addProvenanceTags(turnId, data, direction) {
