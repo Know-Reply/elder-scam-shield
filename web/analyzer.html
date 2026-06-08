@@ -194,11 +194,10 @@
     </div>
 
     <div class="graph-section">
-      <h3>Tuned vs Pre-ADK</h3>
-      <div style="font-size:0.68rem; font-weight:600; color:var(--blue); margin-bottom:4px;">ELDER SHIELD</div>
-      <div id="tuned-bars" style="display:flex; gap:3px; margin-bottom:8px;"></div>
-      <div style="font-size:0.68rem; color:var(--gray-400); margin-bottom:4px;">FAXI PRODUCTION</div>
-      <div id="naive-bars" style="display:flex; gap:3px; margin-bottom:4px;"></div>
+      <div style="font-size:0.68rem; font-weight:600; color:var(--blue); margin-bottom:4px;">&#10004; ELDER SHIELD</div>
+      <div id="tuned-bars" style="display:flex; gap:4px; margin-bottom:2px;"></div>
+      <div style="font-size:0.68rem; color:var(--gray-400); margin-bottom:4px; margin-top:8px;">FAXI PRODUCTION</div>
+      <div id="naive-bars" style="display:flex; gap:4px; margin-bottom:2px;"></div>
     </div>
 
     <div class="graph-section">
@@ -472,13 +471,27 @@ function updateComparisonBars(tunedResult, naiveResult) {
   function renderBars(history, containerId) {
     var el = document.getElementById(containerId);
     el.innerHTML = '';
-    history.forEach(function(cls, i) {
-      var color = cls === 'scam' ? 'var(--red)' : cls === 'suspicious' ? 'var(--orange)' : 'var(--green)';
+    var total = EXCHANGES.length;
+    for (var i = 0; i < total; i++) {
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;';
       var bar = document.createElement('div');
-      bar.style.cssText = 'flex:1; height:24px; border-radius:4px; background:' + color + '; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:#fff;';
-      bar.textContent = (i + 1);
-      el.appendChild(bar);
-    });
+      bar.style.cssText = 'width:100%; height:14px; border-radius:3px;';
+      if (i < history.length) {
+        var cls = history[i];
+        bar.style.background = cls === 'scam' ? 'var(--red)' : cls === 'suspicious' ? 'var(--orange)' : 'var(--green)';
+      } else {
+        bar.style.background = 'var(--gray-100)';
+        bar.style.height = '3px';
+        bar.style.marginTop = '5px';
+      }
+      wrap.appendChild(bar);
+      var label = document.createElement('span');
+      label.style.cssText = 'font-size:0.6rem; font-weight:600; color:var(--gray-400);';
+      label.textContent = (i + 1);
+      wrap.appendChild(label);
+      el.appendChild(wrap);
+    }
   }
 
   renderBars(behavState.tunedHistory, 'tuned-bars');
