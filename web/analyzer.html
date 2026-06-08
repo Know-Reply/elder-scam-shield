@@ -385,12 +385,13 @@ function updateGraphPanel(data, direction) {
     el.classList.toggle('active', es.trust_stage === s);
   });
 
-  // Guard bar — shows how much resistance the elder has left
+  // Guard bar — shows danger level (inverted friction: low guard = high danger)
   var friction = es.friction_score;
+  var danger = 1.0 - friction;
   var fill = document.getElementById('friction-fill');
-  fill.style.width = Math.round(friction * 100) + '%';
-  fill.style.background = friction >= 0.6 ? 'var(--green)' : friction >= 0.45 ? 'var(--yellow)' : friction >= 0.2 ? 'var(--orange)' : 'var(--red)';
-  document.getElementById('friction-value').textContent = Math.round(friction * 100) + '%';
+  fill.style.width = Math.round(danger * 100) + '%';
+  fill.style.background = danger <= 0.3 ? 'var(--green)' : danger <= 0.55 ? 'var(--yellow)' : danger <= 0.8 ? 'var(--orange)' : 'var(--red)';
+  document.getElementById('friction-value').textContent = '';
   var trajectoryEl = document.getElementById('friction-trajectory');
   if (direction === 'inbound') {
     trajectoryEl.textContent = '';
