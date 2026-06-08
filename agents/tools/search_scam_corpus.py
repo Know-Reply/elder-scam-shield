@@ -192,10 +192,13 @@ def _search_local(query: str, top_k: int = 5, label_filter: str = None) -> list[
                     scores[i] = 0.0
 
         # Get top-k
+        # Only return matches above a meaningful similarity threshold.
+        # Scores below 0.15 are noise — common word overlap, not real matches.
+        min_similarity = 0.15
         top_indices = scores.argsort()[::-1][:top_k * 3]
         results = []
         for idx in top_indices:
-            if scores[idx] < 0.01:
+            if scores[idx] < min_similarity:
                 break
             entry = corpus[idx]
             results.append({
