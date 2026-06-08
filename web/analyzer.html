@@ -454,22 +454,6 @@ function updateBehavioralPanel(result) {
 
   document.getElementById('behav-stats').textContent = 'Per-message: ' + behavState.flagged + ' of ' + behavState.messages + ' flagged';
 
-  // Accumulated signals
-  var sigEl = document.getElementById('accum-signals');
-  var sigKeys = Object.keys(behavState.allSignals);
-  if (sigKeys.length > 0) {
-    var LABELS = {
-      'PM-1':'Urgency','PM-2':'Secrecy','PM-3':'Financial','PM-4':'Authority',
-      'PM-5':'Unusual payment','PM-6':'Legal threat','PM-7':'Credentials',
-      'PM-8':'Prize','PM-9':'Refund','PM-10':'Crisis','PM-11':'Identity claim',
-      'PM-12':'Flattery','BV-1':'Relationship velocity','BV-2':'Isolation',
-      'BV-3':'Emotional arc','BV-4':'Credibility seeding','BV-5':'Help positioning'
-    };
-    sigEl.innerHTML = sigKeys.map(function(s) {
-      return '<div style="font-size:0.78rem;padding:2px 0;"><span style="font-family:var(--font-mono);font-weight:700;color:var(--red);margin-right:4px;">' + s + '</span>' + (LABELS[s] || s) + '</div>';
-    }).join('');
-  }
-
   // Sender identity
   var idEl = document.getElementById('sender-identity');
   idEl.innerHTML = '<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>Claimed Name</span><span style="font-weight:600;">' + (behavState.senderName || '—') + '</span></div>' +
