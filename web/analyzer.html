@@ -380,14 +380,9 @@ function addClassificationCard(turnIdx, result) {
   card.className = 'classify-card ' + cardClass;
 
   var html = '<span class="classify-badge ' + badgeClass + '">' + cls.toUpperCase() + '</span>';
-  html += '<span style="color:var(--gray-500);">' + Math.round(confidence * 100) + '% confidence</span>';
+  html += '<span style="color:var(--gray-500);">' + Math.round(confidence * 100) + '%</span>';
   if (signals.length > 0) {
-    html += '<div class="classify-signals">Signals: ';
-    signals.forEach(function(s) { html += '<span class="classify-sig">' + s + '</span>'; });
-    html += '</div>';
-  }
-  if (reasoning) {
-    html += '<div style="margin-top:4px; font-size:0.72rem; color:var(--gray-400); line-height:1.4;">' + reasoning.substring(0, 150) + (reasoning.length > 150 ? '...' : '') + '</div>';
+    html += '<span style="color:var(--gray-400); margin-left:8px; font-size:0.7rem;">' + signals.slice(0, 3).join(' ') + '</span>';
   }
 
   card.innerHTML = html;
