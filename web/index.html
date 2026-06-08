@@ -2098,7 +2098,27 @@ body {
     // Call live Gemini API — step 4 starts now
     setTimeout(function() { var s = document.getElementById('ls-4'); if (s) s.classList.add('active'); }, 600);
     var messageForApi = c.jp || c.en || msgText;
-    var classifyBody = JSON.stringify({ sender: 'scammer_day' + (state.currentDay + 1), content: messageForApi });
+
+    // Build conversation history so the classifier can detect behavioral patterns
+    // (BV signals require seeing the arc across messages, not just this message)
+    var historyContext = '';
+    if (state.messages > 0) {
+      var historyLines = [];
+      for (var hi = 0; hi < state.classHistory.length; hi++) {
+        historyLines.push('Message ' + (hi + 1) + ': ' + state.classHistory[hi] +
+          (state.signalHistory[hi] && state.signalHistory[hi].length > 0
+            ? ' (signals: ' + state.signalHistory[hi].map(function(s) { return s.code; }).join(', ') + ')'
+            : ' (no signals)'));
+      }
+      historyContext = '\n\nCONVERSATION HISTORY (previous messages from this sender):\n' +
+        historyLines.join('\n') +
+        '\n\nThis is message ' + (state.messages + 1) + ' from the same sender. ' +
+        'Detect behavioral patterns across the full arc — not just this message. ' +
+        'Look for: BV-1 relationship velocity, BV-2 isolation, BV-3 emotional arc, ' +
+        'BV-4 credibility seeding, BV-5 help positioning, LG-10 compliance conditioning.';
+    }
+
+    var classifyBody = JSON.stringify({ sender: 'scammer_day' + (state.currentDay + 1), content: messageForApi + historyContext });
 
     // Two parallel calls: tuned classifier + naive baseline
     Promise.all([
