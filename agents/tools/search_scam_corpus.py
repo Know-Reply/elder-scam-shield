@@ -315,3 +315,8 @@ def get_corpus_pattern_stats(scam_type: str) -> dict:
         "languages": list(set(e.get("language", "unknown") for e in pattern_entries)),
         "sample_ids": [e.get("id") for e in pattern_entries[:5]],
     }
+
+
+# Pre-warm: load and vectorize the corpus at import time so the first
+# API call doesn't pay the ~50s cold-start cost.
+_load_local_corpus()
