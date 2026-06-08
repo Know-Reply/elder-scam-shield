@@ -20,23 +20,9 @@ from __future__ import annotations
 
 # ── Fact Ledger (Signal layer) ────────────────────────────────────────
 
-_GENERIC_WORDS = {
-    "bank", "hospital", "police", "clinic", "school", "company",
-    "grandfather", "grandmother", "grandma", "grandpa", "mother", "father",
-    "mom", "dad", "son", "daughter", "friend", "brother", "sister",
-    "uncle", "aunt", "nephew", "niece", "wife", "husband",
-    "unknown", "not specified", "none", "n/a", "",
-    "おばあちゃん", "おじいちゃん", "お母さん", "お父さん",
-    "銀行", "病院", "警察", "学校",
-}
-
-
-def _is_specific(value: str) -> bool:
-    """Check if a value is specific enough to be a standalone fact.
-    'Mizuho Bank' is specific. 'bank' alone is not."""
-    if not value:
-        return False
-    return value.lower().strip() not in _GENERIC_WORDS and len(value) > 1
+def _is_present(value: str) -> bool:
+    """Check if a value is non-empty."""
+    return bool(value and value.strip())
 
 
 def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[str]]:
@@ -56,30 +42,30 @@ def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[
 
     # Primary name — only if specific (a proper name, not "grandfather")
     name = extracted_facts.get("claimed_name")
-    if name and _is_specific(name):
+    if name and _is_present(name):
         facts.append({"value": name, "type": "name",
                        "category": extracted_facts.get("claimed_relationship", "person")})
 
     # Referenced names — other people mentioned in the message
     for ref_name in extracted_facts.get("referenced_names", []):
-        if ref_name and _is_specific(ref_name):
+        if ref_name and _is_present(ref_name):
             facts.append({"value": ref_name, "type": "name", "category": "referenced"})
 
     # Location — only if specific (a city name, not just "here")
     location = extracted_facts.get("claimed_location")
-    if location and _is_specific(location):
+    if location and _is_present(location):
         facts.append({"value": location, "type": "location"})
 
     # Institution — only if specific ("Mizuho Bank", not "bank")
     institution = extracted_facts.get("claimed_institution")
-    if institution and _is_specific(institution):
+    if institution and _is_present(institution):
         facts.append({"value": institution, "type": "institution"})
 
     # Financial — only if a real amount, not "unknown"
     fin = extracted_facts.get("financial_mention")
     if fin and isinstance(fin, dict):
         amount = fin.get("amount")
-        if amount and _is_specific(str(amount)):
+        if amount and _is_present(str(amount)):
             facts.append({"value": str(amount), "type": "amount"})
 
     # Life facts — significant details a scammer could exploit

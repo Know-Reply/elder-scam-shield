@@ -20,16 +20,17 @@ Extract facts from the NEW MESSAGE below. Return structured JSON.
 ## WHAT TO EXTRACT
 
 Identity facts:
-- claimed_name: the speaker's own identity claim, or the primary person
-  being discussed. One name only.
-- referenced_names: ALL OTHER person names mentioned in the message.
-  CRITICAL: every distinct person name that is NOT the claimed_name MUST
-  go here. "Takeshi told me you were busy" → referenced_names: ["Takeshi"].
-  "I talked to Takeshi and Yuko" → referenced_names: ["Takeshi", "Yuko"].
-  Do NOT skip names. Every name matters for provenance tracking.
+- claimed_name: a SPECIFIC person's name (given name, family name, nickname).
+  NOT generic titles like "Grandma", "Mom", "おばあちゃん", "お母さん" — those
+  are address terms, not names. Only proper names: "Kenji", "Takeshi", "田中".
+- referenced_names: ALL OTHER specific person names mentioned in the message.
+  "Takeshi told me" → referenced_names: ["Takeshi"]. Every distinct proper
+  name must appear either in claimed_name or referenced_names. NOT titles.
 - claimed_relationship: relationship claim (grandson, daughter, friend, doctor)
 - claimed_location: places (city, neighborhood, country, specific address)
-- claimed_institution: organizations (bank name, hospital, police, company, school)
+- claimed_institution: SPECIFIC organizations only — "Mizuho Bank", "Tokyo
+  Metropolitan Police". NOT generic words like "bank", "hospital", "police".
+  If the message says "I'll go to the bank", that's a life_fact, not an institution.
 
 Financial facts:
 - financial_mention: money amounts with urgency (low/medium/high)
