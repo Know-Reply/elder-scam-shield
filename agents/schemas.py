@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 
 class FinancialMention(BaseModel):
-    amount: str
+    amount: str = ""
     urgency: Literal["low", "medium", "high"] = "low"
 
 
