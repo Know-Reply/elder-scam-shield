@@ -20,16 +20,16 @@ from __future__ import annotations
 
 # ── Fact Ledger (Signal layer) ────────────────────────────────────────
 
-def _facts_from_llm_extraction(extracted_facts: dict) -> list[dict]:
-    """Convert LLM-extracted facts into normalized fact entries.
+def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[str]]:
+    """Convert LLM-extracted facts into normalized entries + matched IDs.
 
-    Takes the extracted_facts dict from ClassificationResult or
-    InterceptDecision — LLM-extracted, multilingual, context-aware.
-    No regex. Works in any language the LLM understands.
+    Returns:
+        (facts, matched_ids) — facts to add, and IDs of existing facts
+        that the LLM identified as semantic matches.
     """
     facts = []
     if not extracted_facts:
-        return facts
+        return facts, []
 
     # Names and relationships
     name = extracted_facts.get("claimed_name")
@@ -58,12 +58,20 @@ def _facts_from_llm_extraction(extracted_facts: dict) -> list[dict]:
         if amount:
             facts.append({"value": str(amount), "type": "amount"})
 
-    # Other facts — free-text observations from the LLM
-    for other in extracted_facts.get("other_facts", []):
-        if other and isinstance(other, str) and len(other) < 100:
-            facts.append({"value": other, "type": "observation"})
+    # Life facts — significant details a scammer could exploit
+    for lf in extracted_facts.get("life_facts", []):
+        if lf and isinstance(lf, str) and len(lf) < 120:
+            facts.append({"value": lf, "type": "life_fact"})
 
-    return facts
+    # Backward compat: also check other_facts
+    for other in extracted_facts.get("other_facts", []):
+        if other and isinstance(other, str) and len(other) < 120:
+            facts.append({"value": other, "type": "life_fact"})
+
+    # Matched existing fact IDs (LLM semantic matching)
+    matched = extracted_facts.get("matched_existing", [])
+
+    return facts, matched
 
 
 def _make_fact_id(fact_type: str, value: str) -> str:
@@ -91,7 +99,7 @@ def update_fact_ledger(
     if ledger is None:
         ledger = {"facts": {}, "turns": [], "contradiction_log": []}
 
-    raw_facts = _facts_from_llm_extraction(extracted_facts)
+    raw_facts, matched_ids = _facts_from_llm_extraction(extracted_facts)
     speaker = "elder" if direction == "outbound" else "sender"
     other_speaker = "sender" if speaker == "elder" else "elder"
 
@@ -104,8 +112,22 @@ def update_fact_ledger(
         "echoed_facts": 0,
     }
 
+    # Apply LLM semantic matches — mark existing facts as echoed
+    for matched_fid in matched_ids:
+        if matched_fid in ledger["facts"]:
+            fact = ledger["facts"][matched_fid]
+            if fact["first_stated_by"] == other_speaker and not fact["echo_detected"]:
+                fact["echo_detected"] = True
+                fact["echo_by"] = speaker
+                fact["echo_at_turn"] = turn_index
+                turn_entry["echoed_facts"] += 1
+                turn_entry["fact_ids"].append(matched_fid)
+
     for raw in raw_facts:
         fid = _make_fact_id(raw["type"], raw["value"])
+        # Skip if this fact was already matched semantically by the LLM
+        if fid in [m for m in matched_ids]:
+            continue
         turn_entry["fact_ids"].append(fid)
 
         if fid not in ledger["facts"]:

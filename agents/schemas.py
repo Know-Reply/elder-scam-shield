@@ -20,7 +20,8 @@ class ExtractedFacts(BaseModel):
     claimed_location: str | None = None
     claimed_institution: str | None = None
     financial_mention: FinancialMention | None = None
-    other_facts: list[str] = Field(default_factory=list)
+    life_facts: list[str] = Field(default_factory=list)
+    matched_existing: list[str] = Field(default_factory=list)
 
 
 class ClassificationResult(BaseModel):

@@ -656,9 +656,18 @@ async def conversation_turn(req: ConversationTurnRequest):
         session = await _session_service.create_session(
             app_name="elder_scam_shield_extractor", user_id="analyzer"
         )
+
+        # Build prompt with existing facts for semantic matching
+        existing_ledger = state.get("fact_ledger", {}).get("facts", {})
+        existing_context = ""
+        if existing_ledger:
+            fact_list = [f"{fid}: {f['value']} (by {f['first_stated_by']})"
+                        for fid, f in existing_ledger.items()]
+            existing_context = "\n\nEXISTING FACTS (match against these):\n" + "\n".join(fact_list)
+
         msg = genai_types.Content(
             role="user",
-            parts=[genai_types.Part(text=req.content)],
+            parts=[genai_types.Part(text=f"NEW MESSAGE:\n{req.content}{existing_context}")],
         )
         async for event in _extractor_runner.run_async(
             user_id="analyzer", session_id=session.id, new_message=msg
