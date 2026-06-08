@@ -39,6 +39,13 @@ Life facts (significant details a scammer could exploit):
 Do NOT extract trivial observations ("the weather is nice", "I had lunch").
 Extract only facts that reveal identity, routine, relationships, or vulnerability.
 
+## TIME REFERENCES
+Convert ALL relative time references to absolute dates based on today's
+date (provided below). "Tomorrow" → "2026-06-09", "next week" → "week of
+2026-06-15", "this morning" → "2026-06-08 morning", "last week" → "week of
+2026-06-01". Store the resolved date in the fact, not the relative word.
+This prevents confusion when facts are reviewed months later.
+
 ## MATCHING AGAINST EXISTING FACTS
 
 If EXISTING FACTS are provided below, check if any fact in the NEW MESSAGE
