@@ -69,10 +69,6 @@
     .graph-section { padding: 14px 18px; border-bottom: 1px solid var(--gray-100); }
     .graph-section h3 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-400); margin-bottom: 10px; }
 
-    /* Friction meter */
-    .friction-bar { height: 12px; background: var(--gray-200); border-radius: 6px; overflow: hidden; margin-bottom: 4px; }
-    .friction-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease, background 0.3s; }
-    .friction-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--gray-500); }
 
     /* Trust stage */
     .trust-stages { display: flex; gap: 4px; margin-bottom: 8px; }
@@ -189,8 +185,6 @@
         <div class="trust-stage trust-trusting" id="ts-trusting">Vulnerable</div>
         <div class="trust-stage trust-compliant" id="ts-compliant">Compromised</div>
       </div>
-      <div class="friction-bar"><div class="friction-fill" id="friction-fill" style="width:80%; background:var(--green);"></div></div>
-      <div class="friction-label"><span id="friction-value">0.80</span><span id="friction-trajectory"></span></div>
     </div>
 
     <div class="graph-section">
@@ -211,8 +205,10 @@
     </div>
 
     <div class="graph-section">
-      <h3>Fact Ledger</h3>
-      <div id="fact-list"><div class="empty-state">No facts extracted yet</div></div>
+      <h3 style="cursor:pointer;" onclick="var el=document.getElementById('fact-list'); var arrow=document.getElementById('fact-arrow'); if(el.style.display==='none'){el.style.display='';arrow.textContent='▾'}else{el.style.display='none';arrow.textContent='▸'}">
+        <span id="fact-arrow">▸</span> Fact Ledger <span id="fact-count" style="font-size:0.7rem; font-weight:400; color:var(--gray-400);"></span>
+      </h3>
+      <div id="fact-list" style="display:none;"><div class="empty-state">No facts extracted yet</div></div>
     </div>
 
     <div class="graph-section">
@@ -440,21 +436,6 @@ function updateGraphPanel(data, direction) {
     el.classList.toggle('active', es.trust_stage === s);
   });
 
-  // Guard bar — shows danger level (inverted friction: low guard = high danger)
-  var friction = es.friction_score;
-  var danger = 1.0 - friction;
-  var fill = document.getElementById('friction-fill');
-  fill.style.width = Math.round(danger * 100) + '%';
-  fill.style.background = danger <= 0.3 ? 'var(--green)' : danger <= 0.55 ? 'var(--yellow)' : danger <= 0.8 ? 'var(--orange)' : 'var(--red)';
-  document.getElementById('friction-value').textContent = '';
-  var trajectoryEl = document.getElementById('friction-trajectory');
-  if (direction === 'inbound') {
-    trajectoryEl.textContent = '';
-  } else {
-    var traj = es.friction_trajectory;
-    trajectoryEl.textContent = traj === 'declining' ? '↓ guard dropping' : traj === 'collapsed' ? '⚠ guard collapsed' : traj === 'stable_high' ? 'holding steady' : '';
-    trajectoryEl.style.color = traj === 'declining' ? 'var(--orange)' : traj === 'collapsed' ? 'var(--red)' : 'var(--gray-400)';
-  }
 
   // Scammer's advantage — what they've learned from the elder
   var independent = gs.sender_independent_facts || 0;
@@ -515,6 +496,7 @@ function updateGraphPanel(data, direction) {
   // Fact ledger
   var factList = document.getElementById('fact-list');
   var factKeys = Object.keys(facts);
+  document.getElementById('fact-count').textContent = factKeys.length > 0 ? '(' + factKeys.length + ')' : '';
   if (factKeys.length > 0) {
     factList.innerHTML = '';
     factKeys.forEach(function(fid) {
