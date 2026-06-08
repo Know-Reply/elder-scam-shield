@@ -196,12 +196,17 @@
     </div>
 
     <div class="graph-section">
+      <h3>Elder Vulnerability Profile</h3>
+      <div id="vuln-list"><div class="empty-state">No vulnerabilities revealed yet</div></div>
+    </div>
+
+    <div class="graph-section">
       <h3>Fact Ledger</h3>
       <div id="fact-list"><div class="empty-state">No facts extracted yet</div></div>
     </div>
 
     <div class="graph-section">
-      <h3>Graph Signals</h3>
+      <h3>Risk Signals</h3>
       <div id="signal-list"><div class="empty-state">Waiting for conversation</div></div>
     </div>
   </div>
@@ -374,6 +379,7 @@ function updateGraphPanel(data, direction) {
   var kg = data.knowledge_graph;
   var gs = data.graph_signals;
   var facts = data.fact_ledger.facts;
+  var vuln = data.vulnerability_summary || {};
 
   // Trust stages
   ['skeptical', 'engaged', 'trusting', 'compliant'].forEach(function(s) {
@@ -417,6 +423,25 @@ function updateGraphPanel(data, direction) {
         '<span class="identity-cred ' + credClass + '">' + ic.credibility + '</span>';
       idList.appendChild(row);
     });
+  }
+
+  // Vulnerability profile (persistent, consolidated)
+  var vulnList = document.getElementById('vuln-list');
+  var vulns = vuln.vulnerabilities || [];
+  if (vulns.length > 0) {
+    vulnList.innerHTML = '';
+    vulns.forEach(function(v) {
+      var item = document.createElement('div');
+      item.style.cssText = 'font-size:0.82rem; padding:3px 0; color:var(--gray-700);';
+      item.textContent = '• ' + v;
+      vulnList.appendChild(item);
+    });
+    if (vuln.total_elder_facts_exposed) {
+      var stats = document.createElement('div');
+      stats.style.cssText = 'font-size:0.72rem; color:var(--gray-400); margin-top:6px; padding-top:6px; border-top:1px solid var(--gray-100);';
+      stats.textContent = vuln.total_elder_facts_exposed + ' facts exposed | ' + vuln.total_echoed_facts + ' echoed by sender | Trust: ' + vuln.trust_stage;
+      vulnList.appendChild(stats);
+    }
   }
 
   // Fact ledger

@@ -400,6 +400,60 @@ def build_knowledge_graph(
     }
 
 
+# ── Persistence: consolidate for ADK session state scoping ────────────
+
+IDENTITY_TYPES = {"name", "location", "institution", "amount", "relationship"}
+
+
+def consolidate_for_persistence(ledger: dict, epistemic: dict) -> tuple[dict, dict]:
+    """Consolidate the fact ledger into two persistent structures.
+
+    Identity facts: names, locations, institutions, amounts — small, stable,
+    used for matching across sessions. Stored at user: scope.
+
+    Vulnerability summary: consolidated profile of the elder's revealed
+    vulnerabilities — not a growing list, but a current-state summary.
+    Stored at user: scope.
+
+    Per-conversation details stay in the session-level fact_ledger.
+    """
+    facts = ledger.get("facts", {})
+
+    # Identity facts — persist across sessions for matching
+    identity = {}
+    for fid, fact in facts.items():
+        if fact.get("type") in IDENTITY_TYPES:
+            identity[fid] = {
+                "value": fact["value"],
+                "type": fact["type"],
+                "first_stated_by": fact["first_stated_by"],
+                "first_turn": fact["first_turn"],
+                "echo_detected": fact.get("echo_detected", False),
+                "echo_by": fact.get("echo_by"),
+            }
+
+    # Vulnerability summary — consolidated from life_facts
+    vulnerabilities = []
+    for fid, fact in facts.items():
+        if fact.get("type") == "life_fact" and fact["first_stated_by"] == "elder":
+            vulnerabilities.append(fact["value"])
+
+    summary = {
+        "vulnerabilities": vulnerabilities,
+        "trust_stage": epistemic.get("trust_stage", "skeptical"),
+        "friction_score": epistemic.get("friction_score", 0.8),
+        "friction_trajectory": epistemic.get("friction_trajectory", "stable_high"),
+        "total_elder_facts_exposed": sum(
+            1 for f in facts.values() if f["first_stated_by"] == "elder"
+        ),
+        "total_echoed_facts": sum(
+            1 for f in facts.values() if f.get("echo_detected")
+        ),
+    }
+
+    return identity, summary
+
+
 # ── Public API: process one turn ──────────────────────────────────────
 
 def process_conversation_turn(
@@ -441,9 +495,15 @@ def process_conversation_turn(
     # Layer 3: Build knowledge graph from accumulated evidence
     graph = build_knowledge_graph(ledger, epistemic)
 
+    # Consolidate into persistent layers (ADK session state scoping)
+    identity_facts, vulnerability_summary = consolidate_for_persistence(ledger, epistemic)
+
     return {
         "fact_ledger": ledger,
         "epistemic_state": epistemic,
         "knowledge_graph": graph,
         "graph_signals": graph.get("graph_signals", {}),
+        # Persistent state — use user: prefix in ADK session
+        "user:identity_facts": identity_facts,
+        "user:vulnerability_summary": vulnerability_summary,
     }

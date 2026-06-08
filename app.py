@@ -663,13 +663,19 @@ async def conversation_turn(req: ConversationTurnRequest):
         from datetime import date
         today = date.today().isoformat()
 
-        # Build existing facts context for semantic matching
-        existing_ledger = state.get("fact_ledger", {}).get("facts", {})
+        # Build matching context from IDENTITY FACTS ONLY (not all details)
+        # This keeps the context small even after 50+ emails
+        identity_facts = state.get("user:identity_facts", {})
         existing_section = ""
-        if existing_ledger:
+        if identity_facts:
             lines = [f"- {fid} (by {f['first_stated_by']})"
-                     for fid, f in existing_ledger.items()]
-            existing_section = "\n\nEXISTING FACTS:\n" + "\n".join(lines)
+                     for fid, f in identity_facts.items()]
+            existing_section = "\n\nEXISTING IDENTITY FACTS (match against these):\n" + "\n".join(lines)
+
+        # Add vulnerability summary as context (not for matching, for awareness)
+        vuln = state.get("user:vulnerability_summary", {})
+        if vuln.get("vulnerabilities"):
+            existing_section += "\n\nELDER VULNERABILITY PROFILE:\n" + "\n".join(f"- {v}" for v in vuln["vulnerabilities"])
 
         msg = genai_types.Content(
             role="user",
@@ -696,12 +702,15 @@ async def conversation_turn(req: ConversationTurnRequest):
         extracted_facts=extracted_facts if extracted_facts else None,
     )
 
+    # Store all state including persistent user-scoped data
     _analyzer_states[req.session_id] = result
     return {
         "fact_ledger": result["fact_ledger"],
         "epistemic_state": result["epistemic_state"],
         "knowledge_graph": result["knowledge_graph"],
         "graph_signals": result["graph_signals"],
+        "identity_facts": result.get("user:identity_facts", {}),
+        "vulnerability_summary": result.get("user:vulnerability_summary", {}),
         "extracted_facts": extracted_facts,
     }
 
