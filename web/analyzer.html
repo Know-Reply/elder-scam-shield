@@ -193,7 +193,7 @@
   <div class="graph-col">
     <div class="graph-section" style="text-align:center; padding:16px;">
       <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--blue);">Elder Shield</div>
-      <div id="behav-risk" style="font-size:2.2rem; font-weight:800; color:var(--green);">0.05</div>
+      <div id="behav-risk" style="font-size:2.2rem; font-weight:800; color:var(--green);">5%</div>
       <div id="behav-badge"><span style="display:inline-block; padding:2px 12px; border-radius:4px; font-size:0.78rem; font-weight:700; background:var(--green-bg); color:var(--green);">SAFE</span></div>
       <div id="behav-stats" style="font-size:0.75rem; color:var(--gray-400); margin-top:6px;">Per-message: 0 of 0 flagged</div>
     </div>
@@ -440,11 +440,16 @@ function updateBehavioralPanel(result) {
   if (facts.claimed_name) behavState.senderName = facts.claimed_name;
   if (facts.claimed_location && behavState.senderLocations.indexOf(facts.claimed_location) === -1) behavState.senderLocations.push(facts.claimed_location);
   if (facts.claimed_institution && behavState.senderInstitutions.indexOf(facts.claimed_institution) === -1) behavState.senderInstitutions.push(facts.claimed_institution);
-  if (facts.financial_mention && facts.financial_mention.amount) behavState.financialAsks.push(facts.financial_mention.amount);
+  if (facts.financial_mention && facts.financial_mention.amount) {
+    var amt = facts.financial_mention.amount;
+    if (amt && amt !== 'not specified' && amt !== 'unknown' && behavState.financialAsks.indexOf(amt) === -1) {
+      behavState.financialAsks.push(amt);
+    }
+  }
 
   // Update risk display
   var riskColor = confidence >= 0.7 ? 'var(--red)' : confidence >= 0.4 ? 'var(--orange)' : confidence >= 0.2 ? 'var(--yellow)' : 'var(--green)';
-  document.getElementById('behav-risk').textContent = confidence.toFixed(2);
+  document.getElementById('behav-risk').textContent = Math.round(confidence * 100) + '%';
   document.getElementById('behav-risk').style.color = riskColor;
 
   var badgeColor = cls === 'SCAM' ? 'var(--red)' : cls === 'SUSPICIOUS' ? 'var(--orange)' : 'var(--green)';

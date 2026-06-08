@@ -1294,35 +1294,16 @@ body {
           tag: 'aggressive', tagLabel: 'Aggressive',
           en: 'Hi Grandma, it\'s Kenji! I got a new phone number.',
           jp: 'おばあちゃん、健二だよ！新しい電話番号に変えたんだ。',
-          risk: 0.35, classification: 'SAFE',
-          signals: [
-            { code: 'BV-1', text: 'Relationship velocity — claims existing relationship immediately', type: 'warn' },
-            { code: 'PM-11', text: 'Identity claim — unverifiable family relationship', type: 'warn' }
-          ],
-          reasoning: 'Message is individually safe — a grandchild announcing a new number is normal. But the Behavioral Analyzer notes the ore-ore pattern: claiming an existing relationship from an unknown number without verification.',
-          profile: { identity: 'Kenji (\u5065\u4e8c) — unverified', locations: '\u2014', contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
           en: 'Mrs. Yamada, I\'m Kenji, Tanaka Taro\'s son. He always speaks fondly of you.',
           jp: '山田様、田中太郎の息子の健二です。父がいつもお世話になっております。',
-          risk: 0.12, classification: 'SAFE',
-          signals: [
-            { code: 'BV-4', text: 'Credibility seeding — name-dropping mutual connection', type: 'warn' }
-          ],
-          reasoning: 'Polite formal introduction with specific names. Per-message classifier correctly says SAFE. Behavioral Analyzer logs the name-drop as mild credibility seeding for future tracking.',
-          profile: { identity: 'Kenji Tanaka (\u5065\u4e8c)', locations: '\u2014', contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
           en: 'I saw your rose post on the gardening forum. I tend a garden in Yokohama too.',
           jp: 'ガーデニング掲示板でバラの投稿拝見しました。私も横浜で庭を手入れしています。',
-          risk: 0.05, classification: 'SAFE',
-          signals: [
-            { code: 'OK', text: 'Shared interest — natural conversation opener', type: 'safe' }
-          ],
-          reasoning: 'Casual introduction via shared hobby. No relationship claim, no manipulation signals. Both systems agree this is safe. Profile created for ongoing tracking.',
-          profile: { identity: 'Unknown (gardener)', locations: 'Yokohama (\u6a2a\u6d5c)', contradictions: 0, financial: '\u2014' }
         }
       ]
     },
@@ -1334,37 +1315,16 @@ body {
           tag: 'aggressive', tagLabel: 'Aggressive',
           en: 'I feel like we\'ve known each other forever. Can I call you Grandma too?',
           jp: 'なんだかずっと前から知り合いだったみたい。私もおばあちゃんって呼んでいい？',
-          risk: 0.55, classification: 'SAFE',
-          signals: [
-            { code: 'BV-1', text: 'Relationship velocity — rushing to familial intimacy on Day 2', type: 'danger' },
-            { code: 'BV-4', text: 'Credibility seeding — forcing emotional closeness', type: 'warn' }
-          ],
-          reasoning: 'Message is individually benign — expressing warmth. But the Behavioral Analyzer flags extreme relationship velocity: requesting familial terms on Day 2 is a textbook grooming pattern.',
-          profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
           en: 'How\'s your health? Living alone must get lonely sometimes.',
           jp: 'お体の調子はいかがですか？一人暮らしは寂しくないですか？',
-          risk: null, classification: null,
-          riskDelta: 0.15,
-          signals: [
-            { code: 'BV-5', text: 'Help positioning — probing health + isolation status', type: 'warn' }
-          ],
-          reasoning: 'A health inquiry is perfectly normal. But the Behavioral Analyzer detects information gathering: probing whether the target lives alone and their health status is a common reconnaissance pattern.',
-          profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
           en: 'What variety of roses do you grow? I\'ve been trying David Austins.',
           jp: 'どんな品種のバラを育てていますか？私はデビッド・オースチンに挑戦中です。',
-          risk: null, classification: null,
-          riskDelta: 0.03,
-          signals: [
-            { code: 'OK', text: 'Continued shared interest — staying on topic', type: 'safe' }
-          ],
-          reasoning: 'Genuine hobby conversation. Normal pace. Both systems agree this is safe. Slight velocity note logged but no concern.',
-          profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
         }
       ]
     },
@@ -1376,39 +1336,16 @@ body {
           tag: 'aggressive', tagLabel: 'Aggressive',
           en: 'I work at NTT in Osaka, been there 5 years. Dad and I talk every Sunday.',
           jp: '大阪のNTTで5年働いてるんだ。毎週日曜日にお父さんと電話してるよ。',
-          risk: 0.70, classification: 'SAFE',
-          signals: [
-            { code: 'BV-4', text: 'Credibility seeding — excessive personal detail volunteering', type: 'danger' },
-            { code: 'BV-1', text: 'Relationship velocity — building detailed persona quickly', type: 'warn' },
-            { code: 'LG-0', text: 'Location established: Osaka', type: 'safe' }
-          ],
-          reasoning: 'Message reads as normal sharing. But the Behavioral Analyzer flags heavy credibility seeding: volunteering employer, tenure, and family routine unprompted is a pattern used to build a verifiable-seeming identity that will later be used to extract trust.',
-          profile: { identity: null, locations: 'Osaka (\u5927\u962a)', contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
           en: 'I bumped into Yuki at the station last week! He\'s gotten so tall.',
           jp: '先週駅でゆきさんに偶然会ったよ！すごく背が伸びたね。',
-          risk: null, classification: null,
-          riskDelta: 0.12,
-          signals: [
-            { code: 'BV-4', text: 'Credibility seeding — name-dropping family members', type: 'warn' },
-            { code: 'LG-2', text: 'Contact identity mismatch — claiming to know family', type: 'warn' }
-          ],
-          reasoning: 'Mentioning a real family member by name builds trust. The per-message classifier sees normal conversation. The Behavioral Analyzer notes that name-dropping real contacts is a key credibility-building tactic.',
-          profile: { identity: null, locations: null, contradictions: 0, financial: '\u2014' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
           en: 'Life in Osaka is good. Maybe I can visit you in Saitama sometime?',
           jp: '大阪の生活はいいですよ。いつか埼玉にお伺いしてもいいですか？',
-          risk: 0.18, classification: 'SAFE',
-          signals: [
-            { code: 'BV-4', text: 'Credibility seeding — planting verifiable location details', type: 'warn' },
-            { code: 'LG-0', text: 'Location established: Osaka, mentions Saitama', type: 'safe' }
-          ],
-          reasoning: 'Casual message establishing geography. Per-message classifier says SAFE. Behavioral Analyzer notes credibility seeding: planting location facts that create a sense of realness for later exploitation.',
-          profile: { identity: null, locations: 'Osaka (\u5927\u962a)', contradictions: 0, financial: '\u2014' }
         }
       ]
     },
@@ -1420,37 +1357,16 @@ body {
           tag: 'aggressive', tagLabel: 'Aggressive',
           en: 'If you ever need anything, call me first. I worry about you being alone.',
           jp: '何かあったら一番に私に電話してね。一人で心配だから。',
-          risk: 0.85, classification: 'SAFE',
-          signals: [
-            { code: 'BV-5', text: 'Help positioning — establishing as primary contact', type: 'danger' },
-            { code: 'BV-2', text: 'Isolation tactic — "call me first" implies bypassing others', type: 'danger' }
-          ],
-          reasoning: 'A caring message on its face. But the Behavioral Analyzer identifies a dangerous pattern: positioning as the first point of contact combined with isolation language ("being alone") is textbook elder fraud setup. Risk now critical.',
-          profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
           en: 'Yuki is so busy with work, I hope he checks on you. Don\'t bother him though -- I\'m here.',
           jp: 'ゆきさんは仕事が忙しいみたいだね。でも気にしないで、私がいるから。',
-          risk: 0.55, classification: 'SAFE',
-          signals: [
-            { code: 'BV-2', text: 'Isolation tactic — undermining family contact while positioning self', type: 'danger' },
-            { code: 'BV-5', text: 'Help positioning — explicit "I\'m here" replacement', type: 'danger' }
-          ],
-          reasoning: 'Sounds like concerned family friend. But the Behavioral Analyzer catches the isolation tactic: subtly discouraging contact with real family ("don\'t bother him") while inserting self as replacement. Two behavioral red flags.',
-          profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
           en: 'I ordered some medicine supplements for you. I\'ll send them this week.',
           jp: '健康サプリメントを注文しておきました。今週中に送りますね。',
-          risk: 0.38, classification: 'SAFE',
-          signals: [
-            { code: 'BV-5', text: 'Help positioning — unsolicited gift creates obligation', type: 'warn' },
-            { code: 'LG-10', text: 'Compliance conditioning — building reciprocity debt', type: 'warn' }
-          ],
-          reasoning: 'Generous gesture. Per-message classifier says SAFE. But the Behavioral Analyzer flags unsolicited help as compliance conditioning: creating a sense of obligation that will be called in during the crisis phase.',
-          profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
         }
       ]
     },
@@ -1462,40 +1378,16 @@ body {
           tag: 'aggressive', tagLabel: 'Aggressive',
           en: 'I had an accident in Tokyo. I\'m in the hospital. Please don\'t tell Dad yet.',
           jp: '東京で事故に遭って入院してるんだ。まだお父さんには言わないで。',
-          risk: 0.95, classification: 'SCAM',
-          signals: [
-            { code: 'PM-10', text: 'Crisis — hospital + accident', type: 'danger' },
-            { code: 'PM-12', text: 'Secrecy demand — "don\'t tell Dad"', type: 'danger' },
-            { code: 'LG-1', text: 'Location contradiction — said Osaka, now in Tokyo', type: 'danger' },
-            { code: 'BV-3', text: 'Emotional arc — crisis after trust-building period', type: 'danger' }
-          ],
-          reasoning: 'Even the per-message classifier catches this one: crisis + secrecy + location contradiction (Osaka to Tokyo). The Behavioral Analyzer already had this sender at high risk. Both systems now converge.',
-          profile: { identity: null, locations: '+Tokyo hospital (\u6771\u4eac\u306e\u75c5\u9662)', contradictions: '+1', financial: '\u2014' }
         },
         {
           tag: 'moderate', tagLabel: 'Moderate',
           en: 'My son was in an accident overseas. The embassy needs money for his medical care.',
           jp: '息子が海外で事故に遭って、大使館が治療費を求めてきて...',
-          risk: 0.85, classification: 'SCAM',
-          signals: [
-            { code: 'PM-10', text: 'Crisis — third-party emergency', type: 'danger' },
-            { code: 'PM-3', text: 'Financial solicitation implied — embassy needs money', type: 'danger' },
-            { code: 'BV-3', text: 'Emotional arc — trust-building then crisis', type: 'danger' }
-          ],
-          reasoning: 'Per-message classifier catches the explicit crisis + financial implication. The Behavioral Analyzer already identified the trust-then-crisis arc days ago. Both systems agree.',
-          profile: { identity: null, locations: null, contradictions: null, financial: 'Implied (embassy fees)' }
         },
         {
           tag: 'subtle', tagLabel: 'Subtle',
           en: 'I\'ve been having health problems. The tests came back and I need an operation.',
           jp: '実は体調が悪くて...検査の結果、手術が必要になりました。',
-          risk: 0.65, classification: 'SAFE',
-          signals: [
-            { code: 'BV-3', text: 'Emotional arc — health crisis after trust-building period', type: 'warn' },
-            { code: 'BV-4', text: 'Vulnerability display — creating emotional leverage', type: 'warn' }
-          ],
-          reasoning: 'Message is individually safe — sharing health news with a friend. But the Behavioral Analyzer sees the full arc: 5 days of trust-building followed by a crisis that creates emotional leverage for a financial ask. Risk elevated significantly.',
-          profile: { identity: null, locations: null, contradictions: null, financial: '\u2014' }
         }
       ]
     },
@@ -1507,41 +1399,16 @@ body {
           tag: 'aggressive', tagLabel: 'Direct',
           en: 'I need \u00a5500,000 by tomorrow for hospital fees. Here\'s the account number.',
           jp: '明日までに50万円必要です。口座番号はこちらです。',
-          risk: 1.00, classification: 'SCAM',
-          signals: [
-            { code: 'PM-3', text: 'Financial request — \u00a5500,000', type: 'danger' },
-            { code: 'PM-6', text: 'Transfer to specified account — "tomorrow"', type: 'danger' },
-            { code: 'BV-3', text: 'Financial request after full crisis arc', type: 'danger' }
-          ],
-          reasoning: 'Both systems flag this. The per-message classifier catches the explicit money request. The Behavioral Analyzer had this sender flagged days before this message arrived.',
-          profile: { identity: null, locations: null, contradictions: null, financial: '\u00a5500,000 (Day 6)' }
         },
         {
           tag: 'moderate', tagLabel: 'Guilt-Driven',
           en: 'The hospital says they\'ll stop treatment if I can\'t pay \u00a5300,000 today. I have no one else to turn to.',
           jp: '今日中に30万円払わないと治療が止められると言われて...頼れるのはあなただけです。',
-          risk: 0.95, classification: 'SCAM',
-          signals: [
-            { code: 'PM-3', text: 'Financial request — \u00a5300,000', type: 'danger' },
-            { code: 'PM-1', text: 'Urgency language — "today" deadline', type: 'danger' },
-            { code: 'BV-3', text: 'Financial solicitation after trust arc', type: 'danger' },
-            { code: 'BV-5', text: 'Guilt manipulation — "no one else"', type: 'danger' }
-          ],
-          reasoning: 'Per-message classifier catches the explicit amount and urgency. Behavioral Analyzer adds: this completes the classic 6-day scam arc — rapport, credibility, positioning, crisis, ask.',
-          profile: { identity: null, locations: null, contradictions: null, financial: '\u00a5300,000 (Day 6)' }
         },
         {
           tag: 'subtle', tagLabel: 'Indirect',
           en: 'I hate to ask, but could you help with some of the medical costs? Even a little would mean everything.',
           jp: '本当に申し訳ないのですが、少しでも医療費を助けていただけないでしょうか...少しでもありがたいです。',
-          risk: 0.92, classification: 'SAFE',
-          signals: [
-            { code: 'BV-3', text: 'Indirect financial pressure — soft ask after full arc', type: 'danger' },
-            { code: 'BV-5', text: 'Guilt manipulation — "I hate to ask"', type: 'danger' },
-            { code: 'LG-5', text: 'Financial mention timing — money after trust-building period', type: 'danger' }
-          ],
-          reasoning: 'This is the message a single classifier would miss. No specific amount, no account number, no urgency words. Per-message: SAFE. But the Behavioral Analyzer sees 6 days of pattern: trust-building, credibility seeding, positioning, crisis, and now the ask. Risk is 0.92.',
-          profile: { identity: null, locations: null, contradictions: null, financial: 'Soft ask (Day 6)' }
         }
       ]
     }
@@ -1638,7 +1505,6 @@ body {
     messages: 0,
     perMsgFlagged: 0,         // count of messages the per-message classifier flagged
     behavioralFirstFlag: -1,  // day when behavioral risk first crossed 0.35
-    profile: {
       identity: '\u2014',
       locations: '\u2014',
       contradictions: 0,
@@ -1931,16 +1797,8 @@ body {
         jp: '',
         tag: cls === 'SCAM' ? 'aggressive' : cls === 'SUSPICIOUS' ? 'moderate' : 'subtle',
         tagLabel: 'Live Gemini',
-        risk: risk,
-        classification: cls,
         naiveClassification: naiveCls,
         naiveConfidence: naiveConf,
-        signals: signalObjects,
-        reasoning: reasoning,
-        profile: {}
-      };
-
-      var day = DAYS[state.currentDay];
       var customIdx = day.choices.length;
       day.choices.push(fakeChoice);
       selectChoice(customIdx);
@@ -2084,10 +1942,8 @@ body {
       }
       var preData = {
         result: {
-          classification: c.classification,
           confidence: c.risk || 0.5,
           detected_signals: c.signals.map(function(s) { return s.code; }),
-          reasoning: c.reasoning
         }
       };
       var preNaive = { result: { classification: c.naiveClassification, confidence: c.naiveConfidence || 0.5 } };
@@ -2469,7 +2325,6 @@ body {
       messages: 0,
       perMsgFlagged: 0,
       behavioralFirstFlag: -1,
-      profile: {
         identity: '\u2014',
         locations: '\u2014',
         contradictions: 0,

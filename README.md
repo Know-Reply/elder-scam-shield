@@ -283,9 +283,22 @@ Upgraded from Jaccard bag-of-words to dual TF-IDF (word + character n-gram). Jap
 
 Live at [shield.faxi.jp](https://shield.faxi.jp):
 
-- **/shield** -- Overview with trust-building scam walkthrough, real eval results, and architecture explanation.
-- **/simulator** -- Interactive "Test the Shield" — send messages and watch the protection system respond in real time via live Gemini.
-- **/dashboard** -- Family safety dashboard with quarantine inbox, risk timeline, contact graph visualization, and protection summary.
+- **/shield** -- Overview page with architecture, benchmark results, and the provenance tracking story.
+- **/simulator** -- **Scam Simulator** — 6-day choose-your-own-adventure scam scenario. All signals, risk scores, and reasoning are live Gemini classification with conversation history — no pre-scripted behavioral data.
+- **/analyzer** -- **Conversation Analyzer** — watch the knowledge graph build in real time. Paired exchanges with provenance tracking (who revealed what first), epistemic friction (elder's guard dropping), and echo-grounded identity detection. Both classification and fact extraction are live LLM calls.
+- **/dashboard** -- Family safety dashboard with quarantine inbox, risk timeline, and contact network.
+- **/technical** -- Technical deep dive with architecture, benchmark data, signal taxonomy, and academic citations.
+
+### Agents
+
+| Agent | Demo | Live? |
+|-------|------|-------|
+| Inbound Classifier | Scam Simulator + Conversation Analyzer | Yes — live Gemini per message |
+| Behavioral Analyzer | Scam Simulator (via conversation history) | Yes — LLM sees full message arc |
+| Outbound Interceptor | Architecture (not interactive) | Agent exists, VS signals in prompt |
+| Family Alerter | Architecture (not interactive) | Agent exists, triggered at risk > 0.6 |
+| Fact Extractor | Conversation Analyzer | Yes — live Gemini per message |
+| Naive Classifier (Faxi baseline) | Both simulators (Pre-ADK column) | Yes — live Gemini, no tools |
 
 ## Tech Stack
 
