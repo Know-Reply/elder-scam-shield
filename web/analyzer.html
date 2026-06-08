@@ -183,8 +183,30 @@
     </div>
   </div>
 
-  <!-- Right: Knowledge Graph -->
+  <!-- Right: Analysis Panel -->
   <div class="graph-col">
+    <div class="graph-section" style="text-align:center; padding:16px;">
+      <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--blue);">Elder Shield</div>
+      <div id="behav-risk" style="font-size:2.2rem; font-weight:800; color:var(--green);">0.05</div>
+      <div id="behav-badge"><span style="display:inline-block; padding:2px 12px; border-radius:4px; font-size:0.78rem; font-weight:700; background:var(--green-bg); color:var(--green);">SAFE</span></div>
+      <div id="behav-stats" style="font-size:0.75rem; color:var(--gray-400); margin-top:6px;">Per-message: 0 of 0 flagged</div>
+    </div>
+
+    <div class="graph-section">
+      <h3>Accumulated Signals</h3>
+      <div id="accum-signals"><div class="empty-state">No signals detected</div></div>
+    </div>
+
+    <div class="graph-section">
+      <h3>Sender Identity</h3>
+      <div id="sender-identity" style="font-size:0.82rem;">
+        <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>Claimed Name</span><span style="color:var(--gray-400);">—</span></div>
+        <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>Locations</span><span style="color:var(--gray-400);">—</span></div>
+        <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>Institutions</span><span style="color:var(--gray-400);">—</span></div>
+        <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>Financial Asks</span><span style="color:var(--gray-400);">—</span></div>
+      </div>
+    </div>
+
     <div class="graph-section">
       <h3>Elder's Guard</h3>
       <div class="trust-stages" id="trust-stages">
@@ -251,6 +273,19 @@ var exchangeIndex = 0;
 var turnIndex = 0;
 var sessionId = 'analyzer_' + Date.now();
 var _processing = false;
+
+// Behavioral accumulation state
+var behavState = {
+  messages: 0,
+  flagged: 0,
+  latestRisk: 0.05,
+  latestClass: 'SAFE',
+  allSignals: {},
+  senderName: null,
+  senderLocations: [],
+  senderInstitutions: [],
+  financialAsks: [],
+};
 
 function updatePreview() {
   var preview = document.getElementById('exchange-preview');
@@ -320,7 +355,9 @@ function processExchange(senderContent, senderEn, senderJp, elderContent, elderE
     var classifyData = results[1];
 
     addProvenanceTags('turn-' + senderIdx, senderData, 'inbound');
-    addClassificationCard(senderIdx, classifyData.result || {});
+    var classResult = classifyData.result || {};
+    addClassificationCard(senderIdx, classResult);
+    updateBehavioralPanel(classResult);
     btn.textContent = 'Analyzing elder reply + updating graph...';
 
     return fetch('/api/conversation/turn', {
@@ -367,6 +404,61 @@ function addBubble(direction, en, jp, idx) {
   turnDiv.appendChild(bubble);
   thread.appendChild(turnDiv);
   thread.scrollTop = thread.scrollHeight;
+}
+
+function updateBehavioralPanel(result) {
+  var cls = (result.classification || 'safe').toUpperCase();
+  var confidence = result.confidence || 0;
+  var signals = result.detected_signals || [];
+  var facts = result.extracted_facts || {};
+
+  behavState.messages++;
+  if (cls === 'SCAM' || cls === 'SUSPICIOUS') behavState.flagged++;
+  behavState.latestRisk = confidence;
+  behavState.latestClass = cls;
+
+  // Accumulate signals
+  signals.forEach(function(s) { behavState.allSignals[s] = (behavState.allSignals[s] || 0) + 1; });
+
+  // Accumulate sender identity
+  if (facts.claimed_name) behavState.senderName = facts.claimed_name;
+  if (facts.claimed_location && behavState.senderLocations.indexOf(facts.claimed_location) === -1) behavState.senderLocations.push(facts.claimed_location);
+  if (facts.claimed_institution && behavState.senderInstitutions.indexOf(facts.claimed_institution) === -1) behavState.senderInstitutions.push(facts.claimed_institution);
+  if (facts.financial_mention && facts.financial_mention.amount) behavState.financialAsks.push(facts.financial_mention.amount);
+
+  // Update risk display
+  var riskColor = confidence >= 0.7 ? 'var(--red)' : confidence >= 0.4 ? 'var(--orange)' : confidence >= 0.2 ? 'var(--yellow)' : 'var(--green)';
+  document.getElementById('behav-risk').textContent = confidence.toFixed(2);
+  document.getElementById('behav-risk').style.color = riskColor;
+
+  var badgeColor = cls === 'SCAM' ? 'var(--red)' : cls === 'SUSPICIOUS' ? 'var(--orange)' : 'var(--green)';
+  var badgeBg = cls === 'SCAM' ? 'var(--red-bg)' : cls === 'SUSPICIOUS' ? '#fff7ed' : 'var(--green-bg)';
+  document.getElementById('behav-badge').innerHTML = '<span style="display:inline-block;padding:2px 12px;border-radius:4px;font-size:0.78rem;font-weight:700;background:' + badgeBg + ';color:' + badgeColor + ';">' + cls + '</span>';
+
+  document.getElementById('behav-stats').textContent = 'Per-message: ' + behavState.flagged + ' of ' + behavState.messages + ' flagged';
+
+  // Accumulated signals
+  var sigEl = document.getElementById('accum-signals');
+  var sigKeys = Object.keys(behavState.allSignals);
+  if (sigKeys.length > 0) {
+    var LABELS = {
+      'PM-1':'Urgency','PM-2':'Secrecy','PM-3':'Financial','PM-4':'Authority',
+      'PM-5':'Unusual payment','PM-6':'Legal threat','PM-7':'Credentials',
+      'PM-8':'Prize','PM-9':'Refund','PM-10':'Crisis','PM-11':'Identity claim',
+      'PM-12':'Flattery','BV-1':'Relationship velocity','BV-2':'Isolation',
+      'BV-3':'Emotional arc','BV-4':'Credibility seeding','BV-5':'Help positioning'
+    };
+    sigEl.innerHTML = sigKeys.map(function(s) {
+      return '<div style="font-size:0.78rem;padding:2px 0;"><span style="font-family:var(--font-mono);font-weight:700;color:var(--red);margin-right:4px;">' + s + '</span>' + (LABELS[s] || s) + '</div>';
+    }).join('');
+  }
+
+  // Sender identity
+  var idEl = document.getElementById('sender-identity');
+  idEl.innerHTML = '<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>Claimed Name</span><span style="font-weight:600;">' + (behavState.senderName || '—') + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>Locations</span><span style="font-weight:600;">' + (behavState.senderLocations.join(', ') || '—') + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>Institutions</span><span style="font-weight:600;">' + (behavState.senderInstitutions.join(', ') || '—') + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>Financial Asks</span><span style="font-weight:600;color:' + (behavState.financialAsks.length ? 'var(--red)' : 'var(--gray-400)') + ';">' + (behavState.financialAsks.join(', ') || '—') + '</span></div>';
 }
 
 function addClassificationCard(turnIdx, result) {
