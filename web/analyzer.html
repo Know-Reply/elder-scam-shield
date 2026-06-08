@@ -374,11 +374,14 @@ function processExchange(senderContent, senderEn, senderJp, elderContent, elderE
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: elderContent, direction: 'outbound', turn_index: elderIdx, session_id: sessionId })
-    }).then(function(r) { return r.json(); });
+    }).then(function(r) { return r.json(); })
+    .catch(function() { return null; }); // Elder turn failure doesn't block
   })
   .then(function(elderData) {
-    addProvenanceTags('turn-' + elderIdx, elderData, 'outbound');
-    updateGraphPanel(elderData, 'outbound');
+    if (elderData) {
+      addProvenanceTags('turn-' + elderIdx, elderData, 'outbound');
+      updateGraphPanel(elderData, 'outbound');
+    }
     _processing = false;
     btn.disabled = (exchangeIndex >= EXCHANGES.length);
     btn.textContent = exchangeIndex >= EXCHANGES.length ? 'Conversation complete' : 'Next exchange \u2192';
@@ -387,7 +390,7 @@ function processExchange(senderContent, senderEn, senderJp, elderContent, elderE
   .catch(function(err) {
     _processing = false;
     btn.disabled = false;
-    btn.textContent = 'Retry';
+    btn.textContent = 'Next exchange \u2192';
   });
 }
 
