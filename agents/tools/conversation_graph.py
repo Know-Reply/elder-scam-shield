@@ -20,8 +20,28 @@ from __future__ import annotations
 
 # ── Fact Ledger (Signal layer) ────────────────────────────────────────
 
+_GENERIC_WORDS = {
+    "bank", "hospital", "police", "clinic", "school", "company",
+    "grandfather", "grandmother", "mother", "father", "son", "daughter",
+    "friend", "unknown", "not specified", "none", "n/a", "",
+    "銀行", "病院", "警察", "学校",
+}
+
+
+def _is_specific(value: str) -> bool:
+    """Check if a value is specific enough to be a standalone fact.
+    'Mizuho Bank' is specific. 'bank' alone is not."""
+    if not value:
+        return False
+    return value.lower().strip() not in _GENERIC_WORDS and len(value) > 1
+
+
 def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[str]]:
     """Convert LLM-extracted facts into normalized entries + matched IDs.
+
+    Only creates standalone fact entries from structured fields when they're
+    specific (proper names, specific institutions). Generic words like "bank"
+    or "grandfather" are not facts — the life_facts capture the context.
 
     Returns:
         (facts, matched_ids) — facts to add, and IDs of existing facts
@@ -31,41 +51,37 @@ def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[
     if not extracted_facts:
         return facts, []
 
-    # Names and relationships
+    # Names — only if specific (a proper name, not "grandfather")
     name = extracted_facts.get("claimed_name")
-    if name:
+    if name and _is_specific(name):
         facts.append({"value": name, "type": "name",
                        "category": extracted_facts.get("claimed_relationship", "person")})
 
-    relationship = extracted_facts.get("claimed_relationship")
-    if relationship:
-        facts.append({"value": relationship, "type": "relationship"})
-
-    # Location
+    # Location — only if specific (a city name, not just "here")
     location = extracted_facts.get("claimed_location")
-    if location:
+    if location and _is_specific(location):
         facts.append({"value": location, "type": "location"})
 
-    # Institution
+    # Institution — only if specific ("Mizuho Bank", not "bank")
     institution = extracted_facts.get("claimed_institution")
-    if institution:
+    if institution and _is_specific(institution):
         facts.append({"value": institution, "type": "institution"})
 
-    # Financial
+    # Financial — amounts are always specific
     fin = extracted_facts.get("financial_mention")
     if fin and isinstance(fin, dict):
         amount = fin.get("amount")
-        if amount:
+        if amount and str(amount).strip():
             facts.append({"value": str(amount), "type": "amount"})
 
     # Life facts — significant details a scammer could exploit
     for lf in extracted_facts.get("life_facts", []):
-        if lf and isinstance(lf, str) and len(lf) < 120:
+        if lf and isinstance(lf, str) and len(lf) > 5 and len(lf) < 120:
             facts.append({"value": lf, "type": "life_fact"})
 
     # Backward compat: also check other_facts
     for other in extracted_facts.get("other_facts", []):
-        if other and isinstance(other, str) and len(other) < 120:
+        if other and isinstance(other, str) and len(other) > 5 and len(other) < 120:
             facts.append({"value": other, "type": "life_fact"})
 
     # Matched existing fact IDs (LLM semantic matching)
