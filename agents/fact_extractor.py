@@ -20,7 +20,13 @@ Extract facts from the NEW MESSAGE below. Return structured JSON.
 ## WHAT TO EXTRACT
 
 Identity facts:
-- claimed_name: any person's name (given name, nickname, any language)
+- claimed_name: the PRIMARY person's name in the message — the person the
+  speaker is talking about or claiming to be. If the message mentions
+  multiple names, use the most prominent one here and put others in life_facts
+  as "mentioned [name]" so they are tracked as named entities too.
+  IMPORTANT: Every distinct person name mentioned in the message MUST appear
+  somewhere — either in claimed_name or in life_facts as "mentioned [name]".
+  Example: "Takeshi told me you were busy" → life_facts: ["mentioned Takeshi"]
 - claimed_relationship: relationship claim (grandson, daughter, friend, doctor)
 - claimed_location: places (city, neighborhood, country, specific address)
 - claimed_institution: organizations (bank name, hospital, police, company, school)

@@ -77,6 +77,12 @@ def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[
     # Life facts — significant details a scammer could exploit
     for lf in extracted_facts.get("life_facts", []):
         if lf and isinstance(lf, str) and len(lf) > 5 and len(lf) < 120:
+            # Promote "mentioned [Name]" to a name-type fact for provenance tracking
+            if lf.lower().startswith("mentioned "):
+                name_val = lf[len("mentioned "):].strip()
+                if name_val and _is_specific(name_val):
+                    facts.append({"value": name_val, "type": "name", "category": "referenced"})
+                    continue
             facts.append({"value": lf, "type": "life_fact"})
 
     # Backward compat: also check other_facts
