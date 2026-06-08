@@ -143,13 +143,21 @@ def update_fact_ledger(
                 if len(fact_val) >= 3 and fact_val in text_lower:
                     match = True
 
-                # Word-level check only for identity facts (name, location, institution)
-                # NOT for life_facts — avoids noisy matches on common words
+                # Word-level check for identity facts (4+ char words)
                 elif fact_type in ("name", "location", "institution"):
                     for word in fact_val.split():
                         if len(word) >= 4 and word in text_lower:
                             match = True
                             break
+
+                # For life_facts: check if 2+ significant words match
+                # Uses first 4 chars as stem to handle "lives"/"live"/"living"
+                elif fact_type == "life_fact":
+                    words = [w for w in fact_val.split() if len(w) >= 5]
+                    if words:
+                        hits = sum(1 for w in words if w[:4] in text_lower)
+                        if hits >= 2:
+                            match = True
                 if match:
                     fact["echo_detected"] = True
                     fact["echo_by"] = speaker

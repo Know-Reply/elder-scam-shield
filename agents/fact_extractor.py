@@ -33,7 +33,9 @@ Identity facts:
   If the message says "I'll go to the bank", that's a life_fact, not an institution.
 
 Financial facts:
-- financial_mention: money amounts with urgency (low/medium/high)
+- financial_mention: SPECIFIC money amounts only with urgency (low/medium/high).
+  If no specific amount is mentioned, leave financial_mention as null.
+  "How much?" is a question, not a financial fact.
 
 Life facts (significant details a scammer could exploit):
 - Employment: job, company, work schedule, career changes
