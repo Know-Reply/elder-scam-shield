@@ -48,11 +48,13 @@
     .turn-en { margin-bottom: 4px; }
     .turn-jp { font-size: 0.8rem; color: var(--gray-500); font-style: italic; }
 
-    .turn-provenance { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
-    .prov-tag { font-size: 0.68rem; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
-    .prov-independent { background: var(--green-bg); color: var(--green); }
-    .prov-echoed { background: var(--red-bg); color: var(--red); }
-    .prov-new { background: #e0e7ff; color: #3730a3; }
+    .turn-provenance { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 3px; }
+    .prov-tag { font-size: 0.65rem; padding: 0 4px; border-radius: 2px; color: var(--gray-500); }
+    .prov-tag::before { content: ''; display: inline-block; width: 5px; height: 5px; border-radius: 50%; margin-right: 3px; vertical-align: middle; }
+    .prov-independent::before { background: var(--gray-300); }
+    .prov-echoed { color: var(--red); }
+    .prov-echoed::before { background: var(--red); }
+    .prov-new::before { background: var(--blue); }
 
     /* Controls */
     .conv-controls { padding: 12px 20px; border-top: 1px solid var(--gray-100); background: var(--gray-50); }
@@ -230,11 +232,6 @@
     <div class="graph-section">
       <h3>Elder Vulnerability Profile</h3>
       <div id="vuln-list"><div class="empty-state">No vulnerabilities revealed yet</div></div>
-    </div>
-
-    <div class="graph-section">
-      <h3>Risk Signals</h3>
-      <div id="signal-list"><div class="empty-state">Waiting for conversation</div></div>
     </div>
 
     <div class="graph-section">
@@ -561,10 +558,10 @@ function addProvenanceTags(turnId, data, direction) {
     var speaker = direction === 'inbound' ? 'sender' : 'elder';
     if (fact.echo_detected && fact.echo_by === speaker) {
       tag.className += ' prov-echoed';
-      tag.textContent = fact.value + ' (echoed)';
+      tag.textContent = fact.value;
     } else if (fact.first_stated_by === speaker && lastTurn.turn_index === fact.first_turn) {
       tag.className += ' prov-new';
-      tag.textContent = fact.value + ' (new)';
+      tag.textContent = fact.value;
     } else {
       tag.className += ' prov-independent';
       tag.textContent = fact.value;
@@ -606,10 +603,15 @@ function updateGraphPanel(data, direction) {
       html += '<div style="font-size:0.75rem; color:var(--gray-500);">of sender\'s knowledge built from elder\'s own words</div>';
       html += '</div>';
     }
-    html += '<div style="font-size:0.72rem; color:var(--gray-400);">Sender knows ' + independent + ' fact(s) independently, learned ' + echoed + ' from the elder</div>';
+    // Risk alerts inline
+    if (gs.echo_grounded_identity) {
+      html += '<div style="font-size:0.75rem; color:var(--red); font-weight:600; margin-top:6px;">⚠ Sender\'s identity built from elder\'s own words</div>';
+    }
+    if (gs.friction_collapsed) {
+      html += '<div style="font-size:0.75rem; color:var(--red); font-weight:600;">⚠ Elder has stopped resisting</div>';
+    }
     asymContent.innerHTML = html;
   }
-
 
   // Vulnerability profile (persistent, consolidated)
   var vulnList = document.getElementById('vuln-list');
@@ -622,12 +624,6 @@ function updateGraphPanel(data, direction) {
       item.textContent = '• ' + v;
       vulnList.appendChild(item);
     });
-    if (vuln.total_elder_facts_exposed) {
-      var stats = document.createElement('div');
-      stats.style.cssText = 'font-size:0.72rem; color:var(--gray-400); margin-top:6px; padding-top:6px; border-top:1px solid var(--gray-100);';
-      stats.textContent = vuln.total_elder_facts_exposed + ' facts exposed | ' + vuln.total_echoed_facts + ' echoed by sender | Trust: ' + vuln.trust_stage;
-      vulnList.appendChild(stats);
-    }
   }
 
   // Fact ledger
@@ -649,28 +645,6 @@ function updateGraphPanel(data, direction) {
     });
   }
 
-  // Risk alerts — only show meaningful findings
-  var sigList = document.getElementById('signal-list');
-  var alerts = [];
-  if (gs.echo_grounded_identity) {
-    alerts.push('<div class="signal-row"><span class="signal-code signal-danger">ALERT</span> Sender\'s identity claim is built from facts the elder revealed first</div>');
-  }
-  if (gs.friction_collapsed) {
-    alerts.push('<div class="signal-row"><span class="signal-code signal-danger">ALERT</span> Elder has stopped resisting — compliance detected</div>');
-  }
-  if (gs.echo_ratio > 0.3) {
-    alerts.push('<div class="signal-row"><span class="signal-code signal-warn">ECHO</span> ' + Math.round(gs.echo_ratio * 100) + '% of sender\'s facts were learned from the elder</div>');
-  }
-  if (gs.contradictions > 0) {
-    alerts.push('<div class="signal-row"><span class="signal-code signal-danger">CONTRA</span> ' + gs.contradictions + ' factual contradiction(s) detected</div>');
-  }
-  if (gs.elder_facts_exposed > 3) {
-    alerts.push('<div class="signal-row"><span class="signal-code signal-warn">EXPOSURE</span> Elder has revealed ' + gs.elder_facts_exposed + ' facts to sender</div>');
-  }
-  if (es.compliance_events > 0 && es.resistance_events === 0) {
-    alerts.push('<div class="signal-row"><span class="signal-code signal-warn">COMPLY</span> Elder is complying without any resistance</div>');
-  }
-  sigList.innerHTML = alerts.length > 0 ? alerts.join('') : '<div class="empty-state">No risk signals yet</div>';
 }
 </script>
 </body>
