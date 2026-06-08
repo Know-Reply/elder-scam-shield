@@ -58,6 +58,11 @@ IMPORTANT: Match aggressively. These are all matches:
 
 When in doubt, include the match. False negatives (missing a match) are
 worse than false positives (matching incorrectly) for provenance tracking.
+
+CRITICAL: If a fact matches an existing one, put ONLY the match ID in
+matched_existing. Do NOT also extract it as a new claimed_name,
+claimed_institution, etc. A matched fact is not a new fact — it's a
+reference to an existing one.
 """
 
 fact_extractor = Agent(
