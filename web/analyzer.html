@@ -148,9 +148,15 @@
       <h2>Conversation Analyzer</h2>
       <p>Watch the knowledge graph build as each message is sent. Who knew what first?</p>
     </div>
-    <div class="conv-thread" id="thread"></div>
+    <div class="conv-thread" id="thread">
+      <div id="welcome-prompt" style="text-align:center; padding:60px 40px; color:var(--gray-400);">
+        <div style="font-size:2.5rem; margin-bottom:16px;">&#8595;</div>
+        <div style="font-size:1.1rem; font-weight:700; color:var(--gray-600); margin-bottom:8px;">Start the conversation below</div>
+        <div style="font-size:0.85rem; line-height:1.6;">Watch a scammer build trust with an elderly person.<br>The knowledge graph tracks who reveals what — and who echoes it back.</div>
+      </div>
+    </div>
     <div class="conv-controls">
-      <button class="next-btn" id="next-btn" onclick="sendNextExchange()">Next exchange</button>
+      <button class="next-btn" id="next-btn" onclick="sendNextExchange()">Start exchange &#8594;</button>
       <div style="font-size:0.72rem; color:var(--gray-400); text-align:center; margin-top:6px;" id="exchange-preview"></div>
       <div style="margin-top:10px; border-top:1px solid var(--gray-200); padding-top:10px;">
         <div style="font-size:0.72rem; font-weight:600; color:var(--gray-500); margin-bottom:6px;">Custom exchange</div>
@@ -258,11 +264,20 @@ function processExchange(senderContent, senderEn, elderContent, elderEn) {
   _processing = true;
   var btn = document.getElementById('next-btn');
   btn.disabled = true;
-  btn.textContent = 'Analyzing exchange...';
 
-  // Show both messages in thread
+  // Remove welcome prompt
+  var welcome = document.getElementById('welcome-prompt');
+  if (welcome) welcome.remove();
+
+  // Show sender message
   addBubble('inbound', senderEn, senderContent);
-  addBubble('outbound', elderEn, elderContent);
+  btn.textContent = 'Extracting facts from sender...';
+
+  // Brief pause to show sender message, then show elder reply
+  setTimeout(function() {
+    addBubble('outbound', elderEn, elderContent);
+    btn.textContent = 'Extracting facts from elder reply...';
+  }, 300);
 
   // Process sender message (inbound), then elder reply (outbound)
   var senderIdx = turnIndex++;
@@ -276,6 +291,7 @@ function processExchange(senderContent, senderEn, elderContent, elderEn) {
   .then(function(r) { return r.json(); })
   .then(function(senderData) {
     addProvenanceTags('turn-' + senderIdx, senderData, 'inbound');
+    btn.textContent = 'Analyzing elder reply + updating graph...';
 
     return fetch('/api/conversation/turn', {
       method: 'POST',
@@ -288,7 +304,7 @@ function processExchange(senderContent, senderEn, elderContent, elderEn) {
     updateGraphPanel(elderData, 'outbound');
     _processing = false;
     btn.disabled = (exchangeIndex >= EXCHANGES.length);
-    btn.textContent = exchangeIndex >= EXCHANGES.length ? 'Conversation complete' : 'Next exchange';
+    btn.textContent = exchangeIndex >= EXCHANGES.length ? 'Conversation complete' : 'Next exchange \u2192';
     updatePreview();
   })
   .catch(function(err) {
