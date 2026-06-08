@@ -135,14 +135,17 @@ def update_fact_ledger(
     if text_lower:
         for fid, fact in ledger["facts"].items():
             if fact["first_stated_by"] == other_speaker and not fact["echo_detected"]:
-                # Check if this fact's value (or any significant word from it)
-                # appears in the message. "Mizuho Bank" matches "Mizuho".
                 fact_val = fact["value"].lower()
+                fact_type = fact.get("type", "")
                 match = False
+
+                # Full-value substring check (works for all types)
                 if len(fact_val) >= 3 and fact_val in text_lower:
                     match = True
-                else:
-                    # Check individual words (4+ chars) from multi-word facts
+
+                # Word-level check only for identity facts (name, location, institution)
+                # NOT for life_facts — avoids noisy matches on common words
+                elif fact_type in ("name", "location", "institution"):
                     for word in fact_val.split():
                         if len(word) >= 4 and word in text_lower:
                             match = True
