@@ -513,7 +513,7 @@ function addClassificationCard(turnIdx, result) {
 
   var html = '<div class="classify-header">Elder Shield</div>';
   html += '<span class="classify-badge ' + badgeClass + '">' + cls.toUpperCase() + '</span>';
-  html += '<div class="classify-risk">risk ' + confidence.toFixed(2) + '</div>';
+  html += '<div class="classify-risk">confidence ' + Math.round(confidence * 100) + '%</div>';
 
   if (signals.length > 0) {
     signals.forEach(function(s) {
