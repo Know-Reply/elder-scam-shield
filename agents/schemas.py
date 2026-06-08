@@ -19,6 +19,7 @@ class ExtractedFacts(BaseModel):
     claimed_relationship: str | None = None
     claimed_location: str | None = None
     claimed_institution: str | None = None
+    referenced_names: list[str] = Field(default_factory=list)
     financial_mention: FinancialMention | None = None
     life_facts: list[str] = Field(default_factory=list)
     matched_existing: list[str] = Field(default_factory=list)

@@ -51,11 +51,16 @@ def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[
     if not extracted_facts:
         return facts, []
 
-    # Names — only if specific (a proper name, not "grandfather")
+    # Primary name — only if specific (a proper name, not "grandfather")
     name = extracted_facts.get("claimed_name")
     if name and _is_specific(name):
         facts.append({"value": name, "type": "name",
                        "category": extracted_facts.get("claimed_relationship", "person")})
+
+    # Referenced names — other people mentioned in the message
+    for ref_name in extracted_facts.get("referenced_names", []):
+        if ref_name and _is_specific(ref_name):
+            facts.append({"value": ref_name, "type": "name", "category": "referenced"})
 
     # Location — only if specific (a city name, not just "here")
     location = extracted_facts.get("claimed_location")
@@ -77,12 +82,6 @@ def _facts_from_llm_extraction(extracted_facts: dict) -> tuple[list[dict], list[
     # Life facts — significant details a scammer could exploit
     for lf in extracted_facts.get("life_facts", []):
         if lf and isinstance(lf, str) and len(lf) > 5 and len(lf) < 120:
-            # Promote "mentioned [Name]" to a name-type fact for provenance tracking
-            if lf.lower().startswith("mentioned "):
-                name_val = lf[len("mentioned "):].strip()
-                if name_val and _is_specific(name_val):
-                    facts.append({"value": name_val, "type": "name", "category": "referenced"})
-                    continue
             facts.append({"value": lf, "type": "life_fact"})
 
     # Backward compat: also check other_facts
