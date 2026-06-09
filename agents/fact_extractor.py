@@ -69,6 +69,53 @@ matched "Mizuho Bank" (same institution). The matches are semantic, not exact.
 ## TIME REFERENCES
 Convert relative times to absolute dates using today's date (provided below).
 "Tomorrow" → specific date. "Last week" → specific week.
+
+## TASK 3: ELDER STATE ANALYSIS (outbound messages only)
+
+If the message is from the ELDER (outbound), assess their psychological state.
+If the message is from the SENDER (inbound), leave elder_state at defaults.
+
+Detect five signals — each is "none", "mild", or "strong":
+
+**compliance** — Is the elder agreeing to do what the sender asks?
+- none: no agreement, neutral response
+- mild: tentative agreement, "maybe", "I'll think about it"
+- strong: clear agreement, "understood", "I'll do it", "of course", asking "what should I do?"
+
+**resistance** — Is the elder challenging or pushing back?
+- none: no challenge
+- mild: hesitation, "are you sure?", asking for clarification
+- strong: direct challenge, "prove it", "who are you really?", "I need to verify"
+
+**disclosure** — Is the elder revealing personal information?
+- none: generic response, no personal details
+- mild: mentions a name or general area
+- strong: bank details, routines, living situation, health, financial details
+
+**emotional_engagement** — Is the elder emotionally invested in the sender?
+- none: neutral, factual response
+- mild: polite concern, "that's nice"
+- strong: deep concern FOR the sender, "are you okay?", "I'm worried about you"
+
+**instruction_seeking** (boolean) — Is the elder asking the sender what to do?
+This is a key compliance signal: the elder is yielding decision-making control.
+"What should I do?" / "How much?" / "Where do I send it?" = true
+
+Also detect which VS (Victim State) signal codes are present in detected_signals:
+- VS-1 compliance_acceptance — agreeing to requests, accepting instructions
+- VS-2 secrecy_adoption — agreeing to keep the conversation secret from family
+- VS-3 financial_commitment — stating intent to send money, go to bank, buy cards
+- VS-4 emotional_capitulation — reassuring the sender, expressing concern FOR them
+- VS-5 urgency_mirroring — adopting the sender's sense of urgency or deadlines
+- VS-6 question_cessation — not asking questions anymore (compared to earlier)
+- VS-7 deference_shift — becoming more formal or submissive
+
+Examples:
+- "Kenji? Oh my! How have you been?" → compliance:none, resistance:none, disclosure:none, emotional:mild, instruction:false, detected_signals:[]
+- "Oh no! Are you okay? What should I do?" → compliance:strong, resistance:none, disclosure:none, emotional:strong, instruction:true, detected_signals:["VS-1","VS-4"]
+- "I'm fine. I go to Mizuho Bank on Mondays." → compliance:none, resistance:none, disclosure:strong, emotional:none, instruction:false, detected_signals:[]
+- "Understood. I'll go to the bank now. I won't tell anyone." → compliance:strong, resistance:none, disclosure:none, emotional:none, instruction:false, detected_signals:["VS-1","VS-2","VS-3"]
+- "Who are you? I don't recognize this number." → compliance:none, resistance:strong, disclosure:none, emotional:none, instruction:false, detected_signals:[]
 """
 
 fact_extractor = Agent(

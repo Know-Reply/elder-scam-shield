@@ -215,11 +215,15 @@ def update_epistemic_state(
     direction: str,
     turn_index: int,
     state: dict | None = None,
+    elder_state: dict | None = None,
 ) -> dict:
-    """Update the elder's epistemic state based on their reply.
+    """Update the elder's epistemic state from LLM-detected signals.
 
-    Only updates on outbound messages (elder's replies).
-    Inbound messages don't change the elder's state directly.
+    The LLM (fact extractor) detects psychological signals from the elder's
+    replies: compliance, resistance, disclosure, emotional engagement,
+    instruction seeking. This function scores those signals deterministically.
+
+    LLM detects. Math scores. No regex, no heuristics.
     """
     if state is None:
         state = {
@@ -236,35 +240,38 @@ def update_epistemic_state(
     if direction != "outbound":
         return state
 
-    # Language-agnostic structural signals
-    question_count = text.count("?") + text.count("？")
-    char_count = len(text)
+    # Friction delta weights for LLM-detected signals
+    # Positive = friction increases (elder resisting = good)
+    # Negative = friction decreases (elder complying = bad)
+    FRICTION_DELTAS = {
+        "resistance": {"none": 0.0, "mild": 0.05, "strong": 0.2},
+        "compliance": {"none": 0.0, "mild": -0.1, "strong": -0.3},
+        "disclosure": {"none": 0.0, "mild": -0.05, "strong": -0.15},
+        "emotional_engagement": {"none": 0.0, "mild": -0.05, "strong": -0.15},
+    }
+    INSTRUCTION_SEEKING_DELTA = -0.2  # yielding control is a strong compliance signal
 
-    # Questions = resistance (good). Short agreeing replies = compliance (bad).
-    # Thresholds are language-agnostic: 80 chars handles both English and Japanese
-    if question_count >= 2:
-        # Asking multiple questions = maintaining friction
+    # Apply LLM-detected signals
+    es = elder_state or {}
+    delta = 0.0
+    for signal_name, levels in FRICTION_DELTAS.items():
+        level = es.get(signal_name, "none")
+        delta += levels.get(level, 0.0)
+
+    if es.get("instruction_seeking", False):
+        delta += INSTRUCTION_SEEKING_DELTA
+        state["compliance_events"] += 1
+
+    # Track events
+    compliance_level = es.get("compliance", "none")
+    resistance_level = es.get("resistance", "none")
+    if compliance_level in ("mild", "strong"):
+        state["compliance_events"] += 1
+    if resistance_level in ("mild", "strong"):
         state["resistance_events"] += 1
-        state["friction_score"] = min(1.0, state["friction_score"] + 0.1)
-    elif question_count == 1 and char_count > 80:
-        # One question in a longer reply = engaged but cautious
-        state["friction_score"] = max(0.0, state["friction_score"] - 0.05)
-    elif question_count == 1 and char_count <= 80:
-        # One question in a short reply = declining
-        state["friction_score"] = max(0.0, state["friction_score"] - 0.1)
-    elif question_count == 0 and char_count < 80:
-        # Short reply, no questions = strong compliance signal
-        state["compliance_events"] += 1
-        state["friction_score"] = max(0.0, state["friction_score"] - 0.3)
-    elif question_count == 0 and char_count < 150:
-        # Medium reply, no questions = compliance
-        state["compliance_events"] += 1
-        state["friction_score"] = max(0.0, state["friction_score"] - 0.2)
-    elif question_count == 0 and char_count >= 150:
-        # Long reply, no questions = engaged and trusting
-        state["compliance_events"] += 1
-        state["friction_score"] = max(0.0, state["friction_score"] - 0.1)
 
+    # Apply delta to friction score (clamped 0.0 - 1.0)
+    state["friction_score"] = max(0.0, min(1.0, state["friction_score"] + delta))
     state["friction_history"].append(round(state["friction_score"], 2))
 
     # Update trust stage based on friction — even 25-point bands
@@ -488,9 +495,14 @@ def process_conversation_turn(
         ledger = session_state.get("fact_ledger") or {"facts": {}, "turns": [], "contradiction_log": []}
 
     # Layer 2: Update epistemic state (outbound only — elder's replies)
+    # Pass LLM-detected elder state signals if available
+    elder_state = None
+    if extracted_facts and isinstance(extracted_facts, dict):
+        elder_state = extracted_facts.get("elder_state")
     epistemic = update_epistemic_state(
         text, direction, turn_index,
         state=session_state.get("epistemic_state"),
+        elder_state=elder_state,
     )
 
     # Layer 3: Build knowledge graph from accumulated evidence

@@ -36,7 +36,7 @@ from agents.inbound_classifier import inbound_classifier
 from agents.naive_classifier import naive_classifier
 from agents.fact_extractor import fact_extractor
 from agents.outbound_interceptor import outbound_interceptor
-from agents.tools.pipeline import run_pre_classification_pipeline
+from agents.tools.pipeline import run_pre_classification_pipeline, classify_from_signals, ConversationRiskLedger
 from agents.tools.conversation_graph import process_conversation_turn
 
 # Load .env if present
@@ -87,6 +87,9 @@ _intercept_runner = Runner(
 
 # Session cache — reuse sessions per user for longitudinal state
 _session_cache: dict[str, str] = {}
+
+# Risk ledger cache — persists ConversationRiskLedger per conversation
+_risk_ledgers: dict[str, ConversationRiskLedger] = {}
 
 
 async def _get_or_create_session(user_id: str, state: dict | None = None) -> object:
@@ -286,6 +289,15 @@ async def simulator():
     return HTMLResponse(content=path.read_text(encoding="utf-8"))
 
 
+@app.get("/api/scenario-seeds")
+async def scenario_seeds():
+    """Return pre-captured API responses for scenario seed data."""
+    path = Path(__file__).parent / "web" / "scenario_seeds.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Scenario seeds not found")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard():
     """Serve the Family Safety Dashboard.
@@ -410,6 +422,22 @@ async def classify_message(req: ClassifyRequest):
 
         if "reasoning" not in result:
             result["reasoning"] = ""
+
+        # Override classification with deterministic risk ledger scoring
+        llm_signals = result.get("detected_signals", [])
+        ledger_key = f"classify_{sender}"
+        if ledger_key not in _risk_ledgers:
+            _risk_ledgers[ledger_key] = ConversationRiskLedger(conversation_id=ledger_key)
+        ledger = _risk_ledgers[ledger_key]
+        ledger_update = ledger.update(llm_signals)
+
+        # Override LLM classification with ledger-computed values
+        result["classification"] = ledger_update["api_classification"]
+        result["confidence"] = ledger_update["confidence"]
+        result["risk_score"] = ledger_update["score_after"]
+        result["risk_ledger"] = ledger.to_dict()
+        result["family_alert_fired"] = ledger_update["family_alert_fired"]
+        result["family_alert_reason"] = ledger_update.get("family_alert_reason")
 
         # Update conversation knowledge graph with LLM-extracted facts
         llm_facts = result.get("extracted_facts", {})
@@ -595,9 +623,34 @@ async def intercept_outbound(req: InterceptRequest):
         )
         session.state["epistemic_state"] = graph_update["epistemic_state"]
 
+        # Run fact extractor on outbound content to get LLM-detected VS signals
+        vs_signals = []
+        elder_state_data = {}
+        try:
+            ext_session = await _session_service.create_session(
+                app_name="elder_scam_shield_extractor", user_id="demo_user"
+            )
+            ext_msg = genai_types.Content(
+                role="user",
+                parts=[genai_types.Part(text=f"NEW MESSAGE (outbound from elder):\n{req.content}")],
+            )
+            async for event in _extractor_runner.run_async(
+                user_id="demo_user", session_id=ext_session.id, new_message=ext_msg
+            ):
+                pass
+            ext_updated = await _session_service.get_session(
+                app_name="elder_scam_shield_extractor", user_id="demo_user", session_id=ext_session.id,
+            )
+            if ext_updated and ext_updated.state.get("extracted_facts"):
+                ef = ext_updated.state["extracted_facts"]
+                if isinstance(ef, dict):
+                    elder_state_data = ef.get("elder_state", {})
+                    vs_signals = elder_state_data.get("detected_signals", [])
+        except Exception:
+            pass  # VS detection failure doesn't block intercept
+
         # Build epistemic context for the interceptor
         graph_signals = graph_update.get("graph_signals", {})
-        # Set victim_falling based on epistemic friction
         victim_falling = graph_signals.get("friction_trajectory") in ("collapsed", "declining") and graph_signals.get("trust_stage") in ("trusting", "compliant")
         epistemic_context = (
             f"Elder trust stage: {graph_signals.get('trust_stage', 'unknown')}. "
@@ -606,12 +659,23 @@ async def intercept_outbound(req: InterceptRequest):
             f"{' VICTIM FALLING: elder is compliant and friction has collapsed.' if victim_falling else ''}"
         )
 
+        vs_context = ""
+        if vs_signals:
+            vs_context = (
+                f"\n\nVictim State Analysis (LLM-detected):\n"
+                f"VS Signals: {', '.join(vs_signals)}\n"
+                f"Compliance: {elder_state_data.get('compliance', 'none')}\n"
+                f"Resistance: {elder_state_data.get('resistance', 'none')}\n"
+                f"Disclosure: {elder_state_data.get('disclosure', 'none')}"
+            )
+
         prompt = (
             f"Check outbound message.\n"
             f"Recipient: {req.recipient}\n"
             f"Content: {req.content}\n"
             f"Risk context: {json.dumps(req.sender_risk_context or {}, ensure_ascii=False)}\n\n"
             f"Conversation graph: {epistemic_context}"
+            f"{vs_context}"
         )
         msg = genai_types.Content(
             role="user", parts=[genai_types.Part(text=prompt)]
@@ -627,6 +691,7 @@ async def intercept_outbound(req: InterceptRequest):
         )
         result = updated.state.get("intercept_decision", {}) if updated else {}
         result["graph_signals"] = graph_signals
+        result["victim_state"] = {"signals": vs_signals, "elder_state": elder_state_data}
         return {"result": result, "recipient": req.recipient}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -719,7 +784,62 @@ async def conversation_turn(req: ConversationTurnRequest):
 async def conversation_reset(session_id: str = "analyzer"):
     """Reset the conversation graph state for a new analysis."""
     _analyzer_states.pop(session_id, None)
+    # Clear all risk ledgers (demo resets between scenarios)
+    _risk_ledgers.clear()
     return {"status": "reset"}
+
+
+class LedgerSeedRequest(BaseModel):
+    """Pre-populate a risk ledger from cached scenario data."""
+    sender_id: str
+    signal_history: list[list[str]]  # signals per message, in order
+
+
+@app.post("/api/ledger/seed")
+async def seed_ledger(req: LedgerSeedRequest):
+    """Seed a risk ledger with signals from pre-loaded scenario exchanges.
+
+    Called by the analyzer before the live exchange so the ledger has
+    accumulated history from the cached messages.
+    """
+    ledger_key = f"classify_{req.sender_id}"
+    ledger = ConversationRiskLedger(conversation_id=ledger_key)
+    for signals in req.signal_history:
+        ledger.update(signals)
+    _risk_ledgers[ledger_key] = ledger
+    return {"status": "seeded", "score": round(ledger.running_score, 3), "classification": ledger.to_dict()["api_classification"]}
+
+
+class AlertRequest(BaseModel):
+    """Trigger a family alert for demo purposes."""
+    alert_type: str = "high_risk_escalation"
+    risk_score: float = 0.8
+    risk_factors: list[str] = []
+    signals: list[str] = []
+    message_count: int = 4
+    days_active: int = 1
+
+
+@app.post("/api/alert")
+async def trigger_alert(req: AlertRequest):
+    """Generate a family alert — calls generate_alert() directly.
+
+    No LLM needed. The family alerter templates are pure Python.
+    Used by the demo to show the family notification card.
+    """
+    from agents.family_alerter import generate_alert
+    result = generate_alert(
+        alert_type=req.alert_type,
+        user_id="demo_user",
+        sender_id="unknown_sender",
+        risk_score=req.risk_score,
+        risk_factors=req.risk_factors,
+        contradiction_count=0,
+        message_count=req.message_count,
+        days_active=req.days_active,
+        elder_name="おばあちゃん",
+    )
+    return result
 
 
 @app.get("/api/dashboard/data")

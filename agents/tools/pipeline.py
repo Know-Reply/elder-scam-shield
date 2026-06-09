@@ -143,6 +143,361 @@ def linguistic_analysis(text: str, sender_style_baseline: dict = None) -> dict:
     }
 
 
+# ── ConversationRiskLedger — deterministic scoring from LLM-detected signals ──
+
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Optional
+
+# Signal weights — calibrated against NPA tokushu-sagi patterns
+SIGNAL_WEIGHTS = {
+    "PM-1":  0.25,  # urgency — T2 manipulation accelerant
+    "PM-2":  0.40,  # secrecy demand — T3 strongest behavioral signal
+    "PM-3":  0.45,  # financial solicitation — T3 explicit money ask
+    "PM-4":  0.22,  # authority claim — T2 police/bank impersonation
+    "PM-5":  0.50,  # unusual payment — T3 gift cards/crypto (no legit use)
+    "PM-6":  0.38,  # legal threat — T3 NPA authority impersonation
+    "PM-7":  0.42,  # credential solicitation — T3 passwords/card numbers
+    "PM-8":  0.35,  # prize notification — T3 atobarai scam entry
+    "PM-9":  0.32,  # refund lure — T3 kankin scam
+    "PM-10": 0.28,  # emotional crisis — T2 ore-ore signature
+    "PM-11": 0.10,  # identity claim — T1 normal opener
+    "PM-12": 0.08,  # flattery density — T1 romance opener
+    "PM-13": 0.55,  # spf/dkim fail — T3 near-deterministic spoofing
+}
+
+SIGNAL_TIERS = {
+    "PM-11": 1, "PM-12": 1,
+    "PM-1": 2, "PM-4": 2, "PM-10": 2,
+    "PM-2": 3, "PM-3": 3, "PM-5": 3, "PM-6": 3,
+    "PM-7": 3, "PM-8": 3, "PM-9": 3, "PM-13": 3,
+}
+
+TIER_AMP = {1: 1.0, 2: 1.4, 3: 1.9}
+DECAY_RATE = 0.92
+T1_PRIMER_BONUS = 1.3
+SCORE_CAP = 10.0
+
+# Known attack sequences — signal progression patterns from NPA data
+ATTACK_SEQUENCES = {
+    "ore_ore": {
+        "canonical": ["PM-11", "PM-10", "PM-1", "PM-2", "PM-3"],
+        "min_match": 3,
+        "multiplier": 2.8,
+    },
+    "romance": {
+        "canonical": ["PM-12", "PM-11", "PM-10", "PM-3", "PM-5"],
+        "min_match": 3,
+        "multiplier": 2.2,
+    },
+    "investment": {
+        "canonical": ["PM-11", "PM-4", "PM-8", "PM-5"],
+        "min_match": 3,
+        "multiplier": 2.5,
+    },
+    "authority": {
+        "canonical": ["PM-4", "PM-6", "PM-1", "PM-2", "PM-7"],
+        "min_match": 3,
+        "multiplier": 3.2,
+    },
+}
+
+# Score → classification bands
+SCORE_BANDS = [
+    (0.00, 1.50, "safe"),
+    (1.50, 3.00, "monitoring"),
+    (3.00, 5.00, "suspicious"),
+    (5.00, 7.50, "high_risk"),
+    (7.50, SCORE_CAP + 0.01, "scam"),
+]
+
+# Score → confidence mapping (normalized to 0.0-1.0 for API compatibility)
+def _score_to_confidence(score: float) -> float:
+    return round(min(score / SCORE_CAP, 1.0), 3)
+
+# Score → classification label (maps to API-compatible 4-level)
+def _score_to_classification(score: float) -> str:
+    for lo, hi, label in SCORE_BANDS:
+        if lo <= score < hi:
+            return label
+    return "scam"
+
+# API-compatible classification (4 levels)
+def _to_api_classification(internal: str) -> str:
+    return {
+        "safe": "safe",
+        "monitoring": "monitoring",
+        "suspicious": "suspicious",
+        "high_risk": "high_risk",
+        "scam": "scam",
+    }.get(internal, "safe")
+
+
+def _detect_sequence_match(all_signals_in_order: list[list[str]]) -> tuple[str, float]:
+    """Scan message signal history for known attack sequence matches.
+
+    Returns (sequence_name, multiplier) or (None, 1.0).
+    Uses a sliding window of 10 messages, checks if canonical
+    sequence steps appear in order.
+    """
+    # Flatten to ordered list of unique signal appearances per message
+    window = all_signals_in_order[-10:]
+    best_name = None
+    best_multiplier = 1.0
+
+    for name, pattern in ATTACK_SEQUENCES.items():
+        canonical = pattern["canonical"]
+        min_match = pattern["min_match"]
+        multiplier = pattern["multiplier"]
+
+        # Scan: find how many canonical steps appear in order
+        step = 0
+        for msg_signals in window:
+            if step < len(canonical) and canonical[step] in msg_signals:
+                step += 1
+        if step >= min_match and multiplier > best_multiplier:
+            best_name = name
+            best_multiplier = multiplier
+
+    return best_name, best_multiplier
+
+
+def _check_tier_overrides(signals: list[str]) -> Optional[float]:
+    """Check for tier override rules that floor the score.
+
+    Returns the floor score if an override fires, None otherwise.
+    """
+    t3_in_message = [s for s in signals if SIGNAL_TIERS.get(s, 0) == 3]
+
+    # Rule 1: unusual_payment + secrecy_demand together → floor 5.0
+    if "PM-5" in signals and "PM-2" in signals:
+        return 5.0
+
+    # Rule 2: spf_dkim_fail + any T3 → floor 6.5
+    if "PM-13" in signals and len(t3_in_message) >= 2:
+        return 6.5
+
+    # Rule 3: 3+ distinct T3 signals in one message → floor 7.5
+    if len(t3_in_message) >= 3:
+        return 7.5
+
+    return None
+
+
+@dataclass
+class MessageRecord:
+    message_index: int
+    signals: list[str]
+    contribution: float
+    score_after: float
+    sequence_match: Optional[str] = None
+
+
+@dataclass
+class ConversationRiskLedger:
+    """Accumulates risk evidence across messages in a conversation.
+
+    LLM detects signals. This ledger scores them deterministically.
+    Classification is a derived label from the running score — never
+    an LLM opinion.
+    """
+    conversation_id: str = ""
+    running_score: float = 0.0
+    message_count: int = 0
+    signal_history: list = field(default_factory=list)  # list of MessageRecord dicts
+    t1_primer_active: bool = False
+    sequence_matches: list = field(default_factory=list)
+    tier_counts: dict = field(default_factory=lambda: {"T1": 0, "T2": 0, "T3": 0})
+    signal_counts: dict = field(default_factory=dict)
+    family_alert_fired: bool = False
+    family_alert_reason: Optional[str] = None
+    overrides_applied: list = field(default_factory=list)
+    highest_score_reached: float = 0.0
+    # Track sustained high score for Gate A
+    _consecutive_high: int = 0
+
+    def to_dict(self) -> dict:
+        """Serialize for session state / API response."""
+        return {
+            "conversation_id": self.conversation_id,
+            "running_score": round(self.running_score, 3),
+            "classification": _score_to_classification(self.running_score),
+            "api_classification": _to_api_classification(_score_to_classification(self.running_score)),
+            "confidence": _score_to_confidence(self.running_score),
+            "message_count": self.message_count,
+            "signal_history": self.signal_history,
+            "t1_primer_active": self.t1_primer_active,
+            "sequence_matches": self.sequence_matches,
+            "tier_counts": self.tier_counts,
+            "signal_counts": self.signal_counts,
+            "family_alert_fired": self.family_alert_fired,
+            "family_alert_reason": self.family_alert_reason,
+            "overrides_applied": self.overrides_applied,
+            "highest_score_reached": round(self.highest_score_reached, 3),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "ConversationRiskLedger":
+        """Restore from session state."""
+        ledger = cls()
+        ledger.conversation_id = d.get("conversation_id", "")
+        ledger.running_score = d.get("running_score", 0.0)
+        ledger.message_count = d.get("message_count", 0)
+        ledger.signal_history = d.get("signal_history", [])
+        ledger.t1_primer_active = d.get("t1_primer_active", False)
+        ledger.sequence_matches = d.get("sequence_matches", [])
+        ledger.tier_counts = d.get("tier_counts", {"T1": 0, "T2": 0, "T3": 0})
+        ledger.signal_counts = d.get("signal_counts", {})
+        ledger.family_alert_fired = d.get("family_alert_fired", False)
+        ledger.family_alert_reason = d.get("family_alert_reason")
+        ledger.overrides_applied = d.get("overrides_applied", [])
+        ledger.highest_score_reached = d.get("highest_score_reached", 0.0)
+        ledger._consecutive_high = d.get("_consecutive_high", 0)
+        return ledger
+
+    def update(self, signals: list[str]) -> dict:
+        """Process one message's detected signals. Returns update summary.
+
+        This is the core accumulation function:
+        1. Decay existing score
+        2. Compute message contribution (weight × tier amp)
+        3. Apply T1 primer bonus if T1 preceded T2/T3
+        4. Apply sequence multiplier if attack pattern matches
+        5. Apply tier override floors
+        6. Update classification from score
+        7. Check family alert gates
+        """
+        self.message_count += 1
+        score_before = self.running_score
+
+        # 1. Decay existing score
+        self.running_score *= DECAY_RATE
+
+        # 2. Compute message contribution
+        contribution = 0.0
+        for s in signals:
+            weight = SIGNAL_WEIGHTS.get(s, 0.0)
+            tier = SIGNAL_TIERS.get(s, 1)
+            contribution += weight * TIER_AMP[tier]
+
+            # Track counts
+            tier_key = f"T{tier}"
+            self.tier_counts[tier_key] = self.tier_counts.get(tier_key, 0) + 1
+            self.signal_counts[s] = self.signal_counts.get(s, 0) + 1
+
+        # 3. T1 primer bonus: if T1 was seen before and this message has T2/T3
+        if self.t1_primer_active and any(SIGNAL_TIERS.get(s, 0) >= 2 for s in signals):
+            contribution *= T1_PRIMER_BONUS
+
+        # 4. Sequence multiplier
+        all_msg_signals = [r["signals"] for r in self.signal_history] + [signals]
+        seq_name, seq_mult = _detect_sequence_match(all_msg_signals)
+        if seq_name and seq_name not in self.sequence_matches:
+            self.sequence_matches.append(seq_name)
+        contribution *= seq_mult
+
+        # 5. Add contribution (pre-override)
+        self.running_score = min(SCORE_CAP, self.running_score + contribution)
+
+        # 6. Tier override floors
+        override_floor = _check_tier_overrides(signals)
+        if override_floor is not None and self.running_score < override_floor:
+            self.overrides_applied.append({
+                "message_index": self.message_count - 1,
+                "rule": "tier_override",
+                "score_before": round(self.running_score, 3),
+                "score_after": round(override_floor, 3),
+            })
+            self.running_score = override_floor
+
+        # Update T1 primer flag
+        if any(SIGNAL_TIERS.get(s, 0) == 1 for s in signals):
+            self.t1_primer_active = True
+
+        # Track highest score
+        if self.running_score > self.highest_score_reached:
+            self.highest_score_reached = self.running_score
+
+        # Record message
+        record = {
+            "message_index": self.message_count - 1,
+            "signals": signals,
+            "contribution": round(contribution, 3),
+            "score_after": round(self.running_score, 3),
+            "sequence_match": seq_name,
+        }
+        self.signal_history.append(record)
+
+        # 7. Family alert gates
+        alert_fired_now = False
+        if not self.family_alert_fired:
+            alert_fired_now, reason = self._check_family_alert_gates(signals, seq_name)
+            if alert_fired_now:
+                self.family_alert_fired = True
+                self.family_alert_reason = reason
+
+        classification = _score_to_classification(self.running_score)
+
+        return {
+            "score_before": round(score_before, 3),
+            "score_after": round(self.running_score, 3),
+            "contribution": round(contribution, 3),
+            "classification": classification,
+            "api_classification": _to_api_classification(classification),
+            "confidence": _score_to_confidence(self.running_score),
+            "sequence_match": seq_name,
+            "sequence_multiplier": seq_mult,
+            "override_applied": override_floor is not None,
+            "family_alert_fired": alert_fired_now,
+            "family_alert_reason": self.family_alert_reason if alert_fired_now else None,
+        }
+
+    def _check_family_alert_gates(self, signals: list[str], seq_name: Optional[str]) -> tuple[bool, Optional[str]]:
+        """Check all four family alert gates. Returns (fired, reason)."""
+        # Gate A: Score sustained >= 5.0 for 2 consecutive messages
+        if self.running_score >= 5.0:
+            self._consecutive_high += 1
+            if self._consecutive_high >= 2:
+                return True, "score_sustained"
+        else:
+            self._consecutive_high = 0
+
+        # Gate B: Score spike >= 7.5 (SCAM band)
+        if self.running_score >= 7.5:
+            return True, "score_spike"
+
+        # Gate C: Tier override fired
+        if _check_tier_overrides(signals) is not None:
+            return True, "tier_override"
+
+        # Gate D: ore-ore or authority sequence confirmed at score >= 3.0
+        if seq_name in ("ore_ore", "authority") and self.running_score >= 3.0:
+            return True, "sequence_match"
+
+        # Gate E: any Tier 3 signal detected (serious concern, per user requirement)
+        if any(SIGNAL_TIERS.get(s, 0) == 3 for s in signals):
+            return True, "tier3_detected"
+
+        return False, None
+
+
+def classify_from_signals(signals: list[str], ledger: ConversationRiskLedger = None) -> dict:
+    """Compute classification from LLM-detected signals using the risk ledger.
+
+    If no ledger provided, creates a fresh one (single-message mode).
+    Returns the update result plus the full ledger state.
+    """
+    if ledger is None:
+        ledger = ConversationRiskLedger()
+
+    update = ledger.update(signals)
+
+    return {
+        "update": update,
+        "ledger": ledger.to_dict(),
+    }
+
+
 # ── Full pipeline runner ────────────────────────────────────────────────
 
 def _contra_indicator_check(text: str, linguistic: dict) -> dict:

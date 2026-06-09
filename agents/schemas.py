@@ -14,6 +14,21 @@ class FinancialMention(BaseModel):
     urgency: Literal["low", "medium", "high"] = "low"
 
 
+class ElderState(BaseModel):
+    """LLM-detected victim state signals from the elder's reply.
+
+    Parallel to PM signals on inbound: LLM detects VS signals,
+    epistemic ledger scores them deterministically.
+    Only populated for outbound (elder) messages.
+    """
+    detected_signals: list[str] = Field(default_factory=list)
+    compliance: Literal["none", "mild", "strong"] = "none"
+    resistance: Literal["none", "mild", "strong"] = "none"
+    disclosure: Literal["none", "mild", "strong"] = "none"
+    emotional_engagement: Literal["none", "mild", "strong"] = "none"
+    instruction_seeking: bool = False
+
+
 class ExtractedFacts(BaseModel):
     claimed_name: str | None = None
     claimed_relationship: str | None = None
@@ -23,6 +38,7 @@ class ExtractedFacts(BaseModel):
     financial_mention: FinancialMention | None = None
     life_facts: list[str] = Field(default_factory=list)
     matched_existing: list[str] = Field(default_factory=list)
+    elder_state: ElderState = Field(default_factory=ElderState)
 
 
 class ClassificationResult(BaseModel):
