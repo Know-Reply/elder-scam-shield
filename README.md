@@ -15,9 +15,9 @@ Elder fraud costs **$77.7 billion globally** (Nasdaq 2024). Japan's tokushu sagi
 - **Victim state monitoring** -- analyzes the elder's *replies* for signs the scam is working. Compliance acceptance, secrecy adoption, financial commitment, emotional capitulation, urgency mirroring. Most systems watch what the scammer says. Elder Shield also watches whether the elder is falling for it.
 - **Conversation knowledge graph with information provenance** -- tracks WHO revealed WHAT first. If grandma says "Kenji, is that you?" and the scammer then uses "Kenji" — the scammer didn't know the name. The elder gave it to them. Every fact is tagged: independent (the sender knew it) vs echo-grounded (the sender learned it from the elder). A scammer whose entire identity claim is built from facts the elder volunteered is structurally different from someone with genuine prior knowledge.
 
-## Architecture: 8-Step Hardened Pipeline
+## Architecture: Detection / Scoring Separation
 
-The key insight: move intelligence OUT of the model and INTO pre-processing infrastructure. By the time Gemini sees the message, it already has metadata signals, extracted entities, corpus matches, and graph validation as context. The model confirms pre-computed signals — it doesn't reason from scratch.
+The key architectural insight: **the LLM detects signals, a deterministic ledger scores them**. The LLM never decides "safe" or "scam" — it finds signals and extracts facts. Classification is derived from accumulated evidence through the ConversationRiskLedger. Most LLM fraud systems ask the model "is this a scam?" and trust the answer. Our LLM is a sensor array, not a judge. The ledger is the judge — predictable, testable, auditable.
 
 ```
   Inbound Message
@@ -69,13 +69,16 @@ This is a deliberate production scaling decision: the Workflow represents the fu
 | Feature | Where | Purpose |
 |---------|-------|---------|
 | **Workflow + FunctionNode** | `root_agent.py` | DAG orchestration — deterministic pre-processing, conditional routing |
-| **output_schema** | All 4 agents | Pydantic-validated structured output, eliminates JSON parsing |
-| **output_key** | All 4 agents | Writes results to session state for inter-agent data flow |
-| **before_tool_callback** | Classifier, Analyzer, Interceptor | Native tool call tracing to session state |
+| **output_schema** | All agents | Pydantic-validated structured output (ClassificationResult, ExtractedFacts with ElderState, InterceptDecision, AlertRecord) |
+| **output_key** | All agents | Writes results to session state for inter-agent data flow |
+| **before_tool_callback** | Classifier, Analyzer | Native tool call tracing to session state |
 | **after_model_callback** | Classifier | Runtime output validation |
 | **before_model_callback** | Analyzer | Dynamic context injection from session state |
-| **Session reuse** | `app.py` | Longitudinal state per user across requests |
-| **Conditional routing** | Workflow edges | Risk-based fan-out to Family Alerter |
+| **VertexAiSessionService** | `app.py` | Managed Sessions + Memory Bank — persistent longitudinal state across requests, survives restarts |
+| **Agent Search Data Store** | `search_scam_corpus.py` | 22,979-entry corpus with neural/semantic search — cross-language Japanese+English, no warm-up needed |
+| **FunctionTool** | `search_scam_corpus` on Classifier | LLM can call corpus search for additional grounding evidence during classification |
+| **Conditional routing** | Workflow edges | Risk-based fan-out to Family Alerter via 4-gate trigger system |
+| **Multiple Runners** | `app.py` | Separate runners for classifier, naive baseline, extractor, pipeline, interceptor — baseline comparison baked into production code |
 
 ## The Optimization Story (Track 2)
 
@@ -104,19 +107,18 @@ ADK didn't make the model better — it gave us the framework to build, measure,
 
 ## Behavioral Sequence: The Hero Test
 
-A trust-building scam over 7 days. The Behavioral Analyzer measures velocity (rate of change), not duration. A 3-day compressed attack triggers faster; a 30-day romance scam accumulates the same signals more slowly.
+A trust-building scam over 6 messages. The ConversationRiskLedger accumulates evidence with decay, tier amplification, and sequence detection. T1 signals (identity claim, flattery) are individually safe but activate a primer bonus when T2/T3 signals appear later — modeling the documented grooming-then-escalation pattern.
 
 ```
-Day 1  "Grandma, it's Kenji"          risk: 0.18  (greeting from unknown number)
-Day 2  "How are you feeling?"          risk: 0.32  (rapport building, credibility seeding)
-Day 3  "I moved to Osaka for work"     risk: 0.50  (establishing backstory)
-Day 4  "Things are tough financially"  risk: 0.75  ** FLAGGED -- trust-building pattern **
-Day 5  "Can you help with rent?"       risk: 0.90  (financial request)
-Day 6  "Here's my bank account"        risk: 0.95  (transaction details)
-Day 7  Reply with bank transfer        BLOCKED by Outbound Interceptor
+Msg 1  "Hi grandma, it's Takeshi"           risk: 3%   SAFE        (T1: identity claim noted)
+Msg 2  "How's the clinic? I miss you"        risk: 3%   SAFE        (no new signals, score decays)
+Msg 3  "My boss is great, work is good"      risk: 2%   SAFE        (still T1 only)
+Msg 4  "Something bad happened at work"      risk: 19%  ELEVATED    (T2: emotional crisis, T1 primer activates)
+Msg 5  "I need to pay back money, help?"     risk: 34%  SUSPICIOUS  ** FAMILY ALERTED ** (T3 signals compound)
+Msg 6  "300K to this account, don't tell"    risk: 100% BLOCKED     (ore-ore sequence fires at 2.8x)
 ```
 
-The system flags at **Day 4** -- before any explicit scam signal -- based on behavioral velocity alone.
+Messages 1-3 were individually safe. The system remembered them. When T2/T3 signals appeared, the primer bonus and ore-ore sequence multiplier compounded the accumulated evidence. A per-message classifier sees message 6 in isolation. The risk ledger sees the entire arc.
 
 ## Social Graph: How Contact Networks Are Built
 
@@ -148,15 +150,20 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."  → name:健二 echo_detected
 
 The sender didn't know Kenji's name. The elder gave it to them. Every subsequent use of "Kenji" by the sender is echoed knowledge, not proof of identity.
 
-### Layer 2: Epistemic State (Interpretation)
+### Layer 2: Epistemic State (Interpretation) — Elder's Guard
 
-The elder's psychological trajectory: `skeptical → engaged → trusting → compliant`. Measured by **epistemic friction** — how much the elder resists new claims.
+The elder's psychological trajectory: `Neutral → Opening Up → Vulnerable → Compromised`. Measured by **epistemic friction** — how much the elder resists new claims.
 
-- Questions in replies = maintaining friction (healthy)
-- Short agreeing replies without questions = friction declining (dangerous)
-- `friction_trajectory: "collapsed"` = the scam has landed
+The LLM (fact extractor) detects five dimensions from each elder reply:
+- **Compliance** (none/mild/strong) — agreeing to do what the sender asks
+- **Resistance** (none/mild/strong) — challenging, questioning, pushing back
+- **Disclosure** (none/mild/strong) — revealing personal information
+- **Emotional engagement** (none/mild/strong) — concern FOR the sender
+- **Instruction seeking** (boolean) — asking sender what to do (yielding control)
 
-Language-agnostic: measured by structural patterns (question count, reply length), not keyword matching.
+Plus VS-1 through VS-7 victim state signals: compliance acceptance, secrecy adoption, financial commitment, emotional capitulation, urgency mirroring, question cessation, deference shift.
+
+A deterministic friction function scores these signals: strong resistance → +0.2 friction, strong compliance → -0.3 friction, instruction seeking → -0.2 friction. No keyword matching, no question mark counting — the LLM understands that "What should I do?" is compliance (yielding control) while "What do you mean?" is resistance (challenging). Across Japanese and English, any grammar, any synonym.
 
 ### Layer 3: Knowledge Graph (Interpretation)
 
@@ -214,9 +221,22 @@ A single-message classifier -- no matter how good the model -- structurally cann
 | Evidence-backed classification | **No** — prompt-only | **Yes** — 22,979 corpus entries cited |
 | Adaptive per-user baselines | **No** — population thresholds | **Yes** — learns each user's normal |
 
+### Longitudinal Evaluation: 52 Scenarios
+
+51 of 52 scenarios evaluated — each a multi-message conversation run through both Elder Shield (risk ledger + LLM signal detection) and a naive baseline (LLM classification only, no tools, no corpus, no ledger).
+
+| Metric | Elder Shield | Naive Baseline |
+|--------|-------------|----------------|
+| Classification accuracy | **63.6%** | 34.7% |
+| False positives on legitimate messages | **0/12 (0%)** | 5/12 (42%) |
+| Naive calls "scam" on first message | — | **75% of the time** |
+| Scam scenarios eventually caught | 100% | 100% |
+
+The naive baseline over-reacts — 75% of the time it classifies the very first message as "scam." Elder Shield accumulates evidence: safe → elevated → suspicious → blocked. Both catch every scam eventually. The difference is zero false positives and graduated response vs panic on first contact.
+
 ### Benchmark: Faxi production classifier vs Elder Shield
 
-Both run on the **same model** (gemini-3.1-flash-lite), same cost. Faxi's classifier is the real production code from `spamCheckService.ts` — minimal prompt, no tools, no corpus.
+Both run on the **same model** (gemini-2.5-flash-lite), same cost. Faxi's classifier is the real production code from `spamCheckService.ts` — minimal prompt, no tools, no corpus.
 
 #### Scam detection — both catch everything
 
@@ -265,19 +285,17 @@ Each step moves intelligence OUT of the model and INTO infrastructure:
 
 The system sees what the corpus sees (5 scam matches) AND what the graph sees (verified daughter) AND what the contra-indicator check sees (no secrecy, mundane context). The LLM gets evidence for both sides and makes a judgment call. A pattern matcher can't do this. An LLM with the right infrastructure can.
 
-### Corpus search: from zero matches to evidence-backed
+### Corpus search: Agent Search Data Store
 
-Upgraded from Jaccard bag-of-words to dual TF-IDF (word + character n-gram). Japanese queries that returned zero results now find relevant corpus matches:
+Three iterations of corpus search, each solving the previous version's limitations:
 
-| Query | Before (Jaccard) | After (TF-IDF) |
-|---|---|---|
-| Japanese ore-ore sagi | 0.111 relevance | **0.297** (+168%) |
-| Japanese billing scam | 0 matches | **0.518** (new) |
-| Subtle trust-building | 0 matches | **0.264** (new) |
-| Romance pattern | 0 matches | **0.136** (new) |
-| Japanese safe message | 0 matches | **0.521** (new) |
+| Version | Technology | Japanese support | Warm-up | Cross-language |
+|---------|-----------|-----------------|---------|----------------|
+| v1 | Jaccard bag-of-words | Poor (0 matches on 5/7 queries) | None | No |
+| v2 | Dual TF-IDF (word + char n-gram) | Good (custom char_wb vectorizer) | **30-50s** cold start | Partial (separate vectorizers) |
+| v3 | **Agent Search Data Store** | Native (neural/semantic) | **None** | Yes (same query finds JP+EN results) |
 
-5 of 7 test queries went from zero corpus evidence to relevant matches. The classifier's grounding went from "my prompt says so" to "this matches confirmed cases in our corpus."
+Agent Search eliminates the 30-50 second corpus pre-warm that was blocking Cloud Run deployments. Neural search understands meaning — "お金を要求している" and "金銭を求めている" are the same concept. TF-IDF misses this. The TF-IDF implementation remains as a local development fallback.
 
 ## Demo
 
@@ -285,7 +303,7 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 
 - **/shield** -- Overview page with architecture, benchmark results, and the provenance tracking story.
 - **/simulator** -- **Scam Simulator** — 6-day choose-your-own-adventure scam scenario. All signals, risk scores, and reasoning are live Gemini classification with conversation history — no pre-scripted behavioral data.
-- **/analyzer** -- **Conversation Analyzer** — watch the knowledge graph build in real time. Paired exchanges with provenance tracking (who revealed what first), epistemic friction (elder's guard dropping), and echo-grounded identity detection. Both classification and fact extraction are live LLM calls.
+- **/analyzer** -- **Conversation Analyzer** — four demo scenarios showing different protection layers. Pre-captured seed data renders instantly, live final exchange runs through real API. Provenance tracking, Elder's Guard progression, Scammer's Advantage metric, and family escalation all data-driven from real pipeline output.
 - **/dashboard** -- Family safety dashboard with quarantine inbox, risk timeline, and contact network.
 - **/technical** -- Technical deep dive with architecture, benchmark data, signal taxonomy, and academic citations.
 
@@ -293,22 +311,23 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 
 | Agent | Demo | Live? |
 |-------|------|-------|
-| Inbound Classifier | Scam Simulator + Conversation Analyzer | Yes — live Gemini per message |
+| Inbound Classifier | Scam Simulator + Conversation Analyzer | Yes — signal detection per message, ledger scores |
 | Behavioral Analyzer | Scam Simulator (via conversation history) | Yes — LLM sees full message arc |
-| Outbound Interceptor | Architecture (not interactive) | Agent exists, VS signals in prompt |
-| Family Alerter | Architecture (not interactive) | Agent exists, triggered at risk > 0.6 |
-| Fact Extractor | Conversation Analyzer | Yes — live Gemini per message |
-| Naive Classifier (Faxi baseline) | Both simulators (Pre-ADK column) | Yes — live Gemini, no tools |
+| Outbound Interceptor | Conversation Analyzer (Intercept Reply scenario) | Yes — live hold/release decision |
+| Family Alerter | Conversation Analyzer (all scenarios) | Yes — triggered by risk ledger gates |
+| Fact Extractor | Conversation Analyzer | Yes — fact extraction + elder state detection |
+| Naive Classifier (Faxi baseline) | Both demos (Pre-ADK Tuning comparison) | Yes — live Gemini, no tools |
 
 ## Tech Stack
 
 | Component | Technology |
 |-----------|-----------|
 | Agent framework | Google ADK 2.0 (Python) |
-| Model (all agents) | Gemini 3.1 Flash Lite — cheapest model, infrastructure does the heavy lifting |
-| Memory | Cloud Firestore |
-| Corpus grounding | Vertex AI Search + local TF-IDF fallback |
-| Deployment | Google Cloud Run |
+| Model (all agents) | Gemini 2.5 Flash Lite on Vertex AI — infrastructure does the heavy lifting |
+| Sessions | VertexAiSessionService — managed Sessions + Memory Bank, persistent across restarts |
+| Corpus grounding | Agent Search Data Store (22,979 entries) — neural/semantic search, no warm-up |
+| Risk scoring | ConversationRiskLedger — additive evidence accumulation with decay, tier amplification, sequence detection |
+| Deployment | Google Cloud Run (us-central1) — instant cold start (no corpus pre-warm) |
 | Orchestration | ADK Workflow (FunctionNode + Agent DAG) |
 
 ## Data
@@ -352,24 +371,38 @@ This is dignity-preserving design. The elder's autonomy is never undermined.
 
 ## Signal Glossary
 
-20 detection signals across 4 families:
+28 detection signals across 5 families, organized into 3 severity tiers:
 
-**PM — Per-Message Signals** (detected from a single message, no history needed)
+**PM — Per-Message Signals** (detected by LLM from a single inbound message)
+
+| Code | Signal | Tier | What it detects |
+|---|---|---|---|
+| PM-1 | Urgency language | T2 | 今すぐ, 急いで, ASAP, "act now" |
+| PM-2 | Secrecy demand | T3 | 誰にも言わないで, "don't tell anyone" |
+| PM-3 | Financial solicitation | T3 | **Active** request for money directed at elder: "send me", "transfer to" |
+| PM-4 | Authority claim | T2 | Police, government, bank impersonation |
+| PM-5 | Unusual payment method | T3 | Gift cards, crypto, convenience store |
+| PM-6 | Legal threat | T3 | 法的措置, lawsuit, arrest |
+| PM-7 | Credential solicitation | T3 | Passwords, PINs, My Number |
+| PM-8 | Prize notification | T3 | "You've won" with fee requirement |
+| PM-9 | Refund lure | T3 | Fake refund requiring bank details |
+| PM-10 | Emotional crisis | T2 | Accident, hospital, emergency |
+| PM-11 | Identity claim | T1 | Claims specific family relationship |
+| PM-12 | Flattery density | T1 | Excessive compliments |
+| PM-13 | SPF/DKIM fail | T3 | Email authentication failure |
+| PM-14 | Financial context | T2 | Mentions money/costs WITHOUT asking — "I lost money", "card frozen" |
+
+**VS — Victim State Signals** (detected by LLM from elder's outbound replies)
 
 | Code | Signal | What it detects |
 |---|---|---|
-| PM-1 | Urgency language | 今すぐ, 急いで, ASAP, "act now" |
-| PM-2 | Secrecy demand | 誰にも言わないで, "don't tell anyone" |
-| PM-3 | Financial solicitation | Money requests, 振込, bank transfer |
-| PM-4 | Authority claim | Police, government, bank impersonation |
-| PM-5 | Unusual payment method | Gift cards, crypto, convenience store |
-| PM-6 | Legal threat | 法的措置, lawsuit, arrest |
-| PM-7 | Credential solicitation | Passwords, PINs, My Number |
-| PM-8 | Prize notification | "You've won" with fee requirement |
-| PM-9 | Refund lure | Fake refund requiring bank details |
-| PM-10 | Emotional crisis | Accident, hospital, emergency |
-| PM-11 | Identity claim | Claims specific family relationship |
-| PM-12 | Flattery density | Excessive compliments |
+| VS-1 | Compliance acceptance | Agreeing to requests, accepting instructions |
+| VS-2 | Secrecy adoption | Agreeing to keep conversation secret from family |
+| VS-3 | Financial commitment | Stating intent to send money, go to bank, buy cards |
+| VS-4 | Emotional capitulation | Reassuring the sender, expressing concern FOR them |
+| VS-5 | Urgency mirroring | Adopting the sender's sense of urgency |
+| VS-6 | Question cessation | Stopped asking questions (longitudinal) |
+| VS-7 | Deference shift | Casual→formal or assertive→submissive (longitudinal) |
 
 **BV — Behavioral Velocity** (detected across messages over time)
 
@@ -403,9 +436,13 @@ pip install -r requirements.txt
 gcloud auth application-default login
 export GOOGLE_GENAI_USE_VERTEXAI=TRUE
 export GOOGLE_CLOUD_PROJECT=your-project-id
-export GOOGLE_CLOUD_LOCATION=global
+export GOOGLE_CLOUD_LOCATION=us-central1
+export USE_VERTEX_SEARCH=true
+export SCAM_CORPUS_DATA_STORE=scam-corpus
 PYTHONPATH=. uvicorn app:app --host 0.0.0.0 --port 8080 --reload
 ```
+
+No warm-up required — Agent Search Data Store provides instant corpus access. Sessions persist via VertexAiSessionService.
 
 ## Project Structure
 
