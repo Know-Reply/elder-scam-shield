@@ -39,28 +39,28 @@ RATE_LIMIT_PER_DAY = 5
 TEMPLATES: dict[str, dict[str, Any]] = {
     "suspicious_sender": {
         "sev": "warning",
-        "sj": "新しい連絡先について — ご確認のお願い",
-        "se": "A new contact for {elder_name} — please review",
-        "aj": "今週中にお時間のあるとき、{elder_name}さまに「最近、新しいお友達やご連絡された方はいらっしゃいますか？」と自然な形でお声がけください。聞き役に徹してください。",
-        "ae": "Within the next few days, ask {elder_name} casually: 'who have you been talking to lately?' Listen — don't lead. Please do not say 'scam' — it puts {elder_name} on the defensive and makes the system feel like surveillance.",
-        "dj": "{elder_name}さまはこのメッセージを見ていません。",
-        "de": "{elder_name} did not see this message.",
+        "sj": "不審な連絡パターンを検知 — ご確認をお願いします",
+        "se": "Suspicious contact pattern detected for {elder_name}",
+        "aj": "未確認の送信者から{elder_name}さまへの連絡に不審なパターンが検出されました。なりすまし詐欺（オレオレ詐欺）の可能性があります。{elder_name}さまに確認のご連絡をお勧めします。リスクが高まった場合、Faxiが自動的にブロックします。",
+        "ae": "An unverified sender is showing patterns consistent with potential impersonation fraud (ore-ore scam) in their communication with {elder_name}. We recommend following up with {elder_name} to check in. If risk increases, Faxi will automatically block further messages.",
+        "dj": "{elder_name}さまはこの通知を見ていません。",
+        "de": "{elder_name} did not see this notification.",
     },
     "outbound_pii_detected": {
         "sev": "critical",
-        "sj": "至急 — 個人情報の送信を保留しました",
-        "se": "Urgent: {elder_name}'s outbound message containing personal information has been held",
-        "aj": "4時間以内にお電話ください。世間話から入り、もしお金や口座番号、振り込みの話が出てきたら、「いいね、でも一緒に確認してから決めよう」とご提案ください。「詐欺」という言葉は避けてください。",
-        "ae": "Within 4 hours: call {elder_name}. Start with normal conversation. If money, bank info, or transfers come up, gently say: 'sounds interesting — let's wait and check together before we decide.' This buys time without confrontation. Please do not say 'scam.'",
+        "sj": "至急 — {elder_name}さまの返信を保留しました",
+        "se": "Urgent: {elder_name}'s outbound reply has been held",
+        "aj": "{elder_name}さまが個人情報（銀行口座・カード番号等）を含む返信を送信しようとしました。送信は保留されています。{elder_name}さまに確認のご連絡をお勧めします。",
+        "ae": "{elder_name} attempted to send a reply containing sensitive information (bank details, card numbers, or similar). The reply has been held and not sent. We recommend contacting {elder_name} to discuss.",
         "dj": "{elder_name}さまの返信はまだ送信されていません。",
         "de": "{elder_name}'s reply has not been sent yet.",
     },
     "high_risk_escalation": {
         "sev": "critical",
         "sj": "至急 — 高リスクの通信パターンを検知",
-        "se": "Urgent: high-risk communication pattern detected with {elder_name}",
-        "aj": "4時間以内にお電話ください。詳細はお伝えせず、「最近どう？」と普段通りにお話を始めてください。もし新しいご連絡相手の話が出たら、聞き役に徹し、ご本人の言葉でお状況を教えてもらってください。不安な場合は警察相談ダイヤル #9110 にご相談ください。",
-        "ae": "Within 4 hours: call {elder_name}. Don't mention the alert. Start with your usual check-in. If a new contact comes up, listen and let {elder_name} describe the situation in their own words. Decide together after — not before. If concerned, contact police consultation line #9110.",
+        "se": "Urgent: high-risk communication pattern detected for {elder_name}",
+        "aj": "{elder_name}さまへの連絡に高リスクのパターンが検出されました。金銭要求、秘密の強要、緊急性の訴えが含まれています。{elder_name}さまに確認のご連絡をお勧めします。心配な場合は警察相談ダイヤル #9110 にご相談ください。",
+        "ae": "High-risk patterns detected in communication with {elder_name}: financial demands, secrecy requests, and urgency pressure. We recommend contacting {elder_name} to check in. If concerned, contact police consultation line #9110.",
         "dj": "{elder_name}さまはこれらのメッセージを見ていません。",
         "de": "{elder_name} did not see these messages.",
     },
@@ -68,8 +68,8 @@ TEMPLATES: dict[str, dict[str, Any]] = {
         "sev": "info",
         "sj": "今月{block_count_month}件目の自動ブロックを実行しました",
         "se": "Background protection: {block_count_month} block(s) this month for {elder_name}",
-        "aj": "ご対応の必要はありません。{elder_name}さまにはこのメッセージは届いていません。システムは設計どおり機能しています。",
-        "ae": "No action needed. {elder_name} did not see this message. The system is working as designed — this is the {block_count_month}-th block this month, all silent and resolved.",
+        "aj": "ご対応の必要はありません。{elder_name}さまにはこのメッセージは届いていません。",
+        "ae": "No action needed. {elder_name} did not see this message. This is the {block_count_month}-th block this month.",
         "dj": "{elder_name}さまはブロックされたメッセージを見ていません。",
         "de": "{elder_name} did not see the blocked messages.",
     },
@@ -184,7 +184,7 @@ def generate_alert(
 
 
 family_alerter = Agent(
-    model="gemini-3.1-flash-lite",
+    model="gemini-2.5-flash-lite",
     name="family_alerter",
     description=(
         "Translates scam detection events into warm, actionable Japanese "

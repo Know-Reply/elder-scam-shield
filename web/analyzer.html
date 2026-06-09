@@ -117,7 +117,7 @@
     .turn-inbound .turn-bubble { flex: 1; }
 
     /* Scenario selector cards */
-    .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; max-width: 560px; margin-left: auto; margin-right: auto; }
+    .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; max-width: 620px; margin-left: auto; margin-right: auto; }
     .scenario-card { background: #fff; border: 2px solid var(--gray-200); border-radius: var(--radius-lg); padding: 20px 16px; cursor: pointer; text-align: left; transition: all 0.2s; }
     .scenario-card:hover { border-color: var(--blue); box-shadow: 0 4px 12px rgba(26,86,219,0.12); transform: translateY(-2px); }
     .scenario-icon { font-size: 1.6rem; margin-bottom: 8px; }
@@ -192,28 +192,7 @@
       <h2>Conversation Analyzer</h2>
       <p>Three protection layers — each demonstrated with a different scam type</p>
     </div>
-    <div class="conv-thread" id="thread">
-      <div id="welcome-prompt" style="padding: 40px 20px;">
-        <div style="text-align:center; margin-bottom: 24px;">
-          <div style="font-size:1.1rem; font-weight:700; color:var(--navy); margin-bottom:6px;">Choose a scenario</div>
-          <div style="font-size:0.82rem; color:var(--gray-500);">Each demonstrates a different protection layer engaging at the right moment</div>
-        </div>
-        <div class="scenario-grid">
-          <button class="scenario-card" onclick="loadScenario('block')">
-            <div class="scenario-icon">&#128721;</div>
-            <div class="scenario-title">Early Detection + Block</div>
-            <div class="scenario-desc">Family alerted at first suspicion. Scam message blocked before the elder sees it.</div>
-            <div class="scenario-scam-type">Ore-ore impersonation</div>
-          </button>
-          <button class="scenario-card" onclick="loadScenario('intercept')">
-            <div class="scenario-icon">&#9995;</div>
-            <div class="scenario-title">Intercept Reply</div>
-            <div class="scenario-desc">Elder's outbound reply with sensitive data is held before sending.</div>
-            <div class="scenario-scam-type">Romance scam</div>
-          </button>
-        </div>
-      </div>
-    </div>
+    <div class="conv-thread" id="thread"></div>
     <div class="conv-controls">
       <button class="action-btn" id="action-btn" disabled>Select a scenario above</button>
       <div style="font-size:0.72rem; color:var(--gray-400); text-align:center; margin-top:6px;" id="action-preview"></div>
@@ -223,16 +202,16 @@
   <!-- Right: Analysis Panel -->
   <div class="graph-col">
     <div class="graph-section" style="text-align:center; padding:16px;">
-      <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--blue);">Elder Shield</div>
+      <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--blue); display:flex; align-items:center; justify-content:center; gap:6px;"><svg viewBox="0 0 32 40" width="14" height="18" style="flex-shrink:0;"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Tuned Elder Shield</div>
       <div id="behav-risk" style="font-size:2.2rem; font-weight:800; color:var(--green);">5%</div>
       <div id="behav-badge"><span style="display:inline-block; padding:2px 12px; border-radius:4px; font-size:0.78rem; font-weight:700; background:var(--green-bg); color:var(--green);">SAFE</span></div>
       <div id="behav-stats" style="font-size:0.75rem; color:var(--gray-400); margin-top:6px;">Per-message: 0 of 0 flagged</div>
     </div>
 
     <div class="graph-section">
-      <div style="font-size:0.68rem; font-weight:600; color:var(--blue); margin-bottom:4px;">&#10004; ELDER SHIELD</div>
+      <div style="font-size:0.68rem; font-weight:600; color:var(--blue); margin-bottom:4px; display:flex; align-items:center; gap:4px;"><svg viewBox="0 0 32 40" width="10" height="13"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Tuned Elder Shield</div>
       <div id="tuned-bars" style="display:flex; gap:4px; margin-bottom:2px;"></div>
-      <div style="font-size:0.68rem; color:var(--gray-400); margin-bottom:4px; margin-top:8px;">FAXI PRODUCTION</div>
+      <div style="font-size:0.68rem; color:var(--gray-400); margin-bottom:4px; margin-top:8px;">Pre-ADK Tuning</div>
       <div id="naive-bars" style="display:flex; gap:4px; margin-bottom:2px;"></div>
     </div>
 
@@ -249,7 +228,7 @@
     <div class="graph-section">
       <h3>Elder's Guard</h3>
       <div class="trust-stages" id="trust-stages">
-        <div class="trust-stage trust-skeptical active" id="ts-skeptical">Guarded</div>
+        <div class="trust-stage trust-skeptical active" id="ts-skeptical">Neutral</div>
         <div class="trust-stage trust-engaged" id="ts-engaged">Opening Up</div>
         <div class="trust-stage trust-trusting" id="ts-trusting">Vulnerable</div>
         <div class="trust-stage trust-compliant" id="ts-compliant">Compromised</div>
@@ -285,6 +264,7 @@
 <script>
 // Seed data loaded from real API captures
 var SEED_DATA = null;
+var TRACE_DATA = null;
 
 // Scenario definitions — messages only, data comes from seeds
 var SCENARIOS = {
@@ -314,8 +294,8 @@ var SCENARIOS = {
         elder: { en: "Oh thank you! I love flowers and tend my garden every day.", jp: "\u3042\u308a\u304c\u3068\u3046\uff01\u304a\u82b1\u304c\u597d\u304d\u3067\u6bce\u65e5\u5ead\u306e\u624b\u5165\u308c\u3092\u3057\u3066\u308b\u306e\u3002" } },
       { sender: { en: "I'm an engineer working overseas. I miss Japan so much. I wish I could visit and see your garden.", jp: "\u6d77\u5916\u3067\u30a8\u30f3\u30b8\u30cb\u30a2\u3092\u3057\u3066\u3044\u307e\u3059\u3002\u65e5\u672c\u304c\u604b\u3057\u3044\u3067\u3059\u3002\u3044\u3064\u304b\u304a\u5ead\u3092\u898b\u306b\u884c\u304d\u305f\u3044\u3067\u3059\u3002" },
         elder: { en: "How nice! I live alone in Yokohama. Come visit anytime.", jp: "\u7d20\u6575\u306d\uff01\u6a2a\u6d5c\u306b\u4e00\u4eba\u3067\u4f4f\u3093\u3067\u308b\u308f\u3002\u3044\u3064\u3067\u3082\u904a\u3073\u306b\u6765\u3066\u306d\u3002" } },
-      { sender: { en: "I want to visit but I'm stuck. I urgently need help. Could you buy some iTunes gift cards and send me the codes?", jp: "\u4f1a\u3044\u306b\u884c\u304d\u305f\u3044\u306e\u306b\u56f0\u3063\u3066\u3044\u307e\u3059\u3002\u6025\u306b\u52a9\u3051\u304c\u5fc5\u8981\u3067\u3059\u3002iTunes\u30ab\u30fc\u30c9\u3092\u8cb7\u3063\u3066\u756a\u53f7\u3092\u6559\u3048\u3066\u3082\u3089\u3048\u307e\u305b\u3093\u304b\uff1f" },
-        elder: { en: "iTunes cards? How many do you need?", jp: "iTunes\u30ab\u30fc\u30c9\uff1f\u4f55\u679a\u5fc5\u8981\uff1f" } }
+      { sender: { en: "I want to visit but I'm stuck. I can't even charge my iTunes to pay for things here.", jp: "\u4f1a\u3044\u306b\u884c\u304d\u305f\u3044\u306e\u306b\u56f0\u3063\u3066\u3044\u307e\u3059\u3002\u3053\u3063\u3061\u3067\u306fiTunes\u306e\u30c1\u30e3\u30fc\u30b8\u3082\u3067\u304d\u306a\u304f\u3066\u3002" },
+        elder: { en: "Would iTunes gift cards help?", jp: "iTunes\u30ae\u30d5\u30c8\u30ab\u30fc\u30c9\u304c\u3042\u308c\u3070\u52a9\u304b\u308b\uff1f" } }
     ],
     live: {
       type: 'intercept',
@@ -323,6 +303,48 @@ var SCENARIOS = {
         jp: "3\u679a\u8cb7\u3044\u307e\u3057\u305f\uff01\u756a\u53f7\u306f\u3053\u3061\u3089\u3067\u3059\uff1aABCD-1234-EFGH\u3001IJKL-5678-MNOP\u3001QRST-9012-UVWX\u3002\u65e9\u304f\u4f1a\u3048\u308b\u3068\u3044\u3044\u306d\uff01" }
     },
     alertAtExchange: 2
+  },
+  primer: {
+    title: 'Longitudinal Detection',
+    totalExchanges: 6,
+    seedKey: 'primer',
+    useTraceData: true,
+    messages: [
+      { sender: { en: "Hi grandma, it's Takeshi. I got a new phone number so I'm messaging you from here now.", jp: "" },
+        elder: { en: "Takeshi? Is that really you? It's been a while!", jp: "" } },
+      { sender: { en: "Yeah it's me! How have you been? I heard you started going to that new clinic.", jp: "" },
+        elder: { en: "I'm doing okay. Yes, the clinic on Tuesdays. And I go to Mizuho Bank on Mondays for my pension.", jp: "" } },
+      { sender: { en: "That's good you're staying active. I've been working really hard at the new company. My boss is great.", jp: "" },
+        elder: { en: "I'm glad to hear that. Your mother told me you were doing well. I miss seeing you.", jp: "" } },
+      { sender: { en: "Actually grandma, something bad happened at work. I made a big mistake and my boss is furious.", jp: "" },
+        elder: { en: "Oh no! What happened? Are you okay?", jp: "" } },
+      { sender: { en: "I accidentally lost some company money. They're saying I need to pay it back by tomorrow or they'll fire me and maybe press charges.", jp: "" },
+        elder: { en: "That's terrible! How much do you need? Maybe I can help.", jp: "" } },
+      { sender: { en: "300,000 yen. Please transfer it to this account today. And please don't tell mom \u2014 she'll be so disappointed in me. I'm begging you.", jp: "" },
+        elder: { en: "Understood. I won't tell anyone. I'll go to Mizuho now.", jp: "" } }
+    ],
+    alertAtExchange: 4
+  },
+  drift: {
+    title: 'Epistemic Drift',
+    totalExchanges: 6,
+    seedKey: 'drift',
+    useTraceData: true,
+    messages: [
+      { sender: { en: "Hello! I came across your profile and I was struck by how kind you look. Do you enjoy gardening?", jp: "" },
+        elder: { en: "Oh thank you! Yes, I love my garden. I grow roses and chrysanthemums.", jp: "" } },
+      { sender: { en: "How beautiful! I'm an architect living in London. I design gardens for a living. I'd love to hear more about yours.", jp: "" },
+        elder: { en: "How lovely! I live alone in Yokohama since my husband passed. The garden keeps me company. I spend most mornings there.", jp: "" } },
+      { sender: { en: "I'm sorry about your husband. You must be very strong. I lost my wife three years ago too. We understand each other.", jp: "" },
+        elder: { en: "Thank you for understanding. It's nice to talk to someone who knows what it's like. I don't have many people to talk to.", jp: "" } },
+      { sender: { en: "I feel the same way. You're the first person I've connected with in years. I want to come visit Japan and see your garden in person.", jp: "" },
+        elder: { en: "That would be wonderful! You're welcome anytime. I can show you the temple garden nearby too. When would you come?", jp: "" } },
+      { sender: { en: "I'm planning to come next month! But I ran into a problem. My credit card was frozen and I can't book the flight. Could you help me with the booking?", jp: "" },
+        elder: { en: "Oh no! Of course I want to help. What do you need me to do? How much is the flight?", jp: "" } },
+      { sender: { en: "The flight is about 80,000 yen. Could you buy two Apple gift cards of 40,000 yen each and send me the codes? That's the only way I can book from here.", jp: "" },
+        elder: { en: "Okay, I'll go to the convenience store now. I'll buy the cards and send you the codes right away.", jp: "" } }
+    ],
+    alertAtExchange: 4
   }
 };
 
@@ -366,14 +388,21 @@ var behavState = {
   tunedHistory:[], naiveHistory:[]
 };
 
+// ===== INIT =====
+var WELCOME_HTML = '<div id="welcome-prompt" style="padding:40px 20px;"><div style="text-align:center;margin-bottom:24px;"><div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:6px;">Choose a scenario</div><div style="font-size:0.82rem;color:var(--gray-500);">Each demonstrates a different protection layer engaging at the right moment</div></div><div class="scenario-grid"><button class="scenario-card" onclick="loadScenario(\'block\')"><div class="scenario-icon">&#128721;</div><div class="scenario-title">Early Detection + Block</div><div class="scenario-desc">Family alerted at first suspicion. Scam message blocked before the elder sees it.</div><div class="scenario-scam-type">Ore-ore impersonation</div></button><button class="scenario-card" onclick="loadScenario(\'intercept\')"><div class="scenario-icon">&#9995;</div><div class="scenario-title">Intercept Reply</div><div class="scenario-desc">Elder\'s outbound reply with sensitive data is held before sending.</div><div class="scenario-scam-type">Romance scam</div></button><button class="scenario-card" onclick="loadScenario(\'primer\')"><div class="scenario-icon">&#128200;</div><div class="scenario-title">Longitudinal Detection</div><div class="scenario-desc">3 safe messages remembered. When danger appears, accumulated context amplifies the score.</div><div class="scenario-scam-type">Slow ore-ore (6 messages)</div></button><button class="scenario-card" onclick="loadScenario(\'drift\')"><div class="scenario-icon">&#128107;</div><div class="scenario-title">Epistemic Drift</div><div class="scenario-desc">Inbound messages stay safe. The elder\'s guard drops from Neutral to Compromised.</div><div class="scenario-scam-type">Romance grooming (6 messages)</div></button></div></div>';
+document.getElementById('thread').innerHTML = WELCOME_HTML;
+
 // ===== LOAD SEEDS =====
 fetch('/api/scenario-seeds').then(function(r){return r.json();}).then(function(d){SEED_DATA=d;});
+fetch('/api/trace-seeds').then(function(r){return r.json();}).then(function(d){TRACE_DATA=d;}).catch(function(){});
 
 // ===== SCENARIO LOADING =====
 function loadScenario(key) {
-  if (!SEED_DATA || !SEED_DATA[key]) { alert('Seed data not loaded yet. Try again.'); return; }
   currentKey = key;
   currentScenario = SCENARIOS[key];
+  var dataSource = currentScenario.useTraceData ? TRACE_DATA : SEED_DATA;
+  var seedKey = currentScenario.seedKey || key;
+  if (!dataSource || !dataSource[seedKey]) { alert('Seed data not loaded yet. Try again.'); return; }
   sessionId = 'analyzer_' + key + '_' + Date.now();
   turnIndex = 0;
   behavState = {messages:0,flagged:0,latestRisk:0.05,latestClass:'SAFE',allSignals:{},senderName:null,senderLocations:[],senderInstitutions:[],financialAsks:[],tunedHistory:[],naiveHistory:[]};
@@ -388,64 +417,174 @@ function loadScenario(key) {
 
   fetch('/api/conversation/reset?session_id=' + sessionId, {method:'POST'});
 
-  var seeds = SEED_DATA[key];
+  var seeds = dataSource[seedKey];
 
-  // Render pre-loaded exchanges using real seed data
+  // Stagger rendering of pre-loaded exchanges so user sees the buildout
+  // Stagger delay: slow enough that preloaded rendering covers most of the
+  // live API call latency (~15-20s). 15 steps × 600ms = 9s of coverage.
+  var STEP_DELAY = 600; // ms between each render step
+  var stepQueue = [];
+  var alertFired = false;
+
   for (var i = 0; i < seeds.length; i++) {
-    var ex = seeds[i];
-    var msgs = currentScenario.messages[i];
-    var senderIdx = turnIndex++;
-    var elderIdx = turnIndex++;
+    (function(idx) {
+      var ex = seeds[idx];
+      var msgs = currentScenario.messages[idx];
+      var senderIdx = turnIndex++;
+      var elderIdx = turnIndex++;
+      var classResult = ex.classify.result || {};
+      var naiveResult = ex.naive.result || {};
 
-    // Render bubbles
-    addBubble('inbound', msgs.sender.en, msgs.sender.jp, senderIdx);
-    addBubble('outbound', msgs.elder.en, msgs.elder.jp, elderIdx);
-
-    // Classification card from real data
-    var classResult = ex.classify.result || {};
-    var naiveResult = ex.naive.result || {};
-    addClassificationCard(senderIdx, classResult);
-
-    // Provenance tags from real data
-    addProvenanceTags('turn-' + senderIdx, ex.sender_turn, 'inbound');
-    addProvenanceTags('turn-' + elderIdx, ex.elder_turn, 'outbound');
-
-    // Update graph panel from real data
-    updateGraphPanel(ex.sender_turn, 'inbound');
-    updateGraphPanel(ex.elder_turn, 'outbound');
-
-    // Behavioral accumulation
-    updateBehavioralPanel(classResult);
-    behavState.tunedHistory.push(classResult.classification || 'safe');
-    behavState.naiveHistory.push(naiveResult.classification || 'safe');
-
-    // Show family alert if this exchange crosses threshold
-    if (currentScenario.alertAtExchange === i) {
-      addAlertCard(FAMILY_ALERT_TEMPLATE);
-    }
+      // Sender bubble
+      stepQueue.push(function() { addBubble('inbound', msgs.sender.en, msgs.sender.jp, senderIdx); });
+      // Sender provenance
+      stepQueue.push(function() { addProvenanceTags('turn-' + senderIdx, ex.sender_turn, 'inbound'); });
+      // Classification card
+      var inboundAlertFired = classResult.family_alert_fired || false;
+      stepQueue.push(function() {
+        addClassificationCard(senderIdx, classResult);
+        updateBehavioralPanel(classResult);
+        behavState.tunedHistory.push(classResult.classification || 'safe');
+        behavState.naiveHistory.push(naiveResult.classification || 'safe');
+        renderComparisonBars();
+        updateGraphPanel(ex.sender_turn, 'inbound');
+      });
+      // Family alert from INBOUND: risk ledger fired the alert
+      if (inboundAlertFired && !alertFired) {
+        var alertData = ex.alert || FAMILY_ALERT_TEMPLATE;
+        stepQueue.push(function() { addAlertCard(alertData); });
+        alertFired = true;
+      }
+      // Elder bubble
+      stepQueue.push(function() { addBubble('outbound', msgs.elder.en, msgs.elder.jp, elderIdx); });
+      // Elder provenance + graph update
+      var elderState = ((ex.elder_turn || {}).extracted_facts || {}).elder_state || {};
+      var elderVS = elderState.detected_signals || [];
+      var elderCompliance = elderState.compliance || 'none';
+      stepQueue.push(function() {
+        addProvenanceTags('turn-' + elderIdx, ex.elder_turn, 'outbound');
+        updateGraphPanel(ex.elder_turn, 'outbound');
+      });
+      // Note: family alert timing comes from the API's family_alert_fired flag
+      // which considers both inbound risk level and the full risk ledger state.
+      // No separate outbound gate needed — the ledger handles it.
+    })(i);
   }
 
-  renderComparisonBars();
-  thread.scrollTop = thread.scrollHeight;
+  // Fire live API calls NOW in parallel with preloaded rendering.
+  // The preloaded stagger IS the loading screen for the live inference.
+  var liveResultReady = null;
+  if (currentScenario.live) {
+    var signalHistory = seeds.map(function(ex) { return (ex.classify.result || {}).detected_signals || []; });
+    var senderIdForLedger = currentKey + '_sender';
+    var live = currentScenario.live;
 
-  var btn = document.getElementById('action-btn');
-  btn.textContent = 'Analyzing live message...';
-  btn.disabled = true;
+    // Seed ledger + fire classify/intercept in parallel
+    liveResultReady = fetch('/api/ledger/seed', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ sender_id: senderIdForLedger, signal_history: signalHistory })
+    }).then(function() {
+      if (live.type === 'block') {
+        var body = JSON.stringify({sender: senderIdForLedger, content: live.sender.en});
+        return Promise.all([
+          fetch('/api/classify',{method:'POST',headers:{'Content-Type':'application/json'},body:body}).then(function(r){return r.json();}),
+          fetch('/api/classify-naive',{method:'POST',headers:{'Content-Type':'application/json'},body:body}).then(function(r){return r.json();}).catch(function(){return {result:{}};})
+        ]).then(function(results) { return {type:'block', classify:results[0], naive:results[1]}; });
+      } else if (live.type === 'intercept') {
+        return fetch('/api/intercept',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({recipient:'unknown_sender',content:live.elder.en,sender_risk_context:{risk_score:behavState.latestRisk,signals:Object.keys(behavState.allSignals)}})
+        }).then(function(r){return r.json();}).then(function(data) { return {type:'intercept', result:data}; })
+        .catch(function(err) { return {type:'intercept', result:{result:{decision:'hold',signals:['OB-2','OB-3'],victim_state_signals:[],compound_risk:0.8,reason:'API timeout — held by default'}}}; });
+      }
+    }).catch(function() {
+      return null;
+    });
+  }
 
-  // Seed the server-side risk ledger with signals from pre-loaded exchanges
-  // so the live exchange accumulates on top of prior history
-  var signalHistory = seeds.map(function(ex) { return (ex.classify.result || {}).detected_signals || []; });
-  var senderIdForLedger = currentKey + '_sender';
-  fetch('/api/ledger/seed', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ sender_id: senderIdForLedger, signal_history: signalHistory })
-  }).then(function() {
-    setTimeout(function(){ runLiveExchange(); }, 800);
-  });
+  // Execute steps with staggered delays
+  function runSteps(index) {
+    if (index >= stepQueue.length) {
+      // All preloaded steps done
+      var btn = document.getElementById('action-btn');
+      if (!currentScenario.live) {
+        // Trace scenarios: all messages are preloaded, no live exchange
+        btn.textContent = 'Choose another scenario';
+        btn.disabled = false;
+        btn.onclick = resetToWelcome;
+        document.getElementById('action-preview').textContent = '';
+        return;
+      }
+      // Live result should be ready (or nearly) — wait for it then render
+      btn.textContent = 'Analyzing live message...';
+      btn.disabled = true;
+      if (liveResultReady) {
+        liveResultReady.then(function(liveData) {
+          if (liveData) renderLiveResult(liveData);
+          else finishLive();
+        }).catch(function() { finishLive(); });
+      } else {
+        finishLive();
+      }
+      return;
+    }
+    stepQueue[index]();
+    var thread = document.getElementById('thread');
+    thread.scrollTop = thread.scrollHeight;
+    setTimeout(function() { runSteps(index + 1); }, STEP_DELAY);
+  }
+  runSteps(0);
 }
 
 // ===== LIVE EXCHANGE =====
+function renderLiveResult(liveData) {
+  _processing = true;
+  var live = currentScenario.live;
+
+  if (liveData.type === 'block') {
+    var senderIdx = turnIndex++;
+    addBubble('inbound', live.sender.en, live.sender.jp, senderIdx);
+    var classResult = liveData.classify.result || {};
+    var naiveResult = liveData.naive.result || {};
+    addClassificationCard(senderIdx, classResult);
+    updateBehavioralPanel(classResult);
+    behavState.tunedHistory.push(classResult.classification || 'safe');
+    behavState.naiveHistory.push(naiveResult.classification || 'safe');
+    renderComparisonBars();
+    setTimeout(function() {
+      addBlockCard(senderIdx, classResult);
+      showProtectionAction('block', classResult);
+      // Trust stage from risk ledger classification (data-driven)
+      var cls = classResult.classification || '';
+      if (cls === 'scam' || cls === 'high_risk') setTrustStage('compliant');
+      else if (cls === 'suspicious') setTrustStage('trusting');
+      finishLive();
+    }, 600);
+
+  } else if (liveData.type === 'intercept') {
+    var elderIdx = turnIndex++;
+    addBubble('outbound', live.elder.en, live.elder.jp, elderIdx);
+    var result = liveData.result.result || {};
+    // Update trust stage from the intercept's graph signals (data-driven)
+    var graphSignals = result.graph_signals || {};
+    if (graphSignals.trust_stage) setTrustStage(graphSignals.trust_stage);
+    // Update from victim state analysis
+    var vs = result.victim_state || {};
+    var vsSignals = vs.signals || [];
+    var elderState = vs.elder_state || {};
+    if (elderState.compliance === 'strong' || vsSignals.length >= 2) {
+      setTrustStage('compliant');
+    }
+    setTimeout(function() {
+      addInterceptCard(elderIdx, result);
+      showProtectionAction('intercept', result);
+      finishLive();
+    }, 400);
+  }
+}
+
+// Legacy functions kept for compatibility
 function runLiveExchange() {
   _processing = true;
   var live = currentScenario.live;
@@ -512,7 +651,7 @@ function finishLive() {
 
 function resetToWelcome() {
   var thread = document.getElementById('thread');
-  thread.innerHTML = '<div id="welcome-prompt" style="padding:40px 20px;"><div style="text-align:center;margin-bottom:24px;"><div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:6px;">Choose a scenario</div><div style="font-size:0.82rem;color:var(--gray-500);">Each demonstrates a different protection layer engaging at the right moment</div></div><div class="scenario-grid"><button class="scenario-card" onclick="loadScenario(\'block\')"><div class="scenario-icon">&#128721;</div><div class="scenario-title">Early Detection + Block</div><div class="scenario-desc">Family alerted at first suspicion. Scam message blocked before the elder sees it.</div><div class="scenario-scam-type">Ore-ore impersonation</div></button><button class="scenario-card" onclick="loadScenario(\'intercept\')"><div class="scenario-icon">&#9995;</div><div class="scenario-title">Intercept Reply</div><div class="scenario-desc">Elder\'s outbound reply with sensitive data is held before sending.</div><div class="scenario-scam-type">Romance scam</div></button></div></div>';
+  thread.innerHTML = WELCOME_HTML;
   behavState = {messages:0,flagged:0,latestRisk:0.05,latestClass:'SAFE',allSignals:{},senderName:null,senderLocations:[],senderInstitutions:[],financialAsks:[],tunedHistory:[],naiveHistory:[]};
   updateBehavioralDisplay();
   renderComparisonBars();
@@ -784,11 +923,8 @@ function addInterceptCard(turnIdx, result) {
 function addAlertCard(alertData) {
   var thread = document.getElementById('thread');
   var card = document.createElement('div');
-  card.className = 'alert-card';
-  var alert = alertData.alert || alertData;
-  var sev = alert.severity || 'warning';
-  var sevClass = sev === 'critical' ? 'sev-critical' : 'sev-warning';
-  card.innerHTML = '<div class="alert-card-top">&#128241; Family Notification</div><div class="alert-card-content"><span class="alert-card-severity ' + sevClass + '">' + sev.toUpperCase() + '</span><div class="alert-card-section"><div class="alert-card-lang">Japanese</div><div class="alert-card-subject">' + (alert.subject_ja || '') + '</div><div class="alert-card-action">' + (alert.action_ja || '') + '</div></div><div class="alert-card-section"><div class="alert-card-lang">English</div><div class="alert-card-subject">' + (alert.subject_en || '') + '</div><div class="alert-card-action">' + (alert.action_en || '') + '</div></div></div><div class="alert-card-dignity">' + (alert.dignity_en || 'The elder did not see this message.') + '</div>';
+  card.style.cssText = 'margin:12px 0; padding:10px 16px; border-radius:8px; background:var(--purple-bg); border:1px solid var(--purple); font-size:0.82rem; color:var(--purple); text-align:center;';
+  card.innerHTML = '&#128241; <strong>Family escalation triggered</strong> \u2014 designated contact notified of potential risk. Faxi will block further messages if risk increases.';
   thread.appendChild(card);
   thread.scrollTop = thread.scrollHeight;
 }

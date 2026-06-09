@@ -119,7 +119,7 @@ Examples:
 """
 
 fact_extractor = Agent(
-    model="gemini-3.1-flash-lite",
+    model="gemini-2.5-flash-lite",
     name="fact_extractor",
     description="Fact extraction + semantic matching for conversation knowledge graph.",
     instruction=EXTRACTOR_PROMPT,

@@ -47,6 +47,20 @@ def _content_hash(content: str) -> str:
 
 
 def _compound_risk(signals: list[str], sender_risk: float) -> float:
+    """Deterministic compound risk formula for outbound intercept decisions.
+
+    Formula: compound_risk = min(signal_sum / 2.0, 1.0) * max(sender_risk, 0.5)
+
+    - signal_sum: sum of SIGNAL_WEIGHTS for all detected OB/VS/CM signals
+    - Divided by 2.0 to normalize (max realistic signal_sum ~3.0 → 1.5 → capped at 1.0)
+    - Multiplied by sender_risk from inbound classifier (floored at 0.5 so
+      outbound signals alone can trigger holds even without high inbound risk)
+    - Final result capped at 1.0
+
+    This is fully deterministic — the LLM JUDGE agent receives this score as
+    context but does NOT compute it. The hold/release thresholds in the agent
+    prompt reference this score, not an LLM judgment.
+    """
     score = sum(SIGNAL_WEIGHTS.get(s, 0) for s in signals)
     return min(min(score / 2.0, 1.0) * max(sender_risk, 0.5), 1.0)
 
@@ -113,7 +127,7 @@ def release_outbound(hold_id: str, reason: str) -> dict:
 
 
 outbound_interceptor = Agent(
-    model="gemini-3.1-flash-lite",
+    model="gemini-2.5-flash-lite",
     name="outbound_interceptor",
     description=(
         "Intercepts outgoing user responses containing sensitive data. "

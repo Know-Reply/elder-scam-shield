@@ -91,6 +91,9 @@ _session_cache: dict[str, str] = {}
 # Risk ledger cache — persists ConversationRiskLedger per conversation
 _risk_ledgers: dict[str, ConversationRiskLedger] = {}
 
+# Audit log for intercept hold decisions — append-only
+_hold_audit_log: list[dict] = []
+
 
 async def _get_or_create_session(user_id: str, state: dict | None = None) -> object:
     """Reuse existing session or create new one with optional initial state."""
@@ -230,7 +233,7 @@ async def system_status():
         "service": "elder-scam-shield",
         "version": "1.0.0",
         "pipeline": "v2",
-        "model": "gemini-3.1-flash-lite",
+        "model": "gemini-2.5-flash-lite",
         "corpus_entries": 22979,
         "signal_families": 4,
         "signal_count": 20,
@@ -295,6 +298,15 @@ async def scenario_seeds():
     path = Path(__file__).parent / "web" / "scenario_seeds.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Scenario seeds not found")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+@app.get("/api/trace-seeds")
+async def trace_seeds():
+    """Return pre-captured API responses for longitudinal demo traces."""
+    path = Path(__file__).parent / "web" / "trace_seeds.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Trace seeds not found")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -623,31 +635,11 @@ async def intercept_outbound(req: InterceptRequest):
         )
         session.state["epistemic_state"] = graph_update["epistemic_state"]
 
-        # Run fact extractor on outbound content to get LLM-detected VS signals
+        # VS signals are detected by the outbound interceptor agent itself
+        # (its prompt includes VS-1 through VS-7 detection). No separate
+        # fact extractor call needed — saves one LLM round-trip.
         vs_signals = []
         elder_state_data = {}
-        try:
-            ext_session = await _session_service.create_session(
-                app_name="elder_scam_shield_extractor", user_id="demo_user"
-            )
-            ext_msg = genai_types.Content(
-                role="user",
-                parts=[genai_types.Part(text=f"NEW MESSAGE (outbound from elder):\n{req.content}")],
-            )
-            async for event in _extractor_runner.run_async(
-                user_id="demo_user", session_id=ext_session.id, new_message=ext_msg
-            ):
-                pass
-            ext_updated = await _session_service.get_session(
-                app_name="elder_scam_shield_extractor", user_id="demo_user", session_id=ext_session.id,
-            )
-            if ext_updated and ext_updated.state.get("extracted_facts"):
-                ef = ext_updated.state["extracted_facts"]
-                if isinstance(ef, dict):
-                    elder_state_data = ef.get("elder_state", {})
-                    vs_signals = elder_state_data.get("detected_signals", [])
-        except Exception:
-            pass  # VS detection failure doesn't block intercept
 
         # Build epistemic context for the interceptor
         graph_signals = graph_update.get("graph_signals", {})
@@ -692,6 +684,23 @@ async def intercept_outbound(req: InterceptRequest):
         result = updated.state.get("intercept_decision", {}) if updated else {}
         result["graph_signals"] = graph_signals
         result["victim_state"] = {"signals": vs_signals, "elder_state": elder_state_data}
+
+        # Audit log: record every hold decision with evidence chain
+        decision = result.get("decision", "release")
+        if decision in ("hold", "hard_hold", "warn"):
+            from datetime import datetime as _dt, timezone as _tz
+            _hold_audit_log.append({
+                "timestamp": _dt.now(_tz.utc).isoformat(),
+                "decision": decision,
+                "recipient": req.recipient,
+                "content_hash": result.get("held_content_hash", ""),
+                "signals": result.get("signals", []),
+                "victim_state_signals": vs_signals,
+                "compound_risk": result.get("compound_risk", 0),
+                "graph_trust_stage": graph_signals.get("trust_stage"),
+                "graph_friction": graph_signals.get("friction_score"),
+            })
+
         return {"result": result, "recipient": req.recipient}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -787,6 +796,17 @@ async def conversation_reset(session_id: str = "analyzer"):
     # Clear all risk ledgers (demo resets between scenarios)
     _risk_ledgers.clear()
     return {"status": "reset"}
+
+
+@app.get("/api/audit/holds")
+async def get_hold_audit():
+    """Return the audit trail of outbound hold decisions.
+
+    Every hold/hard_hold/warn decision is logged with evidence chain:
+    signals, VS signals, compound risk, graph state. Content is never
+    stored — only the content hash for verification.
+    """
+    return {"holds": _hold_audit_log, "total": len(_hold_audit_log)}
 
 
 class LedgerSeedRequest(BaseModel):

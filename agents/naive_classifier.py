@@ -1,7 +1,7 @@
 """Faxi Production Classifier — the real baseline for Pre-ADK comparison.
 
 This replicates Faxi's actual spamCheckService.ts prompt and behavior:
-same model (gemini-3.1-flash-lite), same minimal prompt, same 3 categories,
+same model (gemini-2.5-flash-lite), same minimal prompt, same 3 categories,
 no tools, no corpus, no signals, no behavioral analysis.
 
 The simulator uses this to show what Faxi's production classifier sees
@@ -25,7 +25,7 @@ RULES:
 Output strict JSON with classification (use "suspicious" for borderline scam signals), confidence 0.0-1.0, detected_signals (empty list), extracted_facts, and reasoning."""
 
 naive_classifier = Agent(
-    model="gemini-3.1-flash-lite",
+    model="gemini-2.5-flash-lite",
     name="naive_classifier",
     description="Faxi production classifier — same model, minimal prompt, no tools or domain knowledge.",
     instruction=FAXI_PROMPT,
