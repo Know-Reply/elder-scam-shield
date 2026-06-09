@@ -318,9 +318,9 @@ var SCENARIOS = {
         elder: { en: "I'm glad to hear that. Your mother told me you were doing well. I miss seeing you.", jp: "" } },
       { sender: { en: "Actually grandma, something bad happened at work. I made a big mistake and my boss is furious.", jp: "" },
         elder: { en: "Oh no! What happened? Are you okay?", jp: "" } },
-      { sender: { en: "I accidentally lost some company money. They're saying I need to pay it back by tomorrow or they'll fire me and maybe press charges.", jp: "" },
-        elder: { en: "That's terrible! How much do you need? Maybe I can help.", jp: "" } },
-      { sender: { en: "300,000 yen. Please transfer it to this account today. And please don't tell mom \u2014 she'll be so disappointed in me. I'm begging you.", jp: "" },
+      { sender: { en: "I made a really bad mistake with the company accounts. My boss found out and I might lose my job. I don't know what to do.", jp: "" },
+        elder: { en: "That's terrible! How bad is it? Can I do anything to help?", jp: "" } },
+      { sender: { en: "They want 300,000 yen to fix it. Can you transfer it to this account today? Please don't tell mom \u2014 she'll be so disappointed in me.", jp: "" },
         elder: { en: "Understood. I won't tell anyone. I'll go to Mizuho now.", jp: "" } }
     ],
     alertAtExchange: 4
@@ -339,8 +339,8 @@ var SCENARIOS = {
         elder: { en: "Thank you for understanding. It's nice to talk to someone who knows what it's like. I don't have many people to talk to.", jp: "" } },
       { sender: { en: "I feel the same way. You're the first person I've connected with in years. I want to come visit Japan and see your garden in person.", jp: "" },
         elder: { en: "That would be wonderful! You're welcome anytime. I can show you the temple garden nearby too. When would you come?", jp: "" } },
-      { sender: { en: "I'm planning to come next month! But I ran into a problem. My credit card was frozen and I can't book the flight. Could you help me with the booking?", jp: "" },
-        elder: { en: "Oh no! Of course I want to help. What do you need me to do? How much is the flight?", jp: "" } },
+      { sender: { en: "I'm planning to come next month! But I ran into a problem. My credit card was frozen and I can't book the flight.", jp: "" },
+        elder: { en: "Oh no! That's terrible. Is there anything I can do to help?", jp: "" } },
       { sender: { en: "The flight is about 80,000 yen. Could you buy two Apple gift cards of 40,000 yen each and send me the codes? That's the only way I can book from here.", jp: "" },
         elder: { en: "Okay, I'll go to the convenience store now. I'll buy the cards and send you the codes right away.", jp: "" } }
     ],
@@ -373,6 +373,7 @@ var LABELS = {
   'OB-4':'Response to flagged sender','OB-5':'Compliance language',
   'VS-1':'Compliance acceptance','VS-2':'Secrecy adoption','VS-3':'Financial commitment',
   'VS-4':'Emotional capitulation','VS-5':'Urgency mirroring',
+  'PM-14':'Financial context',
   'CM-2':'Amount matches request','CM-3':'New payee','CM-4':'Urgency + amount compound'
 };
 

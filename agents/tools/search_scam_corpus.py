@@ -24,7 +24,7 @@ def _search_vertex(query: str, top_k: int = 5) -> list[dict]:
     from google.cloud import discoveryengine_v1 as discoveryengine
 
     project = os.environ["GOOGLE_CLOUD_PROJECT"]
-    location = os.environ.get("VERTEX_AI_LOCATION", "asia-northeast1")
+    location = os.environ.get("VERTEX_SEARCH_LOCATION", "global")
     data_store_id = os.environ.get("SCAM_CORPUS_DATA_STORE", "scam-corpus")
 
     client = discoveryengine.SearchServiceClient()

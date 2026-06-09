@@ -28,7 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from google.adk import Runner
-from google.adk.sessions import InMemorySessionService
+from google.adk.sessions import InMemorySessionService, VertexAiSessionService
 from google.genai import types as genai_types
 
 from agents.root_agent import root_agent
@@ -47,8 +47,16 @@ if _env_path.exists():
             _k, _v = _line.split("=", 1)
             os.environ.setdefault(_k.strip(), _v.strip())
 
-# ADK runners for live inference
-_session_service = InMemorySessionService()
+# ADK runners — VertexAiSessionService for managed Sessions + Memory Bank
+# Falls back to InMemorySessionService for local dev without Vertex AI
+_use_vertex = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI", "").upper() == "TRUE"
+if _use_vertex:
+    _session_service = VertexAiSessionService(
+        project=os.environ.get("GOOGLE_CLOUD_PROJECT", "know-reply"),
+        location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1"),
+    )
+else:
+    _session_service = InMemorySessionService()
 
 # Classifier runner — fast path for interactive simulator (1 LLM call)
 _classifier_runner = Runner(
@@ -621,10 +629,14 @@ async def intercept_outbound(req: InterceptRequest):
     Workflow) to scan for sensitive data and make hold/release decisions.
     """
     try:
-        session = await _get_or_create_session("demo_user", {
-            "sender_id": req.recipient,
-            "user_id": "demo_user",
-        })
+        # Fresh session for interceptor — do NOT reuse the classifier's session.
+        # Shared sessions accumulate massive state that bloats the LLM context
+        # and causes the interceptor to loop for minutes.
+        session = await _session_service.create_session(
+            app_name="elder_scam_shield",
+            user_id="intercept_user",
+            state={"sender_id": req.recipient, "user_id": "demo_user"},
+        )
 
         # Update epistemic state (structural — no LLM needed) before interceptor
         turn_index = len(session.state.get("fact_ledger", {}).get("turns", []))

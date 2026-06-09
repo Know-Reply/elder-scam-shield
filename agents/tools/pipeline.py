@@ -200,11 +200,12 @@ SIGNAL_WEIGHTS = {
     "PM-11": 0.30,  # identity claim — T1, present in legit and scam equally
     "PM-12": 0.25,  # flattery density — T1, romance opener, common in normal contact
     "PM-13": 1.90,  # spf/dkim fail — T3, technical spoofing, near-deterministic
+    "PM-14": 0.80,  # financial context — T2, mentions money/costs without asking
 }
 
 SIGNAL_TIERS = {
     "PM-11": 1, "PM-12": 1,                          # Tier 1: informational
-    "PM-1": 2, "PM-4": 2, "PM-10": 2,                # Tier 2: moderate
+    "PM-1": 2, "PM-4": 2, "PM-10": 2, "PM-14": 2,     # Tier 2: moderate
     "PM-2": 3, "PM-3": 3, "PM-5": 3, "PM-6": 3,     # Tier 3: strong
     "PM-7": 3, "PM-8": 3, "PM-9": 3, "PM-13": 3,
 }

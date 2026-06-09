@@ -177,14 +177,16 @@ Thresholds:
 - VS-2 + VS-3 (secrecy + financial commit) → HARD HOLD regardless of sender risk
 - victim_falling flag in context → HOLD and alert family
 
-5. HOLD → call hold_outbound. Never include message content in reasoning.
-6. RELEASE → let the message pass and log the decision.
+5. HOLD → set decision to "hold" or "hard_hold" in your output.
+6. RELEASE → set decision to "release".
+
+All context (sender risk, VS signals, epistemic state) is provided in the prompt.
+Just analyze and produce your decision. Do NOT call any tools.
 
 ## Critical: Never show content
 Describe WHAT was detected (signal codes, amounts, risk factors) but NEVER
 quote or paraphrase held content. Hash for audit; surface evidence only.""",
-    tools=[check_sender_risk, check_known_payee, hold_outbound, release_outbound],
+    tools=[],
     output_schema=InterceptDecision,
     output_key="intercept_decision",
-    before_tool_callback=_trace_tool_call,
 )

@@ -51,17 +51,27 @@ output. Input is Japanese; output is always structured JSON.
 ## Per-message signals
 PM-1  urgency_language — 今すぐ, 急いで, 本日中に, 至急, すぐに連絡
 PM-2  secrecy_demand — 誰にも言わないで, 内緒で, 他の人には話さないで
-PM-3  financial_solicitation — money request, 振込, 送金, 万円 with request
+PM-3  financial_solicitation — ACTIVE request for money directed at the elder:
+      "send me", "transfer to", "can you pay", "振り込んで", "送金して".
+      The sender is asking the elder to DO something with money.
+      NOT triggered by: describing own financial problems, mentioning money
+      in context, or the elder offering to help. Those are PM-14.
 PM-4  authority_claim — 警察, 市役所, 税務署, 銀行 from unverified sender
 PM-5  unusual_payment_method — ギフトカード, コンビニ払い, 暗号通貨, unknown account
 PM-6  legal_threat — 法的措置, 訴訟, 逮捕, 裁判所
 PM-7  credential_solicitation — 暗証番号, パスワード, マイナンバー, 口座番号
 PM-8  prize_notification — unsolicited winning/当選 with fee requirement
 PM-9  refund_lure — 還付金, 返金 requiring bank details
-PM-10 emotional_crisis — 事故, 入院, 逮捕された combined with financial resolution
+PM-10 emotional_crisis — 事故, 入院, 逮捕された, personal crisis or emergency
 PM-11 identity_claim — claims specific relationship (孫, 息子, 娘, 甥)
 PM-12 flattery_density — abnormally high compliments in a single message
 PM-13 spf_dkim_fail — provided in metadata; email authentication failure
+PM-14 financial_context — mentions money, financial trouble, or costs WITHOUT
+      directly asking the elder for money. "I lost money", "things are expensive",
+      "my card is frozen", "I need to pay back". This is a PRECURSOR to
+      solicitation, not solicitation itself. Use PM-14 when the sender describes
+      a financial situation. Use PM-3 only when they explicitly ask the elder
+      to send/transfer/pay.
 
 ## Japan-specific scam patterns (tokushu sagi / 特殊詐欺)
 - オレオレ詐欺: impersonation of family member in urgent trouble
@@ -83,14 +93,30 @@ third-party account + secrecy + urgency (possible account compromise).
 
 ### Signal severity tiers (for your reference — scoring is done by pipeline)
 **Tier 1 — Informational:** PM-11, PM-12 — note these but they are not alarming alone
-**Tier 2 — Moderate:** PM-1, PM-4, PM-10 — concerning in combination
+**Tier 2 — Moderate:** PM-1, PM-4, PM-10, PM-14 — concerning in combination
 **Tier 3 — Strong:** PM-2, PM-3, PM-5, PM-6, PM-7, PM-8, PM-9, PM-13
+
+### CRITICAL: PM-3 vs PM-14 distinction
+
+PM-3 (financial_solicitation) = the sender ASKS the elder to send/transfer/pay money.
+PM-14 (financial_context) = the sender DESCRIBES a financial problem without asking.
+
+Examples:
+- "Can you transfer 300,000 yen?" → PM-3 (direct request TO the elder)
+- "Could you buy gift cards and send the codes?" → PM-3 (direct request)
+- "I lost company money and might lose my job" → PM-14 (describing situation)
+- "My credit card is frozen and I can't book the flight" → PM-14 (describing problem)
+- "Things are really difficult here right now" → PM-14 (vague financial distress)
+- "I need to pay it back by tomorrow" → PM-14 (describing own obligation, NOT asking elder)
+- "They might press charges" → PM-6 (legal threat), NOT PM-3
+
+If the sender is describing their own financial trouble WITHOUT directing the elder
+to take a financial action, use PM-14. Use PM-3 ONLY when there is an explicit
+request directed at the elder to send, transfer, pay, or buy something.
 
 ### Detection guidance
 - Be thorough: detect EVERY signal present, even if the message seems benign.
-- Be precise: do NOT detect signals that are not present. PM-3 requires an
-  actual financial request, not just mentioning money. PM-11 requires claiming
-  a specific relationship, not just using a name.
+- Be precise: do NOT detect signals that are not present.
 - Corpus matches help you identify WHICH signals are present, not WHETHER
   the message is dangerous. Use corpus evidence to improve signal detection
   accuracy, not to inflate your output.
