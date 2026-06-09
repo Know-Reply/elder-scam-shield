@@ -321,6 +321,6 @@ def get_corpus_pattern_stats(scam_type: str) -> dict:
     }
 
 
-# Pre-warm: load and vectorize the corpus at import time so the first
-# API call doesn't pay the ~50s cold-start cost.
-_load_local_corpus()
+# Lazy load: corpus is loaded on first search call, not at import time.
+# This allows the server to start quickly and pass Cloud Run health checks.
+# First API call pays ~30s cost; subsequent calls are instant.
