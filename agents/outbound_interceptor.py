@@ -13,8 +13,8 @@ import hashlib
 from datetime import datetime, timezone
 
 from google.adk import Agent
-from agents.db import db
-from agents.schemas import InterceptDecision
+from .db import db
+from .schemas import InterceptDecision
 
 
 # ---------------------------------------------------------------------------

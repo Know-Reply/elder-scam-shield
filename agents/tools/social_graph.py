@@ -10,7 +10,7 @@ Round 4 hardening: social graph validation layer.
 
 from __future__ import annotations
 
-from agents.db import db as _db
+from ..db import db as _db
 
 # ── Mock graph for local dev ──────────────────────────────────────────
 

@@ -16,11 +16,11 @@ from datetime import date, datetime, timezone
 from pathlib import Path as _Path
 
 from google.adk import Agent
-from agents.db import db as _shared_db
-from agents.schemas import RiskAssessment
-from agents.tools.graph_builder import check_cross_references
-from agents.tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
-from agents.tools.social_graph import validate_social_graph
+from .db import db as _shared_db
+from .schemas import RiskAssessment
+from .tools.graph_builder import check_cross_references
+from .tools.search_scam_corpus import search_scam_corpus, get_corpus_pattern_stats
+from .tools.social_graph import validate_social_graph
 
 
 # ---------------------------------------------------------------------------

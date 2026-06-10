@@ -22,7 +22,7 @@ from __future__ import annotations
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-from agents.db import db as _db
+from ..db import db as _db
 
 
 # ── Confidence thresholds ───────────────────────────────────────────────
@@ -226,7 +226,7 @@ def check_cross_references(user_id: str, sender_id: str) -> dict:
 
 def _load_graph(user_id: str) -> dict:
     """Load the user's social graph."""
-    from agents.tools.social_graph import MOCK_GRAPH
+    from .social_graph import MOCK_GRAPH
     coll = _get_graph_collection()
     if coll:
         doc = coll.document(user_id).get()

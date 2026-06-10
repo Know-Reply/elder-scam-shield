@@ -9,7 +9,7 @@ vs what Elder Shield's ADK-tuned pipeline sees.
 """
 
 from google.adk import Agent
-from agents.schemas import ClassificationResult
+from .schemas import ClassificationResult
 
 # Mirrors Faxi's spamCheckService.buildPrompt() — same wording, same rules
 FAXI_PROMPT = """You are a spam and safety classifier for an email-to-fax service used by elderly Japanese users.

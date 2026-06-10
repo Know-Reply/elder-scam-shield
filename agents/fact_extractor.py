@@ -9,7 +9,7 @@ The LLM handles both — it understands "being alone" references
 """
 
 from google.adk import Agent
-from agents.schemas import ExtractedFacts
+from .schemas import ExtractedFacts
 
 EXTRACTOR_PROMPT = """You perform TWO tasks on each message. Both are required.
 

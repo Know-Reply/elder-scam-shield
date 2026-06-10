@@ -14,8 +14,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from google.adk import Agent
-from agents.schemas import AlertRecord
-from agents.db import db
+from .schemas import AlertRecord
+from .db import db
 
 JST = timezone(timedelta(hours=9))
 DEDUP_WINDOW_H = 24

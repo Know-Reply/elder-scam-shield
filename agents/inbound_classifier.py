@@ -12,9 +12,9 @@ Publishes `message.classified` events for downstream agents.
 from datetime import datetime, timezone
 
 from google.adk import Agent
-from agents.db import db
-from agents.schemas import ClassificationResult
-from agents.tools.search_scam_corpus import search_scam_corpus
+from .db import db
+from .schemas import ClassificationResult
+from .tools.search_scam_corpus import search_scam_corpus
 
 
 # ---------------------------------------------------------------------------

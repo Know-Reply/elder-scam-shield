@@ -648,8 +648,8 @@ def run_pre_classification_pipeline(
     The LLM extracts entities and classifies. Pre-processing provides
     context the LLM can't compute itself (corpus matches, graph state).
     """
-    from agents.tools.search_scam_corpus import search_scam_corpus
-    from agents.tools.social_graph import validate_social_graph
+    from .search_scam_corpus import search_scam_corpus
+    from .social_graph import validate_social_graph
 
     # Step 1: Linguistic Analysis (structural, no LLM)
     linguistic = linguistic_analysis(message_text, sender_style_baseline)
