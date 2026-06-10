@@ -394,7 +394,7 @@ var behavState = {
 };
 
 // ===== INIT =====
-var WELCOME_HTML = '<div id="welcome-prompt" style="padding:40px 20px;"><div style="text-align:center;margin-bottom:24px;"><div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:6px;">Choose a scenario</div><div style="font-size:0.82rem;color:var(--gray-500);">Each demonstrates a different protection layer engaging at the right moment</div></div><div class="scenario-grid"><button class="scenario-card" onclick="loadScenario(\'block\')"><div class="scenario-icon">&#128721;</div><div class="scenario-title">Early Detection + Block</div><div class="scenario-desc">Family alerted at first suspicion. Scam message blocked before the elder sees it.</div><div class="scenario-scam-type">Ore-ore impersonation</div></button><button class="scenario-card" onclick="loadScenario(\'intercept\')"><div class="scenario-icon">&#9995;</div><div class="scenario-title">Intercept Reply</div><div class="scenario-desc">Elder\'s outbound reply with sensitive data is held before sending.</div><div class="scenario-scam-type">Romance scam</div></button><button class="scenario-card" onclick="loadScenario(\'primer\')"><div class="scenario-icon">&#128200;</div><div class="scenario-title">Longitudinal Detection</div><div class="scenario-desc">3 safe messages remembered. When danger appears, accumulated context amplifies the score.</div><div class="scenario-scam-type">Slow ore-ore (6 messages)</div></button><button class="scenario-card" onclick="loadScenario(\'drift\')"><div class="scenario-icon">&#128107;</div><div class="scenario-title">Epistemic Drift</div><div class="scenario-desc">Inbound messages stay safe. The elder\'s guard drops from Neutral to Compromised.</div><div class="scenario-scam-type">Romance grooming (6 messages)</div></button></div></div>';
+var WELCOME_HTML = '<div id="welcome-prompt" style="padding:40px 20px;"><div style="text-align:center;margin-bottom:24px;"><div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:6px;">Choose a scenario</div><div style="font-size:0.82rem;color:var(--gray-500);">Each demonstrates a different protection layer engaging at the right moment</div></div><div class="scenario-grid"><button class="scenario-card" onclick="loadScenario(\'block\')"><div class="scenario-icon">&#128721;</div><div class="scenario-title">Early Detection + Block</div><div class="scenario-desc">Family alerted at first suspicion. Scam message blocked before the elder sees it.</div><div class="scenario-scam-type">Ore-ore impersonation</div></button><button class="scenario-card" onclick="loadScenario(\'intercept\')"><div class="scenario-icon">&#9995;</div><div class="scenario-title">Intercept Reply</div><div class="scenario-desc">Elder\'s outbound reply with sensitive data is held before sending.</div><div class="scenario-scam-type">Romance scam</div></button><button class="scenario-card" onclick="loadScenario(\'primer\')"><div class="scenario-icon">&#128200;</div><div class="scenario-title">Longitudinal Detection</div><div class="scenario-desc">3 safe messages remembered. When danger appears, accumulated context amplifies the score.</div><div class="scenario-scam-type">Slow ore-ore (6 messages)</div></button><button class="scenario-card" onclick="loadScenario(\'drift\')"><div class="scenario-icon">&#128107;</div><div class="scenario-title">Epistemic Drift</div><div class="scenario-desc">Inbound messages stay safe. The elder\'s guard drops from Neutral to Compromised.</div><div class="scenario-scam-type">Romance grooming (6 messages)</div></button><button class="scenario-card" onclick="loadFreePlay()" style="border-style:dashed;"><div class="scenario-icon">&#9997;</div><div class="scenario-title">Free Play</div><div class="scenario-desc">Write your own sender + elder messages. Risk accumulates across exchanges.</div><div class="scenario-scam-type">Test anything</div></button></div></div>';
 document.getElementById('thread').innerHTML = WELCOME_HTML;
 
 // ===== LOAD SEEDS =====
@@ -688,6 +688,140 @@ function resetToWelcome() {
   var btn = document.getElementById('action-btn');
   btn.textContent = 'Select a scenario above'; btn.disabled = true; btn.onclick = null;
   document.getElementById('action-preview').textContent = '';
+}
+
+// ===== FREE PLAY =====
+var _freePlayActive = false;
+var _freePlaySenderId = 'freeplay_' + Date.now();
+var _freePlaySessionId = 'freeplay_' + Date.now();
+var _freePlayExchangeCount = 0;
+var _freePlayAlertFired = false;
+
+function loadFreePlay() {
+  currentKey = 'freeplay';
+  currentScenario = null;
+  _freePlayActive = true;
+  _freePlaySenderId = 'freeplay_' + Date.now();
+  _freePlaySessionId = 'freeplay_' + Date.now();
+  _freePlayExchangeCount = 0;
+  _freePlayAlertFired = false;
+  turnIndex = 0;
+  behavState = {messages:0,flagged:0,latestRisk:0.05,latestClass:'SAFE',allSignals:{},senderName:null,senderLocations:[],senderInstitutions:[],financialAsks:[],tunedHistory:[],naiveHistory:[]};
+
+  var thread = document.getElementById('thread');
+  thread.innerHTML = '';
+  document.getElementById('asym-content').innerHTML = '<div class="empty-state">No information exchanged yet</div>';
+  document.getElementById('vuln-list').innerHTML = '<div class="empty-state">No vulnerabilities revealed yet</div>';
+  document.getElementById('fact-list').innerHTML = '<div class="empty-state">No facts extracted yet</div>';
+  document.getElementById('fact-count').textContent = '';
+  document.getElementById('protection-action').innerHTML = '<div class="empty-state">Submit exchanges to see results</div>';
+  updateBehavioralDisplay();
+  setTrustStage('skeptical');
+
+  fetch('/api/conversation/reset?session_id=' + _freePlaySessionId, {method:'POST'});
+
+  // Show input form
+  var form = document.createElement('div');
+  form.id = 'freeplay-form';
+  form.style.cssText = 'padding:20px; background:var(--gray-50); border-radius:var(--radius-lg); margin:12px 0;';
+  form.innerHTML =
+    '<div style="font-size:0.78rem; font-weight:700; color:var(--navy); margin-bottom:10px;">Write a conversation exchange</div>' +
+    '<div style="margin-bottom:8px;"><label style="font-size:0.72rem; font-weight:600; color:var(--gray-500);">Sender message</label>' +
+    '<textarea id="fp-sender" rows="2" style="width:100%;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:0.85rem;font-family:var(--font);resize:vertical;" placeholder="What the sender says..."></textarea></div>' +
+    '<div style="margin-bottom:10px;"><label style="font-size:0.72rem; font-weight:600; color:var(--gray-500);">Elder reply</label>' +
+    '<textarea id="fp-elder" rows="2" style="width:100%;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:0.85rem;font-family:var(--font);resize:vertical;" placeholder="How the elder responds..."></textarea></div>' +
+    '<button onclick="submitFreePlay()" style="width:100%;padding:10px;border:none;border-radius:var(--radius);background:var(--blue);color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;">Analyze exchange</button>';
+  thread.appendChild(form);
+
+  var btn = document.getElementById('action-btn');
+  btn.textContent = 'Choose another scenario';
+  btn.disabled = false;
+  btn.onclick = function() { _freePlayActive = false; resetToWelcome(); };
+  document.getElementById('action-preview').textContent = 'Risk accumulates across exchanges';
+}
+
+function submitFreePlay() {
+  var senderText = document.getElementById('fp-sender').value.trim();
+  var elderText = document.getElementById('fp-elder').value.trim();
+  if (!senderText) return;
+
+  _freePlayExchangeCount++;
+  var senderIdx = turnIndex++;
+  var elderIdx = turnIndex++;
+
+  // Show bubbles
+  addBubble('inbound', senderText, '', senderIdx);
+  if (elderText) addBubble('outbound', elderText, '', elderIdx);
+
+  // Clear inputs
+  document.getElementById('fp-sender').value = '';
+  document.getElementById('fp-elder').value = '';
+
+  // Move form to bottom
+  var thread = document.getElementById('thread');
+  var form = document.getElementById('freeplay-form');
+  thread.appendChild(form);
+
+  // Run API calls
+  var classifyBody = JSON.stringify({sender: _freePlaySenderId, content: senderText});
+
+  Promise.all([
+    fetch('/api/conversation/turn', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({content:senderText, direction:'inbound', turn_index:senderIdx, session_id:_freePlaySessionId})
+    }).then(function(r){return r.json();}),
+    fetch('/api/classify', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:classifyBody
+    }).then(function(r){return r.json();}),
+    fetch('/api/classify-naive', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:classifyBody
+    }).then(function(r){return r.json();}).catch(function(){return {result:{}};})
+  ]).then(function(results) {
+    var senderData = results[0];
+    var classResult = results[1].result || {};
+    var naiveResult = results[2].result || {};
+
+    addProvenanceTags('turn-' + senderIdx, senderData, 'inbound');
+    addClassificationCard(senderIdx, classResult);
+    updateBehavioralPanel(classResult);
+    behavState.tunedHistory.push(classResult.classification || 'safe');
+    behavState.naiveHistory.push(naiveResult.classification || 'safe');
+    renderComparisonBars();
+    updateGraphPanel(senderData, 'inbound');
+
+    if (classResult.family_alert_fired && !_freePlayAlertFired) {
+      addAlertCardBefore(FAMILY_ALERT_TEMPLATE, 'freeplay-form');
+      _freePlayAlertFired = true;
+    }
+
+    // Process elder reply if provided
+    if (elderText) {
+      return fetch('/api/conversation/turn', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({content:elderText, direction:'outbound', turn_index:elderIdx, session_id:_freePlaySessionId})
+      }).then(function(r){return r.json();});
+    }
+    return null;
+  }).then(function(elderData) {
+    if (elderData) {
+      addProvenanceTags('turn-' + elderIdx, elderData, 'outbound');
+      var elderState = (elderData.extracted_facts || {}).elder_state || {};
+      addElderStateCard(elderIdx, elderState);
+      updateGraphPanel(elderData, 'outbound');
+
+      // Check if elder reached compromised
+      var es = elderData.epistemic_state || {};
+      if (es.trust_stage === 'compliant' && !_freePlayAlertFired) {
+        addAlertCardBefore(FAMILY_ALERT_TEMPLATE, 'freeplay-form');
+        _freePlayAlertFired = true;
+      }
+    }
+    // Scroll to form
+    var form = document.getElementById('freeplay-form');
+    if (form) form.scrollIntoView({behavior:'smooth'});
+  }).catch(function(err) {
+    console.error('Free play error:', err);
+  });
 }
 
 // ===== BUBBLE RENDERING =====
@@ -990,6 +1124,17 @@ function addAlertCard(alertData) {
   card.style.cssText = 'margin:12px 0; padding:10px 16px; border-radius:8px; background:var(--purple-bg); border:1px solid var(--purple); font-size:0.82rem; color:var(--purple); text-align:center;';
   card.innerHTML = '&#128241; <strong>Family escalation triggered</strong> \u2014 designated contact notified of potential risk. Faxi will block further messages if risk increases.';
   thread.appendChild(card);
+  thread.scrollTop = thread.scrollHeight;
+}
+
+function addAlertCardBefore(alertData, beforeId) {
+  var thread = document.getElementById('thread');
+  var before = document.getElementById(beforeId);
+  var card = document.createElement('div');
+  card.style.cssText = 'margin:12px 0; padding:10px 16px; border-radius:8px; background:var(--purple-bg); border:1px solid var(--purple); font-size:0.82rem; color:var(--purple); text-align:center;';
+  card.innerHTML = '&#128241; <strong>Family escalation triggered</strong> \u2014 designated contact notified of potential risk. Faxi will block further messages if risk increases.';
+  if (before) thread.insertBefore(card, before);
+  else thread.appendChild(card);
   thread.scrollTop = thread.scrollHeight;
 }
 

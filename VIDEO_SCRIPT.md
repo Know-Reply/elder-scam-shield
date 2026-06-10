@@ -7,7 +7,7 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 ## 0:00–0:15 | THE PROBLEM
 **Show:** Stats on /shield page, then a message that looks innocent
 
-"Elder fraud costs 1.4 trillion yen a year in Japan. The problem isn't catching scam messages — any classifier can do that. The problem is catching the five days of trust-building BEFORE the money ask. Each message in that setup phase is genuinely safe. A per-message classifier misses it entirely."
+"Elder fraud costs 1.4 trillion yen a year in Japan and $77 Billion globally. The problem isn't catching scam messages — any classifier can do that. Real scams unfold over extended periods. So does our detection. Because each message in the setup phase is only looks safe, but it's designed to manipulate. A per-message classifier misses it entirely."
 
 ## 0:15–0:30 | THE INSIGHT
 **Show:** Architecture diagram (/architecture page)
@@ -39,6 +39,9 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 
 "Elder Shield is built by Faxi — an AI-powered communication bridge for elderly Japanese users. It's designed as a drop-in replacement for our production spam classifier. Same API contract, same model, dramatically better protection. Because the people who need protection most are the ones who can't evaluate warnings themselves."
 
+"We operate a messaging platform for seniors in Japan. Real scams unfold over days. So does our detection."
+
+* Elder abuse?
 ---
 
 ## Production Notes

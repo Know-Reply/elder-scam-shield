@@ -65,9 +65,7 @@ Missing: Session state accessible via API outside Agent Engine. Our pipeline has
 
 ### If you could add one specific API capability or integration that would have saved you 2+ hours of work, what would it be?
 
-A clear model availability matrix per backend. We configured `GOOGLE_GENAI_USE_VERTEXAI=TRUE` but our model (`gemini-3.1-flash-lite`) wasn't available on Vertex AI: only through the Generative Language API. ADK silently fell back to the free tier (15 RPM), and we spent 3+ hours debugging 429 errors before discovering we were routing through the wrong API with a hard-capped quota. If ADK raised an error on startup saying "model X is not available on Vertex AI in region Y" instead of silently falling back, that would have saved significant time.
-
-More broadly, we found that AI coding assistants (including Claude Code, which we used heavily) consistently suggested non-ADK patterns: raw API calls, custom session management, keyword-based detection: instead of ADK-native approaches like `output_schema`, `FunctionTool`, and `VertexAiSessionService`. This suggests the ADK documentation isn't well-represented in LLM training data yet. CLAUDE.md-style agent instruction files that teach AI assistants how to use ADK correctly would accelerate adoption significantly: developers increasingly build *with* AI assistants, and if those assistants don't know ADK, developers won't use it either.
+ADK should raise an error at startup when a model isn't available on Vertex AI in the configured region, instead of silently falling back to the Generative Language API with a hard-capped 15 RPM quota. Cost us 3+ hours debugging 429 errors.
 
 ### Describe the readiness of your project for launch.
 

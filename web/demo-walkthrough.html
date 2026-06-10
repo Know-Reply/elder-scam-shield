@@ -1127,8 +1127,8 @@
         <button class="timeline-btn active" data-day="1">Day 1<span class="day-risk">0.18</span></button>
         <button class="timeline-btn" data-day="2">Day 2<span class="day-risk">0.32</span></button>
         <button class="timeline-btn" data-day="3">Day 3<span class="day-risk">0.50</span></button>
-        <button class="timeline-btn" data-day="4">Day 4<span class="day-risk">0.75</span></button>
-        <button class="timeline-btn" data-day="5">Day 5<span class="day-risk">0.92</span></button>
+        <button class="timeline-btn" data-day="4">Day 4<span class="day-risk">0.55</span></button>
+        <button class="timeline-btn" data-day="5">Day 5<span class="day-risk">0.75</span></button>
         <button class="timeline-btn" data-day="6">Day 6<span class="day-risk">1.00</span></button>
         <button class="timeline-btn" data-day="7">Day 7<span class="day-risk">1.00</span></button>
       </div>
@@ -1137,16 +1137,16 @@
       <div class="risk-chart-wrap">
         <svg viewBox="0 0 700 220" id="risk-chart" aria-label="Risk score progression from 0.18 to 1.00 over 7 days">
           <!-- Color zones -->
-          <rect x="50" y="10" width="620" height="47.5" fill="#f0fdf4" rx="0"/>
-          <rect x="50" y="57.5" width="620" height="47.5" fill="#fffbeb" rx="0"/>
-          <rect x="50" y="105" width="620" height="47.5" fill="#fff7ed" rx="0"/>
-          <rect x="50" y="152.5" width="620" height="47.5" fill="#fef2f2" rx="0"/>
+          <rect x="50" y="10" width="620" height="47.5" fill="#fef2f2" rx="0"/>
+          <rect x="50" y="57.5" width="620" height="47.5" fill="#fff7ed" rx="0"/>
+          <rect x="50" y="105" width="620" height="47.5" fill="#fffbeb" rx="0"/>
+          <rect x="50" y="152.5" width="620" height="47.5" fill="#f0fdf4" rx="0"/>
 
           <!-- Zone labels -->
-          <text x="44" y="38" text-anchor="end" font-size="10" fill="#94a3b8">Safe</text>
-          <text x="44" y="86" text-anchor="end" font-size="10" fill="#94a3b8">Monitor</text>
-          <text x="44" y="133" text-anchor="end" font-size="10" fill="#94a3b8">Flagged</text>
-          <text x="44" y="181" text-anchor="end" font-size="10" fill="#94a3b8">Blocked</text>
+          <text x="44" y="38" text-anchor="end" font-size="10" fill="#94a3b8">Blocked</text>
+          <text x="44" y="86" text-anchor="end" font-size="10" fill="#94a3b8">Flagged</text>
+          <text x="44" y="133" text-anchor="end" font-size="10" fill="#94a3b8">Monitor</text>
+          <text x="44" y="181" text-anchor="end" font-size="10" fill="#94a3b8">Safe</text>
 
           <!-- Y-axis grid lines -->
           <line x1="50" y1="10" x2="670" y2="10" stroke="#e2e8f0" stroke-width="0.5"/>
@@ -1159,11 +1159,11 @@
           <text x="44" y="204" text-anchor="end" font-size="10" fill="#94a3b8">0.0</text>
           <text x="44" y="14" text-anchor="end" font-size="10" fill="#94a3b8">1.0</text>
 
-          <!-- Risk line (0.18, 0.32, 0.50, 0.75, 0.92, 1.00, 1.00) -->
+          <!-- Risk line (0.18, 0.32, 0.50, 0.55, 0.75, 1.00, 1.00) -->
           <!-- Y mapping: y = 200 - (risk * 190) -->
           <!-- Day positions: x = 50 + (day-1) * (620/6) = 50 + (day-1)*103.3 -->
           <polyline
-            points="50,165.8 153.3,139.2 256.7,105 360,57.5 463.3,25.2 566.7,10 670,10"
+            points="50,165.8 153.3,139.2 256.7,105 360,95.5 463.3,57.5 566.7,10 670,10"
             fill="none"
             stroke="url(#riskGrad)"
             stroke-width="3"
@@ -1184,19 +1184,24 @@
           <circle cx="50" cy="165.8" r="6" fill="#16a34a" class="chart-dot" data-day="1" style="cursor:pointer"/>
           <circle cx="153.3" cy="139.2" r="6" fill="#16a34a" class="chart-dot" data-day="2" style="cursor:pointer"/>
           <circle cx="256.7" cy="105" r="6" fill="#f59e0b" class="chart-dot" data-day="3" style="cursor:pointer"/>
-          <circle cx="360" cy="57.5" r="7" fill="#ea580c" stroke="#fff" stroke-width="2" class="chart-dot" data-day="4" style="cursor:pointer"/>
-          <circle cx="463.3" cy="25.2" r="6" fill="#dc2626" class="chart-dot" data-day="5" style="cursor:pointer"/>
+          <circle cx="360" cy="95.5" r="7" fill="#ea580c" stroke="#fff" stroke-width="2" class="chart-dot" data-day="4" style="cursor:pointer"/>
+          <circle cx="463.3" cy="57.5" r="6" fill="#dc2626" class="chart-dot" data-day="5" style="cursor:pointer"/>
           <circle cx="566.7" cy="10" r="6" fill="#dc2626" class="chart-dot" data-day="6" style="cursor:pointer"/>
           <circle cx="670" cy="10" r="6" fill="#dc2626" class="chart-dot" data-day="7" style="cursor:pointer"/>
 
           <!-- FLAGGED marker at Day 4 -->
-          <line x1="360" y1="57.5" x2="360" y2="200" stroke="#ea580c" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+          <line x1="360" y1="95.5" x2="360" y2="200" stroke="#ea580c" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
           <rect x="318" y="200" width="84" height="18" rx="4" fill="#ea580c"/>
           <text x="360" y="213" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">FLAGGED</text>
 
-          <!-- BLOCKED marker at Day 7 -->
-          <rect x="634" y="200" width="72" height="18" rx="4" fill="#dc2626"/>
-          <text x="670" y="213" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">BLOCKED</text>
+          <!-- BLOCKED marker at Day 5 (sender blocked, not just message) -->
+          <line x1="463.3" y1="25.2" x2="463.3" y2="200" stroke="#dc2626" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+          <rect x="421" y="200" width="84" height="18" rx="4" fill="#dc2626"/>
+          <text x="463.3" y="213" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">BLOCKED</text>
+
+          <!-- Other systems detect here (Day 7) -->
+          <rect x="610" y="200" width="120" height="18" rx="4" fill="#94a3b8"/>
+          <text x="670" y="213" text-anchor="middle" font-size="9" fill="#fff" font-weight="600">Other systems &#8594;</text>
 
           <!-- Day labels at bottom -->
           <text x="50" y="196" text-anchor="middle" font-size="10" fill="#64748b" class="chart-day-label" data-day="1">D1</text>
@@ -1468,29 +1473,29 @@
         <div class="comparison-day">
           <span class="day-label">Day 4</span>
           <span class="risk-gauge-inline">
-            <span class="risk-gauge-bar"><span class="risk-gauge-fill risk-fill-orange" style="width:75%"></span></span>
-            <span style="font-size:0.82rem; color:var(--orange); font-weight:700">0.75 FLAGGED</span>
+            <span class="risk-gauge-bar"><span class="risk-gauge-fill risk-fill-orange" style="width:55%"></span></span>
+            <span style="font-size:0.82rem; color:var(--orange); font-weight:700">0.55 FLAGGED</span>
           </span>
         </div>
         <div class="comparison-day">
           <span class="day-label">Day 5</span>
           <span class="risk-gauge-inline">
-            <span class="risk-gauge-bar"><span class="risk-gauge-fill risk-fill-red" style="width:92%"></span></span>
-            <span style="font-size:0.82rem; color:var(--red)">0.92</span>
+            <span class="risk-gauge-bar"><span class="risk-gauge-fill risk-fill-red" style="width:75%"></span></span>
+            <span style="font-size:0.82rem; color:var(--red); font-weight:700">0.75 BLOCKED</span>
           </span>
         </div>
         <div class="comparison-day">
           <span class="day-label">Day 6</span>
           <span class="risk-gauge-inline">
             <span class="risk-gauge-bar"><span class="risk-gauge-fill risk-fill-red" style="width:100%"></span></span>
-            <span style="font-size:0.82rem; color:var(--red)">1.00</span>
+            <span style="font-size:0.82rem; color:var(--gray-400)">sender blocked</span>
           </span>
         </div>
         <div class="comparison-day">
           <span class="day-label">Day 7</span>
           <span class="risk-gauge-inline">
             <span class="risk-gauge-bar"><span class="risk-gauge-fill risk-fill-red" style="width:100%"></span></span>
-            <span style="font-size:0.82rem; color:var(--red); font-weight:700">1.00 BLOCKED</span>
+            <span style="font-size:0.82rem; color:var(--gray-400)">sender blocked</span>
           </span>
         </div>
       </div>
