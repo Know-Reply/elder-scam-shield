@@ -41,19 +41,17 @@ ADK optimization tools drove the development:
 
 1. **LLMs are better sensors than judges.** Separating detection from scoring improved accuracy from 34.7% to 63.6%. The LLM understands language; it shouldn't make risk decisions.
 
-2. **Keyword detection fails for Japanese.** No word boundaries, ambiguous semantics. All language understanding belongs in the LLM; only math in the scoring layer.
+2. **False positives matter more than catch rate.** Blocking a real grandchild's request destroys trust. 0/12 false positives matters because a disabled system protects nobody.
 
-3. **False positives matter more than catch rate.** Blocking a real grandchild's request destroys trust. 0/12 false positives matters because a disabled system protects nobody.
+3. **The T1 primer bonus models real attack behavior.** Ore-ore scams start with identity claims (T1), then escalate. The 1.3x multiplier when T2/T3 follows T1 models how the attack actually works.
 
-4. **The T1 primer bonus models real attack behavior.** Ore-ore scams start with identity claims (T1), then escalate. The 1.3x multiplier when T2/T3 follows T1 models how the attack actually works.
+4. **Agent Optimizer proved the value is in infrastructure, not prompts.** The optimizer couldn't beat our prompt. The accuracy improvement comes from the pipeline (corpus, risk ledger, graph), not prompt engineering.
 
-5. **Agent Optimizer proved the value is in infrastructure, not prompts.** The optimizer couldn't beat our prompt. The accuracy improvement comes from the pipeline (corpus, risk ledger, graph), not prompt engineering.
-
-6. **Observability found the false positive root cause.** OTel traces showed family messages matching scam patterns, driving the contra-indicator pipeline.
+5. **Observability found the false positive root cause.** OTel traces showed family messages matching scam patterns, driving the contra-indicator pipeline.
 
 ## Third-party integrations
 
-All open-source: zefang-liu/phishing-email-dataset (MIT), BothBosu/scam-dialogue (Apache 2.0), antiphishing.jp (public), NPA SOS47 (government). Built entirely on Google ADK + Vertex AI + Cloud Run.
+No third-party SDKs or runtime integrations. Built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are all open-source (MIT, Apache 2.0) or public government publications.
 
 ---
 

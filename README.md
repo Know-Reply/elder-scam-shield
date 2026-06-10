@@ -371,7 +371,7 @@ This is dignity-preserving design. The elder's autonomy is never undermined.
 
 ## Signal Glossary
 
-28 detection signals across 5 families, organized into 3 severity tiers:
+39 detection signals across 6 families, organized into 3 severity tiers:
 
 **PM — Per-Message Signals** (detected by LLM from a single inbound message)
 
