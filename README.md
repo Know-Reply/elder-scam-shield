@@ -41,7 +41,7 @@ The key architectural insight: **the LLM detects signals, a deterministic ledger
   ┌──────────── POST-CLASSIFICATION (Workflow agents, async) ────────────┐
   │ Behavioral Analyzer — longitudinal profiling, velocity scoring       │
   │ Conversation Knowledge Graph — provenance tracking, friction scoring │
-  │ Family Alerter — triggered when risk > 0.6                           │
+  │ Family Alerter — triggered at 50% risk or elder Compromised                           │
   └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -57,7 +57,7 @@ Hot path (per message, <1s):        Async path (per sender profile):
     (Steps 1-4: pre-processing)       in sender profile via session state
   → Inbound Classifier (Agent)     → Behavioral Analyzer (Agent)
     output_key → session state        triggered by accumulated evidence
-  → Response                       → Family Alerter (if risk > 0.6)
+  → Response                       → Family Alerter (if risk > 50%)
 ```
 
 The **Inbound Classifier** runs synchronously on every message — one LLM call, structured output via `output_schema`, results written to session state via `output_key`. The **Behavioral Analyzer** runs asynchronously against accumulated sender profiles, not raw messages. Same ADK agents, same session state, different execution timing.
@@ -74,7 +74,7 @@ This is a deliberate production scaling decision: the Workflow represents the fu
 | **before_tool_callback** | Classifier, Analyzer | Native tool call tracing to session state |
 | **after_model_callback** | Classifier | Runtime output validation |
 | **before_model_callback** | Analyzer | Dynamic context injection from session state |
-| **VertexAiSessionService** | `app.py` | Managed Sessions + Memory Bank — persistent longitudinal state across requests, survives restarts |
+| **ADK Session State** | `app.py` | Longitudinal memory via `output_key` writes and `session.state` reads across agents |
 | **Agent Search Data Store** | `search_scam_corpus.py` | 22,979-entry corpus with neural/semantic search — cross-language Japanese+English, no warm-up needed |
 | **FunctionTool** | `search_scam_corpus` on Classifier | LLM can call corpus search for additional grounding evidence during classification |
 | **Conditional routing** | Workflow edges | Risk-based fan-out to Family Alerter via 4-gate trigger system |
@@ -302,17 +302,17 @@ Agent Search eliminates the 30-50 second corpus pre-warm that was blocking Cloud
 Live at [shield.faxi.jp](https://shield.faxi.jp):
 
 - **/shield** -- Overview page with architecture, benchmark results, and the provenance tracking story.
-- **/simulator** -- **Scam Simulator** — 6-day choose-your-own-adventure scam scenario. All signals, risk scores, and reasoning are live Gemini classification with conversation history — no pre-scripted behavioral data.
-- **/analyzer** -- **Conversation Analyzer** — four demo scenarios showing different protection layers. Pre-captured seed data renders instantly, live final exchange runs through real API. Provenance tracking, Elder's Guard progression, Scammer's Advantage metric, and family escalation all data-driven from real pipeline output.
+- **/analyzer** -- **Conversation Analyzer** — 4 demo scenarios: early detection + block, outbound reply interception, longitudinal detection (6 messages), epistemic drift. Pre-captured seed data with live final exchange through real pipeline.
+- **/architecture** -- Architecture diagram showing detection/scoring separation, signal flow, and protection actions.
 - **/dashboard** -- Family safety dashboard with quarantine inbox, risk timeline, and contact network.
-- **/technical** -- Technical deep dive with architecture, benchmark data, signal taxonomy, and academic citations.
+- **/technical** -- Technical deep dive with benchmark data, signal taxonomy, and academic citations.
 
 ### Agents
 
 | Agent | Demo | Live? |
 |-------|------|-------|
-| Inbound Classifier | Scam Simulator + Conversation Analyzer | Yes — signal detection per message, ledger scores |
-| Behavioral Analyzer | Scam Simulator (via conversation history) | Yes — LLM sees full message arc |
+| Inbound Classifier | Conversation Analyzer | Yes — signal detection per message, ledger scores |
+| Behavioral Analyzer | Conversation Analyzer (via accumulated signals) | Yes — LLM sees full message arc |
 | Outbound Interceptor | Conversation Analyzer (Intercept Reply scenario) | Yes — live hold/release decision |
 | Family Alerter | Conversation Analyzer (all scenarios) | Yes — triggered by risk ledger gates |
 | Fact Extractor | Conversation Analyzer | Yes — fact extraction + elder state detection |
@@ -324,7 +324,7 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 |-----------|-----------|
 | Agent framework | Google ADK 2.0 (Python) |
 | Model (all agents) | Gemini 2.5 Flash Lite on Vertex AI — infrastructure does the heavy lifting |
-| Sessions | VertexAiSessionService — managed Sessions + Memory Bank, persistent across restarts |
+| Sessions | ADK Session State — longitudinal memory via output_key + session.state |
 | Corpus grounding | Agent Search Data Store (22,979 entries) — neural/semantic search, no warm-up |
 | Risk scoring | ConversationRiskLedger — additive evidence accumulation with decay, tier amplification, sequence detection |
 | Deployment | Google Cloud Run (us-central1) — instant cold start (no corpus pre-warm) |
@@ -442,14 +442,14 @@ export SCAM_CORPUS_DATA_STORE=scam-corpus
 PYTHONPATH=. uvicorn app:app --host 0.0.0.0 --port 8080 --reload
 ```
 
-No warm-up required — Agent Search Data Store provides instant corpus access. Sessions persist via VertexAiSessionService.
+No warm-up required — Agent Search Data Store provides instant corpus access.
 
 ## Project Structure
 
 ```
 agents/
   root_agent.py            # ADK Workflow DAG orchestrator
-  inbound_classifier.py    # Per-message signal extraction (20 signals)
+  inbound_classifier.py    # Per-message signal detection (39 signals across 6 families)
   behavioral_analyzer.py   # Longitudinal sender profiling (BV + EA + LG)
   outbound_interceptor.py  # Outbound data interception
   family_alerter.py        # Bilingual family notification generation
@@ -472,8 +472,8 @@ scenarios/
 web/
   dashboard.html           # Family safety dashboard
   demo-walkthrough.html    # Shield overview page
-  index.html               # Interactive scam simulator
-app.py                     # FastAPI application (/shield, /simulator, /dashboard, /api/*)
+  index.html               # Scam simulator (legacy)
+app.py                     # FastAPI application (/shield, /analyzer, /architecture, /dashboard, /api/*)
 ```
 
 ## License

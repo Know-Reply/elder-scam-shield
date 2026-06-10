@@ -170,7 +170,7 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
 <!-- ============================================================ -->
 <h2>2. Benchmark: Faxi Production vs Elder Shield</h2>
 
-<p>Both systems run on the same model (<code>gemini-3.1-flash-lite</code>), same cost. Faxi's classifier is the real production code from <code>spamCheckService.ts</code>.</p>
+<p>Both systems run on the same model (<code>gemini-2.5-flash-lite</code>), same cost. Faxi's classifier is the real production code from <code>spamCheckService.ts</code>.</p>
 
 <h3>Scam Detection (both catch everything)</h3>
 <table>
@@ -230,7 +230,7 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
     (Steps 1-3: pre-processing)           in sender profile via session state
   → Inbound Classifier (Agent)        → Behavioral Analyzer (Agent)
     output_key → session state           triggered by accumulated evidence
-  → Response                          → Family Alerter (if risk &gt; 0.6)</pre>
+  → Response                          → Family Alerter (if risk &gt; 50%)</pre>
 
 <p>The Workflow represents the full architecture. In production, the classifier runs on the hot path and the behavioral analyzer runs asynchronously against accumulated evidence. Same agents, same session state, different execution timing.</p>
 
