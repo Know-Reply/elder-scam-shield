@@ -20,32 +20,40 @@ Elder Shield separates LLM signal detection from deterministic risk scoring. Thr
 
 ## Technologies used
 
-- Google ADK 2.0: Workflow DAG, output_schema, output_key, FunctionTool, multiple Runners
-- Gemini 2.5 Flash Lite on Vertex AI (us-central1): all 6 agents
+- Google ADK 2.0: Workflow DAG, output_schema, output_key, FunctionTool, before_tool_callback, multiple Runners
+- Gemini 2.5 Flash Lite on Vertex AI (us-central1): all 6 agents, cheapest model tier
 - Vertex AI Agent Engine: root agent deployed via adk deploy
 - Agent Search Data Store: 22,979-entry corpus, neural search, cross-language JP+EN
 - Cloud Run: FastAPI app with ConversationRiskLedger scoring layer
 - ADK Session State: longitudinal memory via output_key + session.state
 
+ADK optimization tools drove the development:
+- Agent Evaluation: 55-case EvalSet via AgentEvaluator + 52-scenario longitudinal suite
+- Agent Simulation: LlmBackedUserSimulator stress-tested multi-day scam sequences
+- Agent Optimizer: confirmed prompt near-optimal; value is in infrastructure, not prompts
+- Agent Observability: 45 OTel spans per case identified false positive root causes, drove contra-indicator design
+
 ## Data sources
 
-22,979 corpus entries from 6 sources: zefang-liu/phishing-email-dataset (18,768), BothBosu/scam-dialogue (3,200), antiphishing.jp (793), NPA SOS47 (44), synthetic NPA scenarios (162), edge cases (12). Signal weights calibrated against NPA tokushu-sagi reports 2023-2025.
+22,979 corpus entries from 6 sources including real phishing emails, Japanese scam transcripts, NPA police-published scripts, and antiphishing.jp reports. Signal weights calibrated against NPA tokushu-sagi reports 2023-2025.
 
 ## Findings and learnings
 
 1. **LLMs are better sensors than judges.** Separating detection from scoring improved accuracy from 34.7% to 63.6%. The LLM understands language; it shouldn't make risk decisions.
 
-2. **Keyword detection fails for Japanese.** No word boundaries, ambiguous semantics. Moving all language understanding to the LLM and keeping only math in the scoring layer was the right architecture.
+2. **Keyword detection fails for Japanese.** No word boundaries, ambiguous semantics. All language understanding belongs in the LLM; only math in the scoring layer.
 
-3. **False positives matter more than catch rate.** Blocking a real grandchild's request destroys trust. The elder turns the system off. 0/12 false positives matters because a disabled system protects nobody.
+3. **False positives matter more than catch rate.** Blocking a real grandchild's request destroys trust. 0/12 false positives matters because a disabled system protects nobody.
 
-4. **The T1 primer bonus models real attack behavior.** Ore-ore scams start with identity claims (T1), then escalate. The 1.3x multiplier when T2/T3 follows T1 isn't a trick: it's how the attack works.
+4. **The T1 primer bonus models real attack behavior.** Ore-ore scams start with identity claims (T1), then escalate. The 1.3x multiplier when T2/T3 follows T1 models how the attack actually works.
 
-5. **AI coding assistants don't know ADK yet.** Our assistant consistently suggested non-ADK patterns. ADK docs need to be consumable by AI tools, not just humans.
+5. **Agent Optimizer proved the value is in infrastructure, not prompts.** The optimizer couldn't beat our prompt. The accuracy improvement comes from the pipeline (corpus, risk ledger, graph), not prompt engineering.
+
+6. **Observability found the false positive root cause.** OTel traces showed family messages matching scam patterns, driving the contra-indicator pipeline.
 
 ## Third-party integrations
 
-All open-source: zefang-liu/phishing-email-dataset (MIT), BothBosu/scam-dialogue (Apache 2.0), antiphishing.jp (public), NPA SOS47 (government). No third-party SDKs: built entirely on Google ADK + Vertex AI + Cloud Run.
+All open-source: zefang-liu/phishing-email-dataset (MIT), BothBosu/scam-dialogue (Apache 2.0), antiphishing.jp (public), NPA SOS47 (government). Built entirely on Google ADK + Vertex AI + Cloud Run.
 
 ---
 
