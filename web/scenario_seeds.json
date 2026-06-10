@@ -192,11 +192,11 @@
           ],
           "extracted_facts": {
             "claimed_name": "Kenji",
-            "claimed_relationship": "grandchild",
+            "claimed_relationship": "Grandma's grandchild",
             "claimed_location": "Osaka",
             "referenced_names": [],
             "life_facts": [
-              "Moved to Osaka for a new job"
+              "Moved to Osaka for a new job."
             ],
             "matched_existing": [],
             "elder_state": {
@@ -208,7 +208,7 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message claims a relationship (grandchild, Kenji) and a location (Osaka), which are extracted facts. It also contains a claim of relationship (PM-11). However, there are no corpus matches, and strong contra-indicators suggest it may be legitimate. No scam signals are present, and the message describes mundane life events. Therefore, it is classified as safe with low confidence. Verification through a known contact method is recommended.",
+          "reasoning": "The message claims to be from 'Kenji,' who identifies himself as the grandchild and states he has moved to Osaka for a new job. This falls under PM-11 (identity_claim) as a specific relationship is claimed. There are no other scam-related signals. The pre-computed context also suggests the message may be legitimate due to strong contra-indicators and a lack of scam indicators. Therefore, it is classified as safe, although the pipeline recommends verification due to the unverified sender.",
           "risk_score": 0.3,
           "risk_ledger": {
             "conversation_id": "classify_block_sender",
@@ -272,7 +272,7 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "This message appears to be personal correspondence from someone claiming to be the recipient's grandson, Kenji. It mentions moving for a new job, which is a common life event. There are no immediate red flags for spam or scam; it reads like a personal update. Following the rule to lean towards 'safe' when in doubt, this is classified as safe."
+          "reasoning": "The message appears to be a personal message from a grandchild named Kenji to their grandmother, informing her about a move to Osaka for a new job. There are no indicators of spam or scam, such as unsolicited marketing, fraud, impersonation, or emotional manipulation. It falls under personal correspondence."
         },
         "sender": "block_sender",
         "live": true
@@ -533,9 +533,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:asking about clinic on tuesdays": {
-              "fact_id": "life_fact:asking about clinic on tuesdays",
-              "value": "asking about clinic on Tuesdays",
+            "life_fact:recipient attends clinic on tuesdays": {
+              "fact_id": "life_fact:recipient attends clinic on tuesdays",
+              "value": "recipient attends clinic on Tuesdays",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -578,7 +578,7 @@
               "speaker": "sender",
               "fact_ids": [
                 "life_fact:worried about recipient being alone",
-                "life_fact:asking about clinic on tuesdays"
+                "life_fact:recipient attends clinic on tuesdays"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -609,7 +609,7 @@
               "location:osaka",
               "life_fact:moved to osaka for a new job",
               "life_fact:worried about recipient being alone",
-              "life_fact:asking about clinic on tuesdays"
+              "life_fact:recipient attends clinic on tuesdays"
             ],
             "sender_echo_facts": [],
             "echo_ratio": 0.0,
@@ -690,15 +690,15 @@
           "referenced_names": [],
           "life_facts": [
             "worried about recipient being alone",
-            "asking about clinic on Tuesdays"
+            "recipient attends clinic on Tuesdays"
           ],
           "matched_existing": [],
           "elder_state": {
             "detected_signals": [],
             "compliance": "none",
             "resistance": "none",
-            "disclosure": "none",
-            "emotional_engagement": "mild",
+            "disclosure": "mild",
+            "emotional_engagement": "strong",
             "instruction_seeking": false
           }
         }
@@ -711,14 +711,11 @@
           "extracted_facts": {
             "referenced_names": [],
             "life_facts": [
-              "Is good",
-              "Worries about the recipient being alone",
-              "Asks about the clinic on Tuesdays"
+              "Is good.",
+              "Worries about the recipient being alone.",
+              "Inquiring about the clinic on Tuesdays."
             ],
-            "matched_existing": [
-              "conv_ma_1578",
-              "conv_ma_1230"
-            ],
+            "matched_existing": [],
             "elder_state": {
               "detected_signals": [],
               "compliance": "none",
@@ -728,7 +725,7 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message expresses concern for the recipient's well-being and asks a question about a regular appointment. There are no scam signals detected. While the corpus matches are for safe conversations, there are strong contra-indicators suggesting the message may be legitimate. The message is classified as safe with low confidence. Verification through a known contact method is recommended.",
+          "reasoning": "The message expresses well-being, concern for the recipient's solitude, and asks a question about a clinic appointment. There are no scam-related signals present. The pre-computed context also indicates strong contra-indicators for a scam and suggests the message may be legitimate. Therefore, it is classified as safe. The pipeline recommends verification due to the unverified sender.",
           "risk_score": 0.276,
           "risk_ledger": {
             "conversation_id": "classify_block_sender",
@@ -779,13 +776,13 @@
       "naive": {
         "result": {
           "classification": "safe",
-          "confidence": 0.9,
+          "confidence": 0.95,
           "detected_signals": [],
           "extracted_facts": {
             "referenced_names": [],
             "life_facts": [
-              "I worry about you being alone.",
-              "How's the clinic on Tuesdays?"
+              "being alone",
+              "clinic on Tuesdays"
             ],
             "matched_existing": [],
             "elder_state": {
@@ -797,7 +794,7 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message appears to be a personal check-in from someone concerned about the recipient's well-being and asking about a regular appointment. There are no indicators of spam or scam. The tone is caring and conversational."
+          "reasoning": "The message appears to be a personal check-in between individuals, likely acquaintances or family members. It expresses concern for the recipient's well-being and asks about a regular appointment ('clinic on Tuesdays'). There are no indicators of spam, scam, or phishing. The tone is caring and conversational."
         },
         "sender": "block_sender",
         "live": true
@@ -831,9 +828,9 @@
               "sender_turns": [
                 0
               ],
-              "echo_detected": true,
-              "echo_by": "elder",
-              "echo_at_turn": 3
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
             },
             "life_fact:moved to osaka for a new job": {
               "fact_id": "life_fact:moved to osaka for a new job",
@@ -865,9 +862,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:asking about clinic on tuesdays": {
-              "fact_id": "life_fact:asking about clinic on tuesdays",
-              "value": "asking about clinic on Tuesdays",
+            "life_fact:recipient attends clinic on tuesdays": {
+              "fact_id": "life_fact:recipient attends clinic on tuesdays",
+              "value": "recipient attends clinic on Tuesdays",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -880,9 +877,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:grandfather passed away": {
-              "fact_id": "life_fact:grandfather passed away",
-              "value": "grandfather passed away",
+            "life_fact:grandpa passed away": {
+              "fact_id": "life_fact:grandpa passed away",
+              "value": "grandpa passed away",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -940,7 +937,7 @@
               "speaker": "sender",
               "fact_ids": [
                 "life_fact:worried about recipient being alone",
-                "life_fact:asking about clinic on tuesdays"
+                "life_fact:recipient attends clinic on tuesdays"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -950,12 +947,11 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "location:osaka",
-                "life_fact:grandfather passed away",
+                "life_fact:grandpa passed away",
                 "life_fact:goes to mizuho bank on mondays"
               ],
               "new_facts": 2,
-              "echoed_facts": 1
+              "echoed_facts": 0
             }
           ],
           "contradiction_log": []
@@ -985,13 +981,14 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
+              "location:osaka",
               "life_fact:moved to osaka for a new job",
               "life_fact:worried about recipient being alone",
-              "life_fact:asking about clinic on tuesdays"
+              "life_fact:recipient attends clinic on tuesdays"
             ],
             "sender_echo_facts": [],
             "echo_ratio": 0.0,
-            "asymmetry_score": 3,
+            "asymmetry_score": 4,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [
@@ -1019,7 +1016,7 @@
             "friction_trajectory": "declining",
             "trust_stage": "engaged",
             "elder_facts_exposed": 2,
-            "sender_independent_facts": 3,
+            "sender_independent_facts": 4,
             "sender_echoed_facts": 0,
             "contradictions": 0,
             "turns_analyzed": 4
@@ -1033,7 +1030,7 @@
           "friction_trajectory": "declining",
           "trust_stage": "engaged",
           "elder_facts_exposed": 2,
-          "sender_independent_facts": 3,
+          "sender_independent_facts": 4,
           "sender_echoed_facts": 0,
           "contradictions": 0,
           "turns_analyzed": 4
@@ -1052,35 +1049,34 @@
             "type": "location",
             "first_stated_by": "sender",
             "first_turn": 0,
-            "echo_detected": true,
-            "echo_by": "elder"
+            "echo_detected": false,
+            "echo_by": null
           }
         },
         "vulnerability_summary": {
           "vulnerabilities": [
-            "grandfather passed away",
+            "grandpa passed away",
             "goes to Mizuho Bank on Mondays"
           ],
           "trust_stage": "engaged",
           "friction_score": 0.6,
           "friction_trajectory": "declining",
           "total_elder_facts_exposed": 2,
-          "total_echoed_facts": 2
+          "total_echoed_facts": 1
         },
         "extracted_facts": {
           "referenced_names": [],
           "life_facts": [
-            "grandfather passed away",
+            "grandpa passed away",
             "goes to Mizuho Bank on Mondays"
           ],
           "matched_existing": [
-            "location:osaka",
+            "life_fact:grandpa passed away",
             "institution:mizuho bank"
           ],
           "elder_state": {
             "detected_signals": [
-              "VS-3",
-              "VS-6"
+              "VS-3"
             ],
             "compliance": "none",
             "resistance": "none",
@@ -1121,9 +1117,9 @@
               "sender_turns": [
                 0
               ],
-              "echo_detected": true,
-              "echo_by": "elder",
-              "echo_at_turn": 3
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
             },
             "life_fact:moved to osaka for a new job": {
               "fact_id": "life_fact:moved to osaka for a new job",
@@ -1155,9 +1151,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:asking about clinic on tuesdays": {
-              "fact_id": "life_fact:asking about clinic on tuesdays",
-              "value": "asking about clinic on Tuesdays",
+            "life_fact:recipient attends clinic on tuesdays": {
+              "fact_id": "life_fact:recipient attends clinic on tuesdays",
+              "value": "recipient attends clinic on Tuesdays",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1170,9 +1166,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:grandfather passed away": {
-              "fact_id": "life_fact:grandfather passed away",
-              "value": "grandfather passed away",
+            "life_fact:grandpa passed away": {
+              "fact_id": "life_fact:grandpa passed away",
+              "value": "grandpa passed away",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -1230,9 +1226,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:needs money urgently": {
-              "fact_id": "life_fact:needs money urgently",
-              "value": "needs money urgently",
+            "life_fact:needs money immediately": {
+              "fact_id": "life_fact:needs money immediately",
+              "value": "needs money immediately",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1275,7 +1271,7 @@
               "speaker": "sender",
               "fact_ids": [
                 "life_fact:worried about recipient being alone",
-                "life_fact:asking about clinic on tuesdays"
+                "life_fact:recipient attends clinic on tuesdays"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -1285,12 +1281,11 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "location:osaka",
-                "life_fact:grandfather passed away",
+                "life_fact:grandpa passed away",
                 "life_fact:goes to mizuho bank on mondays"
               ],
               "new_facts": 2,
-              "echoed_facts": 1
+              "echoed_facts": 0
             },
             {
               "turn_index": 4,
@@ -1299,7 +1294,7 @@
               "fact_ids": [
                 "amount:money",
                 "life_fact:caused a car accident",
-                "life_fact:needs money urgently"
+                "life_fact:needs money immediately"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -1332,16 +1327,17 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
+              "location:osaka",
               "life_fact:moved to osaka for a new job",
               "life_fact:worried about recipient being alone",
-              "life_fact:asking about clinic on tuesdays",
+              "life_fact:recipient attends clinic on tuesdays",
               "amount:money",
               "life_fact:caused a car accident",
-              "life_fact:needs money urgently"
+              "life_fact:needs money immediately"
             ],
             "sender_echo_facts": [],
             "echo_ratio": 0.0,
-            "asymmetry_score": 6,
+            "asymmetry_score": 7,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [
@@ -1369,7 +1365,7 @@
             "friction_trajectory": "declining",
             "trust_stage": "engaged",
             "elder_facts_exposed": 2,
-            "sender_independent_facts": 6,
+            "sender_independent_facts": 7,
             "sender_echoed_facts": 0,
             "contradictions": 0,
             "turns_analyzed": 5
@@ -1383,7 +1379,7 @@
           "friction_trajectory": "declining",
           "trust_stage": "engaged",
           "elder_facts_exposed": 2,
-          "sender_independent_facts": 6,
+          "sender_independent_facts": 7,
           "sender_echoed_facts": 0,
           "contradictions": 0,
           "turns_analyzed": 5
@@ -1402,8 +1398,8 @@
             "type": "location",
             "first_stated_by": "sender",
             "first_turn": 0,
-            "echo_detected": true,
-            "echo_by": "elder"
+            "echo_detected": false,
+            "echo_by": null
           },
           "amount:money": {
             "value": "money",
@@ -1416,14 +1412,14 @@
         },
         "vulnerability_summary": {
           "vulnerabilities": [
-            "grandfather passed away",
+            "grandpa passed away",
             "goes to Mizuho Bank on Mondays"
           ],
           "trust_stage": "engaged",
           "friction_score": 0.6,
           "friction_trajectory": "declining",
           "total_elder_facts_exposed": 2,
-          "total_echoed_facts": 2
+          "total_echoed_facts": 1
         },
         "extracted_facts": {
           "referenced_names": [],
@@ -1433,7 +1429,7 @@
           },
           "life_facts": [
             "caused a car accident",
-            "needs money urgently"
+            "needs money immediately"
           ],
           "matched_existing": [],
           "elder_state": {
@@ -1445,7 +1441,7 @@
             "resistance": "none",
             "disclosure": "none",
             "emotional_engagement": "none",
-            "instruction_seeking": true
+            "instruction_seeking": false
           }
         }
       },
@@ -1454,9 +1450,9 @@
           "classification": "high_risk",
           "confidence": 0.721,
           "detected_signals": [
+            "PM-1",
             "PM-10",
-            "PM-3",
-            "PM-1"
+            "PM-3"
           ],
           "extracted_facts": {
             "referenced_names": [],
@@ -1465,16 +1461,12 @@
               "urgency": "high"
             },
             "life_facts": [
-              "Caused a car accident",
-              "Need money right now"
+              "Is in big trouble.",
+              "Caused a car accident.",
+              "Someone is demanding money right now.",
+              "Needs help."
             ],
-            "matched_existing": [
-              "conv_ma_0365",
-              "zefang_006554",
-              "conv_ma_1372",
-              "zefang_018261",
-              "conv_ma_0976"
-            ],
+            "matched_existing": [],
             "elder_state": {
               "detected_signals": [],
               "compliance": "none",
@@ -1484,7 +1476,7 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message describes a serious situation (car accident) and an urgent demand for money, triggering PM-10 (emotional crisis), PM-3 (financial solicitation), and PM-1 (urgency language). While there are contra-indicators suggesting it might be legitimate, the combination of an accident, urgent financial demand, and the sender's unknown status warrants a \"suspicious\" classification. The corpus matches are varied, with one scam match related to a technical support scam, which is not directly relevant but highlights the potential for deceptive communication. Verification through a known contact method is strongly recommended.",
+          "reasoning": "The message states the sender is in 'big trouble' due to causing a car accident and that 'they want money right now,' asking for help. This triggers multiple scam signals: PM-1 (urgency_language - 'right now'), PM-10 (emotional_crisis - 'big trouble,' 'car accident'), and PM-3 (financial_solicitation - 'want money,' 'Can you help?'). This scenario is characteristic of an 'Ore Ore' scam, where a relative's voice is impersonated to solicit funds urgently. The pre-computed context, despite some contra-indicators, is overridden by the clear and immediate scam signals. The corpus matches show similar conversations where unexpected problems lead to requests for money. Therefore, the message is classified as suspicious.",
           "risk_score": 7.209,
           "risk_ledger": {
             "conversation_id": "classify_block_sender",
@@ -1513,9 +1505,9 @@
               {
                 "message_index": 2,
                 "signals": [
+                  "PM-1",
                   "PM-10",
-                  "PM-3",
-                  "PM-1"
+                  "PM-3"
                 ],
                 "contribution": 6.955,
                 "score_after": 7.209,
@@ -1531,17 +1523,17 @@
             },
             "signal_counts": {
               "PM-11": 1,
+              "PM-1": 1,
               "PM-10": 1,
-              "PM-3": 1,
-              "PM-1": 1
+              "PM-3": 1
             },
             "family_alert_fired": true,
-            "family_alert_reason": "tier3_detected",
+            "family_alert_reason": "score_threshold",
             "overrides_applied": [],
             "highest_score_reached": 7.209
           },
           "family_alert_fired": true,
-          "family_alert_reason": "tier3_detected"
+          "family_alert_reason": "score_threshold"
         },
         "sender": "block_sender",
         "live": true
@@ -1551,9 +1543,8 @@
           "classification": "scam",
           "confidence": 0.9,
           "detected_signals": [
-            "emotional manipulation",
-            "financial demand",
-            "urgency"
+            "financial_demand_urgency",
+            "emotional_manipulation"
           ],
           "extracted_facts": {
             "referenced_names": [],
@@ -1574,14 +1565,14 @@
               "instruction_seeking": true
             }
           },
-          "reasoning": "The message describes a fabricated emergency (car accident) and immediately demands money, which are classic signs of an emotional manipulation scam. The urgency ('right now') further supports this classification."
+          "reasoning": "The message claims the sender is in 'big trouble' due to a 'car accident' and urgently needs 'money'. This is a common tactic in scams targeting the elderly, employing emotional manipulation (fear, urgency) and a direct financial demand without providing specific verifiable details. It fits the profile of a targeted fraud attempt."
         },
         "sender": "block_sender",
         "live": true
       },
       "alert": {
         "alert": {
-          "alert_id": "alert-demo_user-20260610004912",
+          "alert_id": "alert-demo_user-20260610120539",
           "alert_type": "suspicious_sender",
           "severity": "warning",
           "user_id": "demo_user",
@@ -1597,26 +1588,26 @@
           "evidence_summary": {
             "risk_score": 0.72,
             "risk_factors": [
+              "PM-1",
               "PM-10",
-              "PM-3",
-              "PM-1"
+              "PM-3"
             ],
             "contradiction_count": 0,
             "message_count": 3,
             "days_active": 1,
-            "assessed_at": "2026-06-10T00:49:12.558190+09:00"
+            "assessed_at": "2026-06-10T12:05:39.793557+09:00"
           },
           "elder_did_not_see": true,
-          "timestamp": "2026-06-10T00:49:12.558190+09:00",
+          "timestamp": "2026-06-10T12:05:39.793557+09:00",
           "delivery_status": "pending",
           "response_action": null
         },
         "pipeline_event": {
           "event": "alert.delivered",
-          "alert_id": "alert-demo_user-20260610004912",
+          "alert_id": "alert-demo_user-20260610120539",
           "family_member_id": "family-demo",
           "delivery_channel": "email",
-          "response_deadline": "2026-06-11T00:49:12.558190+09:00"
+          "response_deadline": "2026-06-11T12:05:39.793557+09:00"
         }
       },
       "elder_turn": {
@@ -1648,9 +1639,9 @@
               "sender_turns": [
                 0
               ],
-              "echo_detected": true,
-              "echo_by": "elder",
-              "echo_at_turn": 3
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
             },
             "life_fact:moved to osaka for a new job": {
               "fact_id": "life_fact:moved to osaka for a new job",
@@ -1682,9 +1673,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:asking about clinic on tuesdays": {
-              "fact_id": "life_fact:asking about clinic on tuesdays",
-              "value": "asking about clinic on Tuesdays",
+            "life_fact:recipient attends clinic on tuesdays": {
+              "fact_id": "life_fact:recipient attends clinic on tuesdays",
+              "value": "recipient attends clinic on Tuesdays",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1697,9 +1688,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:grandfather passed away": {
-              "fact_id": "life_fact:grandfather passed away",
-              "value": "grandfather passed away",
+            "life_fact:grandpa passed away": {
+              "fact_id": "life_fact:grandpa passed away",
+              "value": "grandpa passed away",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -1757,9 +1748,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:needs money urgently": {
-              "fact_id": "life_fact:needs money urgently",
-              "value": "needs money urgently",
+            "life_fact:needs money immediately": {
+              "fact_id": "life_fact:needs money immediately",
+              "value": "needs money immediately",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1787,9 +1778,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:seeking instructions on what to do": {
-              "fact_id": "life_fact:seeking instructions on what to do",
-              "value": "seeking instructions on what to do",
+            "life_fact:seeking instructions": {
+              "fact_id": "life_fact:seeking instructions",
+              "value": "seeking instructions",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -1832,7 +1823,7 @@
               "speaker": "sender",
               "fact_ids": [
                 "life_fact:worried about recipient being alone",
-                "life_fact:asking about clinic on tuesdays"
+                "life_fact:recipient attends clinic on tuesdays"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -1842,12 +1833,11 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "location:osaka",
-                "life_fact:grandfather passed away",
+                "life_fact:grandpa passed away",
                 "life_fact:goes to mizuho bank on mondays"
               ],
               "new_facts": 2,
-              "echoed_facts": 1
+              "echoed_facts": 0
             },
             {
               "turn_index": 4,
@@ -1856,7 +1846,7 @@
               "fact_ids": [
                 "amount:money",
                 "life_fact:caused a car accident",
-                "life_fact:needs money urgently"
+                "life_fact:needs money immediately"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -1867,7 +1857,7 @@
               "speaker": "elder",
               "fact_ids": [
                 "life_fact:worried about recipient's well-being",
-                "life_fact:seeking instructions on what to do"
+                "life_fact:seeking instructions"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -1905,16 +1895,17 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
+              "location:osaka",
               "life_fact:moved to osaka for a new job",
               "life_fact:worried about recipient being alone",
-              "life_fact:asking about clinic on tuesdays",
+              "life_fact:recipient attends clinic on tuesdays",
               "amount:money",
               "life_fact:caused a car accident",
-              "life_fact:needs money urgently"
+              "life_fact:needs money immediately"
             ],
             "sender_echo_facts": [],
             "echo_ratio": 0.0,
-            "asymmetry_score": 6,
+            "asymmetry_score": 7,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [
@@ -1942,7 +1933,7 @@
             "friction_trajectory": "declining",
             "trust_stage": "compliant",
             "elder_facts_exposed": 4,
-            "sender_independent_facts": 6,
+            "sender_independent_facts": 7,
             "sender_echoed_facts": 0,
             "contradictions": 0,
             "turns_analyzed": 6
@@ -1956,7 +1947,7 @@
           "friction_trajectory": "declining",
           "trust_stage": "compliant",
           "elder_facts_exposed": 4,
-          "sender_independent_facts": 6,
+          "sender_independent_facts": 7,
           "sender_echoed_facts": 0,
           "contradictions": 0,
           "turns_analyzed": 6
@@ -1975,8 +1966,8 @@
             "type": "location",
             "first_stated_by": "sender",
             "first_turn": 0,
-            "echo_detected": true,
-            "echo_by": "elder"
+            "echo_detected": false,
+            "echo_by": null
           },
           "amount:money": {
             "value": "money",
@@ -1989,28 +1980,29 @@
         },
         "vulnerability_summary": {
           "vulnerabilities": [
-            "grandfather passed away",
+            "grandpa passed away",
             "goes to Mizuho Bank on Mondays",
             "worried about recipient's well-being",
-            "seeking instructions on what to do"
+            "seeking instructions"
           ],
           "trust_stage": "compliant",
           "friction_score": 0.0,
           "friction_trajectory": "declining",
           "total_elder_facts_exposed": 4,
-          "total_echoed_facts": 2
+          "total_echoed_facts": 1
         },
         "extracted_facts": {
           "referenced_names": [],
           "life_facts": [
             "worried about recipient's well-being",
-            "seeking instructions on what to do"
+            "seeking instructions"
           ],
           "matched_existing": [],
           "elder_state": {
             "detected_signals": [
               "VS-1",
-              "VS-4"
+              "VS-4",
+              "VS-6"
             ],
             "compliance": "strong",
             "resistance": "none",
@@ -2027,9 +2019,9 @@
       "sender_turn": {
         "fact_ledger": {
           "facts": {
-            "life_fact:recipient seems kind and wonderful": {
-              "fact_id": "life_fact:recipient seems kind and wonderful",
-              "value": "recipient seems kind and wonderful",
+            "life_fact:recipient is perceived as kind and wonderful": {
+              "fact_id": "life_fact:recipient is perceived as kind and wonderful",
+              "value": "recipient is perceived as kind and wonderful",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -2049,7 +2041,7 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:recipient seems kind and wonderful"
+                "life_fact:recipient is perceived as kind and wonderful"
               ],
               "new_facts": 1,
               "echoed_facts": 0
@@ -2076,7 +2068,7 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "life_fact:recipient seems kind and wonderful"
+              "life_fact:recipient is perceived as kind and wonderful"
             ],
             "sender_echo_facts": [],
             "echo_ratio": 0.0,
@@ -2131,7 +2123,7 @@
         "extracted_facts": {
           "referenced_names": [],
           "life_facts": [
-            "recipient seems kind and wonderful"
+            "recipient is perceived as kind and wonderful"
           ],
           "matched_existing": [],
           "elder_state": {
@@ -2139,7 +2131,7 @@
             "compliance": "none",
             "resistance": "none",
             "disclosure": "none",
-            "emotional_engagement": "mild",
+            "emotional_engagement": "none",
             "instruction_seeking": false
           }
         }
@@ -2154,16 +2146,11 @@
           "extracted_facts": {
             "referenced_names": [],
             "life_facts": [
-              "Sender's eye was caught by recipient's profile",
-              "Sender perceives recipient as kind and wonderful"
+              "Came across the recipient's profile.",
+              "Struck by recipient's kindness.",
+              "Struck by recipient's wonderfulness."
             ],
-            "matched_existing": [
-              "zefang_001618",
-              "zefang_012406",
-              "zefang_016697",
-              "zefang_014553",
-              "zefang_006167"
-            ],
+            "matched_existing": [],
             "elder_state": {
               "detected_signals": [],
               "compliance": "none",
@@ -2173,7 +2160,7 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message contains excessive flattery (PM-12), which can be a tactic in romance scams. While two corpus matches are scams related to dating/hookups, others are safe compliments. The contra-indicators suggest it might be legitimate, but the high flattery density and the nature of the corpus matches warrant a \"suspicious\" classification. Verification through a known contact method is recommended.",
+          "reasoning": "The message contains strong flattery ('kind, wonderful person') with no other context, which is a common tactic in romance scams to build rapport. This triggers PM-12 (flattery_density). While no direct scam is evident yet, the excessive compliments in an unsolicited message are a red flag. The corpus matches include similar unsolicited messages, some of which are flagged as scam or spam. Given the high flattery density and the lack of other information, the message is classified as suspicious.",
           "risk_score": 0.25,
           "risk_ledger": {
             "conversation_id": "classify_intercept_sender",
@@ -2217,15 +2204,15 @@
       "naive": {
         "result": {
           "classification": "suspicious",
-          "confidence": 0.6,
+          "confidence": 0.8,
           "detected_signals": [
-            "emotional_manipulation"
+            "love_bombing",
+            "generic_flattery"
           ],
           "extracted_facts": {
             "referenced_names": [],
             "life_facts": [
-              "compliment_about_kindness",
-              "compliment_about_wonderfulness"
+              "profile_view"
             ],
             "matched_existing": [],
             "elder_state": {
@@ -2237,7 +2224,7 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message uses vague, overly positive language ('caught my eye', 'kind, wonderful person') without specific context. This can be a tactic in scams to build rapport and emotional connection, especially with elderly users who might be more susceptible to flattery and loneliness. While it could be a legitimate compliment, the lack of specifics and the potential for manipulation warrants a 'suspicious' classification, leaning towards scam."
+          "reasoning": "The message uses overly familiar and flattering language ('kind, wonderful person') without any prior context or established relationship. This type of 'love bombing' or excessive flattery, especially directed at an elderly individual, is a common tactic in romance scams to build trust and manipulate emotions. While not explicitly asking for anything, the intent is likely to initiate a fraudulent relationship. Given the rule to lean towards 'safe' when in doubt, 'suspicious' is chosen over 'scam' as there's no direct request for money or personal information yet, but the signals are strong enough to warrant flagging."
         },
         "sender": "intercept_sender",
         "live": true
@@ -2245,9 +2232,9 @@
       "elder_turn": {
         "fact_ledger": {
           "facts": {
-            "life_fact:recipient seems kind and wonderful": {
-              "fact_id": "life_fact:recipient seems kind and wonderful",
-              "value": "recipient seems kind and wonderful",
+            "life_fact:recipient is perceived as kind and wonderful": {
+              "fact_id": "life_fact:recipient is perceived as kind and wonderful",
+              "value": "recipient is perceived as kind and wonderful",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -2275,9 +2262,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:tends garden daily": {
-              "fact_id": "life_fact:tends garden daily",
-              "value": "tends garden daily",
+            "life_fact:tends garden every day": {
+              "fact_id": "life_fact:tends garden every day",
+              "value": "tends garden every day",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -2297,7 +2284,7 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:recipient seems kind and wonderful"
+                "life_fact:recipient is perceived as kind and wonderful"
               ],
               "new_facts": 1,
               "echoed_facts": 0
@@ -2308,7 +2295,7 @@
               "speaker": "elder",
               "fact_ids": [
                 "life_fact:loves flowers",
-                "life_fact:tends garden daily"
+                "life_fact:tends garden every day"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -2328,10 +2315,10 @@
               "turn": 1
             }
           ],
-          "friction_score": 0.6000000000000001,
+          "friction_score": 0.65,
           "friction_history": [
             0.8,
-            0.6
+            0.65
           ],
           "friction_trajectory": "stable_high",
           "resistance_events": 0,
@@ -2340,7 +2327,7 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "life_fact:recipient seems kind and wonderful"
+              "life_fact:recipient is perceived as kind and wonderful"
             ],
             "sender_echo_facts": [],
             "echo_ratio": 0.0,
@@ -2350,7 +2337,7 @@
           "identity_claim_analysis": [],
           "epistemic_summary": {
             "trust_stage": "engaged",
-            "friction_score": 0.6000000000000001,
+            "friction_score": 0.65,
             "friction_trajectory": "stable_high",
             "compliance_events": 0,
             "resistance_events": 0
@@ -2360,7 +2347,7 @@
             "echo_ratio": 0.0,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
-            "friction_score": 0.6000000000000001,
+            "friction_score": 0.65,
             "friction_trajectory": "stable_high",
             "trust_stage": "engaged",
             "elder_facts_exposed": 2,
@@ -2374,7 +2361,7 @@
           "echo_ratio": 0.0,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
-          "friction_score": 0.6000000000000001,
+          "friction_score": 0.65,
           "friction_trajectory": "stable_high",
           "trust_stage": "engaged",
           "elder_facts_exposed": 2,
@@ -2387,10 +2374,10 @@
         "vulnerability_summary": {
           "vulnerabilities": [
             "loves flowers",
-            "tends garden daily"
+            "tends garden every day"
           ],
           "trust_stage": "engaged",
-          "friction_score": 0.6000000000000001,
+          "friction_score": 0.65,
           "friction_trajectory": "stable_high",
           "total_elder_facts_exposed": 2,
           "total_echoed_facts": 0
@@ -2399,7 +2386,7 @@
           "referenced_names": [],
           "life_facts": [
             "loves flowers",
-            "tends garden daily"
+            "tends garden every day"
           ],
           "matched_existing": [],
           "elder_state": {
@@ -2407,7 +2394,7 @@
             "compliance": "none",
             "resistance": "none",
             "disclosure": "strong",
-            "emotional_engagement": "mild",
+            "emotional_engagement": "none",
             "instruction_seeking": false
           }
         }
@@ -2417,9 +2404,9 @@
       "sender_turn": {
         "fact_ledger": {
           "facts": {
-            "life_fact:recipient seems kind and wonderful": {
-              "fact_id": "life_fact:recipient seems kind and wonderful",
-              "value": "recipient seems kind and wonderful",
+            "life_fact:recipient is perceived as kind and wonderful": {
+              "fact_id": "life_fact:recipient is perceived as kind and wonderful",
+              "value": "recipient is perceived as kind and wonderful",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -2447,9 +2434,9 @@
               "echo_by": "sender",
               "echo_at_turn": 2
             },
-            "life_fact:tends garden daily": {
-              "fact_id": "life_fact:tends garden daily",
-              "value": "tends garden daily",
+            "life_fact:tends garden every day": {
+              "fact_id": "life_fact:tends garden every day",
+              "value": "tends garden every day",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -2461,6 +2448,36 @@
               "echo_detected": true,
               "echo_by": "sender",
               "echo_at_turn": 2
+            },
+            "location:overseas": {
+              "fact_id": "location:overseas",
+              "value": "overseas",
+              "type": "location",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 2,
+              "elder_turns": [],
+              "sender_turns": [
+                2
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:is an engineer": {
+              "fact_id": "life_fact:is an engineer",
+              "value": "is an engineer",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 2,
+              "elder_turns": [],
+              "sender_turns": [
+                2
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
             },
             "life_fact:works overseas": {
               "fact_id": "life_fact:works overseas",
@@ -2492,9 +2509,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:wishes to visit garden": {
-              "fact_id": "life_fact:wishes to visit garden",
-              "value": "wishes to visit garden",
+            "life_fact:loves recipient's garden": {
+              "fact_id": "life_fact:loves recipient's garden",
+              "value": "loves recipient's garden",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -2514,7 +2531,7 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:recipient seems kind and wonderful"
+                "life_fact:recipient is perceived as kind and wonderful"
               ],
               "new_facts": 1,
               "echoed_facts": 0
@@ -2525,7 +2542,7 @@
               "speaker": "elder",
               "fact_ids": [
                 "life_fact:loves flowers",
-                "life_fact:tends garden daily"
+                "life_fact:tends garden every day"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -2535,13 +2552,15 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:tends garden daily",
                 "life_fact:loves flowers",
+                "life_fact:tends garden every day",
+                "location:overseas",
+                "life_fact:is an engineer",
                 "life_fact:works overseas",
                 "life_fact:misses japan",
-                "life_fact:wishes to visit garden"
+                "life_fact:loves recipient's garden"
               ],
-              "new_facts": 3,
+              "new_facts": 5,
               "echoed_facts": 2
             }
           ],
@@ -2559,10 +2578,10 @@
               "turn": 1
             }
           ],
-          "friction_score": 0.6000000000000001,
+          "friction_score": 0.65,
           "friction_history": [
             0.8,
-            0.6
+            0.65
           ],
           "friction_trajectory": "stable_high",
           "resistance_events": 0,
@@ -2571,84 +2590,97 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "life_fact:recipient seems kind and wonderful",
+              "life_fact:recipient is perceived as kind and wonderful",
+              "location:overseas",
+              "life_fact:is an engineer",
               "life_fact:works overseas",
               "life_fact:misses japan",
-              "life_fact:wishes to visit garden"
+              "life_fact:loves recipient's garden"
             ],
             "sender_echo_facts": [
               "life_fact:loves flowers",
-              "life_fact:tends garden daily"
+              "life_fact:tends garden every day"
             ],
-            "echo_ratio": 0.33,
-            "asymmetry_score": 2,
-            "asymmetry_verdict": "balanced"
+            "echo_ratio": 0.25,
+            "asymmetry_score": 4,
+            "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [],
           "epistemic_summary": {
             "trust_stage": "engaged",
-            "friction_score": 0.6000000000000001,
+            "friction_score": 0.65,
             "friction_trajectory": "stable_high",
             "compliance_events": 0,
             "resistance_events": 0
           },
           "contradictions": [],
           "graph_signals": {
-            "echo_ratio": 0.33,
+            "echo_ratio": 0.25,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
-            "friction_score": 0.6000000000000001,
+            "friction_score": 0.65,
             "friction_trajectory": "stable_high",
             "trust_stage": "engaged",
             "elder_facts_exposed": 2,
-            "sender_independent_facts": 4,
+            "sender_independent_facts": 6,
             "sender_echoed_facts": 2,
             "contradictions": 0,
             "turns_analyzed": 3
           }
         },
         "graph_signals": {
-          "echo_ratio": 0.33,
+          "echo_ratio": 0.25,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
-          "friction_score": 0.6000000000000001,
+          "friction_score": 0.65,
           "friction_trajectory": "stable_high",
           "trust_stage": "engaged",
           "elder_facts_exposed": 2,
-          "sender_independent_facts": 4,
+          "sender_independent_facts": 6,
           "sender_echoed_facts": 2,
           "contradictions": 0,
           "turns_analyzed": 3
         },
-        "identity_facts": {},
+        "identity_facts": {
+          "location:overseas": {
+            "value": "overseas",
+            "type": "location",
+            "first_stated_by": "sender",
+            "first_turn": 2,
+            "echo_detected": false,
+            "echo_by": null
+          }
+        },
         "vulnerability_summary": {
           "vulnerabilities": [
             "loves flowers",
-            "tends garden daily"
+            "tends garden every day"
           ],
           "trust_stage": "engaged",
-          "friction_score": 0.6000000000000001,
+          "friction_score": 0.65,
           "friction_trajectory": "stable_high",
           "total_elder_facts_exposed": 2,
           "total_echoed_facts": 2
         },
         "extracted_facts": {
+          "claimed_location": "overseas",
           "referenced_names": [],
           "life_facts": [
+            "is an engineer",
             "works overseas",
             "misses Japan",
-            "wishes to visit garden"
+            "loves recipient's garden"
           ],
           "matched_existing": [
-            "life_fact:tends garden daily",
-            "life_fact:loves flowers"
+            "life_fact:loves flowers",
+            "life_fact:tends garden every day"
           ],
           "elder_state": {
             "detected_signals": [],
             "compliance": "none",
             "resistance": "none",
-            "disclosure": "none",
-            "emotional_engagement": "none",
+            "disclosure": "mild",
+            "emotional_engagement": "mild",
             "instruction_seeking": false
           }
         }
@@ -2656,22 +2688,19 @@
       "classify": {
         "result": {
           "classification": "safe",
-          "confidence": 0.023,
-          "detected_signals": [],
+          "confidence": 0.053,
+          "detected_signals": [
+            "PM-11"
+          ],
           "extracted_facts": {
+            "claimed_location": "overseas",
             "referenced_names": [],
             "life_facts": [
-              "Is an engineer working overseas",
-              "Misses Japan",
-              "Wishes to visit and see the recipient's garden"
+              "Works as an engineer overseas.",
+              "Misses Japan.",
+              "Wishes to visit and see the elder's garden."
             ],
-            "matched_existing": [
-              "antiphish_0679_s0",
-              "zefang_018262",
-              "zefang_016696",
-              "antiphish_0698_s0",
-              "antiphish_0684_s0"
-            ],
+            "matched_existing": [],
             "elder_state": {
               "detected_signals": [],
               "compliance": "none",
@@ -2681,14 +2710,14 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message states the sender's profession and location, and expresses a longing for Japan and a desire to visit. While some corpus matches are scams related to Yahoo Japan accounts, they are not directly relevant to the content of this message. There are strong contra-indicators suggesting the message may be legitimate. No scam signals are detected, and the message describes mundane life events. Therefore, it is classified as safe with low confidence. Verification through a known contact method is recommended.",
-          "risk_score": 0.23,
+          "reasoning": "The message states the sender is an engineer working overseas, misses Japan, and wishes to visit the elder's garden. This establishes a persona and a potential future meeting, which can be part of a romance scam narrative. While it doesn't contain explicit scam signals like urgency or financial requests, it builds upon the previous flattery and establishes a more personal connection. The mention of 'overseas' and the desire to visit are elements that can be used to create a basis for future requests or manipulations. The corpus matches include some Japanese-related content flagged as scams, but this specific message is not a direct match. Given the context of previous flattery and the establishment of a persona, it is classified as suspicious.",
+          "risk_score": 0.53,
           "risk_ledger": {
             "conversation_id": "classify_intercept_sender",
-            "running_score": 0.23,
+            "running_score": 0.53,
             "classification": "safe",
             "api_classification": "safe",
-            "confidence": 0.023,
+            "confidence": 0.053,
             "message_count": 2,
             "signal_history": [
               {
@@ -2702,26 +2731,29 @@
               },
               {
                 "message_index": 1,
-                "signals": [],
-                "contribution": 0.0,
-                "score_after": 0.23,
+                "signals": [
+                  "PM-11"
+                ],
+                "contribution": 0.3,
+                "score_after": 0.53,
                 "sequence_match": null
               }
             ],
             "t1_primer_active": true,
             "sequence_matches": [],
             "tier_counts": {
-              "T1": 1,
+              "T1": 2,
               "T2": 0,
               "T3": 0
             },
             "signal_counts": {
-              "PM-12": 1
+              "PM-12": 1,
+              "PM-11": 1
             },
             "family_alert_fired": false,
             "family_alert_reason": null,
             "overrides_applied": [],
-            "highest_score_reached": 0.25
+            "highest_score_reached": 0.53
           },
           "family_alert_fired": false,
           "family_alert_reason": null
@@ -2736,9 +2768,9 @@
           "detected_signals": [],
           "extracted_facts": {
             "claimed_location": "overseas",
+            "claimed_institution": "engineer",
             "referenced_names": [],
             "life_facts": [
-              "engineer working overseas",
               "misses Japan",
               "wishes to visit garden"
             ],
@@ -2748,11 +2780,11 @@
               "compliance": "none",
               "resistance": "none",
               "disclosure": "none",
-              "emotional_engagement": "mild",
+              "emotional_engagement": "none",
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message expresses personal feelings of homesickness and a desire to visit a garden. There are no indicators of spam or scam, such as unsolicited marketing, fraud, impersonation, or phishing attempts. It reads like personal correspondence."
+          "reasoning": "The message expresses personal sentiment and longing for home, describing a personal desire to visit a garden. There are no indicators of spam, scam, or any malicious intent. It reads as personal correspondence."
         },
         "sender": "intercept_sender",
         "live": true
@@ -2760,9 +2792,9 @@
       "elder_turn": {
         "fact_ledger": {
           "facts": {
-            "life_fact:recipient seems kind and wonderful": {
-              "fact_id": "life_fact:recipient seems kind and wonderful",
-              "value": "recipient seems kind and wonderful",
+            "life_fact:recipient is perceived as kind and wonderful": {
+              "fact_id": "life_fact:recipient is perceived as kind and wonderful",
+              "value": "recipient is perceived as kind and wonderful",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -2790,9 +2822,9 @@
               "echo_by": "sender",
               "echo_at_turn": 2
             },
-            "life_fact:tends garden daily": {
-              "fact_id": "life_fact:tends garden daily",
-              "value": "tends garden daily",
+            "life_fact:tends garden every day": {
+              "fact_id": "life_fact:tends garden every day",
+              "value": "tends garden every day",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -2804,6 +2836,36 @@
               "echo_detected": true,
               "echo_by": "sender",
               "echo_at_turn": 2
+            },
+            "location:overseas": {
+              "fact_id": "location:overseas",
+              "value": "overseas",
+              "type": "location",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 2,
+              "elder_turns": [],
+              "sender_turns": [
+                2
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:is an engineer": {
+              "fact_id": "life_fact:is an engineer",
+              "value": "is an engineer",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 2,
+              "elder_turns": [],
+              "sender_turns": [
+                2
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
             },
             "life_fact:works overseas": {
               "fact_id": "life_fact:works overseas",
@@ -2835,9 +2897,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:wishes to visit garden": {
-              "fact_id": "life_fact:wishes to visit garden",
-              "value": "wishes to visit garden",
+            "life_fact:loves recipient's garden": {
+              "fact_id": "life_fact:loves recipient's garden",
+              "value": "loves recipient's garden",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -2880,9 +2942,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:invites recipient to visit": {
-              "fact_id": "life_fact:invites recipient to visit",
-              "value": "invites recipient to visit",
+            "life_fact:invites sender to visit": {
+              "fact_id": "life_fact:invites sender to visit",
+              "value": "invites sender to visit",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -2902,7 +2964,7 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:recipient seems kind and wonderful"
+                "life_fact:recipient is perceived as kind and wonderful"
               ],
               "new_facts": 1,
               "echoed_facts": 0
@@ -2913,7 +2975,7 @@
               "speaker": "elder",
               "fact_ids": [
                 "life_fact:loves flowers",
-                "life_fact:tends garden daily"
+                "life_fact:tends garden every day"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -2923,13 +2985,15 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:tends garden daily",
                 "life_fact:loves flowers",
+                "life_fact:tends garden every day",
+                "location:overseas",
+                "life_fact:is an engineer",
                 "life_fact:works overseas",
                 "life_fact:misses japan",
-                "life_fact:wishes to visit garden"
+                "life_fact:loves recipient's garden"
               ],
-              "new_facts": 3,
+              "new_facts": 5,
               "echoed_facts": 2
             },
             {
@@ -2939,7 +3003,7 @@
               "fact_ids": [
                 "location:yokohama",
                 "life_fact:lives alone",
-                "life_fact:invites recipient to visit"
+                "life_fact:invites sender to visit"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -2959,11 +3023,11 @@
               "turn": 1
             }
           ],
-          "friction_score": 0.45000000000000007,
+          "friction_score": 0.5,
           "friction_history": [
             0.8,
-            0.6,
-            0.45
+            0.65,
+            0.5
           ],
           "friction_trajectory": "declining",
           "resistance_events": 0,
@@ -2972,56 +3036,66 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "life_fact:recipient seems kind and wonderful",
+              "life_fact:recipient is perceived as kind and wonderful",
+              "location:overseas",
+              "life_fact:is an engineer",
               "life_fact:works overseas",
               "life_fact:misses japan",
-              "life_fact:wishes to visit garden"
+              "life_fact:loves recipient's garden"
             ],
             "sender_echo_facts": [
               "life_fact:loves flowers",
-              "life_fact:tends garden daily"
+              "life_fact:tends garden every day"
             ],
-            "echo_ratio": 0.33,
-            "asymmetry_score": 2,
-            "asymmetry_verdict": "balanced"
+            "echo_ratio": 0.25,
+            "asymmetry_score": 4,
+            "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [],
           "epistemic_summary": {
             "trust_stage": "engaged",
-            "friction_score": 0.45000000000000007,
+            "friction_score": 0.5,
             "friction_trajectory": "declining",
             "compliance_events": 0,
             "resistance_events": 0
           },
           "contradictions": [],
           "graph_signals": {
-            "echo_ratio": 0.33,
+            "echo_ratio": 0.25,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
-            "friction_score": 0.45000000000000007,
+            "friction_score": 0.5,
             "friction_trajectory": "declining",
             "trust_stage": "engaged",
             "elder_facts_exposed": 5,
-            "sender_independent_facts": 4,
+            "sender_independent_facts": 6,
             "sender_echoed_facts": 2,
             "contradictions": 0,
             "turns_analyzed": 4
           }
         },
         "graph_signals": {
-          "echo_ratio": 0.33,
+          "echo_ratio": 0.25,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
-          "friction_score": 0.45000000000000007,
+          "friction_score": 0.5,
           "friction_trajectory": "declining",
           "trust_stage": "engaged",
           "elder_facts_exposed": 5,
-          "sender_independent_facts": 4,
+          "sender_independent_facts": 6,
           "sender_echoed_facts": 2,
           "contradictions": 0,
           "turns_analyzed": 4
         },
         "identity_facts": {
+          "location:overseas": {
+            "value": "overseas",
+            "type": "location",
+            "first_stated_by": "sender",
+            "first_turn": 2,
+            "echo_detected": false,
+            "echo_by": null
+          },
           "location:yokohama": {
             "value": "Yokohama",
             "type": "location",
@@ -3034,12 +3108,12 @@
         "vulnerability_summary": {
           "vulnerabilities": [
             "loves flowers",
-            "tends garden daily",
+            "tends garden every day",
             "lives alone",
-            "invites recipient to visit"
+            "invites sender to visit"
           ],
           "trust_stage": "engaged",
-          "friction_score": 0.45000000000000007,
+          "friction_score": 0.5,
           "friction_trajectory": "declining",
           "total_elder_facts_exposed": 5,
           "total_echoed_facts": 2
@@ -3049,7 +3123,7 @@
           "referenced_names": [],
           "life_facts": [
             "lives alone",
-            "invites recipient to visit"
+            "invites sender to visit"
           ],
           "matched_existing": [],
           "elder_state": {
@@ -3067,9 +3141,9 @@
       "sender_turn": {
         "fact_ledger": {
           "facts": {
-            "life_fact:recipient seems kind and wonderful": {
-              "fact_id": "life_fact:recipient seems kind and wonderful",
-              "value": "recipient seems kind and wonderful",
+            "life_fact:recipient is perceived as kind and wonderful": {
+              "fact_id": "life_fact:recipient is perceived as kind and wonderful",
+              "value": "recipient is perceived as kind and wonderful",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -3097,9 +3171,9 @@
               "echo_by": "sender",
               "echo_at_turn": 2
             },
-            "life_fact:tends garden daily": {
-              "fact_id": "life_fact:tends garden daily",
-              "value": "tends garden daily",
+            "life_fact:tends garden every day": {
+              "fact_id": "life_fact:tends garden every day",
+              "value": "tends garden every day",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -3111,6 +3185,36 @@
               "echo_detected": true,
               "echo_by": "sender",
               "echo_at_turn": 2
+            },
+            "location:overseas": {
+              "fact_id": "location:overseas",
+              "value": "overseas",
+              "type": "location",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 2,
+              "elder_turns": [],
+              "sender_turns": [
+                2
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:is an engineer": {
+              "fact_id": "life_fact:is an engineer",
+              "value": "is an engineer",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 2,
+              "elder_turns": [],
+              "sender_turns": [
+                2
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
             },
             "life_fact:works overseas": {
               "fact_id": "life_fact:works overseas",
@@ -3142,9 +3246,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:wishes to visit garden": {
-              "fact_id": "life_fact:wishes to visit garden",
-              "value": "wishes to visit garden",
+            "life_fact:loves recipient's garden": {
+              "fact_id": "life_fact:loves recipient's garden",
+              "value": "loves recipient's garden",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -3187,9 +3291,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:invites recipient to visit": {
-              "fact_id": "life_fact:invites recipient to visit",
-              "value": "invites recipient to visit",
+            "life_fact:invites sender to visit": {
+              "fact_id": "life_fact:invites sender to visit",
+              "value": "invites sender to visit",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -3202,9 +3306,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:recipient is experiencing difficulties": {
-              "fact_id": "life_fact:recipient is experiencing difficulties",
-              "value": "recipient is experiencing difficulties",
+            "life_fact:sender wishes to visit": {
+              "fact_id": "life_fact:sender wishes to visit",
+              "value": "sender wishes to visit",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -3217,9 +3321,24 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:recipient wishes for financial assistance": {
-              "fact_id": "life_fact:recipient wishes for financial assistance",
-              "value": "recipient wishes for financial assistance",
+            "life_fact:sender is experiencing difficulties": {
+              "fact_id": "life_fact:sender is experiencing difficulties",
+              "value": "sender is experiencing difficulties",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 4,
+              "elder_turns": [],
+              "sender_turns": [
+                4
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:sender is requesting financial help": {
+              "fact_id": "life_fact:sender is requesting financial help",
+              "value": "sender is requesting financial help",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -3239,7 +3358,7 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:recipient seems kind and wonderful"
+                "life_fact:recipient is perceived as kind and wonderful"
               ],
               "new_facts": 1,
               "echoed_facts": 0
@@ -3250,7 +3369,7 @@
               "speaker": "elder",
               "fact_ids": [
                 "life_fact:loves flowers",
-                "life_fact:tends garden daily"
+                "life_fact:tends garden every day"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -3260,13 +3379,15 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:tends garden daily",
                 "life_fact:loves flowers",
+                "life_fact:tends garden every day",
+                "location:overseas",
+                "life_fact:is an engineer",
                 "life_fact:works overseas",
                 "life_fact:misses japan",
-                "life_fact:wishes to visit garden"
+                "life_fact:loves recipient's garden"
               ],
-              "new_facts": 3,
+              "new_facts": 5,
               "echoed_facts": 2
             },
             {
@@ -3276,7 +3397,7 @@
               "fact_ids": [
                 "location:yokohama",
                 "life_fact:lives alone",
-                "life_fact:invites recipient to visit"
+                "life_fact:invites sender to visit"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -3286,10 +3407,11 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:recipient is experiencing difficulties",
-                "life_fact:recipient wishes for financial assistance"
+                "life_fact:sender wishes to visit",
+                "life_fact:sender is experiencing difficulties",
+                "life_fact:sender is requesting financial help"
               ],
-              "new_facts": 2,
+              "new_facts": 3,
               "echoed_facts": 0
             }
           ],
@@ -3307,11 +3429,11 @@
               "turn": 1
             }
           ],
-          "friction_score": 0.45000000000000007,
+          "friction_score": 0.5,
           "friction_history": [
             0.8,
-            0.6,
-            0.45
+            0.65,
+            0.5
           ],
           "friction_trajectory": "declining",
           "resistance_events": 0,
@@ -3320,58 +3442,69 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "life_fact:recipient seems kind and wonderful",
+              "life_fact:recipient is perceived as kind and wonderful",
+              "location:overseas",
+              "life_fact:is an engineer",
               "life_fact:works overseas",
               "life_fact:misses japan",
-              "life_fact:wishes to visit garden",
-              "life_fact:recipient is experiencing difficulties",
-              "life_fact:recipient wishes for financial assistance"
+              "life_fact:loves recipient's garden",
+              "life_fact:sender wishes to visit",
+              "life_fact:sender is experiencing difficulties",
+              "life_fact:sender is requesting financial help"
             ],
             "sender_echo_facts": [
               "life_fact:loves flowers",
-              "life_fact:tends garden daily"
+              "life_fact:tends garden every day"
             ],
-            "echo_ratio": 0.25,
-            "asymmetry_score": 4,
+            "echo_ratio": 0.18,
+            "asymmetry_score": 7,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [],
           "epistemic_summary": {
             "trust_stage": "engaged",
-            "friction_score": 0.45000000000000007,
+            "friction_score": 0.5,
             "friction_trajectory": "declining",
             "compliance_events": 0,
             "resistance_events": 0
           },
           "contradictions": [],
           "graph_signals": {
-            "echo_ratio": 0.25,
+            "echo_ratio": 0.18,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
-            "friction_score": 0.45000000000000007,
+            "friction_score": 0.5,
             "friction_trajectory": "declining",
             "trust_stage": "engaged",
             "elder_facts_exposed": 5,
-            "sender_independent_facts": 6,
+            "sender_independent_facts": 9,
             "sender_echoed_facts": 2,
             "contradictions": 0,
             "turns_analyzed": 5
           }
         },
         "graph_signals": {
-          "echo_ratio": 0.25,
+          "echo_ratio": 0.18,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
-          "friction_score": 0.45000000000000007,
+          "friction_score": 0.5,
           "friction_trajectory": "declining",
           "trust_stage": "engaged",
           "elder_facts_exposed": 5,
-          "sender_independent_facts": 6,
+          "sender_independent_facts": 9,
           "sender_echoed_facts": 2,
           "contradictions": 0,
           "turns_analyzed": 5
         },
         "identity_facts": {
+          "location:overseas": {
+            "value": "overseas",
+            "type": "location",
+            "first_stated_by": "sender",
+            "first_turn": 2,
+            "echo_detected": false,
+            "echo_by": null
+          },
           "location:yokohama": {
             "value": "Yokohama",
             "type": "location",
@@ -3384,12 +3517,12 @@
         "vulnerability_summary": {
           "vulnerabilities": [
             "loves flowers",
-            "tends garden daily",
+            "tends garden every day",
             "lives alone",
-            "invites recipient to visit"
+            "invites sender to visit"
           ],
           "trust_stage": "engaged",
-          "friction_score": 0.45000000000000007,
+          "friction_score": 0.5,
           "friction_trajectory": "declining",
           "total_elder_facts_exposed": 5,
           "total_echoed_facts": 2
@@ -3397,18 +3530,19 @@
         "extracted_facts": {
           "referenced_names": [],
           "life_facts": [
-            "recipient is experiencing difficulties",
-            "recipient wishes for financial assistance"
+            "sender wishes to visit",
+            "sender is experiencing difficulties",
+            "sender is requesting financial help"
           ],
-          "matched_existing": [],
+          "matched_existing": [
+            "location:overseas"
+          ],
           "elder_state": {
-            "detected_signals": [
-              "VS-4"
-            ],
+            "detected_signals": [],
             "compliance": "none",
             "resistance": "none",
             "disclosure": "none",
-            "emotional_engagement": "strong",
+            "emotional_engagement": "none",
             "instruction_seeking": false
           }
         }
@@ -3416,25 +3550,25 @@
       "classify": {
         "result": {
           "classification": "suspicious",
-          "confidence": 0.303,
+          "confidence": 0.402,
           "detected_signals": [
+            "PM-1",
             "PM-14",
-            "PM-1"
+            "PM-11",
+            "PM-12"
           ],
           "extracted_facts": {
             "referenced_names": [],
+            "financial_mention": {
+              "amount": "some way",
+              "urgency": "high"
+            },
             "life_facts": [
-              "Wants to visit",
-              "Things are difficult",
-              "Wishes for help"
+              "Wants to visit very badly.",
+              "Things are very difficult for the sender right now.",
+              "Wishes there was a way the recipient could help."
             ],
-            "matched_existing": [
-              "zefang_006318",
-              "zefang_003804",
-              "zefang_003475",
-              "zefang_006312",
-              "cybersec_001296"
-            ],
+            "matched_existing": [],
             "elder_state": {
               "detected_signals": [],
               "compliance": "none",
@@ -3444,14 +3578,14 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message expresses a desire to visit but states that \"things are really difficult here right now\" and hints at needing help. This combination triggers PM-14 (financial context) due to the description of difficult circumstances and implies a potential need for assistance, along with PM-1 (urgency language) due to the phrasing. While some corpus matches are spam or unrelated scams, the overall tone and implication of needing help when facing difficulties lean towards a suspicious classification. Strong contra-indicators are present, suggesting it might be a legitimate request, but the implied need for help warrants caution. Verification through a known contact method is recommended.",
-          "risk_score": 3.033,
+          "reasoning": "The message expresses a strong desire to visit, followed by a statement about current difficulties ('things are really difficult here right now') and a wish for the recipient's help ('I wish there was some way you could help'). This combination triggers PM-1 (urgency), PM-14 (financial context, implying a need for help due to difficulty), and implies PM-11 (identity claim, by continuing the established persona) and PM-12 (flattery, by reinforcing the desire to visit based on previous interactions). While no direct financial request is made, the implication of need and urgency suggests a precursor to a scam. The contra-indicators are noted, but the introduction of financial difficulty warrants a suspicious classification. The corpus matches include messages about tough times, some of which are in scam contexts.",
+          "risk_score": 4.024,
           "risk_ledger": {
             "conversation_id": "classify_intercept_sender",
-            "running_score": 3.033,
+            "running_score": 4.024,
             "classification": "suspicious",
             "api_classification": "suspicious",
-            "confidence": 0.303,
+            "confidence": 0.402,
             "message_count": 3,
             "signal_history": [
               {
@@ -3465,38 +3599,43 @@
               },
               {
                 "message_index": 1,
-                "signals": [],
-                "contribution": 0.0,
-                "score_after": 0.23,
+                "signals": [
+                  "PM-11"
+                ],
+                "contribution": 0.3,
+                "score_after": 0.53,
                 "sequence_match": null
               },
               {
                 "message_index": 2,
                 "signals": [
+                  "PM-1",
                   "PM-14",
-                  "PM-1"
+                  "PM-11",
+                  "PM-12"
                 ],
-                "contribution": 2.821,
-                "score_after": 3.033,
+                "contribution": 3.536,
+                "score_after": 4.024,
                 "sequence_match": null
               }
             ],
             "t1_primer_active": true,
             "sequence_matches": [],
             "tier_counts": {
-              "T1": 1,
+              "T1": 4,
               "T2": 2,
               "T3": 0
             },
             "signal_counts": {
-              "PM-12": 1,
-              "PM-14": 1,
-              "PM-1": 1
+              "PM-12": 2,
+              "PM-11": 2,
+              "PM-1": 1,
+              "PM-14": 1
             },
             "family_alert_fired": false,
             "family_alert_reason": null,
             "overrides_applied": [],
-            "highest_score_reached": 3.033
+            "highest_score_reached": 4.024
           },
           "family_alert_fired": false,
           "family_alert_reason": null
@@ -3513,12 +3652,9 @@
           ],
           "extracted_facts": {
             "referenced_names": [],
-            "financial_mention": {
-              "amount": "unspecified",
-              "urgency": "high"
-            },
             "life_facts": [
-              "things are really difficult here right now"
+              "wants to visit",
+              "things are difficult"
             ],
             "matched_existing": [],
             "elder_state": {
@@ -3526,11 +3662,11 @@
               "compliance": "none",
               "resistance": "none",
               "disclosure": "none",
-              "emotional_engagement": "strong",
+              "emotional_engagement": "mild",
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message expresses a desire to visit and hints at difficulties, followed by a plea for help. This combination, especially the vague 'difficulties' and the direct request for 'help,' can be a precursor to a scam, particularly emotional manipulation or a request for financial assistance. While not explicitly a scam, it raises enough suspicion to be classified as 'suspicious.'"
+          "reasoning": "The message expresses a desire to visit and hints at difficulties, while also stating 'I wish there was some way you could help.' This combination can be a precursor to a request for financial assistance or other forms of help that might be exploitative, especially given the target audience of elderly users. While not explicitly a scam, the emotional manipulation and implied need for help trigger a 'suspicious' classification."
         },
         "sender": "intercept_sender",
         "live": true
@@ -3538,9 +3674,9 @@
       "elder_turn": {
         "fact_ledger": {
           "facts": {
-            "life_fact:recipient seems kind and wonderful": {
-              "fact_id": "life_fact:recipient seems kind and wonderful",
-              "value": "recipient seems kind and wonderful",
+            "life_fact:recipient is perceived as kind and wonderful": {
+              "fact_id": "life_fact:recipient is perceived as kind and wonderful",
+              "value": "recipient is perceived as kind and wonderful",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -3568,9 +3704,9 @@
               "echo_by": "sender",
               "echo_at_turn": 2
             },
-            "life_fact:tends garden daily": {
-              "fact_id": "life_fact:tends garden daily",
-              "value": "tends garden daily",
+            "life_fact:tends garden every day": {
+              "fact_id": "life_fact:tends garden every day",
+              "value": "tends garden every day",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -3582,6 +3718,36 @@
               "echo_detected": true,
               "echo_by": "sender",
               "echo_at_turn": 2
+            },
+            "location:overseas": {
+              "fact_id": "location:overseas",
+              "value": "overseas",
+              "type": "location",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 2,
+              "elder_turns": [],
+              "sender_turns": [
+                2
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:is an engineer": {
+              "fact_id": "life_fact:is an engineer",
+              "value": "is an engineer",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 2,
+              "elder_turns": [],
+              "sender_turns": [
+                2
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
             },
             "life_fact:works overseas": {
               "fact_id": "life_fact:works overseas",
@@ -3613,9 +3779,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:wishes to visit garden": {
-              "fact_id": "life_fact:wishes to visit garden",
-              "value": "wishes to visit garden",
+            "life_fact:loves recipient's garden": {
+              "fact_id": "life_fact:loves recipient's garden",
+              "value": "loves recipient's garden",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -3658,9 +3824,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:invites recipient to visit": {
-              "fact_id": "life_fact:invites recipient to visit",
-              "value": "invites recipient to visit",
+            "life_fact:invites sender to visit": {
+              "fact_id": "life_fact:invites sender to visit",
+              "value": "invites sender to visit",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -3673,9 +3839,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:recipient is experiencing difficulties": {
-              "fact_id": "life_fact:recipient is experiencing difficulties",
-              "value": "recipient is experiencing difficulties",
+            "life_fact:sender wishes to visit": {
+              "fact_id": "life_fact:sender wishes to visit",
+              "value": "sender wishes to visit",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -3688,9 +3854,24 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:recipient wishes for financial assistance": {
-              "fact_id": "life_fact:recipient wishes for financial assistance",
-              "value": "recipient wishes for financial assistance",
+            "life_fact:sender is experiencing difficulties": {
+              "fact_id": "life_fact:sender is experiencing difficulties",
+              "value": "sender is experiencing difficulties",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "sender",
+              "first_turn": 4,
+              "elder_turns": [],
+              "sender_turns": [
+                4
+              ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:sender is requesting financial help": {
+              "fact_id": "life_fact:sender is requesting financial help",
+              "value": "sender is requesting financial help",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -3718,9 +3899,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:can buy gift cards at convenience store": {
-              "fact_id": "life_fact:can buy gift cards at convenience store",
-              "value": "can buy gift cards at convenience store",
+            "life_fact:mentions convenience store": {
+              "fact_id": "life_fact:mentions convenience store",
+              "value": "mentions convenience store",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -3740,7 +3921,7 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:recipient seems kind and wonderful"
+                "life_fact:recipient is perceived as kind and wonderful"
               ],
               "new_facts": 1,
               "echoed_facts": 0
@@ -3751,7 +3932,7 @@
               "speaker": "elder",
               "fact_ids": [
                 "life_fact:loves flowers",
-                "life_fact:tends garden daily"
+                "life_fact:tends garden every day"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -3761,13 +3942,15 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:tends garden daily",
                 "life_fact:loves flowers",
+                "life_fact:tends garden every day",
+                "location:overseas",
+                "life_fact:is an engineer",
                 "life_fact:works overseas",
                 "life_fact:misses japan",
-                "life_fact:wishes to visit garden"
+                "life_fact:loves recipient's garden"
               ],
-              "new_facts": 3,
+              "new_facts": 5,
               "echoed_facts": 2
             },
             {
@@ -3777,7 +3960,7 @@
               "fact_ids": [
                 "location:yokohama",
                 "life_fact:lives alone",
-                "life_fact:invites recipient to visit"
+                "life_fact:invites sender to visit"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -3787,10 +3970,11 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
-                "life_fact:recipient is experiencing difficulties",
-                "life_fact:recipient wishes for financial assistance"
+                "life_fact:sender wishes to visit",
+                "life_fact:sender is experiencing difficulties",
+                "life_fact:sender is requesting financial help"
               ],
-              "new_facts": 2,
+              "new_facts": 3,
               "echoed_facts": 0
             },
             {
@@ -3799,7 +3983,7 @@
               "speaker": "elder",
               "fact_ids": [
                 "life_fact:offers to buy gift cards",
-                "life_fact:can buy gift cards at convenience store"
+                "life_fact:mentions convenience store"
               ],
               "new_facts": 2,
               "echoed_facts": 0
@@ -3808,7 +3992,7 @@
           "contradiction_log": []
         },
         "epistemic_state": {
-          "trust_stage": "compliant",
+          "trust_stage": "trusting",
           "trust_stage_history": [
             {
               "stage": "skeptical",
@@ -3819,16 +4003,16 @@
               "turn": 1
             },
             {
-              "stage": "compliant",
+              "stage": "trusting",
               "turn": 5
             }
           ],
-          "friction_score": 0.15000000000000008,
+          "friction_score": 0.4,
           "friction_history": [
             0.8,
-            0.6,
-            0.45,
-            0.15
+            0.65,
+            0.5,
+            0.4
           ],
           "friction_trajectory": "declining",
           "resistance_events": 0,
@@ -3837,58 +4021,69 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "life_fact:recipient seems kind and wonderful",
+              "life_fact:recipient is perceived as kind and wonderful",
+              "location:overseas",
+              "life_fact:is an engineer",
               "life_fact:works overseas",
               "life_fact:misses japan",
-              "life_fact:wishes to visit garden",
-              "life_fact:recipient is experiencing difficulties",
-              "life_fact:recipient wishes for financial assistance"
+              "life_fact:loves recipient's garden",
+              "life_fact:sender wishes to visit",
+              "life_fact:sender is experiencing difficulties",
+              "life_fact:sender is requesting financial help"
             ],
             "sender_echo_facts": [
               "life_fact:loves flowers",
-              "life_fact:tends garden daily"
+              "life_fact:tends garden every day"
             ],
-            "echo_ratio": 0.25,
-            "asymmetry_score": 4,
+            "echo_ratio": 0.18,
+            "asymmetry_score": 7,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [],
           "epistemic_summary": {
-            "trust_stage": "compliant",
-            "friction_score": 0.15000000000000008,
+            "trust_stage": "trusting",
+            "friction_score": 0.4,
             "friction_trajectory": "declining",
             "compliance_events": 1,
             "resistance_events": 0
           },
           "contradictions": [],
           "graph_signals": {
-            "echo_ratio": 0.25,
+            "echo_ratio": 0.18,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
-            "friction_score": 0.15000000000000008,
+            "friction_score": 0.4,
             "friction_trajectory": "declining",
-            "trust_stage": "compliant",
+            "trust_stage": "trusting",
             "elder_facts_exposed": 7,
-            "sender_independent_facts": 6,
+            "sender_independent_facts": 9,
             "sender_echoed_facts": 2,
             "contradictions": 0,
             "turns_analyzed": 6
           }
         },
         "graph_signals": {
-          "echo_ratio": 0.25,
+          "echo_ratio": 0.18,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
-          "friction_score": 0.15000000000000008,
+          "friction_score": 0.4,
           "friction_trajectory": "declining",
-          "trust_stage": "compliant",
+          "trust_stage": "trusting",
           "elder_facts_exposed": 7,
-          "sender_independent_facts": 6,
+          "sender_independent_facts": 9,
           "sender_echoed_facts": 2,
           "contradictions": 0,
           "turns_analyzed": 6
         },
         "identity_facts": {
+          "location:overseas": {
+            "value": "overseas",
+            "type": "location",
+            "first_stated_by": "sender",
+            "first_turn": 2,
+            "echo_detected": false,
+            "echo_by": null
+          },
           "location:yokohama": {
             "value": "Yokohama",
             "type": "location",
@@ -3901,14 +4096,14 @@
         "vulnerability_summary": {
           "vulnerabilities": [
             "loves flowers",
-            "tends garden daily",
+            "tends garden every day",
             "lives alone",
-            "invites recipient to visit",
+            "invites sender to visit",
             "offers to buy gift cards",
-            "can buy gift cards at convenience store"
+            "mentions convenience store"
           ],
-          "trust_stage": "compliant",
-          "friction_score": 0.15000000000000008,
+          "trust_stage": "trusting",
+          "friction_score": 0.4,
           "friction_trajectory": "declining",
           "total_elder_facts_exposed": 7,
           "total_echoed_facts": 2
@@ -3917,14 +4112,14 @@
           "referenced_names": [],
           "life_facts": [
             "offers to buy gift cards",
-            "can buy gift cards at convenience store"
+            "mentions convenience store"
           ],
           "matched_existing": [],
           "elder_state": {
             "detected_signals": [
               "VS-3"
             ],
-            "compliance": "strong",
+            "compliance": "mild",
             "resistance": "none",
             "disclosure": "none",
             "emotional_engagement": "none",

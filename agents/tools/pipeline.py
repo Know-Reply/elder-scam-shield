@@ -518,13 +518,9 @@ class ConversationRiskLedger:
 
     def _check_family_alert_gates(self, signals: list[str], seq_name: Optional[str]) -> tuple[bool, Optional[str]]:
         """Check all four family alert gates. Returns (fired, reason)."""
-        # Gate A: Score sustained >= 5.0 for 2 consecutive messages
+        # Gate A: Score reaches 50% risk (5.0)
         if self.running_score >= 5.0:
-            self._consecutive_high += 1
-            if self._consecutive_high >= 2:
-                return True, "score_sustained"
-        else:
-            self._consecutive_high = 0
+            return True, "score_threshold"
 
         # Gate B: Score spike >= 7.5 (SCAM band)
         if self.running_score >= 7.5:

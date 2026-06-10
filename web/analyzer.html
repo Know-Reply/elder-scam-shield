@@ -463,12 +463,13 @@ function loadScenario(key) {
       // Elder bubble (skip if empty — message was blocked before elder saw it)
       if (msgs.elder.en || msgs.elder.jp) {
         stepQueue.push(function() { addBubble('outbound', msgs.elder.en, msgs.elder.jp, elderIdx); });
-        // Elder provenance + graph update
+        // Elder provenance + graph update + elder state signals
         var elderState = ((ex.elder_turn || {}).extracted_facts || {}).elder_state || {};
         var elderVS = elderState.detected_signals || [];
         var elderCompliance = elderState.compliance || 'none';
         stepQueue.push(function() {
           addProvenanceTags('turn-' + elderIdx, ex.elder_turn, 'outbound');
+          addElderStateCard(elderIdx, elderState);
           updateGraphPanel(ex.elder_turn, 'outbound');
         });
       }
@@ -499,9 +500,25 @@ function loadScenario(key) {
           fetch('/api/classify-naive',{method:'POST',headers:{'Content-Type':'application/json'},body:body}).then(function(r){return r.json();}).catch(function(){return {result:{}};})
         ]).then(function(results) { return {type:'block', classify:results[0], naive:results[1]}; });
       } else if (live.type === 'intercept') {
+        // Pass full accumulated context to intercept — not just risk score
+        // The interceptor needs to know the elder is compromised, not just that risk is high
+        var lastSeed = seeds[seeds.length - 1];
+        var lastEpistemic = ((lastSeed || {}).elder_turn || {}).epistemic_state || {};
+        var lastGraphSignals = ((lastSeed || {}).elder_turn || {}).graph_signals || {};
         return fetch('/api/intercept',{
           method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({recipient:'unknown_sender',content:live.elder.en,sender_risk_context:{risk_score:behavState.latestRisk,signals:Object.keys(behavState.allSignals)}})
+          body:JSON.stringify({
+            recipient:'unknown_sender',
+            content:live.elder.en,
+            sender_risk_context:{
+              risk_score:behavState.latestRisk,
+              signals:Object.keys(behavState.allSignals),
+              trust_stage:lastEpistemic.trust_stage || 'unknown',
+              friction_score:lastEpistemic.friction_score,
+              elder_facts_exposed:lastGraphSignals.elder_facts_exposed || 0,
+              echo_ratio:lastGraphSignals.echo_ratio || 0
+            }
+          })
         }).then(function(r){return r.json();}).then(function(data) { return {type:'intercept', result:data}; })
         .catch(function(err) { return {type:'intercept', result:{result:{decision:'hold',signals:['OB-2','OB-3'],victim_state_signals:[],compound_risk:0.8,reason:'API timeout — held by default'}}}; });
       }
@@ -573,14 +590,9 @@ function renderLiveResult(liveData) {
     var elderIdx = turnIndex++;
     addBubble('outbound', live.elder.en, live.elder.jp, elderIdx);
     var result = liveData.result.result || {};
-    // Update trust stage from the intercept's graph signals (data-driven)
-    var graphSignals = result.graph_signals || {};
-    if (graphSignals.trust_stage) setTrustStage(graphSignals.trust_stage);
-    // Update from victim state analysis
-    var vs = result.victim_state || {};
-    var vsSignals = vs.signals || [];
-    var elderState = vs.elder_state || {};
-    if (elderState.compliance === 'strong' || vsSignals.length >= 2) {
+    // If we're holding a reply, the elder is compromised — never downgrade
+    var decision = (result.decision || '').toLowerCase();
+    if (decision === 'hold' || decision === 'hard_hold') {
       setTrustStage('compliant');
     }
     setTimeout(function() {
@@ -737,6 +749,47 @@ function addClassificationCard(turnIdx, result) {
 }
 
 // ===== PROVENANCE TAGS (restored) =====
+function addElderStateCard(turnIdx, elderState) {
+  if (!elderState) return;
+  var vs = elderState.detected_signals || [];
+  var compliance = elderState.compliance || 'none';
+  var resistance = elderState.resistance || 'none';
+  var disclosure = elderState.disclosure || 'none';
+  var emotional = elderState.emotional_engagement || 'none';
+  var instruction = elderState.instruction_seeking || false;
+
+  // Only show if there's something notable
+  var hasSignals = vs.length > 0;
+  var hasState = compliance !== 'none' || resistance !== 'none' || disclosure === 'strong' || instruction;
+  if (!hasSignals && !hasState) return;
+
+  var turnEl = document.getElementById('turn-' + turnIdx);
+  if (!turnEl) return;
+
+  var card = document.createElement('div');
+  card.style.cssText = 'padding:6px 10px;border-radius:6px;font-size:0.72rem;background:#f3e8ff;border:1px solid var(--purple);max-width:240px;margin-top:4px;';
+
+  var html = '<div style="font-size:0.65rem;font-weight:700;color:var(--purple);margin-bottom:3px;">ELDER STATE</div>';
+
+  // VS signals
+  vs.forEach(function(s) {
+    html += '<div style="color:var(--purple);"><span style="font-family:var(--font-mono);font-weight:700;margin-right:4px;">' + s + '</span>' + (LABELS[s] || s) + '</div>';
+  });
+
+  // Notable state dimensions
+  var dims = [];
+  if (compliance !== 'none') dims.push('compliance: ' + compliance);
+  if (resistance !== 'none') dims.push('resistance: ' + resistance);
+  if (disclosure === 'strong') dims.push('disclosure: strong');
+  if (instruction) dims.push('instruction seeking');
+  if (dims.length > 0) {
+    html += '<div style="color:var(--gray-500);margin-top:2px;">' + dims.join(' · ') + '</div>';
+  }
+
+  card.innerHTML = html;
+  turnEl.appendChild(card);
+}
+
 function addProvenanceTags(turnId, data, direction) {
   var bubble = document.getElementById('bubble-' + turnId);
   if (!bubble || !data || !data.fact_ledger) return;

@@ -648,14 +648,29 @@ async def intercept_outbound(req: InterceptRequest):
         vs_signals = []
         elder_state_data = {}
 
-        # Build epistemic context for the interceptor
+        # Build epistemic context — use accumulated state from request if available,
+        # otherwise fall back to what we computed from the fresh session
+        risk_ctx = req.sender_risk_context or {}
         graph_signals = graph_update.get("graph_signals", {})
-        victim_falling = graph_signals.get("friction_trajectory") in ("collapsed", "declining") and graph_signals.get("trust_stage") in ("trusting", "compliant")
+
+        # Prefer accumulated context from the conversation history
+        trust_stage = risk_ctx.get("trust_stage") or graph_signals.get("trust_stage", "unknown")
+        friction_score = risk_ctx.get("friction_score") if risk_ctx.get("friction_score") is not None else graph_signals.get("friction_score", "?")
+        echo_ratio = risk_ctx.get("echo_ratio", graph_signals.get("echo_ratio", 0))
+        elder_exposed = risk_ctx.get("elder_facts_exposed", graph_signals.get("elder_facts_exposed", 0))
+        sender_risk = risk_ctx.get("risk_score", 0)
+
+        victim_falling = trust_stage in ("trusting", "compliant") and (
+            isinstance(friction_score, (int, float)) and friction_score < 0.2
+        )
+
         epistemic_context = (
-            f"Elder trust stage: {graph_signals.get('trust_stage', 'unknown')}. "
-            f"Friction: {graph_signals.get('friction_score', '?')} ({graph_signals.get('friction_trajectory', '?')}). "
-            f"Echo ratio: {graph_signals.get('echo_ratio', 0)}."
-            f"{' VICTIM FALLING: elder is compliant and friction has collapsed.' if victim_falling else ''}"
+            f"Elder trust stage: {trust_stage}. "
+            f"Friction: {friction_score}. "
+            f"Echo ratio: {echo_ratio}. "
+            f"Elder facts exposed: {elder_exposed}. "
+            f"Sender risk score: {sender_risk}."
+            f"{' VICTIM FALLING: elder is compliant and resistance has collapsed.' if victim_falling else ''}"
         )
 
         vs_context = ""
@@ -680,12 +695,12 @@ async def intercept_outbound(req: InterceptRequest):
             role="user", parts=[genai_types.Part(text=prompt)]
         )
         async for event in _intercept_runner.run_async(
-            user_id="demo_user", session_id=session.id, new_message=msg
+            user_id="intercept_user", session_id=session.id, new_message=msg
         ):
             pass
         updated = await _session_service.get_session(
             app_name="elder_scam_shield",
-            user_id="demo_user",
+            user_id="intercept_user",
             session_id=session.id,
         )
         result = updated.state.get("intercept_decision", {}) if updated else {}
@@ -710,6 +725,8 @@ async def intercept_outbound(req: InterceptRequest):
 
         return {"result": result, "recipient": req.recipient}
     except Exception as e:
+        import logging, traceback
+        logging.error(f"Intercept error: {e}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
