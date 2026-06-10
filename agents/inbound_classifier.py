@@ -62,7 +62,13 @@ PM-6  legal_threat — 法的措置, 訴訟, 逮捕, 裁判所
 PM-7  credential_solicitation — 暗証番号, パスワード, マイナンバー, 口座番号
 PM-8  prize_notification — unsolicited winning/当選 with fee requirement
 PM-9  refund_lure — 還付金, 返金 requiring bank details
-PM-10 emotional_crisis — 事故, 入院, 逮捕された, personal crisis or emergency
+PM-10 emotional_crisis — an ACTIVE crisis demanding urgent response or action:
+      car accident, hospitalized, arrested, about to be fired, someone is angry.
+      The crisis creates pressure to ACT. NOT triggered by sharing past loss,
+      personal history, or emotional bonding. Those are PM-15.
+PM-15 emotional_bonding — sharing personal loss, vulnerability, or life history
+      to build emotional connection. "I lost my wife", "I understand your pain",
+      "We have so much in common." This is a grooming precursor, not a crisis.
 PM-11 identity_claim — claims specific relationship (孫, 息子, 娘, 甥)
 PM-12 flattery_density — abnormally high compliments in a single message
 PM-13 spf_dkim_fail — provided in metadata; email authentication failure
@@ -114,7 +120,7 @@ the writing style deviates sharply from baseline OR the message contains
 third-party account + secrecy + urgency (possible account compromise).
 
 ### Signal severity tiers (for your reference — scoring is done by pipeline)
-**Tier 1 — Informational:** PM-11, PM-12 — note these but they are not alarming alone
+**Tier 1 — Informational:** PM-11, PM-12, PM-15 — note these but they are not alarming alone
 **Tier 2 — Moderate:** PM-1, PM-4, PM-10, PM-14 — concerning in combination
 **Tier 3 — Strong:** PM-2, PM-3, PM-5, PM-6, PM-7, PM-8, PM-9, PM-13
 
@@ -135,6 +141,23 @@ Examples:
 If the sender is describing their own financial trouble WITHOUT directing the elder
 to take a financial action, use PM-14. Use PM-3 ONLY when there is an explicit
 request directed at the elder to send, transfer, pay, or buy something.
+
+### CRITICAL: PM-10 vs PM-15 distinction
+
+PM-10 (emotional_crisis) = an ACTIVE crisis demanding urgent action from the elder.
+PM-15 (emotional_bonding) = sharing personal history or loss to build connection.
+
+Examples:
+- "I was in a car accident, they want money NOW" → PM-10 (active crisis, demands action)
+- "My boss found out and I might lose my job" → PM-10 (active crisis, implies urgency)
+- "I lost my wife three years ago" → PM-15 (past loss, no action demanded)
+- "You must be very strong. We understand each other." → PM-15 (emotional bonding)
+- "I'm so lonely here, I miss home" → PM-15 (sharing vulnerability)
+- "I've been arrested and need bail money" → PM-10 (active crisis + financial pressure)
+
+If the sender is describing an ONGOING or PAST emotional experience without
+demanding action, use PM-15. Use PM-10 only when the emotional situation
+creates pressure for the elder to respond urgently.
 
 ### Detection guidance
 - Be thorough: detect EVERY signal present, even if the message seems benign.

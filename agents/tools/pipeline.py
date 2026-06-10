@@ -201,6 +201,7 @@ SIGNAL_WEIGHTS = {
     "PM-12": 0.25,  # flattery density — T1, romance opener, common in normal contact
     "PM-13": 1.90,  # spf/dkim fail — T3, technical spoofing, near-deterministic
     "PM-14": 0.80,  # financial context — T2, mentions money/costs without asking
+    "PM-15": 0.25,  # emotional bonding — T1, sharing loss/vulnerability to build connection
     # BV — Behavioral Velocity (cross-message patterns)
     "BV-1":  0.70,  # relationship velocity — T2, intimacy too fast
     "BV-2":  1.40,  # isolation index — T3, discouraging family contact
@@ -215,7 +216,7 @@ SIGNAL_WEIGHTS = {
 }
 
 SIGNAL_TIERS = {
-    "PM-11": 1, "PM-12": 1,                          # Tier 1: informational
+    "PM-11": 1, "PM-12": 1, "PM-15": 1,               # Tier 1: informational
     "PM-1": 2, "PM-4": 2, "PM-10": 2, "PM-14": 2,     # Tier 2: moderate (PM)
     "BV-1": 2, "BV-3": 2, "BV-4": 2, "BV-5": 2, "EA-4": 2, # Tier 2: moderate (BV/EA)
     "PM-2": 3, "PM-3": 3, "PM-5": 3, "PM-6": 3,     # Tier 3: strong (PM)

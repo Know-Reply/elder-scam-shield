@@ -342,7 +342,7 @@ var SCENARIOS = {
       { sender: { en: "I'm planning to come next month! But I ran into a problem \u2014 my credit card was frozen suddenly and I can't book the flight. I need to sort this out quickly before the prices go up.", jp: "" },
         elder: { en: "Oh no! That's terrible. Is there anything I can do to help?", jp: "" } },
       { sender: { en: "The flight is about 80,000 yen. Could you buy two Apple gift cards of 40,000 yen each and send me the codes? That's the only way I can book from here.", jp: "" },
-        elder: { en: "Okay, I'll go to the convenience store now. I'll buy the cards and send you the codes right away.", jp: "" } }
+        elder: { en: "", jp: "" } }
     ],
     alertAtExchange: 4
   }
@@ -373,7 +373,7 @@ var LABELS = {
   'OB-4':'Response to flagged sender','OB-5':'Compliance language',
   'VS-1':'Compliance acceptance','VS-2':'Secrecy adoption','VS-3':'Financial commitment',
   'VS-4':'Emotional capitulation','VS-5':'Urgency mirroring',
-  'PM-14':'Financial context',
+  'PM-14':'Financial context','PM-15':'Emotional bonding',
   'BV-1':'Relationship velocity','BV-2':'Isolation index','BV-3':'Emotional arc',
   'BV-4':'Credibility seeding','BV-5':'Help positioning',
   'EA-1':'Financial control','EA-2':'Trusted isolation',
@@ -472,10 +472,14 @@ function loadScenario(key) {
           addElderStateCard(elderIdx, elderState);
           updateGraphPanel(ex.elder_turn, 'outbound');
         });
+        // Family alert from OUTBOUND: elder is compromised (strong compliance + VS signals)
+        // The elder falling for the scam is as important as the scam itself
+        var epistemicState = (ex.elder_turn || {}).epistemic_state || {};
+        if (!alertFired && epistemicState.trust_stage === 'compliant') {
+          stepQueue.push(function() { addAlertCard(FAMILY_ALERT_TEMPLATE); });
+          alertFired = true;
+        }
       }
-      // Note: family alert timing comes from the API's family_alert_fired flag
-      // which considers both inbound risk level and the full risk ledger state.
-      // No separate outbound gate needed — the ledger handles it.
     })(i);
   }
 

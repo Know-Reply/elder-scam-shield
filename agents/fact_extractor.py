@@ -104,7 +104,8 @@ This is a key compliance signal: the elder is yielding decision-making control.
 Also detect which VS (Victim State) signal codes are present in detected_signals:
 - VS-1 compliance_acceptance — agreeing to requests, accepting instructions
 - VS-2 secrecy_adoption — agreeing to keep the conversation secret from family
-- VS-3 financial_commitment — stating intent to send money, go to bank, buy cards
+- VS-3 financial_commitment — stating intent to send money, go to bank, buy cards.
+      NOT triggered by "spend time" or non-financial uses of "spend".
 - VS-4 emotional_capitulation — reassuring the sender, expressing concern FOR them
 - VS-5 urgency_mirroring — adopting the sender's sense of urgency or deadlines
 - VS-6 question_cessation — not asking questions anymore (compared to earlier)
