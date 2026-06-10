@@ -47,16 +47,11 @@ if _env_path.exists():
             _k, _v = _line.split("=", 1)
             os.environ.setdefault(_k.strip(), _v.strip())
 
-# ADK runners — VertexAiSessionService for managed Sessions + Memory Bank
-# Falls back to InMemorySessionService for local dev without Vertex AI
-_use_vertex = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI", "").upper() == "TRUE"
-if _use_vertex:
-    _session_service = VertexAiSessionService(
-        project=os.environ.get("GOOGLE_CLOUD_PROJECT", "know-reply"),
-        location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1"),
-    )
-else:
-    _session_service = InMemorySessionService()
+# ADK runners — InMemorySessionService for demo
+# VertexAiSessionService requires a deployed Reasoning Engine (Agent Engine).
+# Once deployed via `adk deploy`, switch to:
+#   _session_service = VertexAiSessionService(project=..., location=...)
+_session_service = InMemorySessionService()
 
 # Classifier runner — fast path for interactive simulator (1 LLM call)
 _classifier_runner = Runner(
