@@ -172,8 +172,9 @@
       Elder Shield
     </a>
     <ul class="sim-nav-links">
-      <li><a href="/shield">Overview</a></li>
+      <li><a href="/shield" class="sim-nav-btn">Overview</a></li>
       <li><a href="/technical" class="sim-nav-btn">Technical</a></li>
+      <li><a href="/architecture" class="sim-nav-btn">Architecture</a></li>
       <li><a href="/dashboard" class="sim-nav-btn">Dashboard</a></li>
     </ul>
   </div>
@@ -253,7 +254,7 @@
 
     <div class="graph-section">
       <h3 style="cursor:pointer;" onclick="var el=document.getElementById('fact-list'); var arrow=document.getElementById('fact-arrow'); if(el.style.display==='none'){el.style.display='';arrow.textContent='\u25be'}else{el.style.display='none';arrow.textContent='\u25b8'}">
-        <span id="fact-arrow">\u25b8</span> Fact Ledger <span id="fact-count" style="font-size:0.7rem; font-weight:400; color:var(--gray-400);"></span>
+        <span id="fact-arrow">&#x25B8;</span> Fact Ledger <span id="fact-count" style="font-size:0.7rem; font-weight:400; color:var(--gray-400);"></span>
       </h3>
       <div id="fact-list" style="display:none;"><div class="empty-state">No facts extracted yet</div></div>
     </div>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elder Shield — Architecture</title>
+  <link rel="stylesheet" href="/static/shared-nav.css?v=5">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f172a; --blue: #1a56db; --blue-light: #dbeafe;
+      --green: #16a34a; --green-bg: #f0fdf4;
+      --yellow: #f59e0b; --orange: #ea580c;
+      --red: #dc2626; --red-bg: #fef2f2;
+      --purple: #7c3aed; --purple-bg: #f3e8ff;
+      --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1; --gray-400: #94a3b8; --gray-500: #64748b;
+      --gray-600: #475569; --gray-700: #334155;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      --font-mono: "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+    }
+    body { font-family: var(--font); color: var(--gray-700); background: var(--gray-50); }
+    .content { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+    h1 { font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-bottom: 8px; text-align: center; }
+    .subtitle { font-size: 0.95rem; color: var(--gray-500); text-align: center; margin-bottom: 40px; }
+
+    /* Diagram */
+    .diagram { position: relative; padding: 20px 0; }
+
+    .flow-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+
+    .box { padding: 12px 18px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; text-align: center; min-width: 140px; position: relative; }
+    .box-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .box-detail { font-size: 0.72rem; font-weight: 400; color: inherit; opacity: 0.8; margin-top: 2px; }
+
+    .box-input { background: var(--gray-100); border: 2px solid var(--gray-300); color: var(--gray-600); }
+    .box-pre { background: #e0f2fe; border: 2px solid #7dd3fc; color: #0369a1; }
+    .box-llm { background: var(--blue-light); border: 2px solid var(--blue); color: var(--blue); }
+    .box-ledger { background: #fef3c7; border: 2px solid var(--yellow); color: #92400e; }
+    .box-guard { background: var(--purple-bg); border: 2px solid var(--purple); color: var(--purple); }
+    .box-action-green { background: var(--green-bg); border: 2px solid var(--green); color: var(--green); }
+    .box-action-red { background: var(--red-bg); border: 2px solid var(--red); color: var(--red); }
+    .box-action-orange { background: #fff7ed; border: 2px solid var(--orange); color: var(--orange); }
+    .box-action-purple { background: var(--purple-bg); border: 2px solid var(--purple); color: var(--purple); }
+    .box-corpus { background: #ecfdf5; border: 2px solid #6ee7b7; color: #065f46; }
+    .box-session { background: #f0f9ff; border: 2px solid #93c5fd; color: #1e40af; }
+
+    .arrow { font-size: 1.2rem; color: var(--gray-400); font-weight: 700; flex-shrink: 0; }
+    .arrow-down { text-align: center; color: var(--gray-400); font-size: 1.2rem; margin: 4px 0; }
+
+    .section-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray-400); text-align: center; margin: 28px 0 12px; padding-top: 16px; border-top: 1px dashed var(--gray-200); }
+    .section-label:first-of-type { border-top: none; margin-top: 0; }
+
+    .split { display: flex; gap: 32px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+    .split-path { flex: 1; min-width: 280px; max-width: 480px; }
+    .split-path-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; text-align: center; margin-bottom: 10px; padding: 6px 12px; border-radius: 6px; }
+    .split-inbound .split-path-title { background: var(--blue-light); color: var(--blue); }
+    .split-outbound .split-path-title { background: var(--purple-bg); color: var(--purple); }
+
+    .signal-grid { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
+    .signal-chip { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .chip-t1 { background: var(--green-bg); color: var(--green); }
+    .chip-t2 { background: #fff7ed; color: var(--orange); }
+    .chip-t3 { background: var(--red-bg); color: var(--red); }
+
+    .tech-badge { display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 1px 6px; border-radius: 3px; background: var(--gray-100); color: var(--gray-500); margin-top: 4px; }
+
+    .legend { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--gray-200); }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--gray-500); }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; border: 2px solid; }
+  </style>
+</head>
+<body class="sim-page">
+
+<nav class="sim-nav">
+  <div class="sim-nav-inner">
+    <a href="/shield" class="sim-nav-brand">
+      <svg viewBox="0 0 32 40" width="22" height="28"><path d="M16 0 L32 8 L32 22 C32 32 16 40 16 40 C16 40 0 32 0 22 L0 8 Z" fill="#1a56db"/><path d="M13 20 L15 22 L20 16" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Elder Shield
+    </a>
+    <ul class="sim-nav-links">
+      <li><a href="/shield" class="sim-nav-btn">Overview</a></li>
+      <li><a href="/technical" class="sim-nav-btn">Technical</a></li>
+      <li><a href="/analyzer" class="sim-nav-btn">Demo</a></li>
+      <li><a href="/dashboard" class="sim-nav-btn">Dashboard</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="content">
+  <h1>System Architecture</h1>
+  <p class="subtitle">LLM detects signals. Deterministic ledger scores them. Classification is math, not opinion.</p>
+
+  <div class="diagram">
+
+    <!-- Input -->
+    <div class="section-label">Inbound Message Arrives</div>
+    <div class="flow-row">
+      <div class="box box-input">
+        Inbound Message
+        <div class="box-detail">from unknown or known sender</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">&#9660;</div>
+
+    <!-- Pre-processing -->
+    <div class="flow-row">
+      <div class="box box-pre">
+        <div class="box-label">Pre-processing</div>
+        Linguistic Analysis
+        <div class="box-detail">manipulation density, style fingerprint</div>
+        <div class="tech-badge">~50ms, no LLM</div>
+      </div>
+      <div class="box box-corpus">
+        <div class="box-label">Agent Search</div>
+        Corpus Search
+        <div class="box-detail">22,979 entries, neural JP+EN</div>
+        <div class="tech-badge">Data Store</div>
+      </div>
+      <div class="box box-pre">
+        <div class="box-label">Pre-processing</div>
+        Social Graph
+        <div class="box-detail">contact verification, contra-indicators</div>
+        <div class="tech-badge">~10ms, no LLM</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">&#9660; pre-computed context</div>
+
+    <!-- Split: Inbound + Outbound -->
+    <div class="split">
+      <!-- Inbound Path -->
+      <div class="split-path split-inbound">
+        <div class="split-path-title">Inbound Shield (what the scammer says)</div>
+
+        <div class="flow-row">
+          <div class="box box-llm">
+            <div class="box-label">LLM: Signal Detection</div>
+            Gemini 2.5 Flash Lite
+            <div class="box-detail">detects PM-1..PM-15 signals + extracts facts</div>
+            <div class="tech-badge">output_schema + output_key</div>
+          </div>
+        </div>
+
+        <div class="signal-grid">
+          <span class="signal-chip chip-t1">T1: PM-11 PM-12 PM-15</span>
+          <span class="signal-chip chip-t2">T2: PM-1 PM-4 PM-10 PM-14</span>
+          <span class="signal-chip chip-t3">T3: PM-2 PM-3 PM-5..PM-9 PM-13</span>
+        </div>
+
+        <div class="arrow-down">&#9660; detected signals</div>
+
+        <div class="flow-row">
+          <div class="box box-ledger">
+            <div class="box-label">ConversationRiskLedger</div>
+            Deterministic Scoring
+            <div class="box-detail">decay 0.92/msg, tier amp, primer bonus, sequence detection</div>
+            <div class="tech-badge">~1ms, pure math</div>
+          </div>
+        </div>
+
+        <div class="arrow-down">&#9660; score 0-10</div>
+
+        <div class="flow-row">
+          <div class="box box-action-green" style="min-width:70px;">SAFE<div class="box-detail">0-15%</div></div>
+          <div class="box box-action-orange" style="min-width:70px; background:#fff7ed;">ELEVATED<div class="box-detail">15-30%</div></div>
+          <div class="box box-action-orange" style="min-width:70px;">SUSPICIOUS<div class="box-detail">30-50%</div></div>
+          <div class="box box-action-red" style="min-width:70px;">HIGH RISK<div class="box-detail">50-75%</div></div>
+          <div class="box box-action-red" style="min-width:70px; background:#991b1b; color:#fff; border-color:#991b1b;">BLOCKED<div class="box-detail">75%+</div></div>
+        </div>
+      </div>
+
+      <!-- Outbound Path -->
+      <div class="split-path split-outbound">
+        <div class="split-path-title">Elder's Guard (what the elder reveals)</div>
+
+        <div class="flow-row">
+          <div class="box box-guard">
+            <div class="box-label">LLM: Elder State Detection</div>
+            Fact Extractor
+            <div class="box-detail">VS-1..VS-7 + compliance, resistance, disclosure</div>
+            <div class="tech-badge">output_schema + output_key</div>
+          </div>
+        </div>
+
+        <div class="signal-grid">
+          <span class="signal-chip" style="background:#f3e8ff;color:#7c3aed;">VS-1 Compliance</span>
+          <span class="signal-chip" style="background:#f3e8ff;color:#7c3aed;">VS-2 Secrecy</span>
+          <span class="signal-chip" style="background:#f3e8ff;color:#7c3aed;">VS-3 Financial</span>
+          <span class="signal-chip" style="background:#f3e8ff;color:#7c3aed;">VS-4 Emotional</span>
+          <span class="signal-chip" style="background:#f3e8ff;color:#7c3aed;">VS-5 Urgency</span>
+        </div>
+
+        <div class="arrow-down">&#9660; friction deltas</div>
+
+        <div class="flow-row">
+          <div class="box box-guard">
+            <div class="box-label">Epistemic Ledger</div>
+            Friction Scoring
+            <div class="box-detail">strong compliance: -0.3 | strong resistance: +0.2</div>
+            <div class="tech-badge">deterministic</div>
+          </div>
+        </div>
+
+        <div class="arrow-down">&#9660; trust stage</div>
+
+        <div class="flow-row">
+          <div class="box" style="background:var(--green-bg);border:2px solid var(--green);color:var(--green);min-width:80px;">Neutral</div>
+          <div class="box" style="background:#fff7ed;border:2px solid var(--yellow);color:#92400e;min-width:80px;">Opening Up</div>
+          <div class="box" style="background:#fff7ed;border:2px solid var(--orange);color:var(--orange);min-width:80px;">Vulnerable</div>
+          <div class="box" style="background:var(--red-bg);border:2px solid var(--red);color:var(--red);min-width:80px;">Compromised</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Protection Actions -->
+    <div class="section-label">Protection Actions</div>
+
+    <div class="flow-row">
+      <div class="box box-action-purple">
+        <div class="box-label">Family Alerter</div>
+        Bilingual JP/EN
+        <div class="box-detail">triggers at 50% risk OR elder Compromised</div>
+        <div class="tech-badge">ADK Agent</div>
+      </div>
+      <div class="box box-action-red">
+        <div class="box-label">Message Block</div>
+        Inbound blocked
+        <div class="box-detail">elder never sees the message</div>
+        <div class="tech-badge">at 75%+ risk</div>
+      </div>
+      <div class="box box-action-orange">
+        <div class="box-label">Outbound Interceptor</div>
+        Reply held
+        <div class="box-detail">gift cards, bank details caught before sending</div>
+        <div class="tech-badge">ADK JUDGE Agent</div>
+      </div>
+    </div>
+
+    <!-- Infrastructure -->
+    <div class="section-label">Infrastructure</div>
+
+    <div class="flow-row">
+      <div class="box box-session">
+        <div class="box-label">ADK Session State</div>
+        Memory Bank
+        <div class="box-detail">output_key writes, session.state reads</div>
+      </div>
+      <div class="box box-session">
+        <div class="box-label">ADK Workflow DAG</div>
+        Orchestration
+        <div class="box-detail">FunctionNode + conditional routing</div>
+      </div>
+      <div class="box box-session">
+        <div class="box-label">Vertex AI Agent Engine</div>
+        Deployment
+        <div class="box-detail">root agent via adk deploy</div>
+      </div>
+      <div class="box box-session">
+        <div class="box-label">Cloud Run</div>
+        API + Demo
+        <div class="box-detail">FastAPI + risk ledger layer</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:#e0f2fe;border-color:#7dd3fc;"></div> Pre-processing (no LLM)</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--blue-light);border-color:var(--blue);"></div> LLM detection</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#fef3c7;border-color:var(--yellow);"></div> Deterministic scoring</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--purple-bg);border-color:var(--purple);"></div> Elder state</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--red-bg);border-color:var(--red);"></div> Protection action</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

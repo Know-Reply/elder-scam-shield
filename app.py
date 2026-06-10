@@ -277,6 +277,15 @@ async def analyzer():
     return HTMLResponse(content=path.read_text(encoding="utf-8"))
 
 
+@app.get("/architecture", response_class=HTMLResponse)
+async def architecture():
+    """Architecture diagram page."""
+    path = Path(__file__).parent / "web" / "architecture.html"
+    if not path.exists():
+        return HTMLResponse(content="<h1>Architecture page not built yet.</h1>", status_code=200)
+    return HTMLResponse(content=path.read_text(encoding="utf-8"))
+
+
 @app.get("/technical", response_class=HTMLResponse)
 async def technical():
     """Technical deep dive — architecture, research, benchmarks."""
