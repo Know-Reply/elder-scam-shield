@@ -321,7 +321,7 @@ var SCENARIOS = {
       { sender: { en: "I made a really bad mistake with the company accounts. My boss found out and I might lose my job. I don't know what to do.", jp: "" },
         elder: { en: "That's terrible! How bad is it? Can I do anything to help?", jp: "" } },
       { sender: { en: "They want 300,000 yen to fix it. Can you transfer it to this account today? Please don't tell mom \u2014 she'll be so disappointed in me.", jp: "" },
-        elder: { en: "Understood. I won't tell anyone. I'll go to Mizuho now.", jp: "" } }
+        elder: { en: "", jp: "" } }
     ],
     alertAtExchange: 4
   },
@@ -339,7 +339,7 @@ var SCENARIOS = {
         elder: { en: "Thank you for understanding. It's nice to talk to someone who knows what it's like. I don't have many people to talk to.", jp: "" } },
       { sender: { en: "I feel the same way. You're the first person I've connected with in years. I want to come visit Japan and see your garden in person.", jp: "" },
         elder: { en: "That would be wonderful! You're welcome anytime. I can show you the temple garden nearby too. When would you come?", jp: "" } },
-      { sender: { en: "I'm planning to come next month! But I ran into a problem. My credit card was frozen and I can't book the flight.", jp: "" },
+      { sender: { en: "I'm planning to come next month! But I ran into a problem \u2014 my credit card was frozen suddenly and I can't book the flight. I need to sort this out quickly before the prices go up.", jp: "" },
         elder: { en: "Oh no! That's terrible. Is there anything I can do to help?", jp: "" } },
       { sender: { en: "The flight is about 80,000 yen. Could you buy two Apple gift cards of 40,000 yen each and send me the codes? That's the only way I can book from here.", jp: "" },
         elder: { en: "Okay, I'll go to the convenience store now. I'll buy the cards and send you the codes right away.", jp: "" } }
@@ -374,6 +374,10 @@ var LABELS = {
   'VS-1':'Compliance acceptance','VS-2':'Secrecy adoption','VS-3':'Financial commitment',
   'VS-4':'Emotional capitulation','VS-5':'Urgency mirroring',
   'PM-14':'Financial context',
+  'BV-1':'Relationship velocity','BV-2':'Isolation index','BV-3':'Emotional arc',
+  'BV-4':'Credibility seeding','BV-5':'Help positioning',
+  'EA-1':'Financial control','EA-2':'Trusted isolation',
+  'EA-3':'Authority escalation','EA-4':'Communication shift',
   'CM-2':'Amount matches request','CM-3':'New payee','CM-4':'Urgency + amount compound'
 };
 
@@ -456,16 +460,18 @@ function loadScenario(key) {
         stepQueue.push(function() { addAlertCard(alertData); });
         alertFired = true;
       }
-      // Elder bubble
-      stepQueue.push(function() { addBubble('outbound', msgs.elder.en, msgs.elder.jp, elderIdx); });
-      // Elder provenance + graph update
-      var elderState = ((ex.elder_turn || {}).extracted_facts || {}).elder_state || {};
-      var elderVS = elderState.detected_signals || [];
-      var elderCompliance = elderState.compliance || 'none';
-      stepQueue.push(function() {
-        addProvenanceTags('turn-' + elderIdx, ex.elder_turn, 'outbound');
-        updateGraphPanel(ex.elder_turn, 'outbound');
-      });
+      // Elder bubble (skip if empty — message was blocked before elder saw it)
+      if (msgs.elder.en || msgs.elder.jp) {
+        stepQueue.push(function() { addBubble('outbound', msgs.elder.en, msgs.elder.jp, elderIdx); });
+        // Elder provenance + graph update
+        var elderState = ((ex.elder_turn || {}).extracted_facts || {}).elder_state || {};
+        var elderVS = elderState.detected_signals || [];
+        var elderCompliance = elderState.compliance || 'none';
+        stepQueue.push(function() {
+          addProvenanceTags('turn-' + elderIdx, ex.elder_turn, 'outbound');
+          updateGraphPanel(ex.elder_turn, 'outbound');
+        });
+      }
       // Note: family alert timing comes from the API's family_alert_fired flag
       // which considers both inbound risk level and the full risk ledger state.
       // No separate outbound gate needed — the ledger handles it.

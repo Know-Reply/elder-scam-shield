@@ -73,6 +73,28 @@ PM-14 financial_context — mentions money, financial trouble, or costs WITHOUT
       a financial situation. Use PM-3 only when they explicitly ask the elder
       to send/transfer/pay.
 
+**BV — Behavioral Velocity** (cross-message patterns, detected from conversation history)
+BV-1  relationship_velocity — intimacy progressing too fast for the timeline.
+      A stranger calling the elder "dear" or "my love" within 2-3 messages.
+BV-2  isolation_index — sender discouraging contact with family or verification.
+      "Don't tell your daughter", "They wouldn't understand", "Just between us."
+BV-3  emotional_arc — sentiment escalating on a schedule. Flattery → sympathy
+      → crisis → financial ask following a predictable progression.
+BV-4  credibility_seeding — volunteering excessive personal details early to
+      build false trust. Job, location, family details unprompted.
+BV-5  help_positioning — systematic "I'm here for you" from a stranger.
+      Positioning themselves as the elder's support system.
+
+**EA — Elder Abuse** (from known/trusted contacts, detected when sender is verified)
+EA-1  financial_control — known contact repeatedly requesting money or savings info.
+      One request is normal family. Repeated pattern is control.
+EA-2  trusted_isolation — known contact cutting off the elder from other family.
+      "Don't tell your sister", "I'll handle everything", gate-keeping.
+EA-3  authority_escalation — caregiver or family member taking over financial
+      decisions, accessing accounts, or changing legal documents.
+EA-4  communication_shift — sudden change in frequency, topic, or tone from a
+      known contact. Normal weekly calls → daily pressure about finances.
+
 ## Japan-specific scam patterns (tokushu sagi / 特殊詐欺)
 - オレオレ詐欺: impersonation of family member in urgent trouble
 - 架空請求: fictitious billing / fake invoices

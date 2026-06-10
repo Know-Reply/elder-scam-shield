@@ -201,13 +201,26 @@ SIGNAL_WEIGHTS = {
     "PM-12": 0.25,  # flattery density — T1, romance opener, common in normal contact
     "PM-13": 1.90,  # spf/dkim fail — T3, technical spoofing, near-deterministic
     "PM-14": 0.80,  # financial context — T2, mentions money/costs without asking
+    # BV — Behavioral Velocity (cross-message patterns)
+    "BV-1":  0.70,  # relationship velocity — T2, intimacy too fast
+    "BV-2":  1.40,  # isolation index — T3, discouraging family contact
+    "BV-3":  0.85,  # emotional arc — T2, scheduled sentiment escalation
+    "BV-4":  0.60,  # credibility seeding — T2, excessive unprompted details
+    "BV-5":  0.65,  # help positioning — T2, stranger as support system
+    # EA — Elder Abuse (from known contacts)
+    "EA-1":  1.20,  # financial control — T3, repeated money requests from trusted
+    "EA-2":  1.50,  # trusted isolation — T3, cutting off from family
+    "EA-3":  1.60,  # authority escalation — T3, taking over decisions
+    "EA-4":  0.75,  # communication shift — T2, sudden change in pattern
 }
 
 SIGNAL_TIERS = {
     "PM-11": 1, "PM-12": 1,                          # Tier 1: informational
-    "PM-1": 2, "PM-4": 2, "PM-10": 2, "PM-14": 2,     # Tier 2: moderate
-    "PM-2": 3, "PM-3": 3, "PM-5": 3, "PM-6": 3,     # Tier 3: strong
+    "PM-1": 2, "PM-4": 2, "PM-10": 2, "PM-14": 2,     # Tier 2: moderate (PM)
+    "BV-1": 2, "BV-3": 2, "BV-4": 2, "BV-5": 2, "EA-4": 2, # Tier 2: moderate (BV/EA)
+    "PM-2": 3, "PM-3": 3, "PM-5": 3, "PM-6": 3,     # Tier 3: strong (PM)
     "PM-7": 3, "PM-8": 3, "PM-9": 3, "PM-13": 3,
+    "BV-2": 3, "EA-1": 3, "EA-2": 3, "EA-3": 3,     # Tier 3: strong (BV/EA)
 }
 
 # Tier amplification: T3 signals compound ~2x stronger than T1
