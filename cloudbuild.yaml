@@ -38,8 +38,8 @@ steps:
       - '--region=${_REGION}'
       - '--platform=managed'
       - '--allow-unauthenticated'
-      - '--memory=1Gi'
-      - '--cpu=1'
+      - '--memory=4Gi'
+      - '--cpu=2'
       - '--timeout=300'
       - '--set-env-vars=GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GOOGLE_GENAI_USE_VERTEXAI=TRUE,USE_VERTEX_SEARCH=true,SCAM_CORPUS_DATA_STORE=scam-corpus,FIRESTORE_DATABASE=elder-shield'
 

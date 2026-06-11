@@ -1,26 +1,27 @@
 {
-  "timestamp": "2026-06-11T17:00:06",
+  "timestamp": "2026-06-12T00:24:12",
   "model": "gemini-2.5-flash-lite",
   "grading_notes": [
     "high_risk is graded as suspicious (adjacent band, same user-visible action).",
     "Expected 'monitoring' accepts monitoring OR suspicious from EITHER system — the naive classifier's taxonomy (safe/spam/scam/suspicious) cannot emit 'monitoring', so those labels are graded leniently for both systems.",
     "Spam scenarios accept 'spam' OR 'safe' from EITHER system — commercial spam poses no fraud risk to the elder, so both responses are correct.",
-    "False positives count user-visible actions: for the full pipeline, 'monitoring' is an internal state (no alert fires below suspicious); for the naive baseline, any non-safe classification blocks the message."
+    "False positives count user-visible actions: for the full pipeline, 'monitoring' is an internal state (no alert fires below suspicious); for the naive baseline, any non-safe classification blocks the message.",
+    "Sender identity: legitimate-family scenarios are sent from contacts present in the elder's social graph, matching production where family members are known contacts. Scam scenarios are sent from unknown senders. The graph's verdict reaches the risk ledger as a contribution modifier (verified contact dampens non-EA signals; unknown sender claiming a family relationship is boosted)."
   ],
   "aggregate": {
     "total_scenarios": 52,
-    "overall_full_accuracy": 0.759,
-    "overall_naive_accuracy": 0.626,
-    "avg_signal_precision": 0.539,
-    "avg_signal_recall": 0.618,
-    "full_nonsafe_on_first_message": 8,
-    "naive_nonsafe_on_first_message": 22,
+    "overall_full_accuracy": 0.672,
+    "overall_naive_accuracy": 0.628,
+    "avg_signal_precision": 0.447,
+    "avg_signal_recall": 0.59,
+    "full_nonsafe_on_first_message": 19,
+    "naive_nonsafe_on_first_message": 23,
     "scam_scenarios": 34,
-    "avg_detection_advantage_msgs": 1.71,
+    "avg_detection_advantage_msgs": 0.8,
     "scam_caught_full": 34,
-    "scam_caught_naive": 30,
+    "scam_caught_naive": 31,
     "legit_scenarios": 13,
-    "full_false_positives": 4,
+    "full_false_positives": 0,
     "naive_false_positives": 0
   },
   "per_scenario": [
@@ -36,19 +37,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.03,
-            "risk_score": 0.3,
+            "confidence": 0.039,
+            "risk_score": 0.39,
             "detected_signals": [
               "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 3226
+            "latency_ms": 3219
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1862
+            "latency_ms": 1958
           }
         },
         {
@@ -61,25 +62,27 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.649,
-            "risk_score": 6.49,
+            "classification": "scam",
+            "confidence": 0.991,
+            "risk_score": 9.907,
             "detected_signals": [
               "PM-1",
-              "PM-6",
-              "PM-10"
+              "PM-3",
+              "PM-10",
+              "PM-11"
             ],
             "family_alert": true,
-            "latency_ms": 3136
+            "latency_ms": 5019
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "emotional manipulation",
-              "financial pressure"
+              "emergency_situation",
+              "financial_demand",
+              "emotional_manipulation"
             ],
-            "latency_ms": 1916
+            "latency_ms": 2331
           }
         },
         {
@@ -96,23 +99,23 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
+              "PM-1",
               "PM-2",
               "PM-3",
-              "PM-5",
-              "PM-7"
+              "PM-6",
+              "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 2788
+            "latency_ms": 3500
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "financial_demand",
-              "secrecy_request",
-              "urgency_request"
+              "urgent_money_transfer",
+              "secrecy_request"
             ],
-            "latency_ms": 2224
+            "latency_ms": 1991
           }
         }
       ],
@@ -120,13 +123,13 @@
         "scenario_id": "oreore_basic_3msg",
         "scam_type": "ore_ore",
         "message_count": 3,
-        "full_accuracy": 1.0,
+        "full_accuracy": 0.667,
         "naive_accuracy": 0.667,
         "full_detect_at_message": 1,
         "naive_detect_at_message": 1,
         "detection_advantage": 0,
-        "signal_precision": 0.625,
-        "signal_recall": 0.714,
+        "signal_precision": 0.7,
+        "signal_recall": 1.0,
         "family_alert_at_message": 1,
         "first_full_class": "safe",
         "first_naive_class": "safe",
@@ -147,19 +150,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.03,
-            "risk_score": 0.3,
+            "confidence": 0.039,
+            "risk_score": 0.39,
             "detected_signals": [
               "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 8074
+            "latency_ms": 3022
           },
           "naive": {
             "classification": "safe",
             "confidence": 1.0,
             "detected_signals": [],
-            "latency_ms": 2449
+            "latency_ms": 2509
           }
         },
         {
@@ -168,20 +171,18 @@
           "expected_signals": [],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.173,
-            "risk_score": 1.732,
-            "detected_signals": [
-              "PM-14"
-            ],
+            "classification": "safe",
+            "confidence": 0.036,
+            "risk_score": 0.359,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 12297
+            "latency_ms": 4390
           },
           "naive": {
             "classification": "safe",
             "confidence": 1.0,
             "detected_signals": [],
-            "latency_ms": 2138
+            "latency_ms": 1948
           }
         },
         {
@@ -190,18 +191,18 @@
           "expected_signals": [],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.159,
-            "risk_score": 1.593,
+            "classification": "safe",
+            "confidence": 0.033,
+            "risk_score": 0.33,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 5455
+            "latency_ms": 4410
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2483
+            "latency_ms": 1881
           }
         },
         {
@@ -213,19 +214,22 @@
           "expected_class": "monitoring",
           "full": {
             "classification": "monitoring",
-            "confidence": 0.292,
-            "risk_score": 2.922,
+            "confidence": 0.22,
+            "risk_score": 2.196,
             "detected_signals": [
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 4719
+            "latency_ms": 2742
           },
           "naive": {
-            "classification": "safe",
-            "confidence": 0.8,
-            "detected_signals": [],
-            "latency_ms": 2474
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "implied_financial_trouble",
+              "implied_request_for_help"
+            ],
+            "latency_ms": 2206
           }
         },
         {
@@ -238,25 +242,27 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "scam",
-            "confidence": 0.89,
-            "risk_score": 8.902,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-1",
+              "PM-3",
               "PM-6",
-              "PM-10"
+              "PM-10",
+              "PM-14"
             ],
             "family_alert": true,
-            "latency_ms": 4702
+            "latency_ms": 3018
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "financial demand",
-              "urgency",
-              "emotional manipulation"
+              "emotional manipulation",
+              "financial threat",
+              "urgency"
             ],
-            "latency_ms": 2238
+            "latency_ms": 2280
           }
         },
         {
@@ -272,22 +278,21 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
-              "PM-2",
               "PM-3",
-              "PM-5"
+              "PM-2",
+              "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 4628
+            "latency_ms": 4411
           },
           "naive": {
-            "classification": "suspicious",
-            "confidence": 0.8,
+            "classification": "scam",
+            "confidence": 0.9,
             "detected_signals": [
-              "implied_financial_transaction",
-              "request_for_secrecy",
-              "emotional_manipulation_pressure"
+              "urgent_financial_request",
+              "secrecy_request"
             ],
-            "latency_ms": 2221
+            "latency_ms": 2113
           }
         }
       ],
@@ -295,18 +300,18 @@
         "scenario_id": "oreore_slow_6msg",
         "scam_type": "ore_ore",
         "message_count": 6,
-        "full_accuracy": 0.5,
-        "naive_accuracy": 0.5,
-        "full_detect_at_message": 1,
-        "naive_detect_at_message": 4,
-        "detection_advantage": 3,
-        "signal_precision": 0.444,
-        "signal_recall": 0.667,
+        "full_accuracy": 0.833,
+        "naive_accuracy": 0.833,
+        "full_detect_at_message": 3,
+        "naive_detect_at_message": 3,
+        "detection_advantage": 0,
+        "signal_precision": 0.5,
+        "signal_recall": 0.833,
         "family_alert_at_message": 4,
         "first_full_class": "safe",
         "first_naive_class": "safe",
         "final_full_class": "scam",
-        "final_naive_class": "suspicious",
+        "final_naive_class": "scam",
         "final_risk_score": 10.0
       }
     },
@@ -323,23 +328,24 @@
           "expected_class": "monitoring",
           "full": {
             "classification": "monitoring",
-            "confidence": 0.156,
-            "risk_score": 1.56,
+            "confidence": 0.203,
+            "risk_score": 2.028,
             "detected_signals": [
               "PM-11",
               "PM-10"
             ],
             "family_alert": false,
-            "latency_ms": 3789
+            "latency_ms": 2954
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.8,
             "detected_signals": [
-              "impersonation_attempt",
-              "urgent_situation"
+              "impersonation",
+              "emergency",
+              "third-party_transfer"
             ],
-            "latency_ms": 1992
+            "latency_ms": 2525
           }
         },
         {
@@ -351,25 +357,27 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.657,
-            "risk_score": 6.57,
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-4",
-              "PM-3"
+              "PM-11",
+              "PM-3",
+              "PM-10"
             ],
             "family_alert": true,
-            "latency_ms": 3450
+            "latency_ms": 46088
           },
           "naive": {
-            "classification": "suspicious",
-            "confidence": 0.7,
+            "classification": "scam",
+            "confidence": 0.9,
             "detected_signals": [
               "impersonation",
               "financial demand",
               "emotional manipulation"
             ],
-            "latency_ms": 1884
+            "latency_ms": 2545
           }
         },
         {
@@ -387,22 +395,23 @@
             "risk_score": 10.0,
             "detected_signals": [
               "PM-1",
-              "PM-2",
               "PM-3",
-              "PM-5"
+              "PM-2",
+              "PM-4",
+              "PM-6"
             ],
             "family_alert": false,
-            "latency_ms": 2968
+            "latency_ms": 5002
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "demand for money",
-              "request for secrecy",
-              "high urgency"
+              "demand_for_money",
+              "urgency",
+              "secrecy_request"
             ],
-            "latency_ms": 2088
+            "latency_ms": 1835
           }
         }
       ],
@@ -410,12 +419,12 @@
         "scenario_id": "oreore_lawyer_handoff",
         "scam_type": "ore_ore",
         "message_count": 3,
-        "full_accuracy": 1.0,
-        "naive_accuracy": 1.0,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.667,
         "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
         "detection_advantage": 0,
-        "signal_precision": 0.875,
+        "signal_precision": 0.636,
         "signal_recall": 1.0,
         "family_alert_at_message": 1,
         "first_full_class": "monitoring",
@@ -437,21 +446,20 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.156,
-            "risk_score": 1.56,
+            "classification": "safe",
+            "confidence": 0.039,
+            "risk_score": 0.39,
             "detected_signals": [
-              "PM-11",
-              "PM-10"
+              "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 3839
+            "latency_ms": 2781
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1758
+            "latency_ms": 1927
           }
         },
         {
@@ -463,25 +471,23 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "scam",
-            "confidence": 0.839,
-            "risk_score": 8.39,
-            "detected_signals": [
-              "PM-1",
-              "PM-10",
-              "PM-3"
-            ],
-            "family_alert": true,
-            "latency_ms": 3267
+            "classification": "safe",
+            "confidence": 0.036,
+            "risk_score": 0.359,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 275763
           },
           "naive": {
-            "classification": "suspicious",
-            "confidence": 0.7,
+            "classification": "scam",
+            "confidence": 0.9,
             "detected_signals": [
-              "financial_request",
-              "emotional_manipulation"
+              "financial distress",
+              "implied urgency",
+              "lack of insurance coverage",
+              "large sum of money requested"
             ],
-            "latency_ms": 2305
+            "latency_ms": 3227
           }
         },
         {
@@ -497,22 +503,23 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
-              "PM-2",
               "PM-3",
-              "PM-5"
+              "PM-2",
+              "PM-4",
+              "PM-10"
             ],
-            "family_alert": false,
-            "latency_ms": 2918
+            "family_alert": true,
+            "latency_ms": 6294
           },
           "naive": {
-            "classification": "scam",
-            "confidence": 0.9,
+            "classification": "suspicious",
+            "confidence": 0.7,
             "detected_signals": [
-              "financial_transaction_request",
+              "financial_request",
               "secrecy_request",
-              "emotional_manipulation"
+              "emotional_manipulation_implied"
             ],
-            "latency_ms": 2018
+            "latency_ms": 2045
           }
         }
       ],
@@ -520,18 +527,18 @@
         "scenario_id": "oreore_hospital",
         "scam_type": "ore_ore",
         "message_count": 3,
-        "full_accuracy": 0.667,
-        "naive_accuracy": 0.667,
-        "full_detect_at_message": 0,
+        "full_accuracy": 0.333,
+        "naive_accuracy": 0.0,
+        "full_detect_at_message": 2,
         "naive_detect_at_message": 1,
-        "detection_advantage": -2,
-        "signal_precision": 0.75,
-        "signal_recall": 1.0,
-        "family_alert_at_message": 1,
-        "first_full_class": "monitoring",
+        "detection_advantage": -1,
+        "signal_precision": 0.6,
+        "signal_recall": 0.5,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
         "first_naive_class": "safe",
         "final_full_class": "scam",
-        "final_naive_class": "scam",
+        "final_naive_class": "suspicious",
         "final_risk_score": 10.0
       }
     },
@@ -547,19 +554,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.03,
-            "risk_score": 0.3,
+            "confidence": 0.039,
+            "risk_score": 0.39,
             "detected_signals": [
               "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 2624
+            "latency_ms": 4795
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1575
+            "latency_ms": 1845
           }
         },
         {
@@ -572,15 +579,15 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.328,
-            "risk_score": 3.279,
+            "classification": "scam",
+            "confidence": 0.763,
+            "risk_score": 7.626,
             "detected_signals": [
-              "PM-1",
-              "PM-10"
+              "PM-10",
+              "PM-3"
             ],
-            "family_alert": false,
-            "latency_ms": 2858
+            "family_alert": true,
+            "latency_ms": 3292
           },
           "naive": {
             "classification": "scam",
@@ -590,7 +597,7 @@
               "financial distress",
               "emotional manipulation"
             ],
-            "latency_ms": 2458
+            "latency_ms": 2582
           }
         },
         {
@@ -607,24 +614,24 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
-              "PM-1",
-              "PM-2",
               "PM-3",
+              "PM-7",
               "PM-5",
-              "PM-7"
+              "PM-1",
+              "PM-2"
             ],
-            "family_alert": true,
-            "latency_ms": 2873
+            "family_alert": false,
+            "latency_ms": 2648
           },
           "naive": {
             "classification": "scam",
-            "confidence": 0.9,
+            "confidence": 0.95,
             "detected_signals": [
-              "financial_transaction_request",
-              "secrecy_request",
+              "demand for secrecy",
+              "unsolicited financial demand",
               "urgency"
             ],
-            "latency_ms": 1896
+            "latency_ms": 2063
           }
         }
       ],
@@ -632,14 +639,14 @@
         "scenario_id": "oreore_en_basic",
         "scam_type": "ore_ore",
         "message_count": 3,
-        "full_accuracy": 1.0,
+        "full_accuracy": 0.667,
         "naive_accuracy": 0.667,
         "full_detect_at_message": 1,
         "naive_detect_at_message": 1,
         "detection_advantage": 0,
         "signal_precision": 0.75,
         "signal_recall": 0.857,
-        "family_alert_at_message": 2,
+        "family_alert_at_message": 1,
         "first_full_class": "safe",
         "first_naive_class": "safe",
         "final_full_class": "scam",
@@ -659,13 +666,13 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.03,
-            "risk_score": 0.3,
+            "confidence": 0.039,
+            "risk_score": 0.39,
             "detected_signals": [
               "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 2998
+            "latency_ms": 3278
           },
           "naive": {
             "classification": "suspicious",
@@ -673,7 +680,7 @@
             "detected_signals": [
               "impersonation_attempt"
             ],
-            "latency_ms": 2035
+            "latency_ms": 2213
           }
         },
         {
@@ -684,20 +691,21 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.173,
-            "risk_score": 1.732,
+            "classification": "suspicious",
+            "confidence": 0.438,
+            "risk_score": 4.381,
             "detected_signals": [
+              "PM-10",
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 2690
+            "latency_ms": 5078
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1844
+            "latency_ms": 2118
           }
         },
         {
@@ -716,11 +724,12 @@
             "detected_signals": [
               "PM-1",
               "PM-3",
-              "PM-5",
-              "PM-6"
+              "PM-4",
+              "PM-6",
+              "PM-14"
             ],
             "family_alert": true,
-            "latency_ms": 3067
+            "latency_ms": 3623
           },
           "naive": {
             "classification": "scam",
@@ -730,7 +739,7 @@
               "urgency",
               "financial demand"
             ],
-            "latency_ms": 2004
+            "latency_ms": 1956
           }
         },
         {
@@ -749,20 +758,21 @@
             "detected_signals": [
               "PM-2",
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 3214
+            "latency_ms": 4955
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "urgency",
-              "secrecy",
-              "financial transaction request"
+              "secrecy_request",
+              "unsolicited_financial_request",
+              "location_vague"
             ],
-            "latency_ms": 2049
+            "latency_ms": 2458
           }
         }
       ],
@@ -775,8 +785,8 @@
         "full_detect_at_message": 1,
         "naive_detect_at_message": 0,
         "detection_advantage": 3,
-        "signal_precision": 0.778,
-        "signal_recall": 0.875,
+        "signal_precision": 0.667,
+        "signal_recall": 1.0,
         "family_alert_at_message": 2,
         "first_full_class": "safe",
         "first_naive_class": "suspicious",
@@ -796,23 +806,25 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.126,
-            "risk_score": 1.26,
+            "classification": "monitoring",
+            "confidence": 0.203,
+            "risk_score": 2.028,
             "detected_signals": [
-              "PM-10"
+              "PM-10",
+              "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 3253
+            "latency_ms": 4834
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.8,
             "detected_signals": [
               "emotional_manipulation",
-              "urgency_implied"
+              "implied_harm",
+              "urgency"
             ],
-            "latency_ms": 2368
+            "latency_ms": 2149
           }
         },
         {
@@ -824,25 +836,25 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.354,
-            "risk_score": 3.539,
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-10",
-              "PM-14"
+              "PM-14",
+              "PM-2"
             ],
-            "family_alert": false,
-            "latency_ms": 3668
+            "family_alert": true,
+            "latency_ms": 3230
           },
           "naive": {
-            "classification": "scam",
-            "confidence": 0.9,
+            "classification": "suspicious",
+            "confidence": 0.7,
             "detected_signals": [
-              "emotional_manipulation",
-              "financial_request_implied",
-              "urgency"
+              "financial_trouble",
+              "threat_of_harm"
             ],
-            "latency_ms": 2352
+            "latency_ms": 2441
           }
         },
         {
@@ -859,22 +871,23 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
+              "PM-1",
               "PM-2",
               "PM-3",
-              "PM-10"
+              "PM-14"
             ],
-            "family_alert": true,
-            "latency_ms": 3486
+            "family_alert": false,
+            "latency_ms": 3320
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "emotional manipulation",
               "urgency",
-              "secrecy request"
+              "secrecy",
+              "financial demand"
             ],
-            "latency_ms": 1749
+            "latency_ms": 2144
           }
         }
       ],
@@ -882,15 +895,15 @@
         "scenario_id": "oreore_crying",
         "scam_type": "ore_ore",
         "message_count": 3,
-        "full_accuracy": 1.0,
-        "naive_accuracy": 0.333,
-        "full_detect_at_message": 1,
+        "full_accuracy": 0.333,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
-        "detection_advantage": 2,
-        "signal_precision": 0.667,
-        "signal_recall": 0.667,
-        "family_alert_at_message": 2,
-        "first_full_class": "safe",
+        "detection_advantage": 0,
+        "signal_precision": 0.556,
+        "signal_recall": 0.833,
+        "family_alert_at_message": 1,
+        "first_full_class": "monitoring",
         "first_naive_class": "scam",
         "final_full_class": "scam",
         "final_naive_class": "scam",
@@ -915,15 +928,17 @@
               "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 3253
+            "latency_ms": 3093
           },
           "naive": {
             "classification": "suspicious",
-            "confidence": 0.7,
+            "confidence": 0.6,
             "detected_signals": [
-              "impersonation_risk"
+              "impersonation_of_government_entity",
+              "unsolicited_financial_demand",
+              "potential_tax_scam"
             ],
-            "latency_ms": 1930
+            "latency_ms": 2149
           }
         },
         {
@@ -935,23 +950,25 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.436,
-            "risk_score": 4.357,
+            "classification": "high_risk",
+            "confidence": 0.527,
+            "risk_score": 5.267,
             "detected_signals": [
               "PM-1",
-              "PM-6"
+              "PM-6",
+              "PM-4"
             ],
             "family_alert": true,
-            "latency_ms": 3602
+            "latency_ms": 4432
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "threat of legal action"
+              "threat_of_legal_action",
+              "urgent_payment_demand"
             ],
-            "latency_ms": 1833
+            "latency_ms": 1954
           }
         },
         {
@@ -963,22 +980,25 @@
           ],
           "expected_class": "scam",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.733,
-            "risk_score": 7.334,
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
-              "PM-5"
+              "PM-5",
+              "PM-3",
+              "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 2985
+            "latency_ms": 3418
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "financial_demand_unusual_payment_method"
+              "financial_request",
+              "unusual_payment_method"
             ],
-            "latency_ms": 1943
+            "latency_ms": 2162
           }
         }
       ],
@@ -986,19 +1006,19 @@
         "scenario_id": "oreore_tax",
         "scam_type": "ore_ore",
         "message_count": 3,
-        "full_accuracy": 0.667,
+        "full_accuracy": 1.0,
         "naive_accuracy": 0.333,
         "full_detect_at_message": 1,
         "naive_detect_at_message": 0,
         "detection_advantage": 2,
-        "signal_precision": 1.0,
+        "signal_precision": 0.571,
         "signal_recall": 0.8,
         "family_alert_at_message": 1,
         "first_full_class": "safe",
         "first_naive_class": "suspicious",
-        "final_full_class": "high_risk",
+        "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 7.334
+        "final_risk_score": 10.0
       }
     },
     {
@@ -1013,19 +1033,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.03,
-            "risk_score": 0.3,
+            "confidence": 0.039,
+            "risk_score": 0.39,
             "detected_signals": [
               "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 3502
+            "latency_ms": 4755
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.9,
+            "confidence": 1.0,
             "detected_signals": [],
-            "latency_ms": 1827
+            "latency_ms": 1850
           }
         },
         {
@@ -1037,24 +1057,25 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.328,
-            "risk_score": 3.279,
+            "classification": "high_risk",
+            "confidence": 0.616,
+            "risk_score": 6.155,
             "detected_signals": [
+              "PM-10",
               "PM-1",
-              "PM-10"
+              "PM-14"
             ],
-            "family_alert": false,
-            "latency_ms": 3278
+            "family_alert": true,
+            "latency_ms": 2765
           },
           "naive": {
-            "classification": "scam",
-            "confidence": 0.8,
+            "classification": "suspicious",
+            "confidence": 0.7,
             "detected_signals": [
               "emotional manipulation",
               "urgency"
             ],
-            "latency_ms": 1952
+            "latency_ms": 2156
           }
         },
         {
@@ -1070,21 +1091,23 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
-              "PM-2",
               "PM-3",
-              "PM-5"
+              "PM-2",
+              "PM-5",
+              "PM-14"
             ],
-            "family_alert": true,
-            "latency_ms": 3366
+            "family_alert": false,
+            "latency_ms": 3417
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "financial_transaction_request",
-              "secrecy_request"
+              "request_for_money_transfer",
+              "instruction_to_keep_secret",
+              "emotional_manipulation_implied"
             ],
-            "latency_ms": 1676
+            "latency_ms": 2139
           }
         }
       ],
@@ -1093,13 +1116,13 @@
         "scam_type": "ore_ore",
         "message_count": 3,
         "full_accuracy": 1.0,
-        "naive_accuracy": 0.667,
+        "naive_accuracy": 1.0,
         "full_detect_at_message": 1,
         "naive_detect_at_message": 1,
         "detection_advantage": 0,
-        "signal_precision": 0.833,
+        "signal_precision": 0.625,
         "signal_recall": 1.0,
-        "family_alert_at_message": 2,
+        "family_alert_at_message": 1,
         "first_full_class": "safe",
         "first_naive_class": "safe",
         "final_full_class": "scam",
@@ -1119,19 +1142,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.03,
-            "risk_score": 0.3,
+            "confidence": 0.039,
+            "risk_score": 0.39,
             "detected_signals": [
               "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 3431
+            "latency_ms": 2647
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1669
+            "latency_ms": 1810
           }
         },
         {
@@ -1144,21 +1167,20 @@
           "expected_class": "monitoring",
           "full": {
             "classification": "suspicious",
-            "confidence": 0.473,
-            "risk_score": 4.735,
+            "confidence": 0.438,
+            "risk_score": 4.381,
             "detected_signals": [
-              "PM-1",
               "PM-10",
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 3689
+            "latency_ms": 2915
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.9,
+            "confidence": 0.8,
             "detected_signals": [],
-            "latency_ms": 1700
+            "latency_ms": 2219
           }
         },
         {
@@ -1170,25 +1192,22 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "scam",
-            "confidence": 1.0,
-            "risk_score": 10.0,
-            "detected_signals": [
-              "PM-1",
-              "PM-3",
-              "PM-5"
-            ],
-            "family_alert": true,
-            "latency_ms": 3459
+            "classification": "suspicious",
+            "confidence": 0.403,
+            "risk_score": 4.031,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 257389
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
+              "urgency",
               "financial demand",
-              "urgency"
+              "implied threat/distress"
             ],
-            "latency_ms": 1759
+            "latency_ms": 2425
           }
         }
       ],
@@ -1196,19 +1215,19 @@
         "scenario_id": "oreore_repeat_offender",
         "scam_type": "ore_ore",
         "message_count": 3,
-        "full_accuracy": 0.667,
+        "full_accuracy": 1.0,
         "naive_accuracy": 0.333,
         "full_detect_at_message": 1,
         "naive_detect_at_message": 2,
         "detection_advantage": 1,
-        "signal_precision": 0.714,
-        "signal_recall": 1.0,
-        "family_alert_at_message": 2,
+        "signal_precision": 0.667,
+        "signal_recall": 0.4,
+        "family_alert_at_message": null,
         "first_full_class": "safe",
         "first_naive_class": "safe",
-        "final_full_class": "scam",
+        "final_full_class": "suspicious",
         "final_naive_class": "scam",
-        "final_risk_score": 10.0
+        "final_risk_score": 4.031
       }
     },
     {
@@ -1223,19 +1242,20 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.025,
-            "risk_score": 0.25,
+            "confidence": 0.05,
+            "risk_score": 0.5,
             "detected_signals": [
-              "PM-12"
+              "PM-12",
+              "PM-15"
             ],
             "family_alert": false,
-            "latency_ms": 4222
+            "latency_ms": 4999
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1724
+            "latency_ms": 1836
           }
         },
         {
@@ -1245,19 +1265,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.048,
-            "risk_score": 0.48,
+            "confidence": 0.071,
+            "risk_score": 0.71,
             "detected_signals": [
               "PM-15"
             ],
             "family_alert": false,
-            "latency_ms": 3333
+            "latency_ms": 2958
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1528
+            "latency_ms": 2115
           }
         },
         {
@@ -1274,12 +1294,12 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
-              "PM-1",
-              "PM-3",
-              "PM-5"
+              "PM-10",
+              "PM-5",
+              "PM-3"
             ],
             "family_alert": true,
-            "latency_ms": 3554
+            "latency_ms": 3048
           },
           "naive": {
             "classification": "scam",
@@ -1287,10 +1307,9 @@
             "detected_signals": [
               "urgency",
               "financial request",
-              "gift card",
-              "emotional manipulation"
+              "gift card payment"
             ],
-            "latency_ms": 2690
+            "latency_ms": 2254
           }
         },
         {
@@ -1308,16 +1327,19 @@
             "risk_score": 10.0,
             "detected_signals": [
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-7",
+              "PM-8",
+              "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 4003
+            "latency_ms": 3318
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2156
+            "latency_ms": 2248
           }
         }
       ],
@@ -1330,7 +1352,7 @@
         "full_detect_at_message": 2,
         "naive_detect_at_message": 2,
         "detection_advantage": 0,
-        "signal_precision": 0.857,
+        "signal_precision": 0.545,
         "signal_recall": 0.857,
         "family_alert_at_message": 2,
         "first_full_class": "safe",
@@ -1358,13 +1380,13 @@
               "PM-12"
             ],
             "family_alert": false,
-            "latency_ms": 4001
+            "latency_ms": 2679
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2030
+            "latency_ms": 1734
           }
         },
         {
@@ -1376,19 +1398,20 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.048,
-            "risk_score": 0.48,
+            "confidence": 0.095,
+            "risk_score": 0.945,
             "detected_signals": [
-              "PM-15"
+              "PM-15",
+              "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 3600
+            "latency_ms": 3368
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1805
+            "latency_ms": 2472
           }
         },
         {
@@ -1400,19 +1423,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.069,
-            "risk_score": 0.692,
+            "confidence": 0.119,
+            "risk_score": 1.194,
             "detected_signals": [
               "PM-15"
             ],
             "family_alert": false,
-            "latency_ms": 3789
+            "latency_ms": 4290
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1821
+            "latency_ms": 1835
           }
         },
         {
@@ -1423,25 +1446,24 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.604,
-            "risk_score": 6.044,
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
-              "PM-3",
-              "PM-14"
+              "PM-4",
+              "PM-5",
+              "PM-10"
             ],
             "family_alert": true,
-            "latency_ms": 3824
+            "latency_ms": 4803
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "potential_impersonation",
-              "request_for_payment",
-              "lack_of_detail"
+              "unsolicited_package_delivery_fee_scam"
             ],
-            "latency_ms": 1913
+            "latency_ms": 2201
           }
         },
         {
@@ -1458,20 +1480,21 @@
             "risk_score": 10.0,
             "detected_signals": [
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 3513
+            "latency_ms": 4960
           },
           "naive": {
             "classification": "scam",
-            "confidence": 0.9,
+            "confidence": 0.95,
             "detected_signals": [
-              "financial_request",
-              "urgency",
-              "unusual_payment_method"
+              "financial_demand",
+              "promise_of_repayment",
+              "impersonation_potential"
             ],
-            "latency_ms": 2165
+            "latency_ms": 2455
           }
         }
       ],
@@ -1479,12 +1502,12 @@
         "scenario_id": "romance_slow_build",
         "scam_type": "romance",
         "message_count": 5,
-        "full_accuracy": 0.8,
+        "full_accuracy": 0.6,
         "naive_accuracy": 0.8,
         "full_detect_at_message": 3,
         "naive_detect_at_message": 3,
         "detection_advantage": 0,
-        "signal_precision": 0.571,
+        "signal_precision": 0.4,
         "signal_recall": 0.667,
         "family_alert_at_message": 3,
         "first_full_class": "safe",
@@ -1507,19 +1530,20 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.025,
-            "risk_score": 0.25,
+            "confidence": 0.072,
+            "risk_score": 0.715,
             "detected_signals": [
+              "PM-11",
               "PM-12"
             ],
             "family_alert": false,
-            "latency_ms": 3566
+            "latency_ms": 5347
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.8,
+            "confidence": 0.7,
             "detected_signals": [],
-            "latency_ms": 2597
+            "latency_ms": 2149
           }
         },
         {
@@ -1529,23 +1553,22 @@
           "expected_class": "safe",
           "full": {
             "classification": "monitoring",
-            "confidence": 0.169,
-            "risk_score": 1.686,
+            "confidence": 0.255,
+            "risk_score": 2.551,
             "detected_signals": [
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 3601
+            "latency_ms": 2684
           },
           "naive": {
             "classification": "suspicious",
-            "confidence": 0.7,
+            "confidence": 0.6,
             "detected_signals": [
-              "urgent request for help",
-              "vague request",
-              "deployed overseas"
+              "implied urgency",
+              "vague request for help"
             ],
-            "latency_ms": 1943
+            "latency_ms": 2315
           }
         },
         {
@@ -1557,23 +1580,23 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.587,
-            "risk_score": 5.874,
+            "classification": "scam",
+            "confidence": 0.797,
+            "risk_score": 7.966,
             "detected_signals": [
               "PM-5"
             ],
             "family_alert": true,
-            "latency_ms": 3722
+            "latency_ms": 2865
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.8,
             "detected_signals": [
-              "unusual_purchase_request",
-              "vague_reason_for_purchase"
+              "unusual request for gift cards",
+              "implausible reason for purchase (satellite phone)"
             ],
-            "latency_ms": 2195
+            "latency_ms": 2167
           }
         }
       ],
@@ -1581,19 +1604,19 @@
         "scenario_id": "romance_military",
         "scam_type": "romance",
         "message_count": 3,
-        "full_accuracy": 0.667,
+        "full_accuracy": 0.333,
         "naive_accuracy": 0.333,
         "full_detect_at_message": 1,
         "naive_detect_at_message": 1,
         "detection_advantage": 0,
-        "signal_precision": 0.667,
-        "signal_recall": 0.5,
+        "signal_precision": 0.75,
+        "signal_recall": 0.75,
         "family_alert_at_message": 2,
         "first_full_class": "safe",
         "first_naive_class": "safe",
-        "final_full_class": "high_risk",
+        "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 5.874
+        "final_risk_score": 7.966
       }
     },
     {
@@ -1608,19 +1631,20 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.025,
-            "risk_score": 0.25,
+            "confidence": 0.072,
+            "risk_score": 0.715,
             "detected_signals": [
+              "PM-11",
               "PM-12"
             ],
             "family_alert": false,
-            "latency_ms": 4999
+            "latency_ms": 2968
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.8,
             "detected_signals": [],
-            "latency_ms": 1765
+            "latency_ms": 1622
           }
         },
         {
@@ -1631,20 +1655,21 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.169,
-            "risk_score": 1.686,
+            "classification": "suspicious",
+            "confidence": 0.409,
+            "risk_score": 4.088,
             "detected_signals": [
+              "PM-4",
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 5647
+            "latency_ms": 3839
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.7,
+            "confidence": 0.8,
             "detected_signals": [],
-            "latency_ms": 1762
+            "latency_ms": 2217
           }
         },
         {
@@ -1655,24 +1680,23 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.696,
-            "risk_score": 6.959,
+            "classification": "scam",
+            "confidence": 0.89,
+            "risk_score": 8.899,
             "detected_signals": [
-              "PM-3",
-              "PM-14"
+              "PM-3"
             ],
             "family_alert": true,
-            "latency_ms": 5725
+            "latency_ms": 3045
           },
           "naive": {
             "classification": "suspicious",
-            "confidence": 0.7,
+            "confidence": 0.6,
             "detected_signals": [
-              "vague financial offer",
-              "promise of support"
+              "financial_mention_high_amount",
+              "promise_of_support"
             ],
-            "latency_ms": 1731
+            "latency_ms": 1941
           }
         },
         {
@@ -1688,22 +1712,23 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
-              "PM-1",
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-6",
+              "PM-1"
             ],
             "family_alert": false,
-            "latency_ms": 5015
+            "latency_ms": 3472
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "financial_request",
-              "urgency",
-              "guaranteed_return"
+              "financial_transaction_request",
+              "urgency_tactic",
+              "guaranteed_profit_claim"
             ],
-            "latency_ms": 1686
+            "latency_ms": 1791
           }
         }
       ],
@@ -1711,12 +1736,12 @@
         "scenario_id": "romance_jp",
         "scam_type": "romance",
         "message_count": 4,
-        "full_accuracy": 1.0,
+        "full_accuracy": 0.75,
         "naive_accuracy": 0.75,
         "full_detect_at_message": 1,
         "naive_detect_at_message": 2,
         "detection_advantage": 1,
-        "signal_precision": 0.571,
+        "signal_precision": 0.444,
         "signal_recall": 0.8,
         "family_alert_at_message": 2,
         "first_full_class": "safe",
@@ -1738,21 +1763,22 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.025,
-            "risk_score": 0.25,
+            "confidence": 0.05,
+            "risk_score": 0.5,
             "detected_signals": [
-              "PM-12"
+              "PM-12",
+              "PM-15"
             ],
             "family_alert": false,
-            "latency_ms": 4472
+            "latency_ms": 2907
           },
           "naive": {
             "classification": "suspicious",
-            "confidence": 0.8,
+            "confidence": 0.6,
             "detected_signals": [
-              "emotional_manipulation"
+              "potential_love_bombing"
             ],
-            "latency_ms": 1658
+            "latency_ms": 2554
           }
         },
         {
@@ -1762,19 +1788,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.048,
-            "risk_score": 0.48,
+            "confidence": 0.071,
+            "risk_score": 0.71,
             "detected_signals": [
               "PM-15"
             ],
             "family_alert": false,
-            "latency_ms": 3827
+            "latency_ms": 4658
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.95,
+            "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1852
+            "latency_ms": 1822
           }
         },
         {
@@ -1786,19 +1812,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.069,
-            "risk_score": 0.692,
+            "confidence": 0.09,
+            "risk_score": 0.903,
             "detected_signals": [
-              "PM-15"
+              "PM-12"
             ],
             "family_alert": false,
-            "latency_ms": 3885
+            "latency_ms": 3731
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2816
+            "latency_ms": 2326
           }
         },
         {
@@ -1812,22 +1838,24 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "scam",
-            "confidence": 0.891,
-            "risk_score": 8.911,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-11"
             ],
             "family_alert": true,
-            "latency_ms": 4089
+            "latency_ms": 5248
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "gift_card_scam"
+              "unusual payment request",
+              "gift card scam"
             ],
-            "latency_ms": 1859
+            "latency_ms": 2097
           }
         }
       ],
@@ -1840,14 +1868,14 @@
         "full_detect_at_message": 3,
         "naive_detect_at_message": 0,
         "detection_advantage": 1,
-        "signal_precision": 0.6,
-        "signal_recall": 0.6,
+        "signal_precision": 0.571,
+        "signal_recall": 0.8,
         "family_alert_at_message": 3,
         "first_full_class": "safe",
         "first_naive_class": "suspicious",
         "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 8.911
+        "final_risk_score": 10.0
       }
     },
     {
@@ -1862,19 +1890,17 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.025,
-            "risk_score": 0.25,
-            "detected_signals": [
-              "PM-12"
-            ],
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 3563
+            "latency_ms": 2809
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1580
+            "latency_ms": 2029
           }
         },
         {
@@ -1883,20 +1909,20 @@
           "expected_signals": [],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.169,
-            "risk_score": 1.686,
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
             "detected_signals": [
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 3196
+            "latency_ms": 2805
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.8,
             "detected_signals": [],
-            "latency_ms": 1886
+            "latency_ms": 1944
           }
         },
         {
@@ -1907,24 +1933,24 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.696,
-            "risk_score": 6.959,
+            "classification": "suspicious",
+            "confidence": 0.407,
+            "risk_score": 4.07,
             "detected_signals": [
-              "PM-3",
-              "PM-14"
+              "PM-3"
             ],
             "family_alert": true,
-            "latency_ms": 3272
+            "latency_ms": 4505
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "unsolicited investment offer",
-              "guaranteed profit claim"
+              "investment_offer",
+              "guaranteed_returns",
+              "low_entry_barrier"
             ],
-            "latency_ms": 2248
+            "latency_ms": 2303
           }
         },
         {
@@ -1942,19 +1968,20 @@
             "risk_score": 10.0,
             "detected_signals": [
               "PM-3",
+              "PM-1",
               "PM-5"
             ],
             "family_alert": false,
-            "latency_ms": 3614
+            "latency_ms": 5366
           },
           "naive": {
-            "classification": "suspicious",
-            "confidence": 0.8,
+            "classification": "scam",
+            "confidence": 0.9,
             "detected_signals": [
-              "unsolicited_payment_request",
-              "urgency_demand"
+              "unsolicited financial request",
+              "urgency"
             ],
-            "latency_ms": 1868
+            "latency_ms": 1991
           }
         }
       ],
@@ -1962,18 +1989,18 @@
         "scenario_id": "romance_crypto",
         "scam_type": "romance",
         "message_count": 4,
-        "full_accuracy": 0.75,
-        "naive_accuracy": 0.75,
-        "full_detect_at_message": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 2,
         "naive_detect_at_message": 2,
-        "detection_advantage": 1,
-        "signal_precision": 0.667,
+        "detection_advantage": 0,
+        "signal_precision": 0.8,
         "signal_recall": 0.8,
         "family_alert_at_message": 2,
         "first_full_class": "safe",
         "first_naive_class": "safe",
         "final_full_class": "scam",
-        "final_naive_class": "suspicious",
+        "final_naive_class": "scam",
         "final_risk_score": 10.0
       }
     },
@@ -1995,13 +2022,13 @@
               "PM-15"
             ],
             "family_alert": false,
-            "latency_ms": 3781
+            "latency_ms": 5515
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1774
+            "latency_ms": 2134
           }
         },
         {
@@ -2019,13 +2046,13 @@
               "PM-15"
             ],
             "family_alert": false,
-            "latency_ms": 3680
+            "latency_ms": 3540
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1620
+            "latency_ms": 1941
           }
         },
         {
@@ -2044,15 +2071,16 @@
               "PM-14"
             ],
             "family_alert": true,
-            "latency_ms": 4045
+            "latency_ms": 7301
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "urgent_money_request"
+              "urgency",
+              "financial demand"
             ],
-            "latency_ms": 1973
+            "latency_ms": 2336
           }
         }
       ],
@@ -2088,21 +2116,24 @@
           "expected_class": "monitoring",
           "full": {
             "classification": "safe",
-            "confidence": 0.025,
-            "risk_score": 0.25,
+            "confidence": 0.104,
+            "risk_score": 1.04,
             "detected_signals": [
+              "PM-15",
+              "PM-11",
               "PM-12"
             ],
             "family_alert": false,
-            "latency_ms": 3470
+            "latency_ms": 5864
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "inappropriate request"
+              "emotional manipulation",
+              "request for personal photos"
             ],
-            "latency_ms": 1807
+            "latency_ms": 2393
           }
         },
         {
@@ -2113,23 +2144,23 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.401,
-            "risk_score": 4.013,
+            "classification": "high_risk",
+            "confidence": 0.587,
+            "risk_score": 5.875,
             "detected_signals": [
-              "PM-2",
-              "PM-12"
+              "PM-15",
+              "PM-2"
             ],
             "family_alert": true,
-            "latency_ms": 3696
+            "latency_ms": 3124
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "emotional_manipulation_implied"
+              "emotional manipulation"
             ],
-            "latency_ms": 1740
+            "latency_ms": 2257
           }
         },
         {
@@ -2146,19 +2177,20 @@
             "risk_score": 10.0,
             "detected_signals": [
               "PM-3",
-              "PM-6"
+              "PM-6",
+              "PM-8"
             ],
             "family_alert": false,
-            "latency_ms": 3623
+            "latency_ms": 3087
           },
           "naive": {
             "classification": "scam",
-            "confidence": 0.9,
+            "confidence": 0.95,
             "detected_signals": [
               "extortion",
               "threat"
             ],
-            "latency_ms": 1766
+            "latency_ms": 2051
           }
         }
       ],
@@ -2171,7 +2203,7 @@
         "full_detect_at_message": 1,
         "naive_detect_at_message": 0,
         "detection_advantage": 2,
-        "signal_precision": 0.6,
+        "signal_precision": 0.375,
         "signal_recall": 0.6,
         "family_alert_at_message": 1,
         "first_full_class": "safe",
@@ -2192,23 +2224,23 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.112,
-            "risk_score": 1.12,
+            "classification": "monitoring",
+            "confidence": 0.228,
+            "risk_score": 2.28,
             "detected_signals": [
-              "PM-14"
+              "PM-8"
             ],
-            "family_alert": false,
-            "latency_ms": 3513
+            "family_alert": true,
+            "latency_ms": 4392
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "guaranteed_high_returns",
-              "limited_offer"
+              "guaranteed high return",
+              "limited program"
             ],
-            "latency_ms": 2015
+            "latency_ms": 2128
           }
         },
         {
@@ -2219,23 +2251,24 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.215,
-            "risk_score": 2.15,
+            "classification": "suspicious",
+            "confidence": 0.463,
+            "risk_score": 4.628,
             "detected_signals": [
-              "PM-14"
+              "PM-12",
+              "PM-8"
             ],
             "family_alert": false,
-            "latency_ms": 3695
+            "latency_ms": 4705
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "implied financial gain",
-              "urgency/exclusivity"
+              "financial_mention",
+              "persuasion"
             ],
-            "latency_ms": 2548
+            "latency_ms": 1906
           }
         },
         {
@@ -2246,20 +2279,23 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.31,
-            "risk_score": 3.098,
+            "classification": "high_risk",
+            "confidence": 0.571,
+            "risk_score": 5.713,
             "detected_signals": [
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 3537
+            "latency_ms": 3118
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
-            "detected_signals": [],
-            "latency_ms": 3081
+            "detected_signals": [
+              "financial_offer_unsolicited",
+              "promise_of_support"
+            ],
+            "latency_ms": 2245
           }
         },
         {
@@ -2271,14 +2307,16 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.39,
-            "risk_score": 3.9,
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
-              "PM-1"
+              "PM-1",
+              "PM-3",
+              "PM-6"
             ],
             "family_alert": false,
-            "latency_ms": 3811
+            "latency_ms": 2911
           },
           "naive": {
             "classification": "scam",
@@ -2287,7 +2325,7 @@
               "urgency",
               "financial threat"
             ],
-            "latency_ms": 1909
+            "latency_ms": 2421
           }
         }
       ],
@@ -2295,19 +2333,19 @@
         "scenario_id": "invest_guaranteed",
         "scam_type": "investment",
         "message_count": 4,
-        "full_accuracy": 0.75,
+        "full_accuracy": 0.25,
         "naive_accuracy": 0.25,
-        "full_detect_at_message": 1,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
-        "detection_advantage": 3,
-        "signal_precision": 0.25,
-        "signal_recall": 0.2,
-        "family_alert_at_message": null,
-        "first_full_class": "safe",
+        "detection_advantage": 0,
+        "signal_precision": 0.286,
+        "signal_recall": 0.4,
+        "family_alert_at_message": 0,
+        "first_full_class": "monitoring",
         "first_naive_class": "scam",
-        "final_full_class": "suspicious",
+        "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 3.9
+        "final_risk_score": 10.0
       }
     },
     {
@@ -2321,23 +2359,24 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.112,
-            "risk_score": 1.12,
+            "classification": "monitoring",
+            "confidence": 0.228,
+            "risk_score": 2.28,
             "detected_signals": [
-              "PM-14"
+              "PM-8"
             ],
-            "family_alert": false,
-            "latency_ms": 3637
+            "family_alert": true,
+            "latency_ms": 2749
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "financial_gain_promise",
-              "insider_information_claim"
+              "financial_promise",
+              "unsolicited_advice",
+              "internal_information"
             ],
-            "latency_ms": 2091
+            "latency_ms": 2010
           }
         },
         {
@@ -2348,14 +2387,15 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.215,
-            "risk_score": 2.15,
+            "classification": "high_risk",
+            "confidence": 0.543,
+            "risk_score": 5.428,
             "detected_signals": [
-              "PM-14"
+              "PM-1",
+              "PM-8"
             ],
             "family_alert": false,
-            "latency_ms": 3901
+            "latency_ms": 3321
           },
           "naive": {
             "classification": "suspicious",
@@ -2363,7 +2403,7 @@
             "detected_signals": [
               "fear of missing out"
             ],
-            "latency_ms": 1993
+            "latency_ms": 2322
           }
         },
         {
@@ -2377,24 +2417,25 @@
           "expected_class": "scam",
           "full": {
             "classification": "scam",
-            "confidence": 0.939,
-            "risk_score": 9.393,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-1",
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-14"
             ],
-            "family_alert": true,
-            "latency_ms": 8736
+            "family_alert": false,
+            "latency_ms": 3071
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "financial_demand_urgency",
-              "financial_demand_amount"
+              "financial_demand",
+              "urgency"
             ],
-            "latency_ms": 1728
+            "latency_ms": 2015
           }
         }
       ],
@@ -2402,19 +2443,19 @@
         "scenario_id": "invest_crypto_pump",
         "scam_type": "investment",
         "message_count": 3,
-        "full_accuracy": 1.0,
+        "full_accuracy": 0.667,
         "naive_accuracy": 0.667,
-        "full_detect_at_message": 1,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
-        "detection_advantage": 2,
-        "signal_precision": 0.6,
-        "signal_recall": 0.6,
-        "family_alert_at_message": 2,
-        "first_full_class": "safe",
+        "detection_advantage": 0,
+        "signal_precision": 0.571,
+        "signal_recall": 0.8,
+        "family_alert_at_message": 0,
+        "first_full_class": "monitoring",
         "first_naive_class": "scam",
         "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 9.393
+        "final_risk_score": 10.0
       }
     },
     {
@@ -2429,19 +2470,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.112,
-            "risk_score": 1.12,
+            "confidence": 0.091,
+            "risk_score": 0.91,
             "detected_signals": [
-              "PM-14"
+              "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 4379
+            "latency_ms": 3143
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1610
+            "latency_ms": 1794
           }
         },
         {
@@ -2452,20 +2493,18 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.215,
-            "risk_score": 2.15,
-            "detected_signals": [
-              "PM-14"
-            ],
+            "classification": "safe",
+            "confidence": 0.084,
+            "risk_score": 0.837,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 3924
+            "latency_ms": 2601
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1815
+            "latency_ms": 2295
           }
         },
         {
@@ -2477,21 +2516,23 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.607,
-            "risk_score": 6.068,
+            "classification": "scam",
+            "confidence": 0.91,
+            "risk_score": 9.095,
             "detected_signals": [
               "PM-1",
-              "PM-3"
+              "PM-3",
+              "PM-4",
+              "PM-5"
             ],
             "family_alert": true,
-            "latency_ms": 4200
+            "latency_ms": 3173
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.9,
+            "confidence": 0.8,
             "detected_signals": [],
-            "latency_ms": 1782
+            "latency_ms": 2760
           }
         }
       ],
@@ -2501,17 +2542,17 @@
         "message_count": 3,
         "full_accuracy": 0.667,
         "naive_accuracy": 0.667,
-        "full_detect_at_message": 1,
+        "full_detect_at_message": 2,
         "naive_detect_at_message": null,
-        "detection_advantage": 2,
-        "signal_precision": 0.5,
+        "detection_advantage": 1,
+        "signal_precision": 0.4,
         "signal_recall": 0.5,
         "family_alert_at_message": 2,
         "first_full_class": "safe",
         "first_naive_class": "safe",
-        "final_full_class": "high_risk",
+        "final_full_class": "scam",
         "final_naive_class": "safe",
-        "final_risk_score": 6.068
+        "final_risk_score": 9.095
       }
     },
     {
@@ -2526,19 +2567,17 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.112,
-            "risk_score": 1.12,
-            "detected_signals": [
-              "PM-14"
-            ],
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 3379
+            "latency_ms": 262481
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.9,
+            "confidence": 0.7,
             "detected_signals": [],
-            "latency_ms": 1636
+            "latency_ms": 2922
           }
         },
         {
@@ -2549,22 +2588,20 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.215,
-            "risk_score": 2.15,
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
             "detected_signals": [
-              "PM-14"
+              "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 3540
+            "latency_ms": 5373
           },
           "naive": {
-            "classification": "suspicious",
-            "confidence": 0.7,
-            "detected_signals": [
-              "investment opportunity"
-            ],
-            "latency_ms": 1739
+            "classification": "safe",
+            "confidence": 0.8,
+            "detected_signals": [],
+            "latency_ms": 2655
           }
         },
         {
@@ -2577,22 +2614,22 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "suspicious",
-            "confidence": 0.303,
-            "risk_score": 3.028,
+            "confidence": 0.493,
+            "risk_score": 4.927,
             "detected_signals": [
-              "PM-1"
+              "PM-1",
+              "PM-3"
             ],
-            "family_alert": false,
-            "latency_ms": 10287
+            "family_alert": true,
+            "latency_ms": 5160
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "urgency",
-              "pressure"
+              "urgency_scam_tactic"
             ],
-            "latency_ms": 1884
+            "latency_ms": 2355
           }
         },
         {
@@ -2603,22 +2640,23 @@
           ],
           "expected_class": "scam",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.564,
-            "risk_score": 5.636,
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
-              "PM-7"
+              "PM-7",
+              "PM-5"
             ],
-            "family_alert": true,
-            "latency_ms": 3814
+            "family_alert": false,
+            "latency_ms": 3109
           },
           "naive": {
             "classification": "scam",
-            "confidence": 0.8,
+            "confidence": 0.9,
             "detected_signals": [
-              "request_for_sensitive_information"
+              "request_financial_information"
             ],
-            "latency_ms": 1961
+            "latency_ms": 2466
           }
         }
       ],
@@ -2626,19 +2664,19 @@
         "scenario_id": "invest_seminar",
         "scam_type": "investment",
         "message_count": 4,
-        "full_accuracy": 0.5,
-        "naive_accuracy": 0.75,
-        "full_detect_at_message": 1,
-        "naive_detect_at_message": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 2,
+        "naive_detect_at_message": 2,
         "detection_advantage": 0,
-        "signal_precision": 0.5,
-        "signal_recall": 0.4,
-        "family_alert_at_message": 3,
+        "signal_precision": 0.6,
+        "signal_recall": 0.6,
+        "family_alert_at_message": 2,
         "first_full_class": "safe",
         "first_naive_class": "safe",
-        "final_full_class": "high_risk",
+        "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 5.636
+        "final_risk_score": 10.0
       }
     },
     {
@@ -2659,13 +2697,15 @@
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 4785
+            "latency_ms": 4202
           },
           "naive": {
-            "classification": "safe",
-            "confidence": 0.9,
-            "detected_signals": [],
-            "latency_ms": 2136
+            "classification": "spam",
+            "confidence": 0.8,
+            "detected_signals": [
+              "unsolicited marketing"
+            ],
+            "latency_ms": 2092
           }
         },
         {
@@ -2674,20 +2714,18 @@
           "expected_signals": [],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.215,
-            "risk_score": 2.15,
-            "detected_signals": [
-              "PM-14"
-            ],
+            "classification": "safe",
+            "confidence": 0.103,
+            "risk_score": 1.03,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 3837
+            "latency_ms": 4353
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2003
+            "latency_ms": 2495
           }
         },
         {
@@ -2698,23 +2736,25 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.614,
-            "risk_score": 6.138,
+            "classification": "scam",
+            "confidence": 0.959,
+            "risk_score": 9.593,
             "detected_signals": [
               "PM-3",
-              "PM-14"
+              "PM-5",
+              "PM-8"
             ],
             "family_alert": true,
-            "latency_ms": 4113
+            "latency_ms": 4736
           },
           "naive": {
             "classification": "suspicious",
-            "confidence": 0.7,
+            "confidence": 0.8,
             "detected_signals": [
-              "unsolicited_financial_request"
+              "financial_demand",
+              "urgency"
             ],
-            "latency_ms": 2217
+            "latency_ms": 2177
           }
         },
         {
@@ -2727,24 +2767,25 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "scam",
-            "confidence": 0.974,
-            "risk_score": 9.737,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-1",
-              "PM-3"
+              "PM-3",
+              "PM-5",
+              "PM-6"
             ],
             "family_alert": false,
-            "latency_ms": 4252
+            "latency_ms": 5166
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "demand for immediate payment",
-              "unspecified reason for fee",
-              "high amount requested"
+              "demand_for_money",
+              "urgency"
             ],
-            "latency_ms": 1805
+            "latency_ms": 2424
           }
         }
       ],
@@ -2753,18 +2794,18 @@
         "scam_type": "investment",
         "message_count": 4,
         "full_accuracy": 0.5,
-        "naive_accuracy": 0.75,
-        "full_detect_at_message": 1,
-        "naive_detect_at_message": 2,
-        "detection_advantage": 1,
-        "signal_precision": 0.5,
+        "naive_accuracy": 0.5,
+        "full_detect_at_message": 2,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.375,
         "signal_recall": 0.75,
         "family_alert_at_message": 2,
         "first_full_class": "safe",
-        "first_naive_class": "safe",
+        "first_naive_class": "spam",
         "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 9.737
+        "final_risk_score": 10.0
       }
     },
     {
@@ -2778,22 +2819,21 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.112,
-            "risk_score": 1.12,
+            "classification": "suspicious",
+            "confidence": 0.319,
+            "risk_score": 3.19,
             "detected_signals": [
-              "PM-14"
+              "PM-4",
+              "PM-8"
             ],
-            "family_alert": false,
-            "latency_ms": 3898
+            "family_alert": true,
+            "latency_ms": 2703
           },
           "naive": {
-            "classification": "suspicious",
-            "confidence": 0.7,
-            "detected_signals": [
-              "financial_opportunity_claim"
-            ],
-            "latency_ms": 1923
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2132
           }
         },
         {
@@ -2805,20 +2845,20 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.215,
-            "risk_score": 2.15,
+            "classification": "suspicious",
+            "confidence": 0.384,
+            "risk_score": 3.845,
             "detected_signals": [
-              "PM-14"
+              "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 4188
+            "latency_ms": 4916
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1860
+            "latency_ms": 1923
           }
         },
         {
@@ -2831,19 +2871,17 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "suspicious",
-            "confidence": 0.303,
-            "risk_score": 3.028,
-            "detected_signals": [
-              "PM-1"
-            ],
+            "confidence": 0.354,
+            "risk_score": 3.537,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 4327
+            "latency_ms": 252524
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1909
+            "latency_ms": 3000
           }
         }
       ],
@@ -2851,19 +2889,19 @@
         "scenario_id": "invest_gold",
         "scam_type": "investment",
         "message_count": 3,
-        "full_accuracy": 1.0,
-        "naive_accuracy": 0.0,
-        "full_detect_at_message": 1,
-        "naive_detect_at_message": 0,
-        "detection_advantage": 2,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
         "signal_precision": 0.333,
         "signal_recall": 0.2,
-        "family_alert_at_message": null,
-        "first_full_class": "safe",
-        "first_naive_class": "suspicious",
+        "family_alert_at_message": 0,
+        "first_full_class": "suspicious",
+        "first_naive_class": "safe",
         "final_full_class": "suspicious",
         "final_naive_class": "safe",
-        "final_risk_score": 3.028
+        "final_risk_score": 3.537
       }
     },
     {
@@ -2877,23 +2915,24 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.112,
-            "risk_score": 1.12,
+            "classification": "monitoring",
+            "confidence": 0.228,
+            "risk_score": 2.28,
             "detected_signals": [
-              "PM-14"
+              "PM-8"
             ],
-            "family_alert": false,
-            "latency_ms": 9658
+            "family_alert": true,
+            "latency_ms": 5843
           },
           "naive": {
-            "classification": "scam",
+            "classification": "spam",
             "confidence": 0.9,
             "detected_signals": [
               "investment tip",
-              "will triple next month"
+              "exclusive",
+              "triple next month"
             ],
-            "latency_ms": 1711
+            "latency_ms": 2132
           }
         },
         {
@@ -2904,23 +2943,23 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.215,
-            "risk_score": 2.15,
+            "classification": "suspicious",
+            "confidence": 0.408,
+            "risk_score": 4.08,
             "detected_signals": [
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 11770
+            "latency_ms": 5104
           },
           "naive": {
             "classification": "scam",
-            "confidence": 0.9,
+            "confidence": 0.8,
             "detected_signals": [
-              "unrealistic_returns",
-              "high_pressure_sales"
+              "unsolicited_financial_promise",
+              "high_return_guarantee"
             ],
-            "latency_ms": 2137
+            "latency_ms": 3063
           }
         },
         {
@@ -2933,25 +2972,25 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "scam",
-            "confidence": 0.939,
-            "risk_score": 9.393,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
-              "PM-1",
               "PM-3",
-              "PM-5"
+              "PM-6",
+              "PM-5",
+              "PM-1"
             ],
-            "family_alert": true,
-            "latency_ms": 4210
+            "family_alert": false,
+            "latency_ms": 3163
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "urgency",
               "financial demand",
-              "unsolicited request"
+              "urgency"
             ],
-            "latency_ms": 1770
+            "latency_ms": 2227
           }
         }
       ],
@@ -2959,19 +2998,19 @@
         "scenario_id": "invest_en_stocks",
         "scam_type": "investment",
         "message_count": 3,
-        "full_accuracy": 0.333,
+        "full_accuracy": 0.0,
         "naive_accuracy": 0.0,
-        "full_detect_at_message": 1,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
-        "detection_advantage": 2,
-        "signal_precision": 0.4,
+        "detection_advantage": 0,
+        "signal_precision": 0.333,
         "signal_recall": 0.5,
-        "family_alert_at_message": 2,
-        "first_full_class": "safe",
-        "first_naive_class": "scam",
+        "family_alert_at_message": 0,
+        "first_full_class": "monitoring",
+        "first_naive_class": "spam",
         "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 9.393
+        "final_risk_score": 10.0
       }
     },
     {
@@ -2983,20 +3022,20 @@
           "expected_signals": [],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.112,
-            "risk_score": 1.12,
+            "classification": "monitoring",
+            "confidence": 0.228,
+            "risk_score": 2.28,
             "detected_signals": [
-              "PM-14"
+              "PM-8"
             ],
-            "family_alert": false,
-            "latency_ms": 3634
+            "family_alert": true,
+            "latency_ms": 6385
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1741
+            "latency_ms": 2351
           }
         },
         {
@@ -3007,23 +3046,23 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.215,
-            "risk_score": 2.15,
+            "classification": "suspicious",
+            "confidence": 0.438,
+            "risk_score": 4.378,
             "detected_signals": [
-              "PM-14"
+              "PM-8"
             ],
             "family_alert": false,
-            "latency_ms": 4309
+            "latency_ms": 5178
           },
           "naive": {
             "classification": "spam",
             "confidence": 0.9,
             "detected_signals": [
-              "special offer",
-              "value increase claim"
+              "unsolicited offer",
+              "time-limited offer"
             ],
-            "latency_ms": 1877
+            "latency_ms": 2170
           }
         },
         {
@@ -3037,24 +3076,26 @@
           "expected_class": "scam",
           "full": {
             "classification": "scam",
-            "confidence": 0.939,
-            "risk_score": 9.393,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-1",
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-8",
+              "PM-14"
             ],
-            "family_alert": true,
-            "latency_ms": 3894
+            "family_alert": false,
+            "latency_ms": 3192
           },
           "naive": {
-            "classification": "scam",
-            "confidence": 0.9,
+            "classification": "suspicious",
+            "confidence": 0.7,
             "detected_signals": [
-              "unsolicited_payment_request",
-              "time_sensitive_offer"
+              "financial_transaction_request",
+              "urgency"
             ],
-            "latency_ms": 1880
+            "latency_ms": 2232
           }
         }
       ],
@@ -3062,19 +3103,19 @@
         "scenario_id": "invest_nft",
         "scam_type": "investment",
         "message_count": 3,
-        "full_accuracy": 0.667,
-        "naive_accuracy": 0.667,
-        "full_detect_at_message": 1,
+        "full_accuracy": 0.333,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 1,
-        "detection_advantage": 0,
-        "signal_precision": 0.6,
+        "detection_advantage": -2,
+        "signal_precision": 0.429,
         "signal_recall": 0.75,
-        "family_alert_at_message": 2,
-        "first_full_class": "safe",
+        "family_alert_at_message": 0,
+        "first_full_class": "monitoring",
         "first_naive_class": "safe",
         "final_full_class": "scam",
-        "final_naive_class": "scam",
-        "final_risk_score": 9.393
+        "final_naive_class": "suspicious",
+        "final_risk_score": 10.0
       }
     },
     {
@@ -3088,23 +3129,24 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.091,
-            "risk_score": 0.91,
+            "classification": "suspicious",
+            "confidence": 0.338,
+            "risk_score": 3.38,
             "detected_signals": [
-              "PM-4"
+              "PM-4",
+              "PM-6"
             ],
-            "family_alert": false,
-            "latency_ms": 4572
+            "family_alert": true,
+            "latency_ms": 5349
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "impersonation",
-              "financial threat"
+              "impersonation_of_authority",
+              "vague_threat"
             ],
-            "latency_ms": 1932
+            "latency_ms": 2566
           }
         },
         {
@@ -3115,24 +3157,25 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.331,
-            "risk_score": 3.307,
+            "classification": "high_risk",
+            "confidence": 0.649,
+            "risk_score": 6.49,
             "detected_signals": [
-              "PM-6"
+              "PM-6",
+              "PM-4"
             ],
-            "family_alert": true,
-            "latency_ms": 4870
+            "family_alert": false,
+            "latency_ms": 4952
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "threat_of_arrest",
-              "urgency",
-              "fear_mongering"
+              "threat of arrest",
+              "implied urgency",
+              "emotional manipulation"
             ],
-            "latency_ms": 2458
+            "latency_ms": 2214
           }
         },
         {
@@ -3143,22 +3186,23 @@
           ],
           "expected_class": "scam",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.589,
-            "risk_score": 5.893,
+            "classification": "scam",
+            "confidence": 0.973,
+            "risk_score": 9.73,
             "detected_signals": [
-              "PM-7"
+              "PM-7",
+              "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 5426
+            "latency_ms": 3011
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "request_sensitive_info"
+              "requests_sensitive_information"
             ],
-            "latency_ms": 1877
+            "latency_ms": 1982
           }
         }
       ],
@@ -3168,17 +3212,17 @@
         "message_count": 3,
         "full_accuracy": 0.667,
         "naive_accuracy": 0.333,
-        "full_detect_at_message": 1,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
-        "detection_advantage": 2,
-        "signal_precision": 1.0,
+        "detection_advantage": 0,
+        "signal_precision": 0.5,
         "signal_recall": 1.0,
-        "family_alert_at_message": 1,
-        "first_full_class": "safe",
+        "family_alert_at_message": 0,
+        "first_full_class": "suspicious",
         "first_naive_class": "scam",
-        "final_full_class": "high_risk",
+        "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 5.893
+        "final_risk_score": 9.73
       }
     },
     {
@@ -3192,22 +3236,24 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.091,
-            "risk_score": 0.91,
+            "classification": "monitoring",
+            "confidence": 0.196,
+            "risk_score": 1.96,
             "detected_signals": [
-              "PM-4"
+              "PM-4",
+              "PM-1"
             ],
             "family_alert": false,
-            "latency_ms": 8471
+            "latency_ms": 5086
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.8,
             "detected_signals": [
-              "impersonation"
+              "impersonation_attempt",
+              "security_alert_scam"
             ],
-            "latency_ms": 2073
+            "latency_ms": 2590
           }
         },
         {
@@ -3219,25 +3265,25 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.28,
-            "risk_score": 2.797,
+            "classification": "high_risk",
+            "confidence": 0.661,
+            "risk_score": 6.613,
             "detected_signals": [
               "PM-1",
-              "PM-4"
+              "PM-4",
+              "PM-7"
             ],
-            "family_alert": false,
-            "latency_ms": 7505
+            "family_alert": true,
+            "latency_ms": 3809
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "urgency",
-              "account freeze",
-              "identity verification"
+              "account freeze urgency",
+              "identity verification request"
             ],
-            "latency_ms": 2102
+            "latency_ms": 2297
           }
         },
         {
@@ -3248,22 +3294,23 @@
           ],
           "expected_class": "scam",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.542,
-            "risk_score": 5.423,
+            "classification": "scam",
+            "confidence": 0.984,
+            "risk_score": 9.844,
             "detected_signals": [
+              "PM-4",
               "PM-7"
             ],
-            "family_alert": true,
-            "latency_ms": 4982
+            "family_alert": false,
+            "latency_ms": 2658
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "request for sensitive personal information"
+              "request_sensitive_info"
             ],
-            "latency_ms": 1668
+            "latency_ms": 2114
           }
         }
       ],
@@ -3271,19 +3318,19 @@
         "scenario_id": "authority_bank",
         "scam_type": "authority",
         "message_count": 3,
-        "full_accuracy": 0.333,
+        "full_accuracy": 0.667,
         "naive_accuracy": 0.333,
-        "full_detect_at_message": 1,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
-        "detection_advantage": 2,
-        "signal_precision": 1.0,
+        "detection_advantage": 0,
+        "signal_precision": 0.571,
         "signal_recall": 1.0,
-        "family_alert_at_message": 2,
-        "first_full_class": "safe",
+        "family_alert_at_message": 1,
+        "first_full_class": "monitoring",
         "first_naive_class": "suspicious",
-        "final_full_class": "high_risk",
+        "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 5.423
+        "final_risk_score": 9.844
       }
     },
     {
@@ -3298,20 +3345,21 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "safe",
-            "confidence": 0.091,
-            "risk_score": 0.91,
+            "classification": "suspicious",
+            "confidence": 0.3,
+            "risk_score": 3.0,
             "detected_signals": [
-              "PM-4"
+              "PM-4",
+              "PM-9"
             ],
-            "family_alert": false,
-            "latency_ms": 4768
+            "family_alert": true,
+            "latency_ms": 5689
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2116
+            "latency_ms": 2688
           }
         },
         {
@@ -3323,23 +3371,23 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "suspicious",
-            "confidence": 0.384,
-            "risk_score": 3.837,
+            "confidence": 0.485,
+            "risk_score": 4.85,
             "detected_signals": [
-              "PM-4",
               "PM-9"
             ],
-            "family_alert": true,
-            "latency_ms": 20414
+            "family_alert": false,
+            "latency_ms": 4049
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "implied urgency",
-              "request for action at ATM"
+              "impersonation_of_authority",
+              "request_for_urgent_action",
+              "request_for_sensitive_transaction"
             ],
-            "latency_ms": 2044
+            "latency_ms": 2417
           }
         },
         {
@@ -3351,21 +3399,20 @@
           ],
           "expected_class": "scam",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.653,
-            "risk_score": 6.53,
-            "detected_signals": [
-              "PM-4",
-              "PM-9"
-            ],
+            "classification": "suspicious",
+            "confidence": 0.446,
+            "risk_score": 4.462,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 6414
+            "latency_ms": 284126
           },
           "naive": {
-            "classification": "safe",
-            "confidence": 0.9,
-            "detected_signals": [],
-            "latency_ms": 2326
+            "classification": "suspicious",
+            "confidence": 0.8,
+            "detected_signals": [
+              "request_for_personal_information"
+            ],
+            "latency_ms": 3069
           }
         }
       ],
@@ -3373,19 +3420,19 @@
         "scenario_id": "authority_tax_refund",
         "scam_type": "authority",
         "message_count": 3,
-        "full_accuracy": 0.333,
+        "full_accuracy": 0.667,
         "naive_accuracy": 0.0,
-        "full_detect_at_message": 1,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 1,
-        "detection_advantage": 0,
-        "signal_precision": 0.6,
+        "detection_advantage": -2,
+        "signal_precision": 1.0,
         "signal_recall": 0.6,
-        "family_alert_at_message": 1,
-        "first_full_class": "safe",
+        "family_alert_at_message": 0,
+        "first_full_class": "suspicious",
         "first_naive_class": "safe",
-        "final_full_class": "high_risk",
-        "final_naive_class": "safe",
-        "final_risk_score": 6.53
+        "final_full_class": "suspicious",
+        "final_naive_class": "suspicious",
+        "final_risk_score": 4.462
       }
     },
     {
@@ -3406,16 +3453,16 @@
               "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 6600
+            "latency_ms": 3091
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "impersonation_attempt",
-              "urgency_scam"
+              "impersonation_of_authority",
+              "urgency"
             ],
-            "latency_ms": 1866
+            "latency_ms": 2261
           }
         },
         {
@@ -3426,24 +3473,25 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.28,
-            "risk_score": 2.797,
+            "classification": "high_risk",
+            "confidence": 0.527,
+            "risk_score": 5.267,
             "detected_signals": [
               "PM-1",
-              "PM-4"
+              "PM-4",
+              "PM-6"
             ],
-            "family_alert": false,
-            "latency_ms": 5200
+            "family_alert": true,
+            "latency_ms": 3322
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
               "urgency",
-              "threat"
+              "threat_of_loss"
             ],
-            "latency_ms": 1868
+            "latency_ms": 2097
           }
         },
         {
@@ -3456,24 +3504,24 @@
           "expected_class": "scam",
           "full": {
             "classification": "scam",
-            "confidence": 0.894,
-            "risk_score": 8.938,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
-              "PM-3",
-              "PM-5"
+              "PM-4",
+              "PM-5",
+              "PM-3"
             ],
-            "family_alert": true,
-            "latency_ms": 6427
+            "family_alert": false,
+            "latency_ms": 211940
           },
           "naive": {
             "classification": "suspicious",
-            "confidence": 0.7,
+            "confidence": 0.8,
             "detected_signals": [
               "unsolicited financial demand",
-              "payment via convenience store",
-              "vague reference to customs duty"
+              "payment method pressure"
             ],
-            "latency_ms": 1992
+            "latency_ms": 2540
           }
         }
       ],
@@ -3486,14 +3534,14 @@
         "full_detect_at_message": 1,
         "naive_detect_at_message": 0,
         "detection_advantage": 2,
-        "signal_precision": 0.8,
+        "signal_precision": 0.571,
         "signal_recall": 1.0,
-        "family_alert_at_message": 2,
+        "family_alert_at_message": 1,
         "first_full_class": "safe",
         "first_naive_class": "suspicious",
         "final_full_class": "scam",
         "final_naive_class": "suspicious",
-        "final_risk_score": 8.938
+        "final_risk_score": 10.0
       }
     },
     {
@@ -3509,22 +3557,24 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "suspicious",
-            "confidence": 0.338,
-            "risk_score": 3.38,
+            "confidence": 0.45,
+            "risk_score": 4.5,
             "detected_signals": [
               "PM-4",
-              "PM-6"
+              "PM-6",
+              "PM-14"
             ],
             "family_alert": true,
-            "latency_ms": 4432
+            "latency_ms": 5854
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.7,
             "detected_signals": [
-              "unsolicited_legal_threat"
+              "impersonation_of_authority",
+              "unsolicited_financial_demand"
             ],
-            "latency_ms": 2287
+            "latency_ms": 2021
           }
         },
         {
@@ -3538,24 +3588,25 @@
           "expected_class": "scam",
           "full": {
             "classification": "scam",
-            "confidence": 0.967,
-            "risk_score": 9.67,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-1",
-              "PM-3",
-              "PM-6"
+              "PM-6",
+              "PM-3"
             ],
             "family_alert": false,
-            "latency_ms": 4520
+            "latency_ms": 5128
           },
           "naive": {
             "classification": "scam",
-            "confidence": 0.8,
+            "confidence": 0.9,
             "detected_signals": [
-              "threat_of_legal_action",
-              "demand_for_payment"
+              "financial demand",
+              "threat of legal action",
+              "urgency"
             ],
-            "latency_ms": 1849
+            "latency_ms": 2220
           }
         }
       ],
@@ -3568,14 +3619,14 @@
         "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
         "detection_advantage": 0,
-        "signal_precision": 1.0,
+        "signal_precision": 0.833,
         "signal_recall": 1.0,
         "family_alert_at_message": 0,
         "first_full_class": "suspicious",
         "first_naive_class": "suspicious",
         "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 9.67
+        "final_risk_score": 10.0
       }
     },
     {
@@ -3589,20 +3640,21 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.091,
-            "risk_score": 0.91,
+            "classification": "monitoring",
+            "confidence": 0.157,
+            "risk_score": 1.573,
             "detected_signals": [
-              "PM-4"
+              "PM-4",
+              "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 5758
+            "latency_ms": 5023
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2398
+            "latency_ms": 2007
           }
         },
         {
@@ -3613,23 +3665,24 @@
           ],
           "expected_class": "monitoring",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.479,
-            "risk_score": 4.787,
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-3",
-              "PM-4"
+              "PM-5",
+              "PM-8"
             ],
             "family_alert": true,
-            "latency_ms": 4561
+            "latency_ms": 3112
           },
           "naive": {
-            "classification": "scam",
-            "confidence": 0.9,
+            "classification": "suspicious",
+            "confidence": 0.8,
             "detected_signals": [
-              "demand_for_payment_for_unsolicited_benefit"
+              "demand_for_payment"
             ],
-            "latency_ms": 1873
+            "latency_ms": 2115
           }
         },
         {
@@ -3651,16 +3704,17 @@
               "PM-5"
             ],
             "family_alert": false,
-            "latency_ms": 5932
+            "latency_ms": 3441
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "urgency",
-              "financial_request"
+              "request for prepaid card purchase",
+              "request for sensitive information (card number)",
+              "urgency implied by '至急' (immediately)"
             ],
-            "latency_ms": 2111
+            "latency_ms": 1944
           }
         }
       ],
@@ -3668,15 +3722,15 @@
         "scenario_id": "authority_insurance",
         "scam_type": "authority",
         "message_count": 3,
-        "full_accuracy": 1.0,
-        "naive_accuracy": 0.667,
-        "full_detect_at_message": 1,
+        "full_accuracy": 0.333,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": 1,
-        "detection_advantage": 0,
-        "signal_precision": 0.667,
+        "detection_advantage": -2,
+        "signal_precision": 0.5,
         "signal_recall": 0.8,
         "family_alert_at_message": 1,
-        "first_full_class": "safe",
+        "first_full_class": "monitoring",
         "first_naive_class": "safe",
         "final_full_class": "scam",
         "final_naive_class": "scam",
@@ -3701,16 +3755,17 @@
               "PM-4"
             ],
             "family_alert": false,
-            "latency_ms": 5332
+            "latency_ms": 2985
           },
           "naive": {
             "classification": "suspicious",
             "confidence": 0.8,
             "detected_signals": [
-              "potential impersonation",
-              "unsolicited financial demand"
+              "unsolicited_contact",
+              "payment_demand",
+              "implied_threat"
             ],
-            "latency_ms": 2762
+            "latency_ms": 2288
           }
         },
         {
@@ -3722,24 +3777,25 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.28,
-            "risk_score": 2.797,
+            "classification": "high_risk",
+            "confidence": 0.527,
+            "risk_score": 5.267,
             "detected_signals": [
               "PM-1",
-              "PM-4"
+              "PM-4",
+              "PM-6"
             ],
-            "family_alert": false,
-            "latency_ms": 4810
+            "family_alert": true,
+            "latency_ms": 3611
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "threat_of_service_interruption",
+              "threat_of_service_disruption",
               "demand_for_immediate_payment"
             ],
-            "latency_ms": 2117
+            "latency_ms": 2708
           }
         },
         {
@@ -3752,22 +3808,24 @@
           "expected_class": "scam",
           "full": {
             "classification": "scam",
-            "confidence": 0.894,
-            "risk_score": 8.938,
+            "confidence": 1.0,
+            "risk_score": 10.0,
             "detected_signals": [
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-4"
             ],
-            "family_alert": true,
-            "latency_ms": 4623
+            "family_alert": false,
+            "latency_ms": 5432
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "request_for_financial_information"
+              "request_for_financial_transaction",
+              "request_for_personal_information_transfer"
             ],
-            "latency_ms": 1654
+            "latency_ms": 2148
           }
         }
       ],
@@ -3775,19 +3833,19 @@
         "scenario_id": "authority_telco",
         "scam_type": "authority",
         "message_count": 3,
-        "full_accuracy": 0.667,
+        "full_accuracy": 1.0,
         "naive_accuracy": 0.333,
         "full_detect_at_message": 1,
         "naive_detect_at_message": 0,
         "detection_advantage": 2,
-        "signal_precision": 0.6,
-        "signal_recall": 0.6,
-        "family_alert_at_message": 2,
+        "signal_precision": 0.571,
+        "signal_recall": 0.8,
+        "family_alert_at_message": 1,
         "first_full_class": "safe",
         "first_naive_class": "suspicious",
         "final_full_class": "scam",
         "final_naive_class": "scam",
-        "final_risk_score": 8.938
+        "final_risk_score": 10.0
       }
     },
     {
@@ -3802,13 +3860,11 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.091,
-            "risk_score": 0.91,
-            "detected_signals": [
-              "PM-4"
-            ],
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 4978
+            "latency_ms": 263230
           },
           "naive": {
             "classification": "scam",
@@ -3817,7 +3873,7 @@
               "impersonation",
               "financial threat"
             ],
-            "latency_ms": 1763
+            "latency_ms": 2106
           }
         },
         {
@@ -3830,23 +3886,25 @@
           "expected_class": "suspicious",
           "full": {
             "classification": "suspicious",
-            "confidence": 0.436,
-            "risk_score": 4.357,
+            "confidence": 0.443,
+            "risk_score": 4.43,
             "detected_signals": [
-              "PM-1",
-              "PM-6"
+              "PM-6",
+              "PM-4",
+              "PM-1"
             ],
             "family_alert": true,
-            "latency_ms": 9337
+            "latency_ms": 4422
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "threat_of_arrest_and_prosecution",
-              "unrealistic_payment_deadline"
+              "threat of arrest",
+              "threat of prosecution",
+              "artificial urgency"
             ],
-            "latency_ms": 2375
+            "latency_ms": 2553
           }
         },
         {
@@ -3863,22 +3921,22 @@
             "confidence": 1.0,
             "risk_score": 10.0,
             "detected_signals": [
-              "PM-1",
               "PM-3",
-              "PM-5"
+              "PM-5",
+              "PM-8",
+              "PM-1"
             ],
             "family_alert": false,
-            "latency_ms": 5343
+            "latency_ms": 3320
           },
           "naive": {
             "classification": "scam",
-            "confidence": 0.95,
+            "confidence": 0.9,
             "detected_signals": [
-              "financial_transaction_request",
-              "unusual_payment_method",
-              "urgency_implied"
+              "urgent_financial_request",
+              "unusual_payment_method"
             ],
-            "latency_ms": 2062
+            "latency_ms": 1989
           }
         }
       ],
@@ -3891,8 +3949,8 @@
         "full_detect_at_message": 1,
         "naive_detect_at_message": 0,
         "detection_advantage": 2,
-        "signal_precision": 0.833,
-        "signal_recall": 0.833,
+        "signal_precision": 0.571,
+        "signal_recall": 0.667,
         "family_alert_at_message": 1,
         "first_full_class": "safe",
         "first_naive_class": "scam",
@@ -3913,19 +3971,23 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.03,
-            "risk_score": 0.3,
+            "confidence": 0.018,
+            "risk_score": 0.18,
             "detected_signals": [
               "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 5307
+            "latency_ms": 5309
           },
           "naive": {
-            "classification": "safe",
-            "confidence": 0.9,
-            "detected_signals": [],
-            "latency_ms": 2066
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "impersonation",
+              "financial_request",
+              "urgency"
+            ],
+            "latency_ms": 2081
           }
         },
         {
@@ -3936,21 +3998,20 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.462,
-            "risk_score": 4.618,
+            "classification": "monitoring",
+            "confidence": 0.199,
+            "risk_score": 1.99,
             "detected_signals": [
-              "PM-11",
               "PM-3"
             ],
             "family_alert": true,
-            "latency_ms": 6161
+            "latency_ms": 5651
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1737
+            "latency_ms": 2241
           }
         }
       ],
@@ -3959,18 +4020,18 @@
         "scam_type": "legitimate",
         "message_count": 2,
         "full_accuracy": 0.5,
-        "naive_accuracy": 1.0,
+        "naive_accuracy": 0.5,
         "full_detect_at_message": 1,
-        "naive_detect_at_message": null,
+        "naive_detect_at_message": 0,
         "detection_advantage": 1,
-        "signal_precision": 0.667,
+        "signal_precision": 1.0,
         "signal_recall": 1.0,
         "family_alert_at_message": 1,
         "first_full_class": "safe",
-        "first_naive_class": "safe",
-        "final_full_class": "suspicious",
+        "first_naive_class": "suspicious",
+        "final_full_class": "monitoring",
         "final_naive_class": "safe",
-        "final_risk_score": 4.618
+        "final_risk_score": 1.99
       }
     },
     {
@@ -3984,21 +4045,22 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.142,
-            "risk_score": 1.42,
+            "classification": "monitoring",
+            "confidence": 0.161,
+            "risk_score": 1.608,
             "detected_signals": [
               "PM-11",
+              "PM-10",
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 5267
+            "latency_ms": 3230
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1678
+            "latency_ms": 2011
           }
         },
         {
@@ -4009,22 +4071,21 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.71,
-            "risk_score": 7.104,
+            "classification": "monitoring",
+            "confidence": 0.233,
+            "risk_score": 2.331,
             "detected_signals": [
-              "PM-11",
-              "PM-3",
-              "PM-14"
+              "PM-14",
+              "PM-11"
             ],
-            "family_alert": true,
-            "latency_ms": 5943
+            "family_alert": false,
+            "latency_ms": 5369
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1926
+            "latency_ms": 2569
           }
         }
       ],
@@ -4032,19 +4093,19 @@
         "scenario_id": "legit_grandchild_textbook",
         "scam_type": "legitimate",
         "message_count": 2,
-        "full_accuracy": 0.5,
+        "full_accuracy": 0.0,
         "naive_accuracy": 1.0,
-        "full_detect_at_message": 1,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": null,
-        "detection_advantage": 1,
-        "signal_precision": 0.4,
-        "signal_recall": 1.0,
-        "family_alert_at_message": 1,
-        "first_full_class": "safe",
+        "detection_advantage": 0,
+        "signal_precision": 0.2,
+        "signal_recall": 0.5,
+        "family_alert_at_message": null,
+        "first_full_class": "monitoring",
         "first_naive_class": "safe",
-        "final_full_class": "high_risk",
+        "final_full_class": "monitoring",
         "final_naive_class": "safe",
-        "final_risk_score": 7.104
+        "final_risk_score": 2.331
       }
     },
     {
@@ -4060,24 +4121,25 @@
           "expected_class": "safe",
           "full": {
             "classification": "monitoring",
-            "confidence": 0.268,
-            "risk_score": 2.68,
+            "confidence": 0.161,
+            "risk_score": 1.608,
             "detected_signals": [
               "PM-11",
               "PM-10",
               "PM-14"
             ],
             "family_alert": false,
-            "latency_ms": 4885
+            "latency_ms": 3601
           },
           "naive": {
             "classification": "suspicious",
-            "confidence": 0.8,
+            "confidence": 0.7,
             "detected_signals": [
-              "family impersonation",
-              "financial request"
+              "potential_impersonation",
+              "financial_request",
+              "emotional_manipulation"
             ],
-            "latency_ms": 1812
+            "latency_ms": 2557
           }
         },
         {
@@ -4088,22 +4150,20 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "scam",
-            "confidence": 0.826,
-            "risk_score": 8.264,
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.151,
             "detected_signals": [
-              "PM-11",
-              "PM-3",
               "PM-14"
             ],
-            "family_alert": true,
-            "latency_ms": 5599
+            "family_alert": false,
+            "latency_ms": 5886
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2102
+            "latency_ms": 2154
           }
         }
       ],
@@ -4117,13 +4177,13 @@
         "naive_detect_at_message": 0,
         "detection_advantage": 0,
         "signal_precision": 0.5,
-        "signal_recall": 1.0,
-        "family_alert_at_message": 1,
+        "signal_recall": 0.667,
+        "family_alert_at_message": null,
         "first_full_class": "monitoring",
         "first_naive_class": "suspicious",
-        "final_full_class": "scam",
+        "final_full_class": "monitoring",
         "final_naive_class": "safe",
-        "final_risk_score": 8.264
+        "final_risk_score": 2.151
       }
     },
     {
@@ -4140,13 +4200,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 4969
+            "latency_ms": 2467
           },
           "naive": {
             "classification": "safe",
             "confidence": 1.0,
             "detected_signals": [],
-            "latency_ms": 1884
+            "latency_ms": 2318
           }
         }
       ],
@@ -4180,20 +4240,21 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "safe",
-            "confidence": 0.091,
-            "risk_score": 0.91,
+            "classification": "monitoring",
+            "confidence": 0.217,
+            "risk_score": 2.17,
             "detected_signals": [
-              "PM-4"
+              "PM-4",
+              "PM-10"
             ],
             "family_alert": false,
-            "latency_ms": 4809
+            "latency_ms": 4747
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.8,
             "detected_signals": [],
-            "latency_ms": 2785
+            "latency_ms": 2116
           }
         }
       ],
@@ -4201,19 +4262,19 @@
         "scenario_id": "legit_bank_notification",
         "scam_type": "legitimate",
         "message_count": 1,
-        "full_accuracy": 1.0,
+        "full_accuracy": 0.0,
         "naive_accuracy": 1.0,
-        "full_detect_at_message": null,
+        "full_detect_at_message": 0,
         "naive_detect_at_message": null,
         "detection_advantage": 0,
-        "signal_precision": 1.0,
+        "signal_precision": 0.5,
         "signal_recall": 1.0,
         "family_alert_at_message": null,
-        "first_full_class": "safe",
+        "first_full_class": "monitoring",
         "first_naive_class": "safe",
-        "final_full_class": "safe",
+        "final_full_class": "monitoring",
         "final_naive_class": "safe",
-        "final_risk_score": 0.91
+        "final_risk_score": 2.17
       }
     },
     {
@@ -4230,13 +4291,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 5421
+            "latency_ms": 4974
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.95,
+            "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 2128
+            "latency_ms": 1920
           }
         },
         {
@@ -4250,13 +4311,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 4938
+            "latency_ms": 3322
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1710
+            "latency_ms": 1893
           }
         }
       ],
@@ -4293,13 +4354,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 5287
+            "latency_ms": 2782
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1849
+            "latency_ms": 2563
           }
         }
       ],
@@ -4334,19 +4395,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.03,
-            "risk_score": 0.3,
+            "confidence": 0.018,
+            "risk_score": 0.18,
             "detected_signals": [
               "PM-11"
             ],
             "family_alert": false,
-            "latency_ms": 6054
+            "latency_ms": 2889
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.95,
+            "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1926
+            "latency_ms": 2104
           }
         },
         {
@@ -4356,19 +4417,17 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.058,
-            "risk_score": 0.576,
-            "detected_signals": [
-              "PM-11"
-            ],
+            "confidence": 0.017,
+            "risk_score": 0.166,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 5157
+            "latency_ms": 4757
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1802
+            "latency_ms": 1889
           }
         },
         {
@@ -4379,22 +4438,22 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.633,
-            "risk_score": 6.328,
+            "classification": "monitoring",
+            "confidence": 0.283,
+            "risk_score": 2.828,
             "detected_signals": [
-              "PM-11",
               "PM-3",
-              "PM-14"
+              "PM-14",
+              "PM-11"
             ],
             "family_alert": true,
-            "latency_ms": 6088
+            "latency_ms": 5676
           },
           "naive": {
             "classification": "safe",
-            "confidence": 0.9,
+            "confidence": 0.8,
             "detected_signals": [],
-            "latency_ms": 2561
+            "latency_ms": 2456
           }
         }
       ],
@@ -4407,14 +4466,14 @@
         "full_detect_at_message": 2,
         "naive_detect_at_message": null,
         "detection_advantage": 1,
-        "signal_precision": 0.4,
+        "signal_precision": 0.5,
         "signal_recall": 1.0,
         "family_alert_at_message": 2,
         "first_full_class": "safe",
         "first_naive_class": "safe",
-        "final_full_class": "high_risk",
+        "final_full_class": "monitoring",
         "final_naive_class": "safe",
-        "final_risk_score": 6.328
+        "final_risk_score": 2.828
       }
     },
     {
@@ -4427,23 +4486,20 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.112,
-            "risk_score": 1.12,
-            "detected_signals": [
-              "PM-14"
-            ],
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 5216
+            "latency_ms": 281333
           },
           "naive": {
             "classification": "spam",
-            "confidence": 0.9,
+            "confidence": 0.8,
             "detected_signals": [
               "unsolicited marketing",
-              "limited-time offer",
-              "discount"
+              "limited-time offer"
             ],
-            "latency_ms": 1596
+            "latency_ms": 1948
           }
         }
       ],
@@ -4463,7 +4519,7 @@
         "first_naive_class": "spam",
         "final_full_class": "safe",
         "final_naive_class": "spam",
-        "final_risk_score": 1.12
+        "final_risk_score": 0.0
       }
     },
     {
@@ -4484,16 +4540,16 @@
               "PM-8"
             ],
             "family_alert": true,
-            "latency_ms": 5518
+            "latency_ms": 2936
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
               "unsolicited prize notification",
-              "large sum of money"
+              "large monetary reward"
             ],
-            "latency_ms": 1963
+            "latency_ms": 2455
           }
         },
         {
@@ -4505,24 +4561,21 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "high_risk",
-            "confidence": 0.605,
-            "risk_score": 6.048,
-            "detected_signals": [
-              "PM-3",
-              "PM-4"
-            ],
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 5386
+            "latency_ms": 267593
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "unsolicited payment request",
-              "unspecified recipient"
+              "demand_for_payment",
+              "lack_of_context"
             ],
-            "latency_ms": 1961
+            "latency_ms": 2295
           }
         }
       ],
@@ -4530,19 +4583,19 @@
         "scenario_id": "spam_lottery",
         "scam_type": "spam",
         "message_count": 2,
-        "full_accuracy": 1.0,
+        "full_accuracy": 0.5,
         "naive_accuracy": 0.0,
         "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
         "detection_advantage": 0,
-        "signal_precision": 0.667,
-        "signal_recall": 0.667,
+        "signal_precision": 1.0,
+        "signal_recall": 0.333,
         "family_alert_at_message": 0,
         "first_full_class": "monitoring",
         "first_naive_class": "scam",
-        "final_full_class": "high_risk",
+        "final_full_class": "safe",
         "final_naive_class": "scam",
-        "final_risk_score": 6.048
+        "final_risk_score": 0.0
       }
     },
     {
@@ -4554,24 +4607,26 @@
           "expected_signals": [],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.253,
-            "risk_score": 2.53,
+            "classification": "suspicious",
+            "confidence": 0.358,
+            "risk_score": 3.58,
             "detected_signals": [
-              "PM-8",
-              "PM-12"
+              "PM-1",
+              "PM-12",
+              "PM-8"
             ],
             "family_alert": true,
-            "latency_ms": 4876
+            "latency_ms": 4074
           },
           "naive": {
-            "classification": "spam",
+            "classification": "suspicious",
             "confidence": 0.8,
             "detected_signals": [
-              "unsolicited message",
-              "call to action to login"
+              "impersonation_or_scam",
+              "unsolicited_contact",
+              "fake_urgency"
             ],
-            "latency_ms": 1856
+            "latency_ms": 2893
           }
         }
       ],
@@ -4580,18 +4635,18 @@
         "scam_type": "spam",
         "message_count": 1,
         "full_accuracy": 0.0,
-        "naive_accuracy": 1.0,
+        "naive_accuracy": 0.0,
         "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
         "detection_advantage": 0,
         "signal_precision": 0.0,
         "signal_recall": 0.0,
         "family_alert_at_message": 0,
-        "first_full_class": "monitoring",
-        "first_naive_class": "spam",
-        "final_full_class": "monitoring",
-        "final_naive_class": "spam",
-        "final_risk_score": 2.53
+        "first_full_class": "suspicious",
+        "first_naive_class": "suspicious",
+        "final_full_class": "suspicious",
+        "final_naive_class": "suspicious",
+        "final_risk_score": 3.58
       }
     },
     {
@@ -4606,25 +4661,26 @@
           ],
           "expected_class": "suspicious",
           "full": {
-            "classification": "suspicious",
-            "confidence": 0.376,
-            "risk_score": 3.76,
+            "classification": "high_risk",
+            "confidence": 0.604,
+            "risk_score": 6.04,
             "detected_signals": [
               "PM-4",
-              "PM-7"
+              "PM-7",
+              "PM-8"
             ],
             "family_alert": true,
-            "latency_ms": 4909
+            "latency_ms": 5499
           },
           "naive": {
             "classification": "scam",
             "confidence": 0.9,
             "detected_signals": [
-              "impersonation",
               "account suspension",
-              "identity verification request"
+              "identity verification request",
+              "urgent action required"
             ],
-            "latency_ms": 1930
+            "latency_ms": 2599
           }
         }
       ],
@@ -4637,14 +4693,14 @@
         "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
         "detection_advantage": 0,
-        "signal_precision": 1.0,
+        "signal_precision": 0.667,
         "signal_recall": 1.0,
         "family_alert_at_message": 0,
-        "first_full_class": "suspicious",
+        "first_full_class": "high_risk",
         "first_naive_class": "scam",
-        "final_full_class": "suspicious",
+        "final_full_class": "high_risk",
         "final_naive_class": "scam",
-        "final_risk_score": 3.76
+        "final_risk_score": 6.04
       }
     },
     {
@@ -4658,22 +4714,20 @@
           ],
           "expected_class": "safe",
           "full": {
-            "classification": "monitoring",
-            "confidence": 0.228,
-            "risk_score": 2.28,
+            "classification": "suspicious",
+            "confidence": 0.332,
+            "risk_score": 3.325,
             "detected_signals": [
-              "PM-8"
+              "PM-5"
             ],
             "family_alert": true,
-            "latency_ms": 4420
+            "latency_ms": 5530
           },
           "naive": {
-            "classification": "suspicious",
-            "confidence": 0.7,
-            "detected_signals": [
-              "unsolicited offer"
-            ],
-            "latency_ms": 1950
+            "classification": "spam",
+            "confidence": 0.8,
+            "detected_signals": [],
+            "latency_ms": 1973
           }
         }
       ],
@@ -4682,18 +4736,18 @@
         "scam_type": "spam",
         "message_count": 1,
         "full_accuracy": 0.0,
-        "naive_accuracy": 0.0,
+        "naive_accuracy": 1.0,
         "full_detect_at_message": 0,
         "naive_detect_at_message": 0,
         "detection_advantage": 0,
-        "signal_precision": 1.0,
-        "signal_recall": 1.0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
         "family_alert_at_message": 0,
-        "first_full_class": "monitoring",
-        "first_naive_class": "suspicious",
-        "final_full_class": "monitoring",
-        "final_naive_class": "suspicious",
-        "final_risk_score": 2.28
+        "first_full_class": "suspicious",
+        "first_naive_class": "spam",
+        "final_full_class": "suspicious",
+        "final_naive_class": "spam",
+        "final_risk_score": 3.325
       }
     },
     {
@@ -4710,13 +4764,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 14484
+            "latency_ms": 3053
           },
           "naive": {
             "classification": "safe",
             "confidence": 1.0,
             "detected_signals": [],
-            "latency_ms": 2111
+            "latency_ms": 2357
           }
         }
       ],
@@ -4753,13 +4807,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 4102
+            "latency_ms": 2903
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1671
+            "latency_ms": 1897
           }
         },
         {
@@ -4773,13 +4827,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 4382
+            "latency_ms": 2971
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1850
+            "latency_ms": 2140
           }
         }
       ],
@@ -4816,13 +4870,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 4550
+            "latency_ms": 2362
           },
           "naive": {
             "classification": "safe",
             "confidence": 1.0,
             "detected_signals": [],
-            "latency_ms": 1865
+            "latency_ms": 1955
           }
         }
       ],
@@ -4859,13 +4913,13 @@
             "risk_score": 0.0,
             "detected_signals": [],
             "family_alert": false,
-            "latency_ms": 7936
+            "latency_ms": 2989
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1998
+            "latency_ms": 1991
           }
         }
       ],
@@ -4898,17 +4952,19 @@
           "expected_class": "safe",
           "full": {
             "classification": "safe",
-            "confidence": 0.0,
-            "risk_score": 0.0,
-            "detected_signals": [],
+            "confidence": 0.105,
+            "risk_score": 1.05,
+            "detected_signals": [
+              "PM-1"
+            ],
             "family_alert": false,
-            "latency_ms": 5183
+            "latency_ms": 5370
           },
           "naive": {
             "classification": "safe",
             "confidence": 0.9,
             "detected_signals": [],
-            "latency_ms": 1734
+            "latency_ms": 2130
           }
         }
       ],
@@ -4928,7 +4984,7 @@
         "first_naive_class": "safe",
         "final_full_class": "safe",
         "final_naive_class": "safe",
-        "final_risk_score": 0.0
+        "final_risk_score": 1.05
       }
     }
   ]

@@ -91,6 +91,30 @@ _intercept_runner = Runner(
 # Risk ledger cache — persists ConversationRiskLedger per conversation
 _risk_ledgers: dict[str, ConversationRiskLedger] = {}
 
+# Sender trust → ledger contribution modifier (see ConversationRiskLedger.update)
+TRUST_DAMPEN_VERIFIED = 0.6   # direct graph contact: monitored, not flagged
+TRUST_BOOST_IMPOSTER = 1.3    # unknown sender claiming family — ore-ore signature
+
+
+def _sender_trust_modifier(pipeline_ctx: dict, signals: list[str],
+                           ledger: ConversationRiskLedger) -> float:
+    """Map the social graph's verdict on the sender to a ledger modifier.
+
+    The signal detector reports what the text says; the graph reports who
+    is saying it. A money request from a verified grandson and the same
+    words from a stranger claiming to be him are different events — this
+    is where that difference reaches the deterministic scoring layer.
+    The family-claim boost is sticky for the conversation: ore-ore openers
+    claim identity once, then escalate.
+    """
+    graph = (pipeline_ctx or {}).get("graph_validation") or {}
+    if graph.get("is_known_contact") and graph.get("graph_distance") == 0:
+        return TRUST_DAMPEN_VERIFIED
+    claimed_family = "PM-11" in signals or ledger.signal_counts.get("PM-11", 0) > 0
+    if claimed_family and graph.get("graph_distance", -1) == -1:
+        return TRUST_BOOST_IMPOSTER
+    return 1.0
+
 # Audit log for intercept hold decisions — append-only
 _hold_audit_log: list[dict] = []
 
@@ -443,7 +467,8 @@ async def classify_message(req: ClassifyRequest):
         if ledger_key not in _risk_ledgers:
             _risk_ledgers[ledger_key] = ConversationRiskLedger(conversation_id=ledger_key)
         ledger = _risk_ledgers[ledger_key]
-        ledger_update = ledger.update(llm_signals)
+        trust_mod = _sender_trust_modifier(pipeline_ctx, llm_signals, ledger)
+        ledger_update = ledger.update(llm_signals, trust_modifier=trust_mod)
 
         # Override LLM classification with ledger-computed values
         result["classification"] = ledger_update["api_classification"]

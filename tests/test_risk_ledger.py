@@ -121,6 +121,56 @@ def test_alert_fires_once():
     assert ledger.family_alert_fired
 
 
+def test_trust_modifier_dampens_verified_contact():
+    t3 = _signal_of_tier(3)
+    base = ConversationRiskLedger(conversation_id="base").update([t3])
+    trusted = ConversationRiskLedger(conversation_id="trusted").update([t3], trust_modifier=0.6)
+    assert trusted["contribution"] == pytest.approx(base["contribution"] * 0.6, abs=1e-3)
+
+
+def test_trust_modifier_boosts_imposter():
+    t2 = _signal_of_tier(2)
+    base = ConversationRiskLedger(conversation_id="base").update([t2])
+    imposter = ConversationRiskLedger(conversation_id="imp").update([t2], trust_modifier=1.3)
+    assert imposter["contribution"] == pytest.approx(base["contribution"] * 1.3, abs=1e-3)
+
+
+def test_trust_modifier_exempts_elder_abuse_signals():
+    ea = next(s for s in SIGNAL_WEIGHTS if s.startswith("EA-"))
+    base = ConversationRiskLedger(conversation_id="base").update([ea])
+    trusted = ConversationRiskLedger(conversation_id="trusted").update([ea], trust_modifier=0.6)
+    # Abuse from trusted contacts is never dampened by the trust itself
+    assert trusted["contribution"] == pytest.approx(base["contribution"], abs=1e-3)
+
+
+def test_verified_contact_skips_attack_pattern_machinery():
+    # The ore-ore arc from a verified contact: no primer, no sequence multiplier
+    seq = ATTACK_SEQUENCES["ore_ore"]
+    trusted = ConversationRiskLedger(conversation_id="t")
+    for sig in seq["canonical"]:
+        last = trusted.update([sig], trust_modifier=0.6)
+    assert trusted.sequence_matches == []
+    assert last["sequence_multiplier"] == 1.0
+
+
+def test_attack_pattern_machinery_unchanged_at_neutral_trust():
+    # Provably a no-op for unknown senders: identical scores with and
+    # without the gating change for trust >= 1.0
+    seq = ATTACK_SEQUENCES["ore_ore"]
+    a = ConversationRiskLedger(conversation_id="a")
+    for sig in seq["canonical"]:
+        ra = a.update([sig])
+    assert "ore_ore" in a.sequence_matches
+    assert ra["sequence_multiplier"] == seq["multiplier"]
+
+
+def test_trust_modifier_default_is_neutral():
+    t2 = _signal_of_tier(2)
+    explicit = ConversationRiskLedger(conversation_id="a").update([t2], trust_modifier=1.0)
+    implicit = ConversationRiskLedger(conversation_id="b").update([t2])
+    assert explicit["contribution"] == implicit["contribution"]
+
+
 def test_serialization_round_trip():
     t2 = _signal_of_tier(2)
     ledger = ConversationRiskLedger(conversation_id="t")

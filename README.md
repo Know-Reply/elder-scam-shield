@@ -84,7 +84,7 @@ This is a deliberate production scaling decision: the Workflow represents the fu
 
 ## The Optimization Story (Track 2)
 
-Seven rounds of iterative hardening, each compounding on the last:
+Eight rounds of iterative hardening, each compounding on the last:
 
 | Round | Focus | Key Outcome | Platform Tool |
 |-------|-------|-------------|---------------|
@@ -95,6 +95,7 @@ Seven rounds of iterative hardening, each compounding on the last:
 | 5 | Adaptive baselines + elder abuse signals (EA-1..4) | False positive reduction (6 to 5) | Memory Bank |
 | 6 | Family safety dashboard | Human-in-the-loop proof of intervention | -- |
 | 7 | Pre-processing pipeline (linguistic + TF-IDF + graph + contra-indicators → LLM classification) | Same F1 on cheapest model, 5 new capabilities | Agent Observability |
+| 8 | Sender trust → risk ledger: graph verdict modulates signal contributions; attack-pattern multipliers gated to unverified senders | False positives 4 → 0 with 34/34 scams caught — eval-driven fix | Agent Evaluation |
 
 ### How ADK tools drove the optimization
 
@@ -131,6 +132,8 @@ Five-layer inference builds the graph from communication, not manual entry:
 3. **Cross-referencing** -- a sender mentioned by 2+ verified contacts is RECOGNIZED. A sender mentioned by 1 is CORROBORATED. A sender mentioned by nobody is UNCONNECTED.
 4. **Community detection** -- contacts cluster into natural groups (family, neighborhood, medical, commercial) based on mutual references and formality patterns. Japanese keigo level encodes relationship hierarchy -- a "grandson" using honorific language instead of casual speech is structurally suspicious.
 5. **Anomaly detection** -- claiming to be "Tanaka's son" means nothing if Tanaka's node has no edge to the sender. Graph distance determines trust: known contacts get risk reduction (-0.2), unconnected senders claiming relationships get risk boost (+0.3).
+
+The graph's verdict reaches the deterministic scoring layer directly: the risk ledger applies a **sender-trust modifier** to each message's signal contribution. A money request from a verified grandson and the identical words from a stranger claiming to be him are different events — verified contacts are dampened (×0.6), unknown senders claiming a family relationship are boosted (×1.3, the ore-ore opening signature). Elder-abuse signals (EA-1..4) are exempt from dampening: abuse from trusted contacts is never excused by the trust itself.
 
 Confidence levels: VERIFIED > OBSERVED > ESTABLISHED > RECOGNIZED > CORROBORATED > INFERRED > CLAIMED > UNCONNECTED.
 
@@ -225,20 +228,18 @@ A single-message classifier -- no matter how good the model -- structurally cann
 
 ### Longitudinal Evaluation: 52 Scenarios
 
-51 of 52 scenarios evaluated — each a multi-message conversation run through both Elder Shield (risk ledger + LLM signal detection) and a naive baseline (LLM classification only, no tools, no corpus, no ledger).
+All 52 scenarios evaluated (140 graded messages) — each a multi-message conversation run through both Elder Shield (risk ledger + LLM signal detection) and a naive baseline (LLM classification only, no tools, no corpus, no ledger), both on `gemini-2.5-flash-lite`.
 
 | Metric | Elder Shield | Naive Baseline |
 |--------|-------------|----------------|
-| False positives on legitimate scenarios | **0/12 (0%)** | 5/12 (42%) |
-| Calls "scam" on the very first message | **0%** | 75% of the time |
-| Per-message stage accuracy¹ | **63.6%** | 34.7% |
-| Scam scenarios eventually caught | 33/34 (97%)² | 34/34 |
+| Scam scenarios caught | **34/34 (100%)** | 31/34 |
+| False positives on legitimate scenarios | **0/13** | 0/13 |
+| Per-message stage accuracy¹ | **67.2%** | 62.8% |
+| Flags a first message before evidence exists | 19/52 (37%) | 23/52 (44%) |
 
-¹ Graded per message across all 138 messages in the 51 scenarios, against expected labels that follow a graduated escalation (safe → monitoring → suspicious → scam). It measures whether the system is at the *right alert stage at each point in the conversation* — a different metric from Round 1's 80-case single-message suite (F1 0.933), where both systems score well because isolated, obvious messages were never the hard problem.
+¹ Graded per message across all 140 messages in the 52 scenarios, against expected labels that follow a graduated escalation (safe → monitoring → suspicious → scam). It measures whether the system is at the *right alert stage at each point in the conversation* — a different metric from Round 1's 80-case single-message suite (F1 0.933), where both systems score well because isolated, obvious messages were never the hard problem.
 
-² The one miss: `romance_widow`, a 3-message romance-scam opener that stayed below the evidence threshold (final score 1.21, classified safe). The naive baseline "caught" it the way it catches everything — by calling scam on near-first contact, the same behavior that produces its 5 false positives. Short conversations give the ledger little evidence to accumulate; this is the documented trade-off for zero false positives (see Adversarial Edge Cases).
-
-The naive baseline over-reacts — 75% of the time it classifies the very first message as "scam." Elder Shield accumulates evidence: safe → elevated → suspicious → blocked. The difference is zero false positives and graduated response vs panic on first contact.
+Two honest observations from this run. First, the naive baseline on a modern model is genuinely strong at text-only classification — it no longer panics on family messages the way earlier models did. The per-message gap closes as models improve. What does not close: the naive baseline **missed 3 of 34 scams** (two investment groomers and a romance opener that look reasonable message-by-message); Elder Shield caught all 34, because accumulated evidence and sequence detection don't depend on any single message looking bad. Second, the zero false positives were *earned through this evaluation*: an earlier run exposed 4 legitimate family conversations being flagged, traced to graph trust never reaching the scoring layer — Round 8 below. After the fix, all four end in "monitoring": watched, never flagged, family never blocked.
 
 ### Benchmark: Faxi production classifier vs Elder Shield
 
@@ -279,6 +280,8 @@ Classifying a known contact's message as "safe" doesn't mean ignoring it. Every 
 - A caregiver gradually increasing requests → EA-3 (authority escalation)
 
 The system doesn't decide "safe or scam." It decides "scam, family support, or abuse" — and the answer can change over time as evidence accumulates.
+
+This is a deliberate evidentiary asymmetry: strangers are scored on single messages (low evidence bar, boosted when they claim family ties); trusted contacts are scored on patterns (higher evidence bar, EA signals always at full weight). The cost is that a genuine one-off emergency from a family member sails through — which is exactly what should happen. The benefit is that the system never blocks a real daughter, and a trusted contact who starts a *pattern* of financial pressure still trips EA-1 at full strength.
 
 **Latency:** Faxi ~0.5s (1 LLM call). Elder Shield ~0.9s (pre-processing + 1 LLM call) — 12x faster than the original 7-tool approach (11s).
 
@@ -332,7 +335,7 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 | Model (all agents) | Gemini 2.5 Flash Lite on Vertex AI — infrastructure does the heavy lifting |
 | Sessions | ADK Session State per request (output_key + session.state); per-sender longitudinal state in the ConversationRiskLedger — designed for VertexAiSessionService persistence in production |
 | Corpus grounding | Agent Search Data Store (22,979 entries) — neural/semantic search, no warm-up |
-| Risk scoring | ConversationRiskLedger — additive evidence accumulation with decay, tier amplification, sequence detection |
+| Risk scoring | ConversationRiskLedger — additive evidence accumulation with decay, tier amplification, sequence detection, sender-trust modulation from the social graph |
 | Deployment | Google Cloud Run (us-central1) — instant cold start (no corpus pre-warm) |
 | Agent runtime | Vertex AI Agent Engine — root agent deployed via `adk deploy` (`reasoningEngines/4623304008042283008`, us-central1, 2026-06-10) |
 | Orchestration | ADK Workflow (FunctionNode + Agent DAG) |
@@ -376,7 +379,7 @@ This is dignity-preserving design. The elder's autonomy is never undermined.
 
 7 are runnable tests. 3 are documented honest-fails with known limitations named. We document what we cannot catch.
 
-The longitudinal evaluation adds one more documented miss: `romance_widow` — a 3-message romance opener that ended below the evidence threshold. Conversations that end before evidence accumulates are the structural blind spot of an accumulation-based design, accepted in exchange for zero false positives.
+An earlier longitudinal run also missed `romance_widow`, a 3-message romance opener that ended below the evidence threshold. The Round 8 imposter boost (unknown senders claiming relationships score hotter) now catches it at message 2 — short-conversation scams remain the structural pressure point of an accumulation-based design, and we watch it in every run.
 
 ## Signal Glossary
 

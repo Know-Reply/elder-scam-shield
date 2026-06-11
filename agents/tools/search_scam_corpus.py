@@ -19,6 +19,19 @@ from typing import Optional
 # Vertex AI Search (production)
 # ---------------------------------------------------------------------------
 
+_vertex_search_client = None
+
+
+def _get_vertex_search_client():
+    """Cached SearchServiceClient — a fresh gRPC channel per call is slow
+    and occasionally hangs during channel setup under bursty load."""
+    global _vertex_search_client
+    if _vertex_search_client is None:
+        from google.cloud import discoveryengine_v1 as discoveryengine
+        _vertex_search_client = discoveryengine.SearchServiceClient()
+    return _vertex_search_client
+
+
 def _search_vertex(query: str, top_k: int = 5) -> list[dict]:
     """Search the Vertex AI Search data store for similar scam patterns."""
     from google.cloud import discoveryengine_v1 as discoveryengine
@@ -27,7 +40,7 @@ def _search_vertex(query: str, top_k: int = 5) -> list[dict]:
     location = os.environ.get("VERTEX_SEARCH_LOCATION", "global")
     data_store_id = os.environ.get("SCAM_CORPUS_DATA_STORE", "scam-corpus")
 
-    client = discoveryengine.SearchServiceClient()
+    client = _get_vertex_search_client()
     serving_config = (
         f"projects/{project}/locations/{location}"
         f"/collections/default_collection/dataStores/{data_store_id}"
@@ -50,7 +63,9 @@ def _search_vertex(query: str, top_k: int = 5) -> list[dict]:
         ),
     )
 
-    response = client.search(request)
+    # Hard deadline — on timeout the caller falls back to local TF-IDF
+    # search (and reports grounding_source honestly)
+    response = client.search(request, timeout=10.0)
     results = []
     for result in response.results:
         doc = result.document

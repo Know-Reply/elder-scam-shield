@@ -189,7 +189,7 @@ Detected in user's own outgoing messages/actions.
 | **Memory Bank writes** | Updated sender profile: stated_facts accumulation, contradiction_count, contact_frequency array, risk_score, risk_factors[] |
 | **A2A publishes** | `sender.risk_updated` event with: sender_id, risk_score, risk_factors[], contradiction_details[], recommendation (monitor/flag/block) |
 | **A2A subscribes** | `message.classified` from Inbound Classifier |
-| **Gemini model** | `gemini-2.5-pro` — complex reasoning over multi-message profiles, contradiction detection, temporal pattern analysis. Higher latency acceptable (not on hot path). |
+| **Gemini model** | `gemini-2.5-flash-lite` — multi-message profile reasoning, contradiction detection, temporal pattern analysis. The pre-processing pipeline supplies the heavy lifting, so the cheapest tier suffices even off the hot path. |
 | **Primary detector for** | `romance-sagi`, `fake-grandchild`, `ore-ore-sagi` (trust-building and identity-based patterns requiring longitudinal analysis) |
 | **Secondary role for** | `gov-impersonation`, `fake-police` (identity claim verification against contacts) |
 

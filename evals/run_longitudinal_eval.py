@@ -23,7 +23,7 @@ SCENARIOS_PATH = Path(__file__).parent / "longitudinal_scenarios.json"
 RESULTS_PATH = Path(__file__).parent / "results" / "longitudinal_results.json"
 
 
-def post(path, data, timeout=120):
+def post(path, data, timeout=300):
     body = json.dumps(data).encode()
     req = urllib.request.Request(
         f"{BASE}{path}", data=body,
@@ -41,7 +41,10 @@ def reset():
 def run_scenario(scenario):
     """Run one scenario through full pipeline + naive baseline."""
     sid = scenario["id"]
-    sender_id = f"eval_{sid}"
+    # Legitimate-family scenarios run from senders present in the elder's
+    # contact graph, as they would be in production (a real daughter is a
+    # known contact). Scam scenarios run from unknown senders.
+    sender_id = scenario.get("sender_id", f"eval_{sid}")
     messages = scenario["messages"]
 
     reset()
@@ -66,6 +69,10 @@ def run_scenario(scenario):
         })
         naive_result = naive_resp.get("result", {})
         naive_time = time.time() - t1
+
+        # Pace requests — sustained bursts trip Vertex per-minute quota,
+        # which surfaces as long retry stalls inside ADK
+        time.sleep(2)
 
         results.append({
             "message_index": i,
@@ -103,6 +110,12 @@ GRADING_NOTES = [
     "False positives count user-visible actions: for the full pipeline, "
     "'monitoring' is an internal state (no alert fires below suspicious); for "
     "the naive baseline, any non-safe classification blocks the message.",
+    "Sender identity: legitimate-family scenarios are sent from contacts "
+    "present in the elder's social graph, matching production where family "
+    "members are known contacts. Scam scenarios are sent from unknown "
+    "senders. The graph's verdict reaches the risk ledger as a contribution "
+    "modifier (verified contact dampens non-EA signals; unknown sender "
+    "claiming a family relationship is boosted).",
 ]
 
 
@@ -200,21 +213,28 @@ def run_all(filter_id=None):
 
     for i, scenario in enumerate(scenarios):
         print(f"[{i+1}/{len(scenarios)}] {scenario['id']} ({scenario['scam_type']}, {len(scenario['messages'])} msgs)...", end=" ", flush=True)
-        try:
-            results = run_scenario(scenario)
-            metrics = compute_metrics(scenario, results)
-            all_results.append({"scenario": scenario["id"], "results": results, "metrics": metrics})
-            all_metrics.append(metrics)
+        results = None
+        for attempt in (1, 2):
+            try:
+                results = run_scenario(scenario)
+                break
+            except Exception as e:
+                if attempt == 1:
+                    print(f"retrying after: {e}...", end=" ", flush=True)
+                    time.sleep(30)  # let the quota window clear
+                else:
+                    print(f"ERROR: {e}")
+                    all_results.append({"scenario": scenario["id"], "error": str(e)})
+        if results is None:
+            continue
+        metrics = compute_metrics(scenario, results)
+        all_results.append({"scenario": scenario["id"], "results": results, "metrics": metrics})
+        all_metrics.append(metrics)
 
-            # Print summary
-            final = results[-1]
-            print(f"Full={metrics['final_full_class']}(score={metrics['final_risk_score']:.2f}) "
-                  f"Naive={metrics['final_naive_class']} "
-                  f"Detect: full@msg{metrics['full_detect_at_message']} naive@msg{metrics['naive_detect_at_message']} "
-                  f"Accuracy: full={metrics['full_accuracy']:.0%} naive={metrics['naive_accuracy']:.0%}")
-        except Exception as e:
-            print(f"ERROR: {e}")
-            all_results.append({"scenario": scenario["id"], "error": str(e)})
+        print(f"Full={metrics['final_full_class']}(score={metrics['final_risk_score']:.2f}) "
+              f"Naive={metrics['final_naive_class']} "
+              f"Detect: full@msg{metrics['full_detect_at_message']} naive@msg{metrics['naive_detect_at_message']} "
+              f"Accuracy: full={metrics['full_accuracy']:.0%} naive={metrics['naive_accuracy']:.0%}")
 
     # Aggregate metrics
     if all_metrics:

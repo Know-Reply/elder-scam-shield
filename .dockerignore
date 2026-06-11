@@ -11,4 +11,3 @@ evals/results
 tests
 *.md
 !README.md
-agents/root_agent_legacy.py

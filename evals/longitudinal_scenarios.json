@@ -6,9 +6,31 @@
       "scam_type": "ore_ore",
       "description": "Basic ore-ore: identity claim, emotional crisis, money demand",
       "messages": [
-        {"text": "おばあちゃん、健二だよ！久しぶり。大阪で新しい仕事を始めたんだ。", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "実は大変なことになって。交通事故を起こして相手が今すぐお金を要求してるんだ。助けてくれない？", "expected_signals": ["PM-1", "PM-3", "PM-10"], "expected_class": "monitoring"},
-        {"text": "この口座に50万円を振り込んで。誰にも言わないで。今日中にお願い。", "expected_signals": ["PM-1", "PM-2", "PM-3"], "expected_class": "scam"}
+        {
+          "text": "おばあちゃん、健二だよ！久しぶり。大阪で新しい仕事を始めたんだ。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "実は大変なことになって。交通事故を起こして相手が今すぐお金を要求してるんだ。助けてくれない？",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-10"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "この口座に50万円を振り込んで。誰にも言わないで。今日中にお願い。",
+          "expected_signals": [
+            "PM-1",
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -16,12 +38,46 @@
       "scam_type": "ore_ore",
       "description": "Slow ore-ore: 3 grooming messages before escalation. Tests T1 primer bonus.",
       "messages": [
-        {"text": "おばあちゃん、たかしだよ。元気？", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "最近仕事が忙しくてね。おばあちゃんは体調どう？", "expected_signals": [], "expected_class": "safe"},
-        {"text": "来月そっちに行こうと思ってるんだ。楽しみにしてて。", "expected_signals": [], "expected_class": "safe"},
-        {"text": "実は困ったことになって。会社のお金を間違えて使ってしまったんだ。", "expected_signals": ["PM-10"], "expected_class": "monitoring"},
-        {"text": "200万円を明日までに返さないとクビになる。助けてくれないかな？", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"},
-        {"text": "この口座に振り込んで。お母さんには絶対言わないで。頼む。", "expected_signals": ["PM-2", "PM-3"], "expected_class": "scam"}
+        {
+          "text": "おばあちゃん、たかしだよ。元気？",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "最近仕事が忙しくてね。おばあちゃんは体調どう？",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "来月そっちに行こうと思ってるんだ。楽しみにしてて。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "実は困ったことになって。会社のお金を間違えて使ってしまったんだ。",
+          "expected_signals": [
+            "PM-10"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "200万円を明日までに返さないとクビになる。助けてくれないかな？",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "この口座に振り込んで。お母さんには絶対言わないで。頼む。",
+          "expected_signals": [
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -29,9 +85,31 @@
       "scam_type": "ore_ore",
       "description": "Ore-ore with lawyer handoff: grandson introduces, 'lawyer' takes over with authority claim.",
       "messages": [
-        {"text": "おばあちゃん、けんじだよ。大変なことになった。弁護士の先生に代わるね。", "expected_signals": ["PM-11", "PM-10"], "expected_class": "monitoring"},
-        {"text": "山田法律事務所の山田と申します。お孫さんの件でお電話しました。示談金が必要です。", "expected_signals": ["PM-4", "PM-3"], "expected_class": "suspicious"},
-        {"text": "本日中に300万円をご用意ください。振込先をお伝えします。これは内密にお願いします。", "expected_signals": ["PM-1", "PM-2", "PM-3"], "expected_class": "scam"}
+        {
+          "text": "おばあちゃん、けんじだよ。大変なことになった。弁護士の先生に代わるね。",
+          "expected_signals": [
+            "PM-11",
+            "PM-10"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "山田法律事務所の山田と申します。お孫さんの件でお電話しました。示談金が必要です。",
+          "expected_signals": [
+            "PM-4",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "本日中に300万円をご用意ください。振込先をお伝えします。これは内密にお願いします。",
+          "expected_signals": [
+            "PM-1",
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -39,9 +117,30 @@
       "scam_type": "ore_ore",
       "description": "Hospital emergency variant: grandson claims to be hospitalized.",
       "messages": [
-        {"text": "おばあちゃん、ゆうきだよ。入院してるんだ。", "expected_signals": ["PM-11", "PM-10"], "expected_class": "monitoring"},
-        {"text": "手術が必要なんだけど、保険が効かなくて。50万円すぐに必要なんだ。", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"},
-        {"text": "病院の口座に直接振り込んでほしい。お父さんには言わないで、心配するから。", "expected_signals": ["PM-2", "PM-3"], "expected_class": "scam"}
+        {
+          "text": "おばあちゃん、ゆうきだよ。入院してるんだ。",
+          "expected_signals": [
+            "PM-11",
+            "PM-10"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "手術が必要なんだけど、保険が効かなくて。50万円すぐに必要なんだ。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "病院の口座に直接振り込んでほしい。お父さんには言わないで、心配するから。",
+          "expected_signals": [
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -49,9 +148,31 @@
       "scam_type": "ore_ore",
       "description": "English ore-ore variant: grandson impersonation in English.",
       "messages": [
-        {"text": "Grandma, it's Kenji! I moved to Osaka for a new job.", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "I'm in big trouble. Car accident, they want money now. Can you help?", "expected_signals": ["PM-1", "PM-3", "PM-10"], "expected_class": "monitoring"},
-        {"text": "500,000 yen to this account: 1234-5678. Don't tell anyone. Today please.", "expected_signals": ["PM-1", "PM-2", "PM-3"], "expected_class": "scam"}
+        {
+          "text": "Grandma, it's Kenji! I moved to Osaka for a new job.",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I'm in big trouble. Car accident, they want money now. Can you help?",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-10"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "500,000 yen to this account: 1234-5678. Don't tell anyone. Today please.",
+          "expected_signals": [
+            "PM-1",
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -59,10 +180,38 @@
       "scam_type": "ore_ore",
       "description": "Phone number change excuse: common ore-ore opening.",
       "messages": [
-        {"text": "おばあちゃん、携帯の番号変わったから登録し直して。まさるだよ。", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "実はさ、会社の取引先とトラブルになって。相手が怒ってて。", "expected_signals": ["PM-10"], "expected_class": "safe"},
-        {"text": "100万円を今日中に相手の口座に振り込まないと訴えられるんだ。", "expected_signals": ["PM-1", "PM-3", "PM-6"], "expected_class": "suspicious"},
-        {"text": "誰にも言わないで。この口座に振り込んで。コンビニからでもいいから。", "expected_signals": ["PM-2", "PM-3", "PM-5"], "expected_class": "scam"}
+        {
+          "text": "おばあちゃん、携帯の番号変わったから登録し直して。まさるだよ。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "実はさ、会社の取引先とトラブルになって。相手が怒ってて。",
+          "expected_signals": [
+            "PM-10"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "100万円を今日中に相手の口座に振り込まないと訴えられるんだ。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-6"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "誰にも言わないで。この口座に振り込んで。コンビニからでもいいから。",
+          "expected_signals": [
+            "PM-2",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -70,9 +219,30 @@
       "scam_type": "ore_ore",
       "description": "Crying grandson variant with emotional manipulation.",
       "messages": [
-        {"text": "おばあちゃん...ごめんね...大変なことしちゃった...", "expected_signals": ["PM-10"], "expected_class": "safe"},
-        {"text": "友達のお金を預かってたのに全部なくしちゃったんだ。殺されるかもしれない。", "expected_signals": ["PM-10", "PM-6"], "expected_class": "monitoring"},
-        {"text": "50万円だけでいいから。今日中に。お願い。誰にも言わないで。", "expected_signals": ["PM-1", "PM-2", "PM-3"], "expected_class": "scam"}
+        {
+          "text": "おばあちゃん...ごめんね...大変なことしちゃった...",
+          "expected_signals": [
+            "PM-10"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "友達のお金を預かってたのに全部なくしちゃったんだ。殺されるかもしれない。",
+          "expected_signals": [
+            "PM-10",
+            "PM-6"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "50万円だけでいいから。今日中に。お願い。誰にも言わないで。",
+          "expected_signals": [
+            "PM-1",
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -80,9 +250,29 @@
       "scam_type": "ore_ore",
       "description": "Tax office impersonation: authority + legal threat.",
       "messages": [
-        {"text": "税務署の田中と申します。未納の税金についてご連絡しました。", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "至急お支払いいただかないと、法的措置を取らせていただきます。", "expected_signals": ["PM-1", "PM-6"], "expected_class": "suspicious"},
-        {"text": "コンビニでプリペイドカードを購入して番号をお伝えください。", "expected_signals": ["PM-5", "PM-7"], "expected_class": "scam"}
+        {
+          "text": "税務署の田中と申します。未納の税金についてご連絡しました。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "至急お支払いいただかないと、法的措置を取らせていただきます。",
+          "expected_signals": [
+            "PM-1",
+            "PM-6"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "コンビニでプリペイドカードを購入して番号をお伝えください。",
+          "expected_signals": [
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -90,9 +280,29 @@
       "scam_type": "ore_ore",
       "description": "Mixed Japanese-English ore-ore.",
       "messages": [
-        {"text": "Grandma! It's me, your grandson. 久しぶりだね。元気だった？", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "I need help urgently. 事故を起こしちゃって、相手がすごく怒ってる。", "expected_signals": ["PM-1", "PM-10"], "expected_class": "monitoring"},
-        {"text": "Please wire 50万円 to this account. 誰にも言わないで、特にお母さんには。", "expected_signals": ["PM-2", "PM-3"], "expected_class": "scam"}
+        {
+          "text": "Grandma! It's me, your grandson. 久しぶりだね。元気だった？",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I need help urgently. 事故を起こしちゃって、相手がすごく怒ってる。",
+          "expected_signals": [
+            "PM-1",
+            "PM-10"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "Please wire 50万円 to this account. 誰にも言わないで、特にお母さんには。",
+          "expected_signals": [
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -100,9 +310,29 @@
       "scam_type": "ore_ore",
       "description": "Repeat contact from same 'grandson' — second attempt after first was blocked.",
       "messages": [
-        {"text": "おばあちゃん、健二だよ。前のメッセージ届いた？", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "あの事故の件、まだ解決してないんだ。もう時間がないんだよ。", "expected_signals": ["PM-1", "PM-10"], "expected_class": "monitoring"},
-        {"text": "頼むから、30万円だけでいい。この口座に今すぐ振り込んで。", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"}
+        {
+          "text": "おばあちゃん、健二だよ。前のメッセージ届いた？",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "あの事故の件、まだ解決してないんだ。もう時間がないんだよ。",
+          "expected_signals": [
+            "PM-1",
+            "PM-10"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "頼むから、30万円だけでいい。この口座に今すぐ振り込んで。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -110,10 +340,36 @@
       "scam_type": "romance",
       "description": "Basic romance scam: flattery, trust building, gift card request.",
       "messages": [
-        {"text": "あなたのプロフィールを見ました。とても素敵で優しい方ですね。", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "海外でエンジニアをしています。日本が恋しいです。いつかお庭を見に行きたいです。", "expected_signals": [], "expected_class": "safe"},
-        {"text": "会いに行きたいのに困っています。急に助けが必要です。iTunesカードを買って番号を教えてもらえませんか？", "expected_signals": ["PM-1", "PM-3", "PM-5"], "expected_class": "suspicious"},
-        {"text": "3万円分のカードを3枚お願いします。番号を写真で送ってください。", "expected_signals": ["PM-3", "PM-5", "PM-7"], "expected_class": "scam"}
+        {
+          "text": "あなたのプロフィールを見ました。とても素敵で優しい方ですね。",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "海外でエンジニアをしています。日本が恋しいです。いつかお庭を見に行きたいです。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "会いに行きたいのに困っています。急に助けが必要です。iTunesカードを買って番号を教えてもらえませんか？",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "3万円分のカードを3枚お願いします。番号を写真で送ってください。",
+          "expected_signals": [
+            "PM-3",
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -121,11 +377,42 @@
       "scam_type": "romance",
       "description": "Slow romance scam: 5 messages of grooming before ask.",
       "messages": [
-        {"text": "Hello! Your smile in your profile picture is so warm and beautiful.", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "I'm a doctor working with Doctors Without Borders in Syria. It's lonely here.", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "You remind me of my late mother. She was kind like you.", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "I have a package I want to send you but customs is holding it. They want a fee.", "expected_signals": ["PM-3"], "expected_class": "monitoring"},
-        {"text": "Can you send $500 via Western Union to release my package? I'll repay you when I visit.", "expected_signals": ["PM-3", "PM-5"], "expected_class": "suspicious"}
+        {
+          "text": "Hello! Your smile in your profile picture is so warm and beautiful.",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I'm a doctor working with Doctors Without Borders in Syria. It's lonely here.",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "You remind me of my late mother. She was kind like you.",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I have a package I want to send you but customs is holding it. They want a fee.",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "Can you send $500 via Western Union to release my package? I'll repay you when I visit.",
+          "expected_signals": [
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -133,9 +420,27 @@
       "scam_type": "romance",
       "description": "Military romance scam: deployed soldier needs help.",
       "messages": [
-        {"text": "Hi, I'm Captain James. I found your profile and was drawn to your kindness.", "expected_signals": ["PM-11", "PM-12"], "expected_class": "safe"},
-        {"text": "I'm deployed overseas and can't access my bank. I need help with a small matter.", "expected_signals": [], "expected_class": "safe"},
-        {"text": "Could you buy some Google Play gift cards for me? I need them for my satellite phone.", "expected_signals": ["PM-3", "PM-5"], "expected_class": "suspicious"}
+        {
+          "text": "Hi, I'm Captain James. I found your profile and was drawn to your kindness.",
+          "expected_signals": [
+            "PM-11",
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I'm deployed overseas and can't access my bank. I need help with a small matter.",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "Could you buy some Google Play gift cards for me? I need them for my satellite phone.",
+          "expected_signals": [
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -143,10 +448,35 @@
       "scam_type": "romance",
       "description": "Japanese romance scam from dating app.",
       "messages": [
-        {"text": "マッチングアプリで見つけました。とても素敵な方ですね。お話しませんか？", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "投資の仕事をしています。最近いい案件があるんですけど、一緒にやりませんか？", "expected_signals": ["PM-3"], "expected_class": "monitoring"},
-        {"text": "まず10万円から始められます。私が全部サポートするので安心してください。", "expected_signals": ["PM-3"], "expected_class": "suspicious"},
-        {"text": "この口座に振り込んでください。絶対に損はさせません。今日が最終日です。", "expected_signals": ["PM-1", "PM-3"], "expected_class": "scam"}
+        {
+          "text": "マッチングアプリで見つけました。とても素敵な方ですね。お話しませんか？",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "投資の仕事をしています。最近いい案件があるんですけど、一緒にやりませんか？",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "まず10万円から始められます。私が全部サポートするので安心してください。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "この口座に振り込んでください。絶対に損はさせません。今日が最終日です。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -154,10 +484,34 @@
       "scam_type": "romance",
       "description": "English romance with extended grooming phase.",
       "messages": [
-        {"text": "Your profile caught my eye. You seem like such a kind, wonderful person.", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "I'm an engineer working overseas. I miss Japan so much.", "expected_signals": [], "expected_class": "safe"},
-        {"text": "I feel like I've known you forever. You're so special to me.", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "I want to visit but I'm stuck. Could you buy some iTunes gift cards and send me the codes?", "expected_signals": ["PM-1", "PM-3", "PM-5"], "expected_class": "suspicious"}
+        {
+          "text": "Your profile caught my eye. You seem like such a kind, wonderful person.",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I'm an engineer working overseas. I miss Japan so much.",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I feel like I've known you forever. You're so special to me.",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I want to visit but I'm stuck. Could you buy some iTunes gift cards and send me the codes?",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -165,10 +519,34 @@
       "scam_type": "romance",
       "description": "Romance + crypto investment hybrid.",
       "messages": [
-        {"text": "こんにちは！あなたのプロフィール、とても興味深いです。", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "実は暗号通貨の投資をしていて、すごい利益が出てるんです。", "expected_signals": [], "expected_class": "safe"},
-        {"text": "一緒に投資しませんか？まず5万円だけ。絶対損しません。", "expected_signals": ["PM-3"], "expected_class": "monitoring"},
-        {"text": "このウォレットアドレスに送金してください。今日中にお願いします。", "expected_signals": ["PM-1", "PM-3", "PM-5"], "expected_class": "scam"}
+        {
+          "text": "こんにちは！あなたのプロフィール、とても興味深いです。",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "実は暗号通貨の投資をしていて、すごい利益が出てるんです。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "一緒に投資しませんか？まず5万円だけ。絶対損しません。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "このウォレットアドレスに送金してください。今日中にお願いします。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -176,9 +554,27 @@
       "scam_type": "romance",
       "description": "Targeting a widow with sympathy play.",
       "messages": [
-        {"text": "I read that you lost your husband. I'm so sorry. I lost my wife too.", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "We understand each other's pain. You're the only one who gets me.", "expected_signals": ["PM-12"], "expected_class": "safe"},
-        {"text": "I'm coming to Japan but my flight was cancelled. Can you help me rebook? I need $800.", "expected_signals": ["PM-3"], "expected_class": "monitoring"}
+        {
+          "text": "I read that you lost your husband. I'm so sorry. I lost my wife too.",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "We understand each other's pain. You're the only one who gets me.",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "I'm coming to Japan but my flight was cancelled. Can you help me rebook? I need $800.",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring"
+        }
       ]
     },
     {
@@ -186,9 +582,29 @@
       "scam_type": "romance",
       "description": "Romance that turns into blackmail.",
       "messages": [
-        {"text": "あなたのこと本当に好きです。特別な写真を送ってくれませんか？", "expected_signals": ["PM-12", "PM-7"], "expected_class": "monitoring"},
-        {"text": "写真ありがとう。でも、これを他の人に見せたくないでしょう？", "expected_signals": ["PM-6"], "expected_class": "suspicious"},
-        {"text": "10万円払ってくれたら削除します。払わないと公開します。", "expected_signals": ["PM-3", "PM-6"], "expected_class": "scam"}
+        {
+          "text": "あなたのこと本当に好きです。特別な写真を送ってくれませんか？",
+          "expected_signals": [
+            "PM-12",
+            "PM-7"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "写真ありがとう。でも、これを他の人に見せたくないでしょう？",
+          "expected_signals": [
+            "PM-6"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "10万円払ってくれたら削除します。払わないと公開します。",
+          "expected_signals": [
+            "PM-3",
+            "PM-6"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -196,10 +612,35 @@
       "scam_type": "investment",
       "description": "Guaranteed returns investment scam.",
       "messages": [
-        {"text": "特別な投資案件のご案内です。年利20%保証の限定プログラムです。", "expected_signals": ["PM-3"], "expected_class": "safe"},
-        {"text": "東京のお客様も皆さん利益を出されています。今なら特別に参加できます。", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "10万円からスタートできます。私がステップごとにサポートします。", "expected_signals": ["PM-3"], "expected_class": "monitoring"},
-        {"text": "最後のチャンスです！今日中に振り込まないと枠がなくなります。", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"}
+        {
+          "text": "特別な投資案件のご案内です。年利20%保証の限定プログラムです。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "東京のお客様も皆さん利益を出されています。今なら特別に参加できます。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "10万円からスタートできます。私がステップごとにサポートします。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "最後のチャンスです！今日中に振り込まないと枠がなくなります。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -207,9 +648,29 @@
       "scam_type": "investment",
       "description": "Crypto pump and dump scheme.",
       "messages": [
-        {"text": "この仮想通貨、来週10倍になります。内部情報です。", "expected_signals": ["PM-3"], "expected_class": "safe"},
-        {"text": "もう100人以上が参加してます。あなただけ乗り遅れますよ。", "expected_signals": ["PM-1"], "expected_class": "monitoring"},
-        {"text": "今すぐこのウォレットに送金してください。最低50万円から。", "expected_signals": ["PM-1", "PM-3", "PM-5"], "expected_class": "scam"}
+        {
+          "text": "この仮想通貨、来週10倍になります。内部情報です。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "もう100人以上が参加してます。あなただけ乗り遅れますよ。",
+          "expected_signals": [
+            "PM-1"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "今すぐこのウォレットに送金してください。最低50万円から。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -217,9 +678,28 @@
       "scam_type": "investment",
       "description": "Fake real estate investment opportunity.",
       "messages": [
-        {"text": "沖縄のリゾート物件、今なら特別価格でご案内できます。", "expected_signals": ["PM-3"], "expected_class": "safe"},
-        {"text": "すでに30室中28室が売れています。残り2室です。", "expected_signals": ["PM-1"], "expected_class": "safe"},
-        {"text": "頭金100万円を本日中にお振り込みいただければ確保できます。", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"}
+        {
+          "text": "沖縄のリゾート物件、今なら特別価格でご案内できます。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "すでに30室中28室が売れています。残り2室です。",
+          "expected_signals": [
+            "PM-1"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "頭金100万円を本日中にお振り込みいただければ確保できます。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -227,10 +707,35 @@
       "scam_type": "investment",
       "description": "Investment seminar leading to high-pressure close.",
       "messages": [
-        {"text": "無料投資セミナーのご案内です。講師は元証券会社の専門家です。", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "セミナー参加者限定で特別な投資商品をご案内しています。", "expected_signals": ["PM-3"], "expected_class": "safe"},
-        {"text": "この場で申し込まないと特別価格は適用されません。今すぐ決めてください。", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"},
-        {"text": "口座情報を教えていただければ、こちらで手続きします。", "expected_signals": ["PM-7"], "expected_class": "scam"}
+        {
+          "text": "無料投資セミナーのご案内です。講師は元証券会社の専門家です。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "セミナー参加者限定で特別な投資商品をご案内しています。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "この場で申し込まないと特別価格は適用されません。今すぐ決めてください。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "口座情報を教えていただければ、こちらで手続きします。",
+          "expected_signals": [
+            "PM-7"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -238,10 +743,33 @@
       "scam_type": "investment",
       "description": "Forex trading scam with fake platform.",
       "messages": [
-        {"text": "FX自動売買システムのご案内です。月利5%の実績があります。", "expected_signals": ["PM-3"], "expected_class": "safe"},
-        {"text": "デモ口座で試してみませんか？無料で始められます。", "expected_signals": [], "expected_class": "safe"},
-        {"text": "本口座に移行するには50万円の入金が必要です。今なら手数料無料。", "expected_signals": ["PM-3"], "expected_class": "monitoring"},
-        {"text": "出金するには追加で30万円の手数料が必要です。至急お振り込みください。", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"}
+        {
+          "text": "FX自動売買システムのご案内です。月利5%の実績があります。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "デモ口座で試してみませんか？無料で始められます。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "本口座に移行するには50万円の入金が必要です。今なら手数料無料。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "出金するには追加で30万円の手数料が必要です。至急お振り込みください。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -249,9 +777,29 @@
       "scam_type": "investment",
       "description": "Gold investment scam.",
       "messages": [
-        {"text": "金の価格が急騰しています。今が投資のチャンスです。", "expected_signals": ["PM-3"], "expected_class": "safe"},
-        {"text": "当社が独自に確保した金を特別価格でお譲りします。", "expected_signals": ["PM-3", "PM-4"], "expected_class": "monitoring"},
-        {"text": "本日限りの特別価格です。100万円以上のご購入で送料無料。すぐにお振り込みを。", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"}
+        {
+          "text": "金の価格が急騰しています。今が投資のチャンスです。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "当社が独自に確保した金を特別価格でお譲りします。",
+          "expected_signals": [
+            "PM-3",
+            "PM-4"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "本日限りの特別価格です。100万円以上のご購入で送料無料。すぐにお振り込みを。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -259,9 +807,28 @@
       "scam_type": "investment",
       "description": "English stock tip scam.",
       "messages": [
-        {"text": "Exclusive investment tip: this biotech stock will triple next month.", "expected_signals": ["PM-3"], "expected_class": "safe"},
-        {"text": "My clients have already made 200% returns. You're missing out.", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "Transfer $10,000 to this account to get started. The window closes today.", "expected_signals": ["PM-1", "PM-3"], "expected_class": "suspicious"}
+        {
+          "text": "Exclusive investment tip: this biotech stock will triple next month.",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "My clients have already made 200% returns. You're missing out.",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "Transfer $10,000 to this account to get started. The window closes today.",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -269,9 +836,27 @@
       "scam_type": "investment",
       "description": "NFT investment scam.",
       "messages": [
-        {"text": "限定NFTコレクションのご案内です。著名アーティストの作品です。", "expected_signals": [], "expected_class": "safe"},
-        {"text": "すでに価値が3倍になっています。今なら特別価格で購入できます。", "expected_signals": ["PM-3"], "expected_class": "safe"},
-        {"text": "購入にはこのウォレットアドレスに暗号通貨で送金してください。本日限り。", "expected_signals": ["PM-1", "PM-3", "PM-5"], "expected_class": "scam"}
+        {
+          "text": "限定NFTコレクションのご案内です。著名アーティストの作品です。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "すでに価値が3倍になっています。今なら特別価格で購入できます。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "購入にはこのウォレットアドレスに暗号通貨で送金してください。本日限り。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -279,9 +864,27 @@
       "scam_type": "authority",
       "description": "Police impersonation: warrant threat.",
       "messages": [
-        {"text": "警察の佐藤です。あなたの口座が犯罪に使われた疑いがあります。", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "このまま放置すると逮捕される可能性があります。", "expected_signals": ["PM-6"], "expected_class": "suspicious"},
-        {"text": "口座の安全を確認するため、暗証番号とカード番号を教えてください。", "expected_signals": ["PM-7"], "expected_class": "scam"}
+        {
+          "text": "警察の佐藤です。あなたの口座が犯罪に使われた疑いがあります。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "このまま放置すると逮捕される可能性があります。",
+          "expected_signals": [
+            "PM-6"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "口座の安全を確認するため、暗証番号とカード番号を教えてください。",
+          "expected_signals": [
+            "PM-7"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -289,9 +892,28 @@
       "scam_type": "authority",
       "description": "Bank impersonation: account security alert.",
       "messages": [
-        {"text": "みずほ銀行セキュリティセンターです。不正アクセスを検知しました。", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "至急口座を凍結する必要があります。本人確認をお願いします。", "expected_signals": ["PM-1", "PM-4"], "expected_class": "suspicious"},
-        {"text": "口座番号、暗証番号、生年月日を入力してください。", "expected_signals": ["PM-7"], "expected_class": "scam"}
+        {
+          "text": "みずほ銀行セキュリティセンターです。不正アクセスを検知しました。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "至急口座を凍結する必要があります。本人確認をお願いします。",
+          "expected_signals": [
+            "PM-1",
+            "PM-4"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "口座番号、暗証番号、生年月日を入力してください。",
+          "expected_signals": [
+            "PM-7"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -299,9 +921,29 @@
       "scam_type": "authority",
       "description": "Tax refund scam: government impersonation.",
       "messages": [
-        {"text": "市役所の年金課です。年金の過払い分の還付手続きについてご連絡しました。", "expected_signals": ["PM-4", "PM-9"], "expected_class": "monitoring"},
-        {"text": "還付金を受け取るにはATMで手続きが必要です。", "expected_signals": ["PM-9"], "expected_class": "suspicious"},
-        {"text": "ATMの前に着いたら電話してください。操作方法をお伝えします。暗証番号もご用意ください。", "expected_signals": ["PM-7", "PM-9"], "expected_class": "scam"}
+        {
+          "text": "市役所の年金課です。年金の過払い分の還付手続きについてご連絡しました。",
+          "expected_signals": [
+            "PM-4",
+            "PM-9"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "還付金を受け取るにはATMで手続きが必要です。",
+          "expected_signals": [
+            "PM-9"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "ATMの前に着いたら電話してください。操作方法をお伝えします。暗証番号もご用意ください。",
+          "expected_signals": [
+            "PM-7",
+            "PM-9"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -309,9 +951,28 @@
       "scam_type": "authority",
       "description": "Customs impersonation: package held.",
       "messages": [
-        {"text": "税関からのお知らせ：お客様宛の国際荷物が保留中です。", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "関税未払いのため48時間以内に処理しないと破棄されます。", "expected_signals": ["PM-1"], "expected_class": "monitoring"},
-        {"text": "関税5万円をコンビニ払いでお支払いください。支払い番号：XXX-XXX", "expected_signals": ["PM-3", "PM-5"], "expected_class": "scam"}
+        {
+          "text": "税関からのお知らせ：お客様宛の国際荷物が保留中です。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "関税未払いのため48時間以内に処理しないと破棄されます。",
+          "expected_signals": [
+            "PM-1"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "関税5万円をコンビニ払いでお支払いください。支払い番号：XXX-XXX",
+          "expected_signals": [
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -319,8 +980,23 @@
       "scam_type": "authority",
       "description": "Court notice impersonation.",
       "messages": [
-        {"text": "東京地方裁判所からの通知です。未払い料金に関する訴訟が提起されました。", "expected_signals": ["PM-4", "PM-6"], "expected_class": "suspicious"},
-        {"text": "和解金50万円を本日中にお支払いいただければ訴訟を取り下げます。", "expected_signals": ["PM-1", "PM-3", "PM-6"], "expected_class": "scam"}
+        {
+          "text": "東京地方裁判所からの通知です。未払い料金に関する訴訟が提起されました。",
+          "expected_signals": [
+            "PM-4",
+            "PM-6"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "和解金50万円を本日中にお支払いいただければ訴訟を取り下げます。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-6"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -328,9 +1004,29 @@
       "scam_type": "authority",
       "description": "Insurance company impersonation.",
       "messages": [
-        {"text": "保険会社の鈴木です。保険金の支払いについてご連絡しました。", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "保険金を受け取るには手数料として3万円が必要です。", "expected_signals": ["PM-3"], "expected_class": "monitoring"},
-        {"text": "至急プリペイドカードを購入して番号をお知らせください。", "expected_signals": ["PM-1", "PM-5", "PM-7"], "expected_class": "scam"}
+        {
+          "text": "保険会社の鈴木です。保険金の支払いについてご連絡しました。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "保険金を受け取るには手数料として3万円が必要です。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "至急プリペイドカードを購入して番号をお知らせください。",
+          "expected_signals": [
+            "PM-1",
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -338,9 +1034,29 @@
       "scam_type": "authority",
       "description": "Telecom provider impersonation.",
       "messages": [
-        {"text": "NTTドコモからのお知らせです。料金の未払いがあります。", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "本日中にお支払いいただかないと回線を停止します。", "expected_signals": ["PM-1", "PM-6"], "expected_class": "suspicious"},
-        {"text": "コンビニで電子マネーを購入して番号を送ってください。", "expected_signals": ["PM-5", "PM-7"], "expected_class": "scam"}
+        {
+          "text": "NTTドコモからのお知らせです。料金の未払いがあります。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "本日中にお支払いいただかないと回線を停止します。",
+          "expected_signals": [
+            "PM-1",
+            "PM-6"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "コンビニで電子マネーを購入して番号を送ってください。",
+          "expected_signals": [
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -348,9 +1064,30 @@
       "scam_type": "authority",
       "description": "English IRS impersonation.",
       "messages": [
-        {"text": "This is the IRS. You have an outstanding tax debt of $5,000.", "expected_signals": ["PM-4"], "expected_class": "safe"},
-        {"text": "Failure to pay within 24 hours will result in arrest and prosecution.", "expected_signals": ["PM-1", "PM-6"], "expected_class": "suspicious"},
-        {"text": "Purchase Apple gift cards totaling $5,000 and provide the codes immediately.", "expected_signals": ["PM-3", "PM-5", "PM-7"], "expected_class": "scam"}
+        {
+          "text": "This is the IRS. You have an outstanding tax debt of $5,000.",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "Failure to pay within 24 hours will result in arrest and prosecution.",
+          "expected_signals": [
+            "PM-1",
+            "PM-6"
+          ],
+          "expected_class": "suspicious"
+        },
+        {
+          "text": "Purchase Apple gift cards totaling $5,000 and provide the codes immediately.",
+          "expected_signals": [
+            "PM-3",
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam"
+        }
       ]
     },
     {
@@ -358,42 +1095,93 @@
       "scam_type": "legitimate",
       "description": "LEGITIMATE: Real grandchild asking for small amount for taxi.",
       "messages": [
-        {"text": "おばあちゃん、健二だよ。今駅にいるんだけど財布忘れちゃった。", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "タクシー代2000円だけ貸してもらえない？明日返すから。", "expected_signals": ["PM-3"], "expected_class": "safe"}
-      ]
+        {
+          "text": "おばあちゃん、健二だよ。今駅にいるんだけど財布忘れちゃった。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "タクシー代2000円だけ貸してもらえない？明日返すから。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        }
+      ],
+      "sender_id": "kenji@family.example.com"
     },
     {
       "id": "legit_grandchild_textbook",
       "scam_type": "legitimate",
       "description": "LEGITIMATE: Grandchild needs money for textbooks.",
       "messages": [
-        {"text": "おばあちゃん、たかしです。大学の教科書が急に必要になって。", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "5000円くらいなんだけど、今月お小遣い使い切っちゃって。来週のバイト代で返すね。", "expected_signals": ["PM-3"], "expected_class": "safe"}
-      ]
+        {
+          "text": "おばあちゃん、たかしです。大学の教科書が急に必要になって。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "5000円くらいなんだけど、今月お小遣い使い切っちゃって。来週のバイト代で返すね。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        }
+      ],
+      "sender_id": "takashi@family.example.com"
     },
     {
       "id": "legit_family_emergency",
       "scam_type": "legitimate",
       "description": "LEGITIMATE: Real family emergency — child calls about car trouble.",
       "messages": [
-        {"text": "お母さん、たけしです。車が故障して修理代が必要なんだ。", "expected_signals": ["PM-11", "PM-10"], "expected_class": "safe"},
-        {"text": "3万円くらいかかるみたい。来月の給料で返すから。", "expected_signals": ["PM-3"], "expected_class": "safe"}
-      ]
+        {
+          "text": "お母さん、たけしです。車が故障して修理代が必要なんだ。",
+          "expected_signals": [
+            "PM-11",
+            "PM-10"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "3万円くらいかかるみたい。来月の給料で返すから。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        }
+      ],
+      "sender_id": "takeshi@email.com"
     },
     {
       "id": "legit_doctor_appointment",
       "scam_type": "legitimate",
       "description": "LEGITIMATE: Clinic sending appointment reminder.",
       "messages": [
-        {"text": "田中様、来週火曜日の定期検診のご予約確認です。10時にお越しください。", "expected_signals": [], "expected_class": "safe"}
-      ]
+        {
+          "text": "田中様、来週火曜日の定期検診のご予約確認です。10時にお越しください。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
+      ],
+      "sender_id": "meguro-clinic@example.com"
     },
     {
       "id": "legit_bank_notification",
       "scam_type": "legitimate",
       "description": "LEGITIMATE: Real bank notification about account activity.",
       "messages": [
-        {"text": "みずほ銀行です。お客様の口座からATM出金がありました。金額：10,000円。ご本人の操作でない場合はご連絡ください。", "expected_signals": ["PM-4"], "expected_class": "safe"}
+        {
+          "text": "みずほ銀行です。お客様の口座からATM出金がありました。金額：10,000円。ご本人の操作でない場合はご連絡ください。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -401,16 +1189,29 @@
       "scam_type": "legitimate",
       "description": "LEGITIMATE: Friend asking about lunch plans.",
       "messages": [
-        {"text": "久しぶり！来週ランチしない？新しいお店見つけたの。", "expected_signals": [], "expected_class": "safe"},
-        {"text": "火曜日の11時はどう？駅前のイタリアンのお店。", "expected_signals": [], "expected_class": "safe"}
-      ]
+        {
+          "text": "久しぶり！来週ランチしない？新しいお店見つけたの。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "火曜日の11時はどう？駅前のイタリアンのお店。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
+      ],
+      "sender_id": "tanaka@email.com"
     },
     {
       "id": "legit_delivery",
       "scam_type": "legitimate",
       "description": "LEGITIMATE: Delivery notification.",
       "messages": [
-        {"text": "ヤマト運輸です。お荷物のお届け予定日は明日です。ご不在の場合は再配達いたします。", "expected_signals": [], "expected_class": "safe"}
+        {
+          "text": "ヤマト運輸です。お荷物のお届け予定日は明日です。ご不在の場合は再配達いたします。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -418,17 +1219,38 @@
       "scam_type": "legitimate",
       "description": "LEGITIMATE: Grandchild planning a visit — looks like ore-ore opener but is genuine.",
       "messages": [
-        {"text": "おばあちゃん、ゆうきだよ。来月の連休にそっちに遊びに行こうと思うんだけど。", "expected_signals": ["PM-11"], "expected_class": "safe"},
-        {"text": "何か欲しいものある？お土産買っていくよ。", "expected_signals": [], "expected_class": "safe"},
-        {"text": "電車代がちょっと高いんだけど、おばあちゃん少し出してくれない？新幹線で行きたいんだ。", "expected_signals": ["PM-3"], "expected_class": "safe"}
-      ]
+        {
+          "text": "おばあちゃん、ゆうきだよ。来月の連休にそっちに遊びに行こうと思うんだけど。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe"
+        },
+        {
+          "text": "何か欲しいものある？お土産買っていくよ。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "電車代がちょっと高いんだけど、おばあちゃん少し出してくれない？新幹線で行きたいんだ。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe"
+        }
+      ],
+      "sender_id": "yuki@family.example.com"
     },
     {
       "id": "spam_product",
       "scam_type": "spam",
       "description": "Product advertisement spam.",
       "messages": [
-        {"text": "【期間限定】健康サプリメント50%OFF！今だけ特別価格でお届けします。詳しくはこちら→", "expected_signals": [], "expected_class": "safe"}
+        {
+          "text": "【期間限定】健康サプリメント50%OFF！今だけ特別価格でお届けします。詳しくはこちら→",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -436,8 +1258,21 @@
       "scam_type": "spam",
       "description": "Lottery spam — borderline scam.",
       "messages": [
-        {"text": "おめでとうございます！抽選で100万円が当選しました！", "expected_signals": ["PM-8"], "expected_class": "monitoring"},
-        {"text": "受け取りには手数料5000円が必要です。こちらの口座にお振り込みください。", "expected_signals": ["PM-3", "PM-8"], "expected_class": "suspicious"}
+        {
+          "text": "おめでとうございます！抽選で100万円が当選しました！",
+          "expected_signals": [
+            "PM-8"
+          ],
+          "expected_class": "monitoring"
+        },
+        {
+          "text": "受け取りには手数料5000円が必要です。こちらの口座にお振り込みください。",
+          "expected_signals": [
+            "PM-3",
+            "PM-8"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -445,7 +1280,11 @@
       "scam_type": "spam",
       "description": "Dating site spam.",
       "messages": [
-        {"text": "新しいマッチがあります！素敵な方があなたにメッセージを送っています。今すぐログイン→", "expected_signals": [], "expected_class": "safe"}
+        {
+          "text": "新しいマッチがあります！素敵な方があなたにメッセージを送っています。今すぐログイン→",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -453,7 +1292,14 @@
       "scam_type": "spam",
       "description": "English phishing email.",
       "messages": [
-        {"text": "Your Amazon account has been suspended. Click here to verify your identity.", "expected_signals": ["PM-4", "PM-7"], "expected_class": "suspicious"}
+        {
+          "text": "Your Amazon account has been suspended. Click here to verify your identity.",
+          "expected_signals": [
+            "PM-4",
+            "PM-7"
+          ],
+          "expected_class": "suspicious"
+        }
       ]
     },
     {
@@ -461,7 +1307,13 @@
       "scam_type": "spam",
       "description": "Fake survey with prize.",
       "messages": [
-        {"text": "アンケートに答えて1万円分のギフトカードをもらおう！", "expected_signals": ["PM-8"], "expected_class": "safe"}
+        {
+          "text": "アンケートに答えて1万円分のギフトカードをもらおう！",
+          "expected_signals": [
+            "PM-8"
+          ],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -469,7 +1321,11 @@
       "scam_type": "safe",
       "description": "Neighbor checking in.",
       "messages": [
-        {"text": "田中さん、お隣の山田です。回覧板をお持ちしました。", "expected_signals": [], "expected_class": "safe"}
+        {
+          "text": "田中さん、お隣の山田です。回覧板をお持ちしました。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -477,8 +1333,16 @@
       "scam_type": "safe",
       "description": "Old friend reconnecting.",
       "messages": [
-        {"text": "久しぶりね！同窓会の案内が来たの。一緒に行かない？", "expected_signals": [], "expected_class": "safe"},
-        {"text": "来月の15日、新宿のホテルで。参加費3000円だって。", "expected_signals": [], "expected_class": "safe"}
+        {
+          "text": "久しぶりね！同窓会の案内が来たの。一緒に行かない？",
+          "expected_signals": [],
+          "expected_class": "safe"
+        },
+        {
+          "text": "来月の15日、新宿のホテルで。参加費3000円だって。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -486,7 +1350,11 @@
       "scam_type": "safe",
       "description": "Community center announcement.",
       "messages": [
-        {"text": "公民館からのお知らせです。来週の健康体操教室は祝日のためお休みです。", "expected_signals": [], "expected_class": "safe"}
+        {
+          "text": "公民館からのお知らせです。来週の健康体操教室は祝日のためお休みです。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -494,7 +1362,11 @@
       "scam_type": "safe",
       "description": "Simple English greeting from unknown sender.",
       "messages": [
-        {"text": "Hi there! I think we met at the community center last week. How are you?", "expected_signals": [], "expected_class": "safe"}
+        {
+          "text": "Hi there! I think we met at the community center last week. How are you?",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
       ]
     },
     {
@@ -502,7 +1374,11 @@
       "scam_type": "safe",
       "description": "Pharmacy prescription reminder.",
       "messages": [
-        {"text": "さくら薬局です。お薬の処方箋の有効期限が近づいています。お早めにお越しください。", "expected_signals": [], "expected_class": "safe"}
+        {
+          "text": "さくら薬局です。お薬の処方箋の有効期限が近づいています。お早めにお越しください。",
+          "expected_signals": [],
+          "expected_class": "safe"
+        }
       ]
     }
   ]

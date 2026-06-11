@@ -6,7 +6,7 @@ Elder-targeted fraud cost Japan ¥324 billion in 2025 (NPA), up from ¥199 billi
 
 ## Our solution
 
-Elder Shield separates LLM signal detection from deterministic risk scoring. Through ADK optimization, all six agents run on Gemini Flash Lite: the cheapest model tier. The LLM detects 40 signals across 6 families; a deterministic ConversationRiskLedger makes the classification decision. Evidence accumulates across messages with decay, tier amplification, attack sequence detection, and a grooming-then-escalation primer bonus modeled on NPA tokushu-sagi data.
+Elder Shield separates LLM signal detection from deterministic risk scoring. Through ADK optimization, all six agents run on Gemini Flash Lite: the cheapest model tier. The LLM detects 40 signals across 6 families; a deterministic ConversationRiskLedger makes the classification decision. Evidence accumulates across messages with decay, tier amplification, attack sequence detection, sender-trust modulation from the social graph, and a grooming-then-escalation primer bonus modeled on NPA tokushu-sagi data.
 
 - **LLM finds signals, not verdicts.** 15 per-message signals in 3 severity tiers. A deterministic ledger scores them additively: classification from accumulated evidence, never an LLM opinion.
 - **Elder's replies reveal if the scam is working.** 7 victim state signals from outbound messages: compliance, secrecy adoption, financial commitment. Most systems watch the scammer. Elder Shield watches whether the elder is falling for it.
@@ -18,7 +18,7 @@ Elder Shield separates LLM signal detection from deterministic risk scoring. Thr
 
 Business model: Elder Shield ships as a family-protection subscription on Faxi. The adult children who already manage a parent's Faxi account pay for the protection tier and receive the alerts. The buyer (the family) is not the user (the elder) — which is why dignity-preserving alerts are a revenue requirement, not a UX nicety: an elder who feels surveilled turns the system off, and the subscription churns.
 
-Longitudinal evaluation across 51 multi-message scenarios: **0/12 legitimate scenarios falsely flagged vs 5/12 naive (42%)**. The naive baseline calls "scam" on 75% of first messages; Elder Shield never does — it accumulates evidence: safe → elevated → suspicious → blocked. Per-message stage accuracy (is the system at the right alert level at each point in the conversation?) is 63.6% vs 34.7% naive. 33 of 34 scam scenarios caught; the one miss — a 3-message romance opener that stayed below the evidence threshold — is documented as an honest fail.
+Longitudinal evaluation across 52 multi-message scenarios (140 graded messages, both systems on gemini-2.5-flash-lite): **34/34 scams caught vs 31/34 naive — the baseline missed two investment groomers and a romance opener that look reasonable message-by-message. 0/13 false positives.** Per-message stage accuracy (is the system at the right alert level at each point in the conversation?) is 67.2% vs 62.8%. The zero false positives were earned through the evaluation itself: an earlier run exposed 4 legitimate family conversations being flagged, root-caused to graph trust never reaching the scoring layer; we wired the social graph's verdict into the risk ledger and gated attack-pattern multipliers to unverified senders. After the fix, every legitimate family conversation ends in "monitoring" — watched, never flagged.
 
 ## Technologies used
 
@@ -41,15 +41,17 @@ ADK optimization tools drove the development:
 
 ## Findings and learnings
 
-1. **LLMs are better sensors than judges.** Separating detection from scoring improved per-message stage accuracy on longitudinal scenarios from 34.7% to 63.6%. The LLM understands language; it shouldn't make risk decisions.
+1. **LLMs are better sensors than judges.** When the evaluation exposed legitimate family messages being flagged, the fix was ~30 auditable lines in the deterministic ledger — not prompt surgery. The LLM understands language; it shouldn't make risk decisions, precisely so that risk decisions stay debuggable.
 
-2. **False positives matter more than catch rate.** Blocking a real grandchild's request destroys trust. 0/12 false positives matters because a disabled system protects nobody.
+2. **False positives matter more than catch rate.** Blocking a real grandchild's request destroys trust. 0/13 false positives matters because a disabled system protects nobody — and our eval initially showed 4, which we root-caused and fixed rather than re-labeled.
 
-3. **The T1 primer bonus models real attack behavior.** Ore-ore scams start with identity claims (T1), then escalate. The 1.3x multiplier when T2/T3 follows T1 models how the attack actually works.
+3. **The T1 primer bonus models real attack behavior.** Ore-ore scams start with identity claims (T1), then escalate. The 1.3x multiplier when T2/T3 follows T1 models how the attack actually works — and it is gated to unverified senders, because the same arc from a verified grandson is just how family talks.
 
 4. **Agent Optimizer proved the value is in infrastructure, not prompts.** The optimizer couldn't beat our prompt. The accuracy improvement comes from the pipeline (corpus, risk ledger, graph), not prompt engineering.
 
 5. **Observability found the false positive root cause.** OTel traces showed family messages matching scam patterns, driving the contra-indicator pipeline.
+
+6. **The per-message gap closes as models improve; the context gap doesn't.** Re-running on a newer model, the naive baseline got dramatically better at single-message classification — and still missed 3 of 34 multi-day scams while knowing nothing about who senders are, what the elder is doing, or what leaves the device. The durable advantage is the infrastructure a per-message classifier can't have at any model size.
 
 ## Third-party integrations
 

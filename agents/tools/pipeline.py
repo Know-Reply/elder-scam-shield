@@ -420,17 +420,24 @@ class ConversationRiskLedger:
         ledger._consecutive_high = d.get("_consecutive_high", 0)
         return ledger
 
-    def update(self, signals: list[str]) -> dict:
+    def update(self, signals: list[str], trust_modifier: float = 1.0) -> dict:
         """Process one message's detected signals. Returns update summary.
 
         This is the core accumulation function:
         1. Decay existing score
-        2. Compute message contribution (weight × tier amp)
+        2. Compute message contribution (weight × tier amp × sender trust)
         3. Apply T1 primer bonus if T1 preceded T2/T3
         4. Apply sequence multiplier if attack pattern matches
         5. Apply tier override floors
         6. Update classification from score
         7. Check family alert gates
+
+        trust_modifier carries the social graph's verdict on the sender:
+        < 1.0 for graph-verified close contacts (family-shaped financial
+        signals are expected from real family — monitored, not flagged),
+        > 1.0 for unknown senders claiming a family relationship (the
+        ore-ore opening signature). EA signals are exempt — abuse from
+        trusted contacts must never be dampened by the trust itself.
         """
         self.message_count += 1
         score_before = self.running_score
@@ -443,23 +450,34 @@ class ConversationRiskLedger:
         for s in signals:
             weight = SIGNAL_WEIGHTS.get(s, 0.0)
             tier = SIGNAL_TIERS.get(s, 1)
-            contribution += weight * TIER_AMP[tier]
+            amount = weight * TIER_AMP[tier]
+            if not s.startswith("EA-"):
+                amount *= trust_modifier
+            contribution += amount
 
             # Track counts
             tier_key = f"T{tier}"
             self.tier_counts[tier_key] = self.tier_counts.get(tier_key, 0) + 1
             self.signal_counts[s] = self.signal_counts.get(s, 0) + 1
 
-        # 3. T1 primer bonus: if T1 was seen before and this message has T2/T3
-        if self.t1_primer_active and any(SIGNAL_TIERS.get(s, 0) >= 2 for s in signals):
-            contribution *= T1_PRIMER_BONUS
+        # 3 & 4. Attack-pattern machinery (T1 primer, sequence multipliers)
+        # models STRANGER attack arcs — an identity claim followed by a money
+        # ask from a graph-verified contact is how family actually talks, not
+        # an ore-ore sequence. Verified contacts (trust_modifier < 1.0) get
+        # plain additive scoring; signals still accumulate and EA signals
+        # remain at full weight.
+        seq_name, seq_mult = None, 1.0
+        if trust_modifier >= 1.0:
+            # T1 primer bonus: if T1 was seen before and this message has T2/T3
+            if self.t1_primer_active and any(SIGNAL_TIERS.get(s, 0) >= 2 for s in signals):
+                contribution *= T1_PRIMER_BONUS
 
-        # 4. Sequence multiplier
-        all_msg_signals = [r["signals"] for r in self.signal_history] + [signals]
-        seq_name, seq_mult = _detect_sequence_match(all_msg_signals)
-        if seq_name and seq_name not in self.sequence_matches:
-            self.sequence_matches.append(seq_name)
-        contribution *= seq_mult
+            # Sequence multiplier
+            all_msg_signals = [r["signals"] for r in self.signal_history] + [signals]
+            seq_name, seq_mult = _detect_sequence_match(all_msg_signals)
+            if seq_name and seq_name not in self.sequence_matches:
+                self.sequence_matches.append(seq_name)
+            contribution *= seq_mult
 
         # 5. Add contribution (pre-override)
         self.running_score = min(SCORE_CAP, self.running_score + contribution)
@@ -491,6 +509,8 @@ class ConversationRiskLedger:
             "score_after": round(self.running_score, 3),
             "sequence_match": seq_name,
         }
+        if trust_modifier != 1.0:
+            record["trust_modifier"] = trust_modifier
         self.signal_history.append(record)
 
         # 7. Family alert gates
