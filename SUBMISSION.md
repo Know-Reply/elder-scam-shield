@@ -2,60 +2,57 @@
 
 ## Problem to solve
 
-Elder-targeted fraud cost Japan ¥324 billion in 2025 (NPA), up from ¥199 billion in 2024, and $77.7 billion globally (Nasdaq 2024). Existing systems classify messages one at a time. None detect multi-day trust-building campaigns targeting elderly users: users who cannot evaluate warnings, making traditional alert-based protection ineffective. A scammer building rapport over 5 days looks safe on days 1-4: each message is genuinely innocuous. By day 5, the elder is emotionally compromised. A per-message classifier catches the ask but misses the 4 days of setup where intervention could have prevented it.
+Elder-targeted fraud cost Japan ¥324 billion in 2025 (NPA, up from ¥199 billion in 2024) and $77.7 billion globally (Nasdaq 2024). Existing systems classify messages one at a time; none detect multi-day trust-building campaigns against users who cannot evaluate warnings. Every message in a 5-day rapport campaign is genuinely innocuous — a per-message classifier catches the final ask but misses the setup, where intervention could still prevent harm.
 
 ## Our solution
 
-Elder Shield separates LLM signal detection from deterministic risk scoring. Through ADK optimization, all six agents run on Gemini Flash Lite: the cheapest model tier. The LLM detects 40 signals across 6 families; a deterministic ConversationRiskLedger makes the classification decision. Evidence accumulates across messages with decay, tier amplification, attack sequence detection, sender-trust modulation from the social graph, and a grooming-then-escalation primer bonus modeled on NPA tokushu-sagi data.
+Elder Shield separates LLM signal detection from deterministic risk scoring. Six agents, all on Gemini Flash Lite (the cheapest tier): the LLM detects 40 signals across 6 families; a deterministic ConversationRiskLedger makes every classification decision, accumulating evidence across messages with decay, tier amplification, attack-sequence detection, sender-trust modulation from the social graph, and a grooming-then-escalation primer bonus modeled on NPA tokushu-sagi data.
 
-- **LLM finds signals, not verdicts.** 15 per-message signals in 3 severity tiers. A deterministic ledger scores them additively: classification from accumulated evidence, never an LLM opinion.
-- **Elder's replies reveal if the scam is working.** 7 victim state signals from outbound messages: compliance, secrecy adoption, financial commitment. Most systems watch the scammer. Elder Shield watches whether the elder is falling for it.
-- **Every fact has provenance.** Tracks WHO revealed WHAT first. Echo-grounded identity detection: the scammer's "knowledge" was given to them by the elder.
-- **Family alerted, not alarmed.** Bilingual JP/EN notifications when elder reaches Compromised or risk crosses 50%. Never exposes content. Never says "scam": dignity-preserving.
-- **Outbound replies held for review.** Gift card codes, bank details caught before sending.
-- **Behavioral velocity (BV-1..5)** catches grooming arcs: relationship velocity, isolation attempts, emotional scheduling.
-- **Elder abuse (EA-1..4)** from trusted contacts: financial control, isolation, authority escalation.
+- **LLM finds signals, not verdicts.** Classification always derives from accumulated evidence, never an LLM opinion.
+- **The elder's replies reveal if the scam is working.** 7 victim-state signals: compliance, secrecy adoption, financial commitment.
+- **Every fact has provenance.** Tracks who revealed what first — catching scammers whose "knowledge" came from the elder.
+- **Family alerted, not alarmed.** Bilingual notifications, content never exposed, never says "scam" — dignity-preserving.
+- **Outbound replies held.** Gift-card codes and bank details caught before sending.
+- **Behavioral velocity (BV) and elder abuse (EA) signals** catch grooming arcs and manipulation by trusted contacts.
 
-Business model: Elder Shield ships as a family-protection subscription on Faxi. The adult children who already manage a parent's Faxi account pay for the protection tier and receive the alerts. The buyer (the family) is not the user (the elder) — which is why dignity-preserving alerts are a revenue requirement, not a UX nicety: an elder who feels surveilled turns the system off, and the subscription churns.
+Business model: a family-protection subscription on Faxi — the adult children who manage a parent's account pay and receive the alerts. The buyer isn't the user, so dignity-preserving alerts are a revenue requirement: a surveilled elder turns the system off.
 
-Longitudinal evaluation across 52 multi-message scenarios (140 graded messages, both systems on gemini-2.5-flash-lite): **34/34 scams caught vs 31/34 naive — the baseline missed two investment groomers and a romance opener that look reasonable message-by-message. 0/13 false positives.** Per-message stage accuracy (is the system at the right alert level at each point in the conversation?) is 67.2% vs 62.8%. The zero false positives were earned through the evaluation itself: an earlier run exposed 4 legitimate family conversations being flagged, root-caused to graph trust never reaching the scoring layer; we wired the social graph's verdict into the risk ledger and gated attack-pattern multipliers to unverified senders. After the fix, every legitimate family conversation ends in "monitoring" — watched, never flagged.
+Evaluation: 52 longitudinal scenarios, 140 graded messages, both systems on gemini-2.5-flash-lite. **34/34 scams caught vs 31/34 naive; 0/13 false positives; 67.2% vs 62.8% stage accuracy.** The zero FPs were earned through the eval: an earlier run flagged 4 family conversations, root-caused to graph trust never reaching the scoring layer. We wired the graph's verdict into the ledger and gated attack-pattern multipliers to unverified senders — family conversations now end in "monitoring": watched, never flagged.
 
 ## Technologies used
 
-- Google ADK 2.0: Workflow DAG, output_schema, output_key, FunctionTool, before_tool_callback, multiple Runners
-- Gemini 2.5 Flash Lite on Vertex AI (us-central1): all 6 agents, cheapest model tier
-- Vertex AI Agent Engine: root agent deployed via adk deploy (`reasoningEngines/4623304008042283008`, us-central1, 2026-06-10)
+- Google ADK 2.0: Workflow DAG, output_schema, output_key, tool callbacks, multiple Runners
+- Gemini 2.5 Flash Lite on Vertex AI — all 6 agents
+- Vertex AI Agent Engine: root agent deployed via adk deploy (resource ID in README)
 - Agent Search Data Store: 22,979-entry corpus, neural search, cross-language JP+EN
-- Cloud Run: FastAPI app with ConversationRiskLedger scoring layer
-- ADK Session State: output_key + session.state carry structured results between agents within each request; longitudinal per-sender memory lives in the deterministic risk ledger (VertexAiSessionService planned for production persistence)
+- Cloud Run: FastAPI app with the ConversationRiskLedger scoring layer
+- ADK Session State: output_key carries structured agent results; longitudinal memory in the deterministic ledger
 
-ADK optimization tools drove the development:
-- Agent Evaluation: 55-case EvalSet (ADK format) run through a live ADK Runner harness with committed raw results, plus a 51-scenario longitudinal suite
-- Agent Simulation: multi-day scam sequences replayed end-to-end through live agents to stress-test longitudinal detection
-- Agent Optimizer: confirmed prompt near-optimal; value is in infrastructure, not prompts
-- Agent Observability: 45 OTel spans across 3 traced cases (15 per case) identified false positive root causes, drove contra-indicator design
+ADK optimization tools drove development:
+- Agent Evaluation: 55-case EvalSet via live ADK Runner harness + 52-scenario longitudinal suite, raw results committed
+- Agent Simulation: multi-day scam sequences replayed end-to-end through live agents
+- Agent Optimizer: confirmed prompt near-optimal — the value is in infrastructure
+- Agent Observability: 45 OTel spans across 3 traced cases found false-positive root causes, drove contra-indicator design
 
 ## Data sources
 
-22,979 corpus entries from 7 sources including real phishing emails, Japanese scam transcripts, NPA police-published scripts, and antiphishing.jp reports. Signal weights calibrated against NPA tokushu-sagi reports 2023-2025.
+22,979 corpus entries from 7 sources: real phishing emails, Japanese scam transcripts, NPA police-published scripts, antiphishing.jp reports. Signal weights seeded from NPA tokushu-sagi aggregate statistics.
 
 ## Findings and learnings
 
-1. **LLMs are better sensors than judges.** When the evaluation exposed legitimate family messages being flagged, the fix was ~30 auditable lines in the deterministic ledger — not prompt surgery. The LLM understands language; it shouldn't make risk decisions, precisely so that risk decisions stay debuggable.
+1. **LLMs are better sensors than judges.** When the eval exposed family messages being flagged, the fix was ~30 auditable ledger lines, not prompt surgery.
 
-2. **False positives matter more than catch rate.** Blocking a real grandchild's request destroys trust. 0/13 false positives matters because a disabled system protects nobody — and our eval initially showed 4, which we root-caused and fixed rather than re-labeled.
+2. **False positives matter more than catch rate.** A blocked grandchild means a disabled system, and a disabled system protects nobody. Our eval initially showed 4 FPs; we root-caused and fixed rather than re-labeled.
 
-3. **The T1 primer bonus models real attack behavior.** Ore-ore scams start with identity claims (T1), then escalate. The 1.3x multiplier when T2/T3 follows T1 models how the attack actually works — and it is gated to unverified senders, because the same arc from a verified grandson is just how family talks.
+3. **Attack patterns are sender-relative.** The T1 primer (identity claim, then escalation) models real ore-ore behavior — and is gated to unverified senders, because the same arc from a verified grandson is just how family talks.
 
-4. **Agent Optimizer proved the value is in infrastructure, not prompts.** The optimizer couldn't beat our prompt. The accuracy improvement comes from the pipeline (corpus, risk ledger, graph), not prompt engineering.
+4. **Optimizer and Observability earned their keep.** The optimizer couldn't beat our prompt; OTel traces found family messages matching scam corpus patterns, driving the contra-indicator design.
 
-5. **Observability found the false positive root cause.** OTel traces showed family messages matching scam patterns, driving the contra-indicator pipeline.
-
-6. **The per-message gap closes as models improve; the context gap doesn't.** Re-running on a newer model, the naive baseline got dramatically better at single-message classification — and still missed 3 of 34 multi-day scams while knowing nothing about who senders are, what the elder is doing, or what leaves the device. The durable advantage is the infrastructure a per-message classifier can't have at any model size.
+5. **The per-message gap closes as models improve; the context gap doesn't.** A newer model made the naive baseline far better per message — it still missed 3 of 34 multi-day scams, knowing nothing about senders, the elder's replies, or outbound money.
 
 ## Third-party integrations
 
-No third-party SDKs or runtime integrations. Built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are openly published datasets (Apache 2.0, LGPL-3.0, one unspecified-license research dataset) and public government publications; per-source licensing is documented in [data/DATA_PROVENANCE.md](data/DATA_PROVENANCE.md).
+None at runtime — built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are openly published datasets (Apache 2.0, LGPL-3.0, one unspecified-license research set) and public government publications; per-source licensing in data/DATA_PROVENANCE.md.
 
 ---
 
