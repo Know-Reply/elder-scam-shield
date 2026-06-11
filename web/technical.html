@@ -235,9 +235,9 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
 <p>The Workflow represents the full architecture. In production, the classifier runs on the hot path and the behavioral analyzer runs asynchronously against accumulated evidence. Same agents, same session state, different execution timing.</p>
 
 <!-- ============================================================ -->
-<h2>4. Signal Taxonomy (39 signals, 6 families)</h2>
+<h2>4. Signal Taxonomy (40 signals, 6 families)</h2>
 
-<h3>PM: Per-Message (12 signals)</h3>
+<h3>PM: Per-Message (15 signals)</h3>
 <table>
   <thead><tr><th>Code</th><th>Signal</th><th>Risk</th></tr></thead>
   <tbody>
@@ -253,6 +253,9 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
     <tr><td class="sig-code sig-danger">PM-10</td><td>Emotional crisis + financial resolution</td><td>High</td></tr>
     <tr><td class="sig-code sig-warn">PM-11</td><td>Identity claim (family relationship)</td><td>Medium</td></tr>
     <tr><td class="sig-code sig-warn">PM-12</td><td>Flattery density</td><td>Low</td></tr>
+    <tr><td class="sig-code sig-danger">PM-13</td><td>SPF/DKIM authentication failure</td><td>High</td></tr>
+    <tr><td class="sig-code sig-warn">PM-14</td><td>Financial context (money mentioned without asking)</td><td>Medium</td></tr>
+    <tr><td class="sig-code sig-warn">PM-15</td><td>Emotional bonding (personal loss, vulnerability, life history)</td><td>Low</td></tr>
   </tbody>
 </table>
 
@@ -293,11 +296,33 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
   </tbody>
 </table>
 
-<h3>LG: Longitudinal (10 signals)</h3>
+<h3>OB: Outbound (5 signals)</h3>
+<table>
+  <thead><tr><th>Code</th><th>Signal</th><th>What it detects</th></tr></thead>
+  <tbody>
+    <tr><td class="sig-code sig-warn">OB-1</td><td>PII in response</td><td>Name, address, My Number in a reply</td></tr>
+    <tr><td class="sig-code sig-danger">OB-2</td><td>Bank details in response</td><td>Account number, card number, PIN</td></tr>
+    <tr><td class="sig-code sig-danger">OB-3</td><td>Transfer instruction</td><td>Wire transfer or payment instruction leaving the user</td></tr>
+    <tr><td class="sig-code sig-warn">OB-4</td><td>Response to flagged sender</td><td>Replying to a sender with elevated risk</td></tr>
+    <tr><td class="sig-code sig-warn">OB-5</td><td>Compliance language</td><td>わかりました, すぐに送ります, 言わないでおきます</td></tr>
+  </tbody>
+</table>
+
+<h3>CM: Cross-Modal (4 signals)</h3>
+<table>
+  <thead><tr><th>Code</th><th>Signal</th><th>What it detects</th></tr></thead>
+  <tbody>
+    <tr><td class="sig-code sig-warn">CM-1</td><td>Spending correlation</td><td>Conversation intensity matches spending patterns</td></tr>
+    <tr><td class="sig-code sig-warn">CM-2</td><td>Amount matches request</td><td>Outbound transfer matches a recent inbound money request</td></tr>
+    <tr><td class="sig-code sig-warn">CM-3</td><td>Payment to new recipient</td><td>First-time payee combined with a flagged conversation</td></tr>
+    <tr><td class="sig-code sig-danger">CM-4</td><td>Urgency-amount compound</td><td>High urgency + large amount + high sender risk</td></tr>
+  </tbody>
+</table>
+
+<h3>LG: Longitudinal (legacy codes — aliases of PM/BV signals, not counted in the 40)</h3>
 <table>
   <thead><tr><th>Code</th><th>Signal</th></tr></thead>
   <tbody>
-    <tr><td class="sig-code sig-safe">LG-0</td><td>Location established</td></tr>
     <tr><td class="sig-code sig-danger">LG-1</td><td>Stated fact contradiction</td></tr>
     <tr><td class="sig-code sig-danger">LG-2</td><td>Contact identity mismatch</td></tr>
     <tr><td class="sig-code sig-warn">LG-3</td><td>Frequency escalation</td></tr>
@@ -307,8 +332,10 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
     <tr><td class="sig-code sig-warn">LG-7</td><td>Persona inconsistency</td></tr>
     <tr><td class="sig-code sig-danger">LG-8</td><td>Crisis after trust</td></tr>
     <tr><td class="sig-code sig-warn">LG-9</td><td>Rapid intimacy</td></tr>
+    <tr><td class="sig-code sig-warn">LG-10</td><td>Compliance conditioning</td></tr>
   </tbody>
 </table>
+<p>LG-1..LG-10 remain accepted by the behavioral analyzer for backward compatibility; they map onto the PM/BV taxonomy above and are not counted separately.</p>
 
 <!-- ============================================================ -->
 <h2>5. Production Integration</h2>

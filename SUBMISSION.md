@@ -2,11 +2,11 @@
 
 ## Problem to solve
 
-Elder fraud costs ¥1.4 trillion annually in Japan (NPA 2025) and $77.7 billion globally (Nasdaq 2024). Existing systems classify messages one at a time. None detect multi-day trust-building campaigns targeting elderly users: users who cannot evaluate warnings, making traditional alert-based protection ineffective. A scammer building rapport over 5 days looks safe on days 1-4: each message is genuinely innocuous. By day 5, the elder is emotionally compromised. A per-message classifier catches the ask but misses the 4 days of setup where intervention could have prevented it.
+Elder-targeted fraud cost Japan ¥324 billion in 2025 (NPA), up from ¥199 billion in 2024, and $77.7 billion globally (Nasdaq 2024). Existing systems classify messages one at a time. None detect multi-day trust-building campaigns targeting elderly users: users who cannot evaluate warnings, making traditional alert-based protection ineffective. A scammer building rapport over 5 days looks safe on days 1-4: each message is genuinely innocuous. By day 5, the elder is emotionally compromised. A per-message classifier catches the ask but misses the 4 days of setup where intervention could have prevented it.
 
 ## Our solution
 
-Elder Shield separates LLM signal detection from deterministic risk scoring. Through ADK optimization, all six agents run on Gemini Flash Lite: the cheapest model tier. The LLM detects 39 signals across 6 families; a deterministic ConversationRiskLedger makes the classification decision. Evidence accumulates across messages with decay, tier amplification, attack sequence detection, and a grooming-then-escalation primer bonus modeled on NPA tokushu-sagi data.
+Elder Shield separates LLM signal detection from deterministic risk scoring. Through ADK optimization, all six agents run on Gemini Flash Lite: the cheapest model tier. The LLM detects 40 signals across 6 families; a deterministic ConversationRiskLedger makes the classification decision. Evidence accumulates across messages with decay, tier amplification, attack sequence detection, and a grooming-then-escalation primer bonus modeled on NPA tokushu-sagi data.
 
 - **LLM finds signals, not verdicts.** 15 per-message signals in 3 severity tiers. A deterministic ledger scores them additively: classification from accumulated evidence, never an LLM opinion.
 - **Elder's replies reveal if the scam is working.** 7 victim state signals from outbound messages: compliance, secrecy adoption, financial commitment. Most systems watch the scammer. Elder Shield watches whether the elder is falling for it.
@@ -16,7 +16,7 @@ Elder Shield separates LLM signal detection from deterministic risk scoring. Thr
 - **Behavioral velocity (BV-1..5)** catches grooming arcs: relationship velocity, isolation attempts, emotional scheduling.
 - **Elder abuse (EA-1..4)** from trusted contacts: financial control, isolation, authority escalation.
 
-52-scenario longitudinal evaluation: 63.6% accuracy vs 34.7% naive baseline. 0/12 legitimate scenarios falsely flagged vs 5/12 naive (42%). Naive calls "scam" on 75% of first messages. Elder Shield accumulates: safe → elevated → suspicious → blocked.
+Longitudinal evaluation across 51 multi-message scenarios: **0/12 legitimate scenarios falsely flagged vs 5/12 naive (42%)**. The naive baseline calls "scam" on 75% of first messages; Elder Shield never does — it accumulates evidence: safe → elevated → suspicious → blocked. Per-message stage accuracy (is the system at the right alert level at each point in the conversation?) is 63.6% vs 34.7% naive. 33 of 34 scam scenarios caught; the one miss — a 3-message romance opener that stayed below the evidence threshold — is documented as an honest fail.
 
 ## Technologies used
 
@@ -28,10 +28,10 @@ Elder Shield separates LLM signal detection from deterministic risk scoring. Thr
 - ADK Session State: longitudinal memory via output_key + session.state
 
 ADK optimization tools drove the development:
-- Agent Evaluation: 55-case EvalSet via AgentEvaluator + 52-scenario longitudinal suite
-- Agent Simulation: LlmBackedUserSimulator stress-tested multi-day scam sequences
+- Agent Evaluation: 55-case EvalSet (ADK format) run through a live ADK Runner harness with committed raw results, plus a 51-scenario longitudinal suite
+- Agent Simulation: multi-day scam sequences replayed end-to-end through live agents to stress-test longitudinal detection
 - Agent Optimizer: confirmed prompt near-optimal; value is in infrastructure, not prompts
-- Agent Observability: 45 OTel spans per case identified false positive root causes, drove contra-indicator design
+- Agent Observability: 45 OTel spans across 3 traced cases (15 per case) identified false positive root causes, drove contra-indicator design
 
 ## Data sources
 
@@ -39,7 +39,7 @@ ADK optimization tools drove the development:
 
 ## Findings and learnings
 
-1. **LLMs are better sensors than judges.** Separating detection from scoring improved accuracy from 34.7% to 63.6%. The LLM understands language; it shouldn't make risk decisions.
+1. **LLMs are better sensors than judges.** Separating detection from scoring improved per-message stage accuracy on longitudinal scenarios from 34.7% to 63.6%. The LLM understands language; it shouldn't make risk decisions.
 
 2. **False positives matter more than catch rate.** Blocking a real grandchild's request destroys trust. 0/12 false positives matters because a disabled system protects nobody.
 
@@ -51,7 +51,7 @@ ADK optimization tools drove the development:
 
 ## Third-party integrations
 
-No third-party SDKs or runtime integrations. Built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are all open-source (MIT, Apache 2.0) or public government publications.
+No third-party SDKs or runtime integrations. Built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are openly published datasets (Apache 2.0, LGPL-3.0, one unspecified-license research dataset) and public government publications; per-source licensing is documented in [data/DATA_PROVENANCE.md](data/DATA_PROVENANCE.md).
 
 ---
 

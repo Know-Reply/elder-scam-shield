@@ -96,8 +96,8 @@ trust modifiers:
 
 ## Adversarial test scenarios (`scenarios/adversarial_edge_cases.json`)
 
-12 adversarial scenarios across 4 categories, developed with external review
-from the adversarial design review package:
+12 adversarial scenarios across 4 categories, developed through a structured
+adversarial design review:
 
 | Category | Count | Runnable | Honest-Fails |
 |---|---|---|---|
@@ -178,8 +178,8 @@ Summary:
 
 ---
 
-## External review
+## Adversarial design review
 
-The adversarial edge cases and family alerter UX were reviewed through a design review
-band support package (2026-06-06), which provided groove-lane analysis on alert
-design, dignity preservation, and adversarial scenario coverage.
+The adversarial edge cases and family alerter UX went through a structured
+adversarial design review (2026-06-06) covering alert design, dignity
+preservation, and adversarial scenario coverage.

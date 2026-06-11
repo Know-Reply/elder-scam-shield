@@ -20,4 +20,3 @@ venv/
 .DS_Store
 data/raw/
 agents/tools/.adk/
-docs/HACKATHON_PLAN.md

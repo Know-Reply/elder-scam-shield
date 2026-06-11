@@ -1,5 +1,6 @@
 .git
 .venv
+.private
 __pycache__
 *.pyc
 .env

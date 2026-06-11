@@ -4,7 +4,7 @@ Multi-agent protection system that detects elder fraud through behavioral analys
 
 ## The Problem
 
-Elder fraud costs **$77.7 billion globally** (Nasdaq 2024). Japan's tokushu sagi losses hit **¥1.4 trillion** in 2025 -- a record. The FBI reports **$7.7 billion** in US elder fraud losses the same year, **up 37% YoY**. Every existing protection system classifies messages one at a time. None detect the multi-day trust-building campaigns that cause the largest losses.
+Elder fraud costs **$77.7 billion globally** (Nasdaq 2024). Japan's combined special-fraud (tokushu sagi) and SNS-fraud losses reached **¥324 billion** in 2025 (NPA), up from ~¥199 billion in 2024 -- a record, and accelerating. Every existing protection system classifies messages one at a time. None detect the multi-day trust-building campaigns that cause the largest losses.
 
 ## What Makes This Different
 
@@ -86,7 +86,7 @@ Six rounds of iterative hardening, each compounding on the last:
 
 | Round | Focus | Key Outcome | Platform Tool |
 |-------|-------|-------------|---------------|
-| 1 | Basic classifier, 8-category taxonomy | F1 0.933 baseline | ADK agent definition |
+| 1 | Basic classifier, 8-category taxonomy | F1 0.933 baseline (80-case per-message suite) | ADK agent definition |
 | 2 | Behavioral velocity (BV-1..5) | Day 4 early detection, 3 days before money ask | Agent Evaluation |
 | 3 | Corpus grounding (22,979 entries, 7 sources) | Evidence-backed classification | Vertex AI Search |
 | 4 | Social graph validation | Imposter detection against contact network | Agent Simulation |
@@ -227,12 +227,16 @@ A single-message classifier -- no matter how good the model -- structurally cann
 
 | Metric | Elder Shield | Naive Baseline |
 |--------|-------------|----------------|
-| Classification accuracy | **63.6%** | 34.7% |
-| False positives on legitimate messages | **0/12 (0%)** | 5/12 (42%) |
-| Naive calls "scam" on first message | — | **75% of the time** |
-| Scam scenarios eventually caught | 100% | 100% |
+| False positives on legitimate scenarios | **0/12 (0%)** | 5/12 (42%) |
+| Calls "scam" on the very first message | **0%** | 75% of the time |
+| Per-message stage accuracy¹ | **63.6%** | 34.7% |
+| Scam scenarios eventually caught | 33/34 (97%)² | 34/34 |
 
-The naive baseline over-reacts — 75% of the time it classifies the very first message as "scam." Elder Shield accumulates evidence: safe → elevated → suspicious → blocked. Both catch every scam eventually. The difference is zero false positives and graduated response vs panic on first contact.
+¹ Graded per message across all 138 messages in the 51 scenarios, against expected labels that follow a graduated escalation (safe → monitoring → suspicious → scam). It measures whether the system is at the *right alert stage at each point in the conversation* — a different metric from Round 1's 80-case single-message suite (F1 0.933), where both systems score well because isolated, obvious messages were never the hard problem.
+
+² The one miss: `romance_widow`, a 3-message romance-scam opener that stayed below the evidence threshold (final score 1.21, classified safe). The naive baseline "caught" it the way it catches everything — by calling scam on near-first contact, the same behavior that produces its 5 false positives. Short conversations give the ledger little evidence to accumulate; this is the documented trade-off for zero false positives (see Adversarial Edge Cases).
+
+The naive baseline over-reacts — 75% of the time it classifies the very first message as "scam." Elder Shield accumulates evidence: safe → elevated → suspicious → blocked. The difference is zero false positives and graduated response vs panic on first contact.
 
 ### Benchmark: Faxi production classifier vs Elder Shield
 
@@ -360,7 +364,7 @@ This is dignity-preserving design. The elder's autonomy is never undermined.
 
 ## Adversarial Edge Cases
 
-12 scenarios across 4 categories, developed with external review:
+12 scenarios across 4 categories, developed through a structured adversarial design review:
 
 - **3 legitimate-looking scammy** -- real grandchild emergency in scam-shape language, legitimate bank fraud alert, family member asking for WiFi password
 - **4 sophisticated evasions** -- 30-day slow-burn under velocity thresholds, family insider with phone access, cross-platform persona, LLM-cloned voice
@@ -369,9 +373,11 @@ This is dignity-preserving design. The elder's autonomy is never undermined.
 
 7 are runnable tests. 3 are documented honest-fails with known limitations named. We document what we cannot catch.
 
+The longitudinal evaluation adds one more documented miss: `romance_widow` — a 3-message romance opener that ended below the evidence threshold. Conversations that end before evidence accumulates are the structural blind spot of an accumulation-based design, accepted in exchange for zero false positives.
+
 ## Signal Glossary
 
-39 detection signals across 6 families, organized into 3 severity tiers:
+40 detection signals across 6 families (15 PM + 7 VS + 5 BV + 4 EA + 5 OB + 4 CM), organized into 3 severity tiers:
 
 **PM — Per-Message Signals** (detected by LLM from a single inbound message)
 
@@ -391,6 +397,7 @@ This is dignity-preserving design. The elder's autonomy is never undermined.
 | PM-12 | Flattery density | T1 | Excessive compliments |
 | PM-13 | SPF/DKIM fail | T3 | Email authentication failure |
 | PM-14 | Financial context | T2 | Mentions money/costs WITHOUT asking — "I lost money", "card frozen" |
+| PM-15 | Emotional bonding | T1 | Sharing personal loss, vulnerability, or life history to build rapport |
 
 **VS — Victim State Signals** (detected by LLM from elder's outbound replies)
 
@@ -423,11 +430,26 @@ This is dignity-preserving design. The elder's autonomy is never undermined.
 | EA-3 | Authority escalation | Caregiver taking over decisions |
 | EA-4 | Communication shift | Sudden frequency or topic change |
 
+**OB — Outbound Signals** (detected in the elder's outgoing replies by the Outbound Interceptor)
+
+| Code | Signal | What it detects |
+|---|---|---|
+| OB-1 | PII in response | Name, address, My Number in a reply |
+| OB-2 | Bank details in response | Account number, card number, PIN |
+| OB-3 | Transfer instruction | Wire transfer or payment instruction leaving the user |
+| OB-4 | Response to flagged sender | Replying to a sender with elevated risk |
+| OB-5 | Compliance language | わかりました, すぐに送ります, 言わないでおきます |
+
 **CM — Cross-Modal**
 
 | Code | Signal | What it detects |
 |---|---|---|
 | CM-1 | Spending correlation | Conversation intensity matches spending patterns |
+| CM-2 | Amount matches request | Outbound transfer matches a recent inbound money request |
+| CM-3 | Payment to new recipient | First-time payee combined with a flagged conversation |
+| CM-4 | Urgency-amount compound | High urgency + large amount + high sender risk |
+
+(The behavioral analyzer also accepts legacy longitudinal codes LG-1..LG-10 for backward compatibility; they are aliases of PM/BV signals and not counted separately.)
 
 ## Quick Start
 
@@ -449,7 +471,7 @@ No warm-up required — Agent Search Data Store provides instant corpus access.
 ```
 agents/
   root_agent.py            # ADK Workflow DAG orchestrator
-  inbound_classifier.py    # Per-message signal detection (39 signals across 6 families)
+  inbound_classifier.py    # Per-message signal detection (PM-1..PM-15)
   behavioral_analyzer.py   # Longitudinal sender profiling (BV + EA + LG)
   outbound_interceptor.py  # Outbound data interception
   family_alerter.py        # Bilingual family notification generation
@@ -463,7 +485,7 @@ data/
   DATA_PROVENANCE.md       # Full data transparency
   CORPUS_VALIDATION_REPORT.md
 evals/
-  scam_detection_full.evalset.json   # 80-case eval suite
+  scam_detection_full.evalset.json   # 55-case EvalSet (ADK format); live harness ran 80 cases total
   run_evaluation.py        # Eval runner
   results/                 # Eval results with metrics
 scenarios/

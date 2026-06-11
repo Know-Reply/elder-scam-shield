@@ -1,6 +1,6 @@
 {
-  "description": "12 adversarial scenarios across 4 categories. From adversarial design review. 7 runnable tests, 3 documented honest-fails, 2 discipline collisions.",
-  "source": "adversarial design review package 2026-06-06",
+  "description": "12 adversarial scenarios across 4 categories. From structured adversarial design review. 7 runnable tests, 3 documented honest-fails, 2 discipline collisions.",
+  "source": "adversarial design review, 2026-06-06",
 
   "category_a_legitimate_looking_scammy": [
     {

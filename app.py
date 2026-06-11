@@ -238,8 +238,8 @@ async def system_status():
         "pipeline": "v2",
         "model": "gemini-2.5-flash-lite",
         "corpus_entries": 22979,
-        "signal_families": 4,
-        "signal_count": 20,
+        "signal_families": 6,
+        "signal_count": 40,
         "agents": ["inbound-classifier", "behavioral-analyzer", "outbound-interceptor", "family-alerter"],
         "api": {
             "classify": {"method": "POST", "path": "/api/classify", "accepts": "email or message"},

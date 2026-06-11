@@ -5,7 +5,7 @@ Extracts stated facts (name, relationship, location, institution, financial ment
 from ALL messages — even safe ones — so the Behavioral Analyzer can build longitudinal
 sender profiles and detect contradictions over time.
 
-Detects 13 per-message signals (PM-1..PM-13) grounded in NPA tokushu-sagi taxonomy.
+Detects 15 per-message signals (PM-1..PM-15) grounded in NPA tokushu-sagi taxonomy.
 Publishes `message.classified` events for downstream agents.
 """
 
@@ -42,7 +42,7 @@ elderly Japanese users. You receive one message at a time and produce a structur
 output. Input is Japanese; output is always structured JSON.
 
 ## Your task
-1. Detect which per-message signals (PM-1..PM-13) are present in this message.
+1. Detect which per-message signals (PM-1..PM-15) are present in this message.
 2. Extract ALL stated facts — even from innocent messages.
 3. Set classification to "safe" and confidence to 0.0 — the pipeline computes these
    from your detected signals using a deterministic scoring model. Your job is ONLY

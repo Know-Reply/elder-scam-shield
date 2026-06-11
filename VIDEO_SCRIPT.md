@@ -7,7 +7,7 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 ## 0:00–0:15 | THE PROBLEM
 **Show:** Stats on /shield page, then a message that looks innocent
 
-"Elder fraud costs 1.4 trillion yen a year in Japan and $77 Billion globally. The problem isn't catching scam messages — any classifier can do that. Real scams unfold over extended periods. So does our detection. Because each message in the setup phase is only looks safe, but it's designed to manipulate. A per-message classifier misses it entirely."
+"Elder fraud costs Japan over 320 billion yen a year and $77 Billion globally. The problem isn't catching scam messages — any classifier can do that. Real scams unfold over extended periods. So does our detection. Because each message in the setup phase is only looks safe, but it's designed to manipulate. A per-message classifier misses it entirely."
 
 ## 0:15–0:30 | THE INSIGHT
 **Show:** Architecture diagram (/architecture page)
@@ -27,7 +27,7 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 ## 1:10–1:25 | ADK OPTIMIZATION TOOLS
 **Show:** Scroll through /technical page showing eval results, or show the comparison bars
 
-"We used all four ADK optimization tools. Agent Evaluation with 55 eval cases plus 52 longitudinal scenarios. Agent Simulation stress-tested multi-day scam sequences. Agent Observability traced 45 spans per case and found that legitimate family messages were matching scam corpus patterns — which drove our contra-indicator pipeline. Agent Optimizer confirmed the prompt was near-optimal — proving the value is in the architecture, not prompt engineering."
+"We used all four ADK optimization tools. Agent Evaluation with 55 eval cases plus 52 longitudinal scenarios. Agent Simulation stress-tested multi-day scam sequences. Agent Observability traces found that legitimate family messages were matching scam corpus patterns — which drove our contra-indicator pipeline. Agent Optimizer confirmed the prompt was near-optimal — proving the value is in the architecture, not prompt engineering."
 
 ## 1:25–1:45 | RESULTS: BEFORE AND AFTER
 **Show:** Comparison bars from any scenario — Elder Shield vs Pre-ADK Tuning
