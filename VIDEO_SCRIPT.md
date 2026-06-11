@@ -21,7 +21,7 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 
 ## Interception
 "When risk crosses 50%, the family is alerted but privacy is maintained. The scammer is blocked automatically at higher levels. If the elder tries to send money, the message is held."
-
+ 
 ## 3 Days Earlier. Zero False Positives.
 "Before ADK optimization, our classifier was blocking five legitimate family messages. Elder Shield blocks none and still catches every scam, with the same model — the difference is the social graph and the risk ledger around it."
 

@@ -10,19 +10,19 @@ Elder Shield separates LLM signal detection from deterministic risk scoring. Six
 
 - **LLM finds signals, not verdicts.** Classification always derives from accumulated evidence, never an LLM opinion.
 - **The elder's replies reveal if the scam is working.** 7 victim-state signals: compliance, secrecy adoption, financial commitment.
-- **Every fact has provenance.** Tracks who revealed what first — catching scammers whose "knowledge" came from the elder.
-- **Family alerted, not alarmed.** Bilingual notifications, content never exposed, never says "scam" — dignity-preserving.
+- **Every fact has provenance.** Tracks who revealed what first, catching scammers whose "knowledge" came from the elder.
+- **Family alerted, not alarmed.** Bilingual notifications, content never exposed, never says "scam", dignity-preserving.
 - **Outbound replies held.** Gift-card codes and bank details caught before sending.
 - **Behavioral velocity (BV) and elder abuse (EA) signals** catch grooming arcs and manipulation by trusted contacts.
 
-Business model: a family-protection subscription on Faxi — the adult children who manage a parent's account pay and receive the alerts. The buyer isn't the user, so dignity-preserving alerts are a revenue requirement: a surveilled elder turns the system off.
+Business model: a family-protection subscription on Faxi, the adult children who manage a parent's account pay and receive the alerts. The buyer isn't the user, so dignity-preserving alerts are a revenue requirement: a surveilled elder turns the system off.
 
-Evaluation: 52 longitudinal scenarios, 140 graded messages, both systems on gemini-2.5-flash-lite. **34/34 scams caught vs 31/34 naive; 0/13 false positives; 67.2% vs 62.8% stage accuracy.** The zero FPs were earned through the eval: an earlier run flagged 4 family conversations, root-caused to graph trust never reaching the scoring layer. We wired the graph's verdict into the ledger and gated attack-pattern multipliers to unverified senders — family conversations now end in "monitoring": watched, never flagged.
+Evaluation: 52 longitudinal scenarios, 140 graded messages, both systems on gemini-2.5-flash-lite. **34/34 scams caught vs 31/34 naive; 0/13 false positives; 67.2% vs 62.8% stage accuracy.** The zero FPs were earned through the eval: an earlier run flagged 4 family conversations, root-caused to graph trust never reaching the scoring layer. We wired the graph's verdict into the ledger and gated attack-pattern multipliers to unverified senders. Family conversations now end in "monitoring": watched, never flagged.
 
 ## Technologies used
 
 - Google ADK 2.0: Workflow DAG, output_schema, output_key, tool callbacks, multiple Runners
-- Gemini 2.5 Flash Lite on Vertex AI — all 6 agents
+- Gemini 2.5 Flash Lite on Vertex AI for all 6 agents
 - Vertex AI Agent Engine: root agent deployed via adk deploy (resource ID in README)
 - Agent Search Data Store: 22,979-entry corpus, neural search, cross-language JP+EN
 - Cloud Run: FastAPI app with the ConversationRiskLedger scoring layer
@@ -31,7 +31,7 @@ Evaluation: 52 longitudinal scenarios, 140 graded messages, both systems on gemi
 ADK optimization tools drove development:
 - Agent Evaluation: 55-case EvalSet via live ADK Runner harness + 52-scenario longitudinal suite, raw results committed
 - Agent Simulation: multi-day scam sequences replayed end-to-end through live agents
-- Agent Optimizer: confirmed prompt near-optimal — the value is in infrastructure
+- Agent Optimizer: confirmed prompt near-optimal. The value is in infrastructure
 - Agent Observability: 45 OTel spans across 3 traced cases surfaced false-positive root causes
 
 ## Data sources
@@ -44,15 +44,15 @@ ADK optimization tools drove development:
 
 2. **False positives matter more than catch rate.** A blocked grandchild means a disabled system, and a disabled system protects nobody. Our eval initially showed 4 FPs; we root-caused and fixed rather than re-labeled.
 
-3. **Attack patterns are sender-relative.** The T1 primer (identity claim, then escalation) models real ore-ore behavior — and is gated to unverified senders, because the same arc from a verified grandson is just how family talks.
+3. **Attack patterns are sender-relative.** Identity claim and then escalation models real impersonation behavior. It is gated to unverified senders, because the same arc from a verified grandson may be how a family talks.
 
 4. **Optimizer and Observability earned their keep.** The optimizer couldn't beat our prompt; OTel traces found family messages matching scam corpus patterns, driving the contra-indicator design.
 
-5. **The per-message gap closes as models improve; the context gap doesn't.** A newer model made the naive baseline far better per message — it still missed 3 of 34 multi-day scams, knowing nothing about senders, the elder's replies, or outbound money.
+5. **The per-message gap closes as models improve; the context gap doesn't.** A newer model made the naive baseline far better per message. It still missed 3 of 34 multi-day scams, knowing nothing about senders, the elder's replies, or outbound money.
 
 ## Third-party integrations
 
-None — built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are openly published datasets (Apache 2.0, LGPL-3.0, one unspecified-license research set) and public government publications; per-source licensing in data/DATA_PROVENANCE.md.
+None. Built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are openly published datasets (Apache 2.0, LGPL-3.0, one unspecified-license research set) and public government publications; per-source licensing in data/DATA_PROVENANCE.md.
 
 ---
 
