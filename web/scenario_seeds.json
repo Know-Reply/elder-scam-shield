@@ -34,9 +34,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:moved to osaka for a new job": {
-              "fact_id": "life_fact:moved to osaka for a new job",
-              "value": "moved to Osaka for a new job",
+            "life_fact:moved for a new job": {
+              "fact_id": "life_fact:moved for a new job",
+              "value": "moved for a new job",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -58,7 +58,7 @@
               "fact_ids": [
                 "name:kenji",
                 "location:osaka",
-                "life_fact:moved to osaka for a new job"
+                "life_fact:moved for a new job"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -87,7 +87,7 @@
             "sender_independent_facts": [
               "name:kenji",
               "location:osaka",
-              "life_fact:moved to osaka for a new job"
+              "life_fact:moved for a new job"
             ],
             "sender_echo_facts": [],
             "echo_ratio": 0.0,
@@ -170,7 +170,7 @@
           "claimed_location": "Osaka",
           "referenced_names": [],
           "life_facts": [
-            "moved to Osaka for a new job"
+            "moved for a new job"
           ],
           "matched_existing": [],
           "elder_state": {
@@ -186,14 +186,13 @@
       "classify": {
         "result": {
           "classification": "safe",
-          "confidence": 0.055,
+          "confidence": 0.039,
           "detected_signals": [
-            "PM-11",
-            "PM-15"
+            "PM-11"
           ],
           "extracted_facts": {
             "claimed_name": "Kenji",
-            "claimed_relationship": "Grandma's grandchild",
+            "claimed_relationship": "Grandma",
             "claimed_location": "Osaka",
             "referenced_names": [],
             "life_facts": [
@@ -209,42 +208,41 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message claims to be from a grandchild named Kenji, stating they moved to Osaka for a new job. It also uses affectionate language like 'Grandma', which could indicate emotional bonding. There are no immediate scam indicators, and contra-indicators suggest it may be a legitimate family message.",
-          "risk_score": 0.55,
+          "reasoning": "The message claims to be from Kenji, addressing the recipient as 'Grandma'. It mentions moving to Osaka for a new job. The message does not contain any scam-related signals, and the contra-indicator analysis suggests it may be a legitimate family request. Therefore, it is classified as safe.",
+          "risk_score": 0.39,
           "risk_ledger": {
             "conversation_id": "classify_block_sender",
-            "running_score": 0.55,
+            "running_score": 0.39,
             "classification": "safe",
             "api_classification": "safe",
-            "confidence": 0.055,
+            "confidence": 0.039,
             "message_count": 1,
             "signal_history": [
               {
                 "message_index": 0,
                 "signals": [
-                  "PM-11",
-                  "PM-15"
+                  "PM-11"
                 ],
-                "contribution": 0.55,
-                "score_after": 0.55,
-                "sequence_match": null
+                "contribution": 0.39,
+                "score_after": 0.39,
+                "sequence_match": null,
+                "trust_modifier": 1.3
               }
             ],
             "t1_primer_active": true,
             "sequence_matches": [],
             "tier_counts": {
-              "T1": 2,
+              "T1": 1,
               "T2": 0,
               "T3": 0
             },
             "signal_counts": {
-              "PM-11": 1,
-              "PM-15": 1
+              "PM-11": 1
             },
             "family_alert_fired": false,
             "family_alert_reason": null,
             "overrides_applied": [],
-            "highest_score_reached": 0.55
+            "highest_score_reached": 0.39
           },
           "family_alert_fired": false,
           "family_alert_reason": null
@@ -259,11 +257,11 @@
           "detected_signals": [],
           "extracted_facts": {
             "claimed_name": "Kenji",
-            "claimed_relationship": "grandson",
+            "claimed_relationship": "grandchild",
             "claimed_location": "Osaka",
             "referenced_names": [],
             "life_facts": [
-              "moved to Osaka for a new job"
+              "moved for a new job"
             ],
             "matched_existing": [],
             "elder_state": {
@@ -275,7 +273,7 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message appears to be a personal message from a grandson named Kenji to his grandmother. It mentions a new job and a move to Osaka, which are typical life updates. There are no indicators of spam or scam. The tone is familiar and conversational."
+          "reasoning": "The message appears to be a personal message from someone named Kenji to their grandmother, stating they have moved for a new job. There are no indicators of spam or scam. It is personal correspondence."
         },
         "sender": "block_sender",
         "live": true
@@ -313,9 +311,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:moved to osaka for a new job": {
-              "fact_id": "life_fact:moved to osaka for a new job",
-              "value": "moved to Osaka for a new job",
+            "life_fact:moved for a new job": {
+              "fact_id": "life_fact:moved for a new job",
+              "value": "moved for a new job",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -324,6 +322,21 @@
               "sender_turns": [
                 0
               ],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:inquiring about recipient's well-being": {
+              "fact_id": "life_fact:inquiring about recipient's well-being",
+              "value": "inquiring about recipient's well-being",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "elder",
+              "first_turn": 1,
+              "elder_turns": [
+                1
+              ],
+              "sender_turns": [],
               "echo_detected": false,
               "echo_by": null,
               "echo_at_turn": null
@@ -337,7 +350,7 @@
               "fact_ids": [
                 "name:kenji",
                 "location:osaka",
-                "life_fact:moved to osaka for a new job"
+                "life_fact:moved for a new job"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -347,9 +360,10 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "name:kenji"
+                "name:kenji",
+                "life_fact:inquiring about recipient's well-being"
               ],
-              "new_facts": 0,
+              "new_facts": 1,
               "echoed_facts": 1
             }
           ],
@@ -376,7 +390,7 @@
           "information_asymmetry": {
             "sender_independent_facts": [
               "location:osaka",
-              "life_fact:moved to osaka for a new job"
+              "life_fact:moved for a new job"
             ],
             "sender_echo_facts": [],
             "echo_ratio": 0.0,
@@ -407,7 +421,7 @@
             "friction_score": 0.75,
             "friction_trajectory": "stable_high",
             "trust_stage": "skeptical",
-            "elder_facts_exposed": 0,
+            "elder_facts_exposed": 1,
             "sender_independent_facts": 2,
             "sender_echoed_facts": 0,
             "contradictions": 0,
@@ -421,7 +435,7 @@
           "friction_score": 0.75,
           "friction_trajectory": "stable_high",
           "trust_stage": "skeptical",
-          "elder_facts_exposed": 0,
+          "elder_facts_exposed": 1,
           "sender_independent_facts": 2,
           "sender_echoed_facts": 0,
           "contradictions": 0,
@@ -446,18 +460,20 @@
           }
         },
         "vulnerability_summary": {
-          "vulnerabilities": [],
+          "vulnerabilities": [
+            "inquiring about recipient's well-being"
+          ],
           "trust_stage": "skeptical",
           "friction_score": 0.75,
           "friction_trajectory": "stable_high",
-          "total_elder_facts_exposed": 0,
+          "total_elder_facts_exposed": 1,
           "total_echoed_facts": 1
         },
         "extracted_facts": {
-          "referenced_names": [
-            "Kenji"
+          "referenced_names": [],
+          "life_facts": [
+            "inquiring about recipient's well-being"
           ],
-          "life_facts": [],
           "matched_existing": [
             "name:kenji"
           ],
@@ -506,9 +522,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:moved to osaka for a new job": {
-              "fact_id": "life_fact:moved to osaka for a new job",
-              "value": "moved to Osaka for a new job",
+            "life_fact:moved for a new job": {
+              "fact_id": "life_fact:moved for a new job",
+              "value": "moved for a new job",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -520,6 +536,21 @@
               "echo_detected": false,
               "echo_by": null,
               "echo_at_turn": null
+            },
+            "life_fact:inquiring about recipient's well-being": {
+              "fact_id": "life_fact:inquiring about recipient's well-being",
+              "value": "inquiring about recipient's well-being",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "elder",
+              "first_turn": 1,
+              "elder_turns": [
+                1
+              ],
+              "sender_turns": [],
+              "echo_detected": true,
+              "echo_by": "sender",
+              "echo_at_turn": 2
             },
             "life_fact:worried about recipient being alone": {
               "fact_id": "life_fact:worried about recipient being alone",
@@ -536,9 +567,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:recipient goes to a clinic on tuesdays": {
-              "fact_id": "life_fact:recipient goes to a clinic on tuesdays",
-              "value": "recipient goes to a clinic on Tuesdays",
+            "life_fact:recipient goes to clinic on tuesdays": {
+              "fact_id": "life_fact:recipient goes to clinic on tuesdays",
+              "value": "recipient goes to clinic on Tuesdays",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -560,7 +591,7 @@
               "fact_ids": [
                 "name:kenji",
                 "location:osaka",
-                "life_fact:moved to osaka for a new job"
+                "life_fact:moved for a new job"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -570,9 +601,10 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "name:kenji"
+                "name:kenji",
+                "life_fact:inquiring about recipient's well-being"
               ],
-              "new_facts": 0,
+              "new_facts": 1,
               "echoed_facts": 1
             },
             {
@@ -580,11 +612,12 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
+                "life_fact:inquiring about recipient's well-being",
                 "life_fact:worried about recipient being alone",
-                "life_fact:recipient goes to a clinic on tuesdays"
+                "life_fact:recipient goes to clinic on tuesdays"
               ],
               "new_facts": 2,
-              "echoed_facts": 0
+              "echoed_facts": 1
             }
           ],
           "contradiction_log": []
@@ -610,13 +643,15 @@
           "information_asymmetry": {
             "sender_independent_facts": [
               "location:osaka",
-              "life_fact:moved to osaka for a new job",
+              "life_fact:moved for a new job",
               "life_fact:worried about recipient being alone",
-              "life_fact:recipient goes to a clinic on tuesdays"
+              "life_fact:recipient goes to clinic on tuesdays"
             ],
-            "sender_echo_facts": [],
-            "echo_ratio": 0.0,
-            "asymmetry_score": 4,
+            "sender_echo_facts": [
+              "life_fact:inquiring about recipient's well-being"
+            ],
+            "echo_ratio": 0.2,
+            "asymmetry_score": 3,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [
@@ -637,29 +672,29 @@
           },
           "contradictions": [],
           "graph_signals": {
-            "echo_ratio": 0.0,
+            "echo_ratio": 0.2,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
             "friction_score": 0.75,
             "friction_trajectory": "stable_high",
             "trust_stage": "skeptical",
-            "elder_facts_exposed": 0,
+            "elder_facts_exposed": 1,
             "sender_independent_facts": 4,
-            "sender_echoed_facts": 0,
+            "sender_echoed_facts": 1,
             "contradictions": 0,
             "turns_analyzed": 3
           }
         },
         "graph_signals": {
-          "echo_ratio": 0.0,
+          "echo_ratio": 0.2,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
           "friction_score": 0.75,
           "friction_trajectory": "stable_high",
           "trust_stage": "skeptical",
-          "elder_facts_exposed": 0,
+          "elder_facts_exposed": 1,
           "sender_independent_facts": 4,
-          "sender_echoed_facts": 0,
+          "sender_echoed_facts": 1,
           "contradictions": 0,
           "turns_analyzed": 3
         },
@@ -682,27 +717,31 @@
           }
         },
         "vulnerability_summary": {
-          "vulnerabilities": [],
+          "vulnerabilities": [
+            "inquiring about recipient's well-being"
+          ],
           "trust_stage": "skeptical",
           "friction_score": 0.75,
           "friction_trajectory": "stable_high",
-          "total_elder_facts_exposed": 0,
-          "total_echoed_facts": 1
+          "total_elder_facts_exposed": 1,
+          "total_echoed_facts": 2
         },
         "extracted_facts": {
           "referenced_names": [],
           "life_facts": [
             "worried about recipient being alone",
-            "recipient goes to a clinic on Tuesdays"
+            "recipient goes to clinic on Tuesdays"
           ],
           "matched_existing": [
-            "life_fact:lives alone"
+            "life_fact:inquiring about recipient's well-being"
           ],
           "elder_state": {
-            "detected_signals": [],
+            "detected_signals": [
+              "VS-4"
+            ],
             "compliance": "none",
             "resistance": "none",
-            "disclosure": "mild",
+            "disclosure": "none",
             "emotional_engagement": "strong",
             "instruction_seeking": false
           }
@@ -711,88 +750,13 @@
       "classify": {
         "result": {
           "classification": "safe",
-          "confidence": 0.076,
-          "detected_signals": [
-            "PM-15"
-          ],
-          "extracted_facts": {
-            "referenced_names": [],
-            "life_facts": [
-              "Worries about the recipient being alone.",
-              "Asks about the clinic on Tuesdays."
-            ],
-            "matched_existing": [],
-            "elder_state": {
-              "detected_signals": [],
-              "compliance": "none",
-              "resistance": "none",
-              "disclosure": "none",
-              "emotional_engagement": "none",
-              "instruction_seeking": false
-            }
-          },
-          "reasoning": "The message expresses concern for the recipient's well-being and asks about a specific event (clinic on Tuesdays), indicating an attempt to build emotional connection and maintain conversation. There are no scam signals present, and contra-indicators suggest it may be a legitimate message.",
-          "risk_score": 0.756,
-          "risk_ledger": {
-            "conversation_id": "classify_block_sender",
-            "running_score": 0.756,
-            "classification": "safe",
-            "api_classification": "safe",
-            "confidence": 0.076,
-            "message_count": 2,
-            "signal_history": [
-              {
-                "message_index": 0,
-                "signals": [
-                  "PM-11",
-                  "PM-15"
-                ],
-                "contribution": 0.55,
-                "score_after": 0.55,
-                "sequence_match": null
-              },
-              {
-                "message_index": 1,
-                "signals": [
-                  "PM-15"
-                ],
-                "contribution": 0.25,
-                "score_after": 0.756,
-                "sequence_match": null
-              }
-            ],
-            "t1_primer_active": true,
-            "sequence_matches": [],
-            "tier_counts": {
-              "T1": 3,
-              "T2": 0,
-              "T3": 0
-            },
-            "signal_counts": {
-              "PM-11": 1,
-              "PM-15": 2
-            },
-            "family_alert_fired": false,
-            "family_alert_reason": null,
-            "overrides_applied": [],
-            "highest_score_reached": 0.756
-          },
-          "family_alert_fired": false,
-          "family_alert_reason": null
-        },
-        "sender": "block_sender",
-        "live": true
-      },
-      "naive": {
-        "result": {
-          "classification": "safe",
-          "confidence": 1.0,
+          "confidence": 0.033,
           "detected_signals": [],
           "extracted_facts": {
             "referenced_names": [],
             "life_facts": [
-              "worried about user being alone",
-              "clinic on Tuesdays"
+              "worried about the recipient being alone",
+              "asked about the clinic on Tuesdays"
             ],
             "matched_existing": [],
             "elder_state": {
@@ -804,7 +768,86 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message appears to be personal correspondence expressing concern and asking about a routine. There are no indicators of spam or scam. It fits the description of personal communication."
+          "reasoning": "The message does not contain any scam-related signals. It expresses concern for the recipient's well-being and asks a simple question about a clinic appointment. The pre-computed context also indicates strong contra-indicators suggesting the message may be legitimate.",
+          "risk_score": 0.33,
+          "risk_ledger": {
+            "conversation_id": "classify_block_sender",
+            "running_score": 0.33,
+            "classification": "safe",
+            "api_classification": "safe",
+            "confidence": 0.033,
+            "message_count": 3,
+            "signal_history": [
+              {
+                "message_index": 0,
+                "signals": [
+                  "PM-11"
+                ],
+                "contribution": 0.39,
+                "score_after": 0.39,
+                "sequence_match": null,
+                "trust_modifier": 1.3
+              },
+              {
+                "message_index": 1,
+                "signals": [],
+                "contribution": 0.0,
+                "score_after": 0.359,
+                "sequence_match": null,
+                "trust_modifier": 1.3
+              },
+              {
+                "message_index": 2,
+                "signals": [],
+                "contribution": 0.0,
+                "score_after": 0.33,
+                "sequence_match": null,
+                "trust_modifier": 1.3
+              }
+            ],
+            "t1_primer_active": true,
+            "sequence_matches": [],
+            "tier_counts": {
+              "T1": 1,
+              "T2": 0,
+              "T3": 0
+            },
+            "signal_counts": {
+              "PM-11": 1
+            },
+            "family_alert_fired": false,
+            "family_alert_reason": null,
+            "overrides_applied": [],
+            "highest_score_reached": 0.39
+          },
+          "family_alert_fired": false,
+          "family_alert_reason": null
+        },
+        "sender": "block_sender",
+        "live": true
+      },
+      "naive": {
+        "result": {
+          "classification": "safe",
+          "confidence": 0.9,
+          "detected_signals": [],
+          "extracted_facts": {
+            "referenced_names": [],
+            "life_facts": [
+              "worried about recipient being alone",
+              "asking about clinic on Tuesdays"
+            ],
+            "matched_existing": [],
+            "elder_state": {
+              "detected_signals": [],
+              "compliance": "none",
+              "resistance": "none",
+              "disclosure": "none",
+              "emotional_engagement": "none",
+              "instruction_seeking": false
+            }
+          },
+          "reasoning": "This message appears to be a personal check-in, expressing concern for the recipient's well-being and inquiring about a routine appointment. There are no indicators of spam, scam, or suspicious activity. It fits the criteria for safe, personal correspondence."
         },
         "sender": "block_sender",
         "live": true
@@ -838,13 +881,13 @@
               "sender_turns": [
                 0
               ],
-              "echo_detected": false,
-              "echo_by": null,
-              "echo_at_turn": null
+              "echo_detected": true,
+              "echo_by": "elder",
+              "echo_at_turn": 3
             },
-            "life_fact:moved to osaka for a new job": {
-              "fact_id": "life_fact:moved to osaka for a new job",
-              "value": "moved to Osaka for a new job",
+            "life_fact:moved for a new job": {
+              "fact_id": "life_fact:moved for a new job",
+              "value": "moved for a new job",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -856,6 +899,21 @@
               "echo_detected": false,
               "echo_by": null,
               "echo_at_turn": null
+            },
+            "life_fact:inquiring about recipient's well-being": {
+              "fact_id": "life_fact:inquiring about recipient's well-being",
+              "value": "inquiring about recipient's well-being",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "elder",
+              "first_turn": 1,
+              "elder_turns": [
+                1
+              ],
+              "sender_turns": [],
+              "echo_detected": true,
+              "echo_by": "sender",
+              "echo_at_turn": 2
             },
             "life_fact:worried about recipient being alone": {
               "fact_id": "life_fact:worried about recipient being alone",
@@ -872,9 +930,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:recipient goes to a clinic on tuesdays": {
-              "fact_id": "life_fact:recipient goes to a clinic on tuesdays",
-              "value": "recipient goes to a clinic on Tuesdays",
+            "life_fact:recipient goes to clinic on tuesdays": {
+              "fact_id": "life_fact:recipient goes to clinic on tuesdays",
+              "value": "recipient goes to clinic on Tuesdays",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -887,9 +945,24 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:grandpa passed away": {
-              "fact_id": "life_fact:grandpa passed away",
-              "value": "grandpa passed away",
+            "institution:mizuho bank": {
+              "fact_id": "institution:mizuho bank",
+              "value": "Mizuho Bank",
+              "type": "institution",
+              "category": null,
+              "first_stated_by": "elder",
+              "first_turn": 3,
+              "elder_turns": [
+                3
+              ],
+              "sender_turns": [],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:grandfather passed away": {
+              "fact_id": "life_fact:grandfather passed away",
+              "value": "grandfather passed away",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -926,7 +999,7 @@
               "fact_ids": [
                 "name:kenji",
                 "location:osaka",
-                "life_fact:moved to osaka for a new job"
+                "life_fact:moved for a new job"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -936,9 +1009,10 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "name:kenji"
+                "name:kenji",
+                "life_fact:inquiring about recipient's well-being"
               ],
-              "new_facts": 0,
+              "new_facts": 1,
               "echoed_facts": 1
             },
             {
@@ -946,22 +1020,25 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
+                "life_fact:inquiring about recipient's well-being",
                 "life_fact:worried about recipient being alone",
-                "life_fact:recipient goes to a clinic on tuesdays"
+                "life_fact:recipient goes to clinic on tuesdays"
               ],
               "new_facts": 2,
-              "echoed_facts": 0
+              "echoed_facts": 1
             },
             {
               "turn_index": 3,
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "life_fact:grandpa passed away",
+                "location:osaka",
+                "institution:mizuho bank",
+                "life_fact:grandfather passed away",
                 "life_fact:goes to mizuho bank on mondays"
               ],
-              "new_facts": 2,
-              "echoed_facts": 0
+              "new_facts": 3,
+              "echoed_facts": 1
             }
           ],
           "contradiction_log": []
@@ -991,14 +1068,15 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "location:osaka",
-              "life_fact:moved to osaka for a new job",
+              "life_fact:moved for a new job",
               "life_fact:worried about recipient being alone",
-              "life_fact:recipient goes to a clinic on tuesdays"
+              "life_fact:recipient goes to clinic on tuesdays"
             ],
-            "sender_echo_facts": [],
-            "echo_ratio": 0.0,
-            "asymmetry_score": 4,
+            "sender_echo_facts": [
+              "life_fact:inquiring about recipient's well-being"
+            ],
+            "echo_ratio": 0.25,
+            "asymmetry_score": 2,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [
@@ -1019,29 +1097,29 @@
           },
           "contradictions": [],
           "graph_signals": {
-            "echo_ratio": 0.0,
+            "echo_ratio": 0.25,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
             "friction_score": 0.6,
             "friction_trajectory": "declining",
             "trust_stage": "engaged",
-            "elder_facts_exposed": 2,
-            "sender_independent_facts": 4,
-            "sender_echoed_facts": 0,
+            "elder_facts_exposed": 4,
+            "sender_independent_facts": 3,
+            "sender_echoed_facts": 1,
             "contradictions": 0,
             "turns_analyzed": 4
           }
         },
         "graph_signals": {
-          "echo_ratio": 0.0,
+          "echo_ratio": 0.25,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
           "friction_score": 0.6,
           "friction_trajectory": "declining",
           "trust_stage": "engaged",
-          "elder_facts_exposed": 2,
-          "sender_independent_facts": 4,
-          "sender_echoed_facts": 0,
+          "elder_facts_exposed": 4,
+          "sender_independent_facts": 3,
+          "sender_echoed_facts": 1,
           "contradictions": 0,
           "turns_analyzed": 4
         },
@@ -1059,34 +1137,44 @@
             "type": "location",
             "first_stated_by": "sender",
             "first_turn": 0,
+            "echo_detected": true,
+            "echo_by": "elder"
+          },
+          "institution:mizuho bank": {
+            "value": "Mizuho Bank",
+            "type": "institution",
+            "first_stated_by": "elder",
+            "first_turn": 3,
             "echo_detected": false,
             "echo_by": null
           }
         },
         "vulnerability_summary": {
           "vulnerabilities": [
-            "grandpa passed away",
+            "inquiring about recipient's well-being",
+            "grandfather passed away",
             "goes to Mizuho Bank on Mondays"
           ],
           "trust_stage": "engaged",
           "friction_score": 0.6,
           "friction_trajectory": "declining",
-          "total_elder_facts_exposed": 2,
-          "total_echoed_facts": 1
+          "total_elder_facts_exposed": 4,
+          "total_echoed_facts": 3
         },
         "extracted_facts": {
+          "claimed_institution": "Mizuho Bank",
           "referenced_names": [],
           "life_facts": [
-            "grandpa passed away",
+            "grandfather passed away",
             "goes to Mizuho Bank on Mondays"
           ],
           "matched_existing": [
-            "life_fact:grandpa passed away",
-            "institution:mizuho bank"
+            "location:osaka",
+            "life_fact:inquiring about recipient's well-being"
           ],
           "elder_state": {
             "detected_signals": [
-              "VS-3"
+              "VS-6"
             ],
             "compliance": "none",
             "resistance": "none",
@@ -1127,13 +1215,13 @@
               "sender_turns": [
                 0
               ],
-              "echo_detected": false,
-              "echo_by": null,
-              "echo_at_turn": null
+              "echo_detected": true,
+              "echo_by": "elder",
+              "echo_at_turn": 3
             },
-            "life_fact:moved to osaka for a new job": {
-              "fact_id": "life_fact:moved to osaka for a new job",
-              "value": "moved to Osaka for a new job",
+            "life_fact:moved for a new job": {
+              "fact_id": "life_fact:moved for a new job",
+              "value": "moved for a new job",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1145,6 +1233,21 @@
               "echo_detected": false,
               "echo_by": null,
               "echo_at_turn": null
+            },
+            "life_fact:inquiring about recipient's well-being": {
+              "fact_id": "life_fact:inquiring about recipient's well-being",
+              "value": "inquiring about recipient's well-being",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "elder",
+              "first_turn": 1,
+              "elder_turns": [
+                1
+              ],
+              "sender_turns": [],
+              "echo_detected": true,
+              "echo_by": "sender",
+              "echo_at_turn": 2
             },
             "life_fact:worried about recipient being alone": {
               "fact_id": "life_fact:worried about recipient being alone",
@@ -1161,9 +1264,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:recipient goes to a clinic on tuesdays": {
-              "fact_id": "life_fact:recipient goes to a clinic on tuesdays",
-              "value": "recipient goes to a clinic on Tuesdays",
+            "life_fact:recipient goes to clinic on tuesdays": {
+              "fact_id": "life_fact:recipient goes to clinic on tuesdays",
+              "value": "recipient goes to clinic on Tuesdays",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1176,9 +1279,24 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:grandpa passed away": {
-              "fact_id": "life_fact:grandpa passed away",
-              "value": "grandpa passed away",
+            "institution:mizuho bank": {
+              "fact_id": "institution:mizuho bank",
+              "value": "Mizuho Bank",
+              "type": "institution",
+              "category": null,
+              "first_stated_by": "elder",
+              "first_turn": 3,
+              "elder_turns": [
+                3
+              ],
+              "sender_turns": [],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:grandfather passed away": {
+              "fact_id": "life_fact:grandfather passed away",
+              "value": "grandfather passed away",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -1221,9 +1339,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:involved in car accident": {
-              "fact_id": "life_fact:involved in car accident",
-              "value": "involved in car accident",
+            "life_fact:in big trouble": {
+              "fact_id": "life_fact:in big trouble",
+              "value": "in big trouble",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1236,9 +1354,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:needs money urgently": {
-              "fact_id": "life_fact:needs money urgently",
-              "value": "needs money urgently",
+            "life_fact:caused a car accident": {
+              "fact_id": "life_fact:caused a car accident",
+              "value": "caused a car accident",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1260,7 +1378,7 @@
               "fact_ids": [
                 "name:kenji",
                 "location:osaka",
-                "life_fact:moved to osaka for a new job"
+                "life_fact:moved for a new job"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -1270,9 +1388,10 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "name:kenji"
+                "name:kenji",
+                "life_fact:inquiring about recipient's well-being"
               ],
-              "new_facts": 0,
+              "new_facts": 1,
               "echoed_facts": 1
             },
             {
@@ -1280,22 +1399,25 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
+                "life_fact:inquiring about recipient's well-being",
                 "life_fact:worried about recipient being alone",
-                "life_fact:recipient goes to a clinic on tuesdays"
+                "life_fact:recipient goes to clinic on tuesdays"
               ],
               "new_facts": 2,
-              "echoed_facts": 0
+              "echoed_facts": 1
             },
             {
               "turn_index": 3,
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "life_fact:grandpa passed away",
+                "location:osaka",
+                "institution:mizuho bank",
+                "life_fact:grandfather passed away",
                 "life_fact:goes to mizuho bank on mondays"
               ],
-              "new_facts": 2,
-              "echoed_facts": 0
+              "new_facts": 3,
+              "echoed_facts": 1
             },
             {
               "turn_index": 4,
@@ -1303,8 +1425,8 @@
               "speaker": "sender",
               "fact_ids": [
                 "amount:money",
-                "life_fact:involved in car accident",
-                "life_fact:needs money urgently"
+                "life_fact:in big trouble",
+                "life_fact:caused a car accident"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -1337,17 +1459,18 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "location:osaka",
-              "life_fact:moved to osaka for a new job",
+              "life_fact:moved for a new job",
               "life_fact:worried about recipient being alone",
-              "life_fact:recipient goes to a clinic on tuesdays",
+              "life_fact:recipient goes to clinic on tuesdays",
               "amount:money",
-              "life_fact:involved in car accident",
-              "life_fact:needs money urgently"
+              "life_fact:in big trouble",
+              "life_fact:caused a car accident"
             ],
-            "sender_echo_facts": [],
-            "echo_ratio": 0.0,
-            "asymmetry_score": 7,
+            "sender_echo_facts": [
+              "life_fact:inquiring about recipient's well-being"
+            ],
+            "echo_ratio": 0.14,
+            "asymmetry_score": 5,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [
@@ -1368,29 +1491,29 @@
           },
           "contradictions": [],
           "graph_signals": {
-            "echo_ratio": 0.0,
+            "echo_ratio": 0.14,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
             "friction_score": 0.6,
             "friction_trajectory": "declining",
             "trust_stage": "engaged",
-            "elder_facts_exposed": 2,
-            "sender_independent_facts": 7,
-            "sender_echoed_facts": 0,
+            "elder_facts_exposed": 4,
+            "sender_independent_facts": 6,
+            "sender_echoed_facts": 1,
             "contradictions": 0,
             "turns_analyzed": 5
           }
         },
         "graph_signals": {
-          "echo_ratio": 0.0,
+          "echo_ratio": 0.14,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
           "friction_score": 0.6,
           "friction_trajectory": "declining",
           "trust_stage": "engaged",
-          "elder_facts_exposed": 2,
-          "sender_independent_facts": 7,
-          "sender_echoed_facts": 0,
+          "elder_facts_exposed": 4,
+          "sender_independent_facts": 6,
+          "sender_echoed_facts": 1,
           "contradictions": 0,
           "turns_analyzed": 5
         },
@@ -1408,6 +1531,14 @@
             "type": "location",
             "first_stated_by": "sender",
             "first_turn": 0,
+            "echo_detected": true,
+            "echo_by": "elder"
+          },
+          "institution:mizuho bank": {
+            "value": "Mizuho Bank",
+            "type": "institution",
+            "first_stated_by": "elder",
+            "first_turn": 3,
             "echo_detected": false,
             "echo_by": null
           },
@@ -1422,14 +1553,15 @@
         },
         "vulnerability_summary": {
           "vulnerabilities": [
-            "grandpa passed away",
+            "inquiring about recipient's well-being",
+            "grandfather passed away",
             "goes to Mizuho Bank on Mondays"
           ],
           "trust_stage": "engaged",
           "friction_score": 0.6,
           "friction_trajectory": "declining",
-          "total_elder_facts_exposed": 2,
-          "total_echoed_facts": 1
+          "total_elder_facts_exposed": 4,
+          "total_echoed_facts": 3
         },
         "extracted_facts": {
           "referenced_names": [],
@@ -1438,15 +1570,12 @@
             "urgency": "high"
           },
           "life_facts": [
-            "involved in car accident",
-            "needs money urgently"
+            "in big trouble",
+            "caused a car accident"
           ],
           "matched_existing": [],
           "elder_state": {
-            "detected_signals": [
-              "VS-3",
-              "VS-5"
-            ],
+            "detected_signals": [],
             "compliance": "none",
             "resistance": "none",
             "disclosure": "none",
@@ -1457,12 +1586,11 @@
       },
       "classify": {
         "result": {
-          "classification": "scam",
-          "confidence": 0.765,
+          "classification": "suspicious",
+          "confidence": 0.421,
           "detected_signals": [
-            "PM-1",
             "PM-10",
-            "PM-3"
+            "PM-1"
           ],
           "extracted_facts": {
             "referenced_names": [],
@@ -1471,10 +1599,15 @@
               "urgency": "high"
             },
             "life_facts": [
-              "Caused a car accident.",
-              "Demands money right now."
+              "caused a car accident"
             ],
-            "matched_existing": [],
+            "matched_existing": [
+              "zefang_006554",
+              "zefang_018261",
+              "conv_ma_0365",
+              "conv_ma_1241",
+              "conv_ma_1372"
+            ],
             "elder_state": {
               "detected_signals": [],
               "compliance": "none",
@@ -1484,68 +1617,73 @@
               "instruction_seeking": false
             }
           },
-          "reasoning": "The message exhibits multiple scam indicators: urgency language ('right now'), emotional crisis ('caused a car accident'), and a direct financial solicitation ('Can you help?'). Although contra-indicators are present, the combination of these strong signals elevates the risk. The message presents a fabricated crisis and immediately requests money, which is a common scam tactic in scams. Given the contra-indicators, it's classified as suspicious rather than a definite scam, with a recommendation for verification.",
-          "risk_score": 7.651,
+          "reasoning": "The message exhibits urgency (PM-1) and describes an emotional crisis (PM-10) involving a car accident and an immediate demand for money. While the provided corpus matches are classified as safe, the combination of urgency and crisis language strongly suggests a suspicious nature. The sender is not a known contact and the situation described implies a need for immediate financial action, which aligns with common scam tactics. The contra-indicators from the pipeline suggest this might be a legitimate request, hence the 'suspicious' classification rather than 'scam' and a recommendation for verification.",
+          "risk_score": 4.208,
           "risk_ledger": {
             "conversation_id": "classify_block_sender",
-            "running_score": 7.651,
-            "classification": "scam",
-            "api_classification": "scam",
-            "confidence": 0.765,
-            "message_count": 3,
+            "running_score": 4.208,
+            "classification": "suspicious",
+            "api_classification": "suspicious",
+            "confidence": 0.421,
+            "message_count": 4,
             "signal_history": [
               {
                 "message_index": 0,
                 "signals": [
-                  "PM-11",
-                  "PM-15"
+                  "PM-11"
                 ],
-                "contribution": 0.55,
-                "score_after": 0.55,
-                "sequence_match": null
+                "contribution": 0.39,
+                "score_after": 0.39,
+                "sequence_match": null,
+                "trust_modifier": 1.3
               },
               {
                 "message_index": 1,
-                "signals": [
-                  "PM-15"
-                ],
-                "contribution": 0.25,
-                "score_after": 0.756,
-                "sequence_match": null
+                "signals": [],
+                "contribution": 0.0,
+                "score_after": 0.359,
+                "sequence_match": null,
+                "trust_modifier": 1.3
               },
               {
                 "message_index": 2,
+                "signals": [],
+                "contribution": 0.0,
+                "score_after": 0.33,
+                "sequence_match": null,
+                "trust_modifier": 1.3
+              },
+              {
+                "message_index": 3,
                 "signals": [
-                  "PM-1",
                   "PM-10",
-                  "PM-3"
+                  "PM-1"
                 ],
-                "contribution": 6.955,
-                "score_after": 7.651,
-                "sequence_match": null
+                "contribution": 3.904,
+                "score_after": 4.208,
+                "sequence_match": null,
+                "trust_modifier": 1.3
               }
             ],
             "t1_primer_active": true,
             "sequence_matches": [],
             "tier_counts": {
-              "T1": 3,
+              "T1": 1,
               "T2": 2,
-              "T3": 1
+              "T3": 0
             },
             "signal_counts": {
               "PM-11": 1,
-              "PM-15": 2,
-              "PM-1": 1,
               "PM-10": 1,
-              "PM-3": 1
+              "PM-1": 1
             },
-            "family_alert_fired": true,
-            "family_alert_reason": "score_threshold",
+            "family_alert_fired": false,
+            "family_alert_reason": null,
             "overrides_applied": [],
-            "highest_score_reached": 7.651
+            "highest_score_reached": 4.208
           },
-          "family_alert_fired": true,
-          "family_alert_reason": "score_threshold"
+          "family_alert_fired": false,
+          "family_alert_reason": null
         },
         "sender": "block_sender",
         "live": true
@@ -1555,8 +1693,9 @@
           "classification": "scam",
           "confidence": 0.9,
           "detected_signals": [
-            "emergency_situation",
-            "request_for_money"
+            "financial_demand",
+            "emotional_manipulation",
+            "urgency"
           ],
           "extracted_facts": {
             "referenced_names": [],
@@ -1565,66 +1704,22 @@
               "urgency": "high"
             },
             "life_facts": [
-              "car accident"
+              "caused a car accident"
             ],
             "matched_existing": [],
             "elder_state": {
-              "detected_signals": [
-                "high_stress",
-                "urgency",
-                "desperation"
-              ],
-              "compliance": "strong",
+              "detected_signals": [],
+              "compliance": "none",
               "resistance": "none",
               "disclosure": "none",
               "emotional_engagement": "strong",
-              "instruction_seeking": true
+              "instruction_seeking": false
             }
           },
-          "reasoning": "The message describes an urgent, high-stakes situation (car accident) and immediately requests money. This is a common tactic used in scams to pressure the recipient into acting without thinking. The combination of an emergency, a vague plea for help, and a demand for money strongly suggests a scam, likely an impersonation or a fraudulent emergency."
+          "reasoning": "The message uses emotional manipulation and creates a sense of urgency by claiming a car accident and demanding money immediately. This is a common scam tactic to pressure victims into sending money without verifying the situation."
         },
         "sender": "block_sender",
         "live": true
-      },
-      "alert": {
-        "alert": {
-          "alert_id": "alert-demo_user-20260610123909",
-          "alert_type": "suspicious_sender",
-          "severity": "warning",
-          "user_id": "demo_user",
-          "sender_id": "unknown_sender",
-          "recipient": "family-demo",
-          "delivery_channel": "email",
-          "subject_ja": "不審な連絡パターンを検知 — ご確認をお願いします",
-          "subject_en": "Suspicious contact pattern detected for おばあちゃん",
-          "action_ja": "未確認の送信者からおばあちゃんさまへの連絡に不審なパターンが検出されました。なりすまし詐欺（オレオレ詐欺）の可能性があります。おばあちゃんさまに確認のご連絡をお勧めします。リスクが高まった場合、Faxiが自動的にブロックします。",
-          "action_en": "An unverified sender is showing patterns consistent with potential impersonation fraud (ore-ore scam) in their communication with おばあちゃん. We recommend following up with おばあちゃん to check in. If risk increases, Faxi will automatically block further messages.",
-          "dignity_ja": "おばあちゃんさまはこの通知を見ていません。",
-          "dignity_en": "おばあちゃん did not see this notification.",
-          "evidence_summary": {
-            "risk_score": 0.77,
-            "risk_factors": [
-              "PM-1",
-              "PM-10",
-              "PM-3"
-            ],
-            "contradiction_count": 0,
-            "message_count": 3,
-            "days_active": 1,
-            "assessed_at": "2026-06-10T12:39:09.806709+09:00"
-          },
-          "elder_did_not_see": true,
-          "timestamp": "2026-06-10T12:39:09.806709+09:00",
-          "delivery_status": "pending",
-          "response_action": null
-        },
-        "pipeline_event": {
-          "event": "alert.delivered",
-          "alert_id": "alert-demo_user-20260610123909",
-          "family_member_id": "family-demo",
-          "delivery_channel": "email",
-          "response_deadline": "2026-06-11T12:39:09.806709+09:00"
-        }
       },
       "elder_turn": {
         "fact_ledger": {
@@ -1655,13 +1750,13 @@
               "sender_turns": [
                 0
               ],
-              "echo_detected": false,
-              "echo_by": null,
-              "echo_at_turn": null
+              "echo_detected": true,
+              "echo_by": "elder",
+              "echo_at_turn": 3
             },
-            "life_fact:moved to osaka for a new job": {
-              "fact_id": "life_fact:moved to osaka for a new job",
-              "value": "moved to Osaka for a new job",
+            "life_fact:moved for a new job": {
+              "fact_id": "life_fact:moved for a new job",
+              "value": "moved for a new job",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1673,6 +1768,22 @@
               "echo_detected": false,
               "echo_by": null,
               "echo_at_turn": null
+            },
+            "life_fact:inquiring about recipient's well-being": {
+              "fact_id": "life_fact:inquiring about recipient's well-being",
+              "value": "inquiring about recipient's well-being",
+              "type": "life_fact",
+              "category": null,
+              "first_stated_by": "elder",
+              "first_turn": 1,
+              "elder_turns": [
+                1,
+                5
+              ],
+              "sender_turns": [],
+              "echo_detected": true,
+              "echo_by": "sender",
+              "echo_at_turn": 2
             },
             "life_fact:worried about recipient being alone": {
               "fact_id": "life_fact:worried about recipient being alone",
@@ -1689,9 +1800,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:recipient goes to a clinic on tuesdays": {
-              "fact_id": "life_fact:recipient goes to a clinic on tuesdays",
-              "value": "recipient goes to a clinic on Tuesdays",
+            "life_fact:recipient goes to clinic on tuesdays": {
+              "fact_id": "life_fact:recipient goes to clinic on tuesdays",
+              "value": "recipient goes to clinic on Tuesdays",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1704,9 +1815,24 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:grandpa passed away": {
-              "fact_id": "life_fact:grandpa passed away",
-              "value": "grandpa passed away",
+            "institution:mizuho bank": {
+              "fact_id": "institution:mizuho bank",
+              "value": "Mizuho Bank",
+              "type": "institution",
+              "category": null,
+              "first_stated_by": "elder",
+              "first_turn": 3,
+              "elder_turns": [
+                3
+              ],
+              "sender_turns": [],
+              "echo_detected": false,
+              "echo_by": null,
+              "echo_at_turn": null
+            },
+            "life_fact:grandfather passed away": {
+              "fact_id": "life_fact:grandfather passed away",
+              "value": "grandfather passed away",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -1749,9 +1875,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:involved in car accident": {
-              "fact_id": "life_fact:involved in car accident",
-              "value": "involved in car accident",
+            "life_fact:in big trouble": {
+              "fact_id": "life_fact:in big trouble",
+              "value": "in big trouble",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1764,9 +1890,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:needs money urgently": {
-              "fact_id": "life_fact:needs money urgently",
-              "value": "needs money urgently",
+            "life_fact:caused a car accident": {
+              "fact_id": "life_fact:caused a car accident",
+              "value": "caused a car accident",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "sender",
@@ -1779,24 +1905,9 @@
               "echo_by": null,
               "echo_at_turn": null
             },
-            "life_fact:worried about recipient's well-being": {
-              "fact_id": "life_fact:worried about recipient's well-being",
-              "value": "worried about recipient's well-being",
-              "type": "life_fact",
-              "category": null,
-              "first_stated_by": "elder",
-              "first_turn": 5,
-              "elder_turns": [
-                5
-              ],
-              "sender_turns": [],
-              "echo_detected": false,
-              "echo_by": null,
-              "echo_at_turn": null
-            },
-            "life_fact:seeking instructions on how to help": {
-              "fact_id": "life_fact:seeking instructions on how to help",
-              "value": "seeking instructions on how to help",
+            "life_fact:needs instructions on what to do": {
+              "fact_id": "life_fact:needs instructions on what to do",
+              "value": "needs instructions on what to do",
               "type": "life_fact",
               "category": null,
               "first_stated_by": "elder",
@@ -1818,7 +1929,7 @@
               "fact_ids": [
                 "name:kenji",
                 "location:osaka",
-                "life_fact:moved to osaka for a new job"
+                "life_fact:moved for a new job"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -1828,9 +1939,10 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "name:kenji"
+                "name:kenji",
+                "life_fact:inquiring about recipient's well-being"
               ],
-              "new_facts": 0,
+              "new_facts": 1,
               "echoed_facts": 1
             },
             {
@@ -1838,22 +1950,25 @@
               "direction": "inbound",
               "speaker": "sender",
               "fact_ids": [
+                "life_fact:inquiring about recipient's well-being",
                 "life_fact:worried about recipient being alone",
-                "life_fact:recipient goes to a clinic on tuesdays"
+                "life_fact:recipient goes to clinic on tuesdays"
               ],
               "new_facts": 2,
-              "echoed_facts": 0
+              "echoed_facts": 1
             },
             {
               "turn_index": 3,
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "life_fact:grandpa passed away",
+                "location:osaka",
+                "institution:mizuho bank",
+                "life_fact:grandfather passed away",
                 "life_fact:goes to mizuho bank on mondays"
               ],
-              "new_facts": 2,
-              "echoed_facts": 0
+              "new_facts": 3,
+              "echoed_facts": 1
             },
             {
               "turn_index": 4,
@@ -1861,8 +1976,8 @@
               "speaker": "sender",
               "fact_ids": [
                 "amount:money",
-                "life_fact:involved in car accident",
-                "life_fact:needs money urgently"
+                "life_fact:in big trouble",
+                "life_fact:caused a car accident"
               ],
               "new_facts": 3,
               "echoed_facts": 0
@@ -1872,10 +1987,10 @@
               "direction": "outbound",
               "speaker": "elder",
               "fact_ids": [
-                "life_fact:worried about recipient's well-being",
-                "life_fact:seeking instructions on how to help"
+                "life_fact:inquiring about recipient's well-being",
+                "life_fact:needs instructions on what to do"
               ],
-              "new_facts": 2,
+              "new_facts": 1,
               "echoed_facts": 0
             }
           ],
@@ -1911,17 +2026,18 @@
         "knowledge_graph": {
           "information_asymmetry": {
             "sender_independent_facts": [
-              "location:osaka",
-              "life_fact:moved to osaka for a new job",
+              "life_fact:moved for a new job",
               "life_fact:worried about recipient being alone",
-              "life_fact:recipient goes to a clinic on tuesdays",
+              "life_fact:recipient goes to clinic on tuesdays",
               "amount:money",
-              "life_fact:involved in car accident",
-              "life_fact:needs money urgently"
+              "life_fact:in big trouble",
+              "life_fact:caused a car accident"
             ],
-            "sender_echo_facts": [],
-            "echo_ratio": 0.0,
-            "asymmetry_score": 7,
+            "sender_echo_facts": [
+              "life_fact:inquiring about recipient's well-being"
+            ],
+            "echo_ratio": 0.14,
+            "asymmetry_score": 5,
             "asymmetry_verdict": "sender_knows_more"
           },
           "identity_claim_analysis": [
@@ -1942,29 +2058,29 @@
           },
           "contradictions": [],
           "graph_signals": {
-            "echo_ratio": 0.0,
+            "echo_ratio": 0.14,
             "echo_grounded_identity": false,
             "friction_collapsed": false,
             "friction_score": 0.0,
             "friction_trajectory": "declining",
             "trust_stage": "compliant",
-            "elder_facts_exposed": 4,
-            "sender_independent_facts": 7,
-            "sender_echoed_facts": 0,
+            "elder_facts_exposed": 5,
+            "sender_independent_facts": 6,
+            "sender_echoed_facts": 1,
             "contradictions": 0,
             "turns_analyzed": 6
           }
         },
         "graph_signals": {
-          "echo_ratio": 0.0,
+          "echo_ratio": 0.14,
           "echo_grounded_identity": false,
           "friction_collapsed": false,
           "friction_score": 0.0,
           "friction_trajectory": "declining",
           "trust_stage": "compliant",
-          "elder_facts_exposed": 4,
-          "sender_independent_facts": 7,
-          "sender_echoed_facts": 0,
+          "elder_facts_exposed": 5,
+          "sender_independent_facts": 6,
+          "sender_echoed_facts": 1,
           "contradictions": 0,
           "turns_analyzed": 6
         },
@@ -1982,6 +2098,14 @@
             "type": "location",
             "first_stated_by": "sender",
             "first_turn": 0,
+            "echo_detected": true,
+            "echo_by": "elder"
+          },
+          "institution:mizuho bank": {
+            "value": "Mizuho Bank",
+            "type": "institution",
+            "first_stated_by": "elder",
+            "first_turn": 3,
             "echo_detected": false,
             "echo_by": null
           },
@@ -1996,22 +2120,22 @@
         },
         "vulnerability_summary": {
           "vulnerabilities": [
-            "grandpa passed away",
+            "inquiring about recipient's well-being",
+            "grandfather passed away",
             "goes to Mizuho Bank on Mondays",
-            "worried about recipient's well-being",
-            "seeking instructions on how to help"
+            "needs instructions on what to do"
           ],
           "trust_stage": "compliant",
           "friction_score": 0.0,
           "friction_trajectory": "declining",
-          "total_elder_facts_exposed": 4,
-          "total_echoed_facts": 1
+          "total_elder_facts_exposed": 5,
+          "total_echoed_facts": 3
         },
         "extracted_facts": {
           "referenced_names": [],
           "life_facts": [
-            "worried about recipient's well-being",
-            "seeking instructions on how to help"
+            "inquiring about recipient's well-being",
+            "needs instructions on what to do"
           ],
           "matched_existing": [],
           "elder_state": {
