@@ -32,7 +32,7 @@ ADK optimization tools drove development:
 - Agent Evaluation: 55-case EvalSet via live ADK Runner harness + 52-scenario longitudinal suite, raw results committed
 - Agent Simulation: multi-day scam sequences replayed end-to-end through live agents
 - Agent Optimizer: confirmed prompt near-optimal — the value is in infrastructure
-- Agent Observability: 45 OTel spans across 3 traced cases found false-positive root causes, drove contra-indicator design
+- Agent Observability: 45 OTel spans across 3 traced cases surfaced false-positive root causes
 
 ## Data sources
 
@@ -52,7 +52,7 @@ ADK optimization tools drove development:
 
 ## Third-party integrations
 
-None at runtime — built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are openly published datasets (Apache 2.0, LGPL-3.0, one unspecified-license research set) and public government publications; per-source licensing in data/DATA_PROVENANCE.md.
+None — built entirely on Google ADK + Vertex AI + Cloud Run. Data sources are openly published datasets (Apache 2.0, LGPL-3.0, one unspecified-license research set) and public government publications; per-source licensing in data/DATA_PROVENANCE.md.
 
 ---
 
