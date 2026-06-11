@@ -5,10 +5,10 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 ---
 
 ## Intro section
-"Hi, I'm Rob, the creator of Faxi, an Internet bridge for seniors in Japan. Online scams targeting the elderly are a global problem costing over 70 billion dollars a year."
+"Hi, I'm Rob, the founder of Faxi, an Internet bridge for seniors in Japan. Online scams targeting the elderly are a global problem costing over 70 billion dollars a year. I created Elder Shield to address this."
 
 ## Anatomy of an Ore-Ore Sagi
-"And trouble is, scams don't look like spam. A scammer builds trust over time,and then asks for money. Each setup message looks safe in isolation and can pass filters. 
+"The trouble is, scams don't look like spam. A scammer builds trust over time,and then asks for money. Each setup message looks safe in isolation and can pass filters. 
 
 ## What a Single Classifier Sees
 "For this hackathon, we used ADK to turn our filter into "Elder Shield": six Gemini Flash Lite agents on Vertex AI that remember every message and compound evidence over time. Flagging and blocking scams earlier."
@@ -32,16 +32,12 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 ## DEMO: LONGITUDINAL DETECTION
 **Show:** Scenario 3 (Longitudinal Detection) playing through with stagger
 
-"Watch a 6-message ore-ore impersonation. Messages one through three are safe — identity claim, casual chat. The system notes them but doesn't alarm. Message four: emotional crisis. The T1 primer bonus kicks in — those earlier safe messages now amplify the score. Message five: financial ask. Suspicious. Message six: secrecy plus money demand. Blocked. The system remembered the setup."
-
-"Watch a six-message ore-ore impersonation. Messages one through three look safe — the system notes them quietly. Message four: emotional crisis — those earlier safe messages now amplify the score. Message five: financial ask. Message six: secrecy plus a money demand. Blocked. It remembered the setup."
+"Watch a scammer impersonate a family member. Messages one through three look safe — the system notes them quietly. Message four: emotional crisis — those earlier safe messages now amplify the score. Message five: financial ask. Family is alerted. In Message six: secrecy plus a money demand and its Blocked before reaching the elder."
 
 ## DEMO: ELDER'S GUARD
 **Show:** Scenario 4 (Epistemic Drift) — focus on trust stage progression and VS signals
 
 "Most systems watch the scammer. Elder Shield also watches the elder. Victim state signals — compliance, disclosure, instruction seeking — track whether the scam is working. Watch the Elder's Guard drop from Neutral to Compromised as the elder reveals personal information and starts offering to help. When the elder reaches Compromised, the family is alerted."
-
-"Most systems watch the scammer. Elder Shield also watches the elder. Watch the Elder's Guard drop from Neutral to Compromised as she reveals information and starts complying — that's when the family is alerted."
 
 - Feel free to try these or your own custom message pairs
 
@@ -51,7 +47,7 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 ## 1:45–2:00 | CLOSE
 **Show:** /shield overview page with Faxi branding
 
-"Elder Shield is designed as a drop-in replacement for our production spam classifier. Same API contract, same model, dramatically better protection. Elder fraud costs 324 billion yen a year in Japan alone. The people who need protection most are the ones who can't evaluate warnings themselves. That's who we built this for."
+"Elder Shield is designed as a drop-in replacement for our production spam classifier. Same API contract, same model, dramatically better protection. Elder fraud costs billions a year. The people who need protection most are the most vulnerable. That's who we built this for."
 
 ## OVERTIME
 "Hi...you're still here? Let me show you around a bit more"
@@ -68,10 +64,4 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 
 
 
-
-
-
-  Timing concern: You have a LOT of sections before the demo. The demo should hit before
-   1:00. Consider combining "What a Single Classifier Sees" + "What Elder Shield Sees"
-  into one 10-second section, not two.
 
