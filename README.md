@@ -62,6 +62,8 @@ Hot path (per message, <1s):        Async path (per sender profile):
 
 The **Inbound Classifier** runs synchronously on every message — one LLM call, structured output via `output_schema`, results written to session state via `output_key`. The **Behavioral Analyzer** runs asynchronously against accumulated sender profiles, not raw messages. Same ADK agents, same session state, different execution timing.
 
+**Decision boundaries:** classification verdicts (safe → monitoring → suspicious → scam) are always computed by the deterministic ConversationRiskLedger — on the `/api/classify` contract the ledger overrides any LLM-stated classification outright. The Workflow's family-alert routing is a separate *notification* decision: it consumes the Behavioral Analyzer's structured risk assessment (informed by the deterministic `compute_risk_score` tool) to decide who gets told. The LLM never decides what a message *is*.
+
 This is a deliberate production scaling decision: the Workflow represents the full architecture, but routing every message through all agents sequentially would be the wrong design. The classifier responds in under 1 second — 12x faster than the original 7-tool LLM-routed approach. The behavioral analyzer needs accumulated cross-message evidence to be useful — running it on a single message wastes an LLM call.
 
 ### ADK Features Used
@@ -74,7 +76,7 @@ This is a deliberate production scaling decision: the Workflow represents the fu
 | **before_tool_callback** | Classifier, Analyzer | Native tool call tracing to session state |
 | **after_model_callback** | Classifier | Runtime output validation |
 | **before_model_callback** | Analyzer | Dynamic context injection from session state |
-| **ADK Session State** | `app.py` | Longitudinal memory via `output_key` writes and `session.state` reads across agents |
+| **ADK Session State** | `app.py` | Carries structured agent outputs through each request (`output_key` → `session.state`); longitudinal per-sender memory lives in the deterministic ConversationRiskLedger |
 | **Agent Search Data Store** | `search_scam_corpus.py` | 22,979-entry corpus with neural/semantic search — cross-language Japanese+English, no warm-up needed |
 | **FunctionTool** | `search_scam_corpus` on Classifier | LLM can call corpus search for additional grounding evidence during classification |
 | **Conditional routing** | Workflow edges | Risk-based fan-out to Family Alerter via 4-gate trigger system |
@@ -82,7 +84,7 @@ This is a deliberate production scaling decision: the Workflow represents the fu
 
 ## The Optimization Story (Track 2)
 
-Six rounds of iterative hardening, each compounding on the last:
+Seven rounds of iterative hardening, each compounding on the last:
 
 | Round | Focus | Key Outcome | Platform Tool |
 |-------|-------|-------------|---------------|
@@ -99,7 +101,7 @@ Six rounds of iterative hardening, each compounding on the last:
 ADK didn't make the model better — it gave us the framework to build, measure, and validate a system that's better than any model alone:
 
 - **Agent Evaluation** measured the baseline (F1 0.933) and validated every round. Without it, we'd be guessing.
-- **Agent Simulation** proved Day 3 detection works across a 7-message trust-building sequence. No simulation = no proof the behavioral analyzer works.
+- **Agent Simulation** proved Day 4 detection works across a 7-message trust-building sequence. No simulation = no proof the behavioral analyzer works.
 - **Agent Observability** via ADK `before_tool_callback` showed us WHERE classification failed — tool call tracing, response validation, and context injection identified false positives on legitimate family messages. We traced the failures and fixed them.
 - **Agent Optimizer** ran 5 iterations and couldn't beat our prompt — proving the value is in the infrastructure (tools, corpus, graph), not prompt wording.
 - **Grounding** via corpus search gave the classifier evidence to cite instead of relying on prompt instructions alone.
@@ -194,7 +196,7 @@ Both systems eventually catch the scam. The question is when — and what happen
 ```
 "Did you catch the scam?"
   Pre-ADK:        Yes (at Day 7, when "send me ¥500,000" arrives)
-  Elder Shield:  Yes (at Day 3, from behavioral velocity alone)
+  Elder Shield:  Yes (at Day 4, from behavioral velocity alone)
 
 "Did you catch it BEFORE the money request?"
   Pre-ADK:        No — only catches the explicit ask
@@ -202,10 +204,10 @@ Both systems eventually catch the scam. The question is when — and what happen
 
 "What if the scammer calls grandma on the phone for the close?"
   Pre-ADK:        Misses entirely — never sees the phone call
-  Elder Shield:  Already flagged — family was alerted at Day 3
+  Elder Shield:  Already flagged — family was alerted at Day 4
 ```
 
-This is the difference between catching a scam and **preventing** one. A system that flags at Day 7 is documenting a crime. A system that flags at Day 3 is preventing it.
+This is the difference between catching a scam and **preventing** one. A system that flags at Day 7 is documenting a crime. A system that flags at Day 4 is preventing it.
 
 ### What changed: capability, not just accuracy
 
@@ -240,7 +242,7 @@ The naive baseline over-reacts — 75% of the time it classifies the very first 
 
 ### Benchmark: Faxi production classifier vs Elder Shield
 
-Both run on the **same model** (gemini-2.5-flash-lite), same cost. Faxi's classifier is the real production code from `spamCheckService.ts` — minimal prompt, no tools, no corpus.
+Both run on the **same model** (gemini-2.5-flash-lite), same cost. The baseline is a faithful re-implementation of the prompt from Faxi's production `spamCheckService.ts` — same wording, same rules, written new for this benchmark (no Faxi code is in this repo). Minimal prompt, no tools, no corpus.
 
 #### Scam detection — both catch everything
 
@@ -328,10 +330,11 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 |-----------|-----------|
 | Agent framework | Google ADK 2.0 (Python) |
 | Model (all agents) | Gemini 2.5 Flash Lite on Vertex AI — infrastructure does the heavy lifting |
-| Sessions | ADK Session State — longitudinal memory via output_key + session.state |
+| Sessions | ADK Session State per request (output_key + session.state); per-sender longitudinal state in the ConversationRiskLedger — designed for VertexAiSessionService persistence in production |
 | Corpus grounding | Agent Search Data Store (22,979 entries) — neural/semantic search, no warm-up |
 | Risk scoring | ConversationRiskLedger — additive evidence accumulation with decay, tier amplification, sequence detection |
 | Deployment | Google Cloud Run (us-central1) — instant cold start (no corpus pre-warm) |
+| Agent runtime | Vertex AI Agent Engine — root agent deployed via `adk deploy` (`reasoningEngines/4623304008042283008`, us-central1, 2026-06-10) |
 | Orchestration | ADK Workflow (FunctionNode + Agent DAG) |
 
 ## Data
@@ -343,7 +346,7 @@ Live at [shield.faxi.jp](https://shield.faxi.jp):
 | zefang-liu/phishing-email-dataset | 17,514 | Real phishing + safe emails |
 | BothBosu/scam-dialogue + multi-agent | 3,200 | Multi-turn phone/chat transcripts |
 | cybersectony/PhishingEmailDetectionv2.0 | 1,254 | Real phishing + legitimate emails |
-| antiphishing.jp | 203 | Real Japanese phishing reports |
+| antiphishing.jp | 793 | Real Japanese phishing reports |
 | NPA SOS47 dialogues | 44 | Real police-published scam scripts |
 | Synthetic NPA scenarios | 162 | Japanese scam scenarios (3 difficulty levels) |
 | Synthetic edge cases | 12 | Bilingual, ambiguous test cases |
@@ -507,3 +510,5 @@ Apache 2.0 -- see [LICENSE](LICENSE).
 **Google for Startups AI Agents Challenge** -- Track 2: Optimize. APAC region.
 
 Built by the team behind [Faxi](https://faxi.jp) -- an AI-powered fax-to-internet bridge for elderly Japanese users.
+
+Revenue model: Elder Shield ships as a family-protection subscription tier on Faxi. The adult children who already manage a parent's account pay for protection and receive the alerts — the buyer is the family, the protected user is the elder. Dignity-preserving design isn't a nicety at that point; it's what keeps the subscription from churning when the elder feels watched.

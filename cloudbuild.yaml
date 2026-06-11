@@ -41,7 +41,7 @@ steps:
       - '--memory=1Gi'
       - '--cpu=1'
       - '--timeout=300'
-      - '--set-env-vars=GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GOOGLE_GENAI_USE_VERTEXAI=TRUE'
+      - '--set-env-vars=GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GOOGLE_GENAI_USE_VERTEXAI=TRUE,USE_VERTEX_SEARCH=true,SCAM_CORPUS_DATA_STORE=scam-corpus,FIRESTORE_DATABASE=elder-shield'
 
 substitutions:
   _REGION: 'us-central1'

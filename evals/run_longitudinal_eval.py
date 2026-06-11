@@ -93,29 +93,45 @@ def run_scenario(scenario):
     return results
 
 
+GRADING_NOTES = [
+    "high_risk is graded as suspicious (adjacent band, same user-visible action).",
+    "Expected 'monitoring' accepts monitoring OR suspicious from EITHER system — "
+    "the naive classifier's taxonomy (safe/spam/scam/suspicious) cannot emit "
+    "'monitoring', so those labels are graded leniently for both systems.",
+    "Spam scenarios accept 'spam' OR 'safe' from EITHER system — commercial spam "
+    "poses no fraud risk to the elder, so both responses are correct.",
+    "False positives count user-visible actions: for the full pipeline, "
+    "'monitoring' is an internal state (no alert fires below suspicious); for "
+    "the naive baseline, any non-safe classification blocks the message.",
+]
+
+
+def is_correct(pred, expected, scam_type):
+    """Fair grading — see GRADING_NOTES."""
+    if pred == "high_risk":
+        pred = "suspicious"
+    acceptable = {expected}
+    if expected == "monitoring":
+        acceptable.add("suspicious")
+    if scam_type == "spam" and expected in ("safe", "spam"):
+        acceptable |= {"safe", "spam"}
+    return pred in acceptable
+
+
 def compute_metrics(scenario, results):
     """Compute per-scenario metrics."""
     messages = scenario["messages"]
     n = len(messages)
+    scam_type = scenario["scam_type"]
 
     # Classification accuracy
     full_correct = 0
     naive_correct = 0
     for i, r in enumerate(results):
         expected = r["expected_class"]
-        # For comparison: map internal classifications to simplified
-        full_cls = r["full"]["classification"]
-        naive_cls = r["naive"]["classification"]
-
-        # Flexible matching: monitoring counts as safe, high_risk counts as suspicious
-        def normalize(c):
-            return {"monitoring": "monitoring", "high_risk": "suspicious",
-                    "scam": "scam", "suspicious": "suspicious",
-                    "safe": "safe"}.get(c, c)
-
-        if normalize(full_cls) == normalize(expected):
+        if is_correct(r["full"]["classification"], expected, scam_type):
             full_correct += 1
-        if normalize(naive_cls) == normalize(expected):
+        if is_correct(r["naive"]["classification"], expected, scam_type):
             naive_correct += 1
 
     # Time-to-detection: first message where classification != safe
@@ -160,6 +176,8 @@ def compute_metrics(scenario, results):
         "signal_precision": round(precision, 3),
         "signal_recall": round(recall, 3),
         "family_alert_at_message": alert_at,
+        "first_full_class": results[0]["full"]["classification"],
+        "first_naive_class": results[0]["naive"]["classification"],
         "final_full_class": results[-1]["full"]["classification"],
         "final_naive_class": results[-1]["naive"]["classification"],
         "final_risk_score": results[-1]["full"].get("risk_score", 0),
@@ -211,12 +229,19 @@ def run_all(filter_id=None):
             "avg_signal_recall": round(sum(m["signal_recall"] for m in all_metrics) / len(all_metrics), 3),
         }
 
+        # First-message behavior (across all scenarios): does the system flag
+        # before any evidence has accumulated?
+        aggregate["full_nonsafe_on_first_message"] = sum(
+            1 for m in all_metrics if m["first_full_class"] not in ("safe",))
+        aggregate["naive_nonsafe_on_first_message"] = sum(
+            1 for m in all_metrics if m["first_naive_class"] not in ("safe",))
+
         if scam_metrics:
             detect_advantages = [m["detection_advantage"] for m in scam_metrics if m["detection_advantage"] != 0]
             aggregate["scam_scenarios"] = len(scam_metrics)
             aggregate["avg_detection_advantage_msgs"] = round(sum(detect_advantages) / max(len(detect_advantages), 1), 2) if detect_advantages else 0
-            aggregate["scam_final_correct"] = sum(1 for m in scam_metrics if m["final_full_class"] in ("scam", "high_risk", "suspicious", "monitoring"))
-            aggregate["naive_final_correct"] = sum(1 for m in scam_metrics if m["final_naive_class"] in ("scam", "suspicious"))
+            aggregate["scam_caught_full"] = sum(1 for m in scam_metrics if m["final_full_class"] in ("scam", "high_risk", "suspicious", "monitoring"))
+            aggregate["scam_caught_naive"] = sum(1 for m in scam_metrics if m["final_naive_class"] in ("scam", "suspicious"))
 
         if legit_metrics:
             aggregate["legit_scenarios"] = len(legit_metrics)
@@ -229,8 +254,17 @@ def run_all(filter_id=None):
         for k, v in aggregate.items():
             print(f"  {k}: {v}")
 
+        try:
+            status_req = urllib.request.Request(f"{BASE}/api/status")
+            with urllib.request.urlopen(status_req, timeout=10) as r:
+                model = json.loads(r.read()).get("model", "unknown")
+        except Exception:
+            model = "unknown"
+
         output = {
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "model": model,
+            "grading_notes": GRADING_NOTES,
             "aggregate": aggregate,
             "per_scenario": all_results,
         }

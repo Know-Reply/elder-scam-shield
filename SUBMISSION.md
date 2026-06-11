@@ -16,16 +16,18 @@ Elder Shield separates LLM signal detection from deterministic risk scoring. Thr
 - **Behavioral velocity (BV-1..5)** catches grooming arcs: relationship velocity, isolation attempts, emotional scheduling.
 - **Elder abuse (EA-1..4)** from trusted contacts: financial control, isolation, authority escalation.
 
+Business model: Elder Shield ships as a family-protection subscription on Faxi. The adult children who already manage a parent's Faxi account pay for the protection tier and receive the alerts. The buyer (the family) is not the user (the elder) — which is why dignity-preserving alerts are a revenue requirement, not a UX nicety: an elder who feels surveilled turns the system off, and the subscription churns.
+
 Longitudinal evaluation across 51 multi-message scenarios: **0/12 legitimate scenarios falsely flagged vs 5/12 naive (42%)**. The naive baseline calls "scam" on 75% of first messages; Elder Shield never does — it accumulates evidence: safe → elevated → suspicious → blocked. Per-message stage accuracy (is the system at the right alert level at each point in the conversation?) is 63.6% vs 34.7% naive. 33 of 34 scam scenarios caught; the one miss — a 3-message romance opener that stayed below the evidence threshold — is documented as an honest fail.
 
 ## Technologies used
 
 - Google ADK 2.0: Workflow DAG, output_schema, output_key, FunctionTool, before_tool_callback, multiple Runners
 - Gemini 2.5 Flash Lite on Vertex AI (us-central1): all 6 agents, cheapest model tier
-- Vertex AI Agent Engine: root agent deployed via adk deploy
+- Vertex AI Agent Engine: root agent deployed via adk deploy (`reasoningEngines/4623304008042283008`, us-central1, 2026-06-10)
 - Agent Search Data Store: 22,979-entry corpus, neural search, cross-language JP+EN
 - Cloud Run: FastAPI app with ConversationRiskLedger scoring layer
-- ADK Session State: longitudinal memory via output_key + session.state
+- ADK Session State: output_key + session.state carry structured results between agents within each request; longitudinal per-sender memory lives in the deterministic risk ledger (VertexAiSessionService planned for production persistence)
 
 ADK optimization tools drove the development:
 - Agent Evaluation: 55-case EvalSet (ADK format) run through a live ADK Runner harness with committed raw results, plus a 51-scenario longitudinal suite
@@ -35,7 +37,7 @@ ADK optimization tools drove the development:
 
 ## Data sources
 
-22,979 corpus entries from 6 sources including real phishing emails, Japanese scam transcripts, NPA police-published scripts, and antiphishing.jp reports. Signal weights calibrated against NPA tokushu-sagi reports 2023-2025.
+22,979 corpus entries from 7 sources including real phishing emails, Japanese scam transcripts, NPA police-published scripts, and antiphishing.jp reports. Signal weights calibrated against NPA tokushu-sagi reports 2023-2025.
 
 ## Findings and learnings
 
@@ -69,6 +71,6 @@ ADK should raise an error at startup when a model isn't available on Vertex AI i
 
 ### Describe the readiness of your project for launch.
 
-Demo-ready with production architecture. The system runs on Cloud Run with Vertex AI (gemini-2.5-flash-lite), Agent Search Data Store (22,979-entry corpus), and a live interactive demo with 4 scenarios showing early detection + block, outbound reply interception, longitudinal detection across 6 messages, and epistemic drift tracking. All classification results are live LLM calls, not pre-scripted. The root agent is also deployed to Vertex AI Agent Engine via `adk deploy`.
+Demo-ready with production architecture. The system runs on Cloud Run with Vertex AI (gemini-2.5-flash-lite), Agent Search Data Store (22,979-entry corpus), and a live interactive demo with 4 scenarios showing early detection + block, outbound reply interception, longitudinal detection across 6 messages, and epistemic drift tracking. Scenario walk-up messages replay pre-captured seed data; the final exchange in each scenario and the Free Play mode run live through the full pipeline. The root agent is also deployed to Vertex AI Agent Engine via `adk deploy`.
 
 Production gaps: Cross-conversation state requires persistent sessions (designed for VertexAiSessionService but currently using InMemorySessionService for the application layer). Social graph uses mock data. The ConversationRiskLedger weights are priors seeded from NPA aggregate statistics, not fitted from labeled training data: production calibration requires labeled case outcomes from Faxi's deployed pipeline. The system is designed as a drop-in replacement for Faxi's existing `spamCheckService.ts` with a compatible API contract.

@@ -1,632 +1,4935 @@
 {
-  "timestamp": "2026-06-09T21:30:00",
+  "timestamp": "2026-06-11T17:00:06",
+  "model": "gemini-2.5-flash-lite",
+  "grading_notes": [
+    "high_risk is graded as suspicious (adjacent band, same user-visible action).",
+    "Expected 'monitoring' accepts monitoring OR suspicious from EITHER system — the naive classifier's taxonomy (safe/spam/scam/suspicious) cannot emit 'monitoring', so those labels are graded leniently for both systems.",
+    "Spam scenarios accept 'spam' OR 'safe' from EITHER system — commercial spam poses no fraud risk to the elder, so both responses are correct.",
+    "False positives count user-visible actions: for the full pipeline, 'monitoring' is an internal state (no alert fires below suspicious); for the naive baseline, any non-safe classification blocks the message."
+  ],
   "aggregate": {
-    "total_scenarios": 51,
-    "completed": 51,
-    "overall_full_accuracy": 0.636,
-    "overall_naive_accuracy": 0.347,
-    "accuracy_improvement_pp": 28.9,
+    "total_scenarios": 52,
+    "overall_full_accuracy": 0.759,
+    "overall_naive_accuracy": 0.626,
+    "avg_signal_precision": 0.539,
+    "avg_signal_recall": 0.618,
+    "full_nonsafe_on_first_message": 8,
+    "naive_nonsafe_on_first_message": 22,
     "scam_scenarios": 34,
-    "scam_caught_full": 33,
-    "scam_caught_naive": 34,
-    "legit_scenarios": 12,
-    "false_positives_full": 0,
-    "false_positives_naive": 5,
-    "naive_scam_on_msg0": 38,
-    "naive_scam_on_msg0_pct": 0.745
+    "avg_detection_advantage_msgs": 1.71,
+    "scam_caught_full": 34,
+    "scam_caught_naive": 30,
+    "legit_scenarios": 13,
+    "full_false_positives": 4,
+    "naive_false_positives": 0
   },
   "per_scenario": [
     {
-      "scenario_id": "oreore_basic_3msg",
-      "scam_type": "ore_ore",
-      "message_count": 3,
-      "full_classification": "scam",
-      "full_score": 9.27,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 1,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.67
+      "scenario": "oreore_basic_3msg",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、健二だよ！久しぶり。大阪で新しい仕事を始めたんだ。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.03,
+            "risk_score": 0.3,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 3226
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1862
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "実は大変なことになって。交通事故を起こして相手が今すぐお金を要求してるんだ。助けてくれない？",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-10"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.649,
+            "risk_score": 6.49,
+            "detected_signals": [
+              "PM-1",
+              "PM-6",
+              "PM-10"
+            ],
+            "family_alert": true,
+            "latency_ms": 3136
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "emotional manipulation",
+              "financial pressure"
+            ],
+            "latency_ms": 1916
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "この口座に50万円を振り込んで。誰にも言わないで。今日中にお願い。",
+          "expected_signals": [
+            "PM-1",
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-2",
+              "PM-3",
+              "PM-5",
+              "PM-7"
+            ],
+            "family_alert": false,
+            "latency_ms": 2788
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_demand",
+              "secrecy_request",
+              "urgency_request"
+            ],
+            "latency_ms": 2224
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_basic_3msg",
+        "scam_type": "ore_ore",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 1,
+        "detection_advantage": 0,
+        "signal_precision": 0.625,
+        "signal_recall": 0.714,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "oreore_lawyer_handoff",
-      "scam_type": "ore_ore",
-      "message_count": 3,
-      "full_classification": "suspicious",
-      "full_score": 4.74,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.0,
-      "naive_accuracy": 0.33
+      "scenario": "oreore_slow_6msg",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、たかしだよ。元気？",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.03,
+            "risk_score": 0.3,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 8074
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 1.0,
+            "detected_signals": [],
+            "latency_ms": 2449
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "最近仕事が忙しくてね。おばあちゃんは体調どう？",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.173,
+            "risk_score": 1.732,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 12297
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 1.0,
+            "detected_signals": [],
+            "latency_ms": 2138
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "来月そっちに行こうと思ってるんだ。楽しみにしてて。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.159,
+            "risk_score": 1.593,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 5455
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2483
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "実は困ったことになって。会社のお金を間違えて使ってしまったんだ。",
+          "expected_signals": [
+            "PM-10"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.292,
+            "risk_score": 2.922,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 4719
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.8,
+            "detected_signals": [],
+            "latency_ms": 2474
+          }
+        },
+        {
+          "message_index": 4,
+          "text_preview": "200万円を明日までに返さないとクビになる。助けてくれないかな？",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.89,
+            "risk_score": 8.902,
+            "detected_signals": [
+              "PM-1",
+              "PM-6",
+              "PM-10"
+            ],
+            "family_alert": true,
+            "latency_ms": 4702
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial demand",
+              "urgency",
+              "emotional manipulation"
+            ],
+            "latency_ms": 2238
+          }
+        },
+        {
+          "message_index": 5,
+          "text_preview": "この口座に振り込んで。お母さんには絶対言わないで。頼む。",
+          "expected_signals": [
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-2",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 4628
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.8,
+            "detected_signals": [
+              "implied_financial_transaction",
+              "request_for_secrecy",
+              "emotional_manipulation_pressure"
+            ],
+            "latency_ms": 2221
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_slow_6msg",
+        "scam_type": "ore_ore",
+        "message_count": 6,
+        "full_accuracy": 0.5,
+        "naive_accuracy": 0.5,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 4,
+        "detection_advantage": 3,
+        "signal_precision": 0.444,
+        "signal_recall": 0.667,
+        "family_alert_at_message": 4,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "suspicious",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "oreore_hospital",
-      "scam_type": "ore_ore",
-      "message_count": 3,
-      "full_classification": "suspicious",
-      "full_score": 4.43,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.0,
-      "naive_accuracy": 0.33
+      "scenario": "oreore_lawyer_handoff",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、けんじだよ。大変なことになった。弁護士の先生に代わるね。",
+          "expected_signals": [
+            "PM-11",
+            "PM-10"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.156,
+            "risk_score": 1.56,
+            "detected_signals": [
+              "PM-11",
+              "PM-10"
+            ],
+            "family_alert": false,
+            "latency_ms": 3789
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.8,
+            "detected_signals": [
+              "impersonation_attempt",
+              "urgent_situation"
+            ],
+            "latency_ms": 1992
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "山田法律事務所の山田と申します。お孫さんの件でお電話しました。示談金が必要です。",
+          "expected_signals": [
+            "PM-4",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.657,
+            "risk_score": 6.57,
+            "detected_signals": [
+              "PM-4",
+              "PM-3"
+            ],
+            "family_alert": true,
+            "latency_ms": 3450
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "impersonation",
+              "financial demand",
+              "emotional manipulation"
+            ],
+            "latency_ms": 1884
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "本日中に300万円をご用意ください。振込先をお伝えします。これは内密にお願いします。",
+          "expected_signals": [
+            "PM-1",
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-1",
+              "PM-2",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 2968
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "demand for money",
+              "request for secrecy",
+              "high urgency"
+            ],
+            "latency_ms": 2088
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_lawyer_handoff",
+        "scam_type": "ore_ore",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 0,
+        "signal_precision": 0.875,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 1,
+        "first_full_class": "monitoring",
+        "first_naive_class": "suspicious",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "oreore_en_basic",
-      "scam_type": "ore_ore",
-      "message_count": 3,
-      "full_classification": "scam",
-      "full_score": 9.15,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 1,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.67
+      "scenario": "oreore_hospital",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、ゆうきだよ。入院してるんだ。",
+          "expected_signals": [
+            "PM-11",
+            "PM-10"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.156,
+            "risk_score": 1.56,
+            "detected_signals": [
+              "PM-11",
+              "PM-10"
+            ],
+            "family_alert": false,
+            "latency_ms": 3839
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1758
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "手術が必要なんだけど、保険が効かなくて。50万円すぐに必要なんだ。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.839,
+            "risk_score": 8.39,
+            "detected_signals": [
+              "PM-1",
+              "PM-10",
+              "PM-3"
+            ],
+            "family_alert": true,
+            "latency_ms": 3267
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "financial_request",
+              "emotional_manipulation"
+            ],
+            "latency_ms": 2305
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "病院の口座に直接振り込んでほしい。お父さんには言わないで、心配するから。",
+          "expected_signals": [
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-2",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 2918
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_transaction_request",
+              "secrecy_request",
+              "emotional_manipulation"
+            ],
+            "latency_ms": 2018
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_hospital",
+        "scam_type": "ore_ore",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": 1,
+        "detection_advantage": -2,
+        "signal_precision": 0.75,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 1,
+        "first_full_class": "monitoring",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "oreore_phone_change",
-      "scam_type": "ore_ore",
-      "message_count": 4,
-      "full_classification": "scam",
-      "full_score": 10.0,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.75,
-      "naive_accuracy": 0.25
+      "scenario": "oreore_en_basic",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "Grandma, it's Kenji! I moved to Osaka for a new job.",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.03,
+            "risk_score": 0.3,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 2624
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1575
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "I'm in big trouble. Car accident, they want money now. Can y",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-10"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.328,
+            "risk_score": 3.279,
+            "detected_signals": [
+              "PM-1",
+              "PM-10"
+            ],
+            "family_alert": false,
+            "latency_ms": 2858
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "urgency",
+              "financial distress",
+              "emotional manipulation"
+            ],
+            "latency_ms": 2458
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "500,000 yen to this account: 1234-5678. Don't tell anyone. T",
+          "expected_signals": [
+            "PM-1",
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-1",
+              "PM-2",
+              "PM-3",
+              "PM-5",
+              "PM-7"
+            ],
+            "family_alert": true,
+            "latency_ms": 2873
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_transaction_request",
+              "secrecy_request",
+              "urgency"
+            ],
+            "latency_ms": 1896
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_en_basic",
+        "scam_type": "ore_ore",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 1,
+        "detection_advantage": 0,
+        "signal_precision": 0.75,
+        "signal_recall": 0.857,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "oreore_crying",
-      "scam_type": "ore_ore",
-      "message_count": 3,
-      "full_classification": "scam",
-      "full_score": 8.04,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.33
+      "scenario": "oreore_phone_change",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、携帯の番号変わったから登録し直して。まさるだよ。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.03,
+            "risk_score": 0.3,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 2998
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "impersonation_attempt"
+            ],
+            "latency_ms": 2035
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "実はさ、会社の取引先とトラブルになって。相手が怒ってて。",
+          "expected_signals": [
+            "PM-10"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.173,
+            "risk_score": 1.732,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 2690
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1844
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "100万円を今日中に相手の口座に振り込まないと訴えられるんだ。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-6"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5",
+              "PM-6"
+            ],
+            "family_alert": true,
+            "latency_ms": 3067
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "threat",
+              "urgency",
+              "financial demand"
+            ],
+            "latency_ms": 2004
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "誰にも言わないで。この口座に振り込んで。コンビニからでもいいから。",
+          "expected_signals": [
+            "PM-2",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-2",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 3214
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "urgency",
+              "secrecy",
+              "financial transaction request"
+            ],
+            "latency_ms": 2049
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_phone_change",
+        "scam_type": "ore_ore",
+        "message_count": 4,
+        "full_accuracy": 0.5,
+        "naive_accuracy": 0.5,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 3,
+        "signal_precision": 0.778,
+        "signal_recall": 0.875,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "suspicious",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "oreore_tax",
-      "scam_type": "ore_ore",
-      "message_count": 3,
-      "full_classification": "suspicious",
-      "full_score": 3.78,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.33,
-      "naive_accuracy": 0.33
+      "scenario": "oreore_crying",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん...ごめんね...大変なことしちゃった...",
+          "expected_signals": [
+            "PM-10"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.126,
+            "risk_score": 1.26,
+            "detected_signals": [
+              "PM-10"
+            ],
+            "family_alert": false,
+            "latency_ms": 3253
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.8,
+            "detected_signals": [
+              "emotional_manipulation",
+              "urgency_implied"
+            ],
+            "latency_ms": 2368
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "友達のお金を預かってたのに全部なくしちゃったんだ。殺されるかもしれない。",
+          "expected_signals": [
+            "PM-10",
+            "PM-6"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.354,
+            "risk_score": 3.539,
+            "detected_signals": [
+              "PM-10",
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3668
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "emotional_manipulation",
+              "financial_request_implied",
+              "urgency"
+            ],
+            "latency_ms": 2352
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "50万円だけでいいから。今日中に。お願い。誰にも言わないで。",
+          "expected_signals": [
+            "PM-1",
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-2",
+              "PM-3",
+              "PM-10"
+            ],
+            "family_alert": true,
+            "latency_ms": 3486
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "emotional manipulation",
+              "urgency",
+              "secrecy request"
+            ],
+            "latency_ms": 1749
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_crying",
+        "scam_type": "ore_ore",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.667,
+        "signal_recall": 0.667,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "scam",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "oreore_dual_lang",
-      "scam_type": "ore_ore",
-      "message_count": 3,
-      "full_classification": "suspicious",
-      "full_score": 3.07,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.33,
-      "naive_accuracy": 0.33
+      "scenario": "oreore_tax",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "税務署の田中と申します。未納の税金についてご連絡しました。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 3253
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "impersonation_risk"
+            ],
+            "latency_ms": 1930
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "至急お支払いいただかないと、法的措置を取らせていただきます。",
+          "expected_signals": [
+            "PM-1",
+            "PM-6"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.436,
+            "risk_score": 4.357,
+            "detected_signals": [
+              "PM-1",
+              "PM-6"
+            ],
+            "family_alert": true,
+            "latency_ms": 3602
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "threat of legal action"
+            ],
+            "latency_ms": 1833
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "コンビニでプリペイドカードを購入して番号をお伝えください。",
+          "expected_signals": [
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.733,
+            "risk_score": 7.334,
+            "detected_signals": [
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 2985
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_demand_unusual_payment_method"
+            ],
+            "latency_ms": 1943
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_tax",
+        "scam_type": "ore_ore",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 1.0,
+        "signal_recall": 0.8,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "suspicious",
+        "final_full_class": "high_risk",
+        "final_naive_class": "scam",
+        "final_risk_score": 7.334
+      }
     },
     {
-      "scenario_id": "oreore_repeat_offender",
-      "scam_type": "ore_ore",
-      "message_count": 3,
-      "full_classification": "high_risk",
-      "full_score": 5.36,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.0
+      "scenario": "oreore_dual_lang",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "Grandma! It's me, your grandson. 久しぶりだね。元気だった？",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.03,
+            "risk_score": 0.3,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 3502
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1827
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "I need help urgently. 事故を起こしちゃって、相手がすごく怒ってる。",
+          "expected_signals": [
+            "PM-1",
+            "PM-10"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.328,
+            "risk_score": 3.279,
+            "detected_signals": [
+              "PM-1",
+              "PM-10"
+            ],
+            "family_alert": false,
+            "latency_ms": 3278
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.8,
+            "detected_signals": [
+              "emotional manipulation",
+              "urgency"
+            ],
+            "latency_ms": 1952
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "Please wire 50万円 to this account. 誰にも言わないで、特にお母さんには。",
+          "expected_signals": [
+            "PM-2",
+            "PM-3"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-2",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 3366
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_transaction_request",
+              "secrecy_request"
+            ],
+            "latency_ms": 1676
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_dual_lang",
+        "scam_type": "ore_ore",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 1,
+        "detection_advantage": 0,
+        "signal_precision": 0.833,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "romance_basic_4msg",
-      "scam_type": "romance",
-      "message_count": 4,
-      "full_classification": "scam",
-      "full_score": 10.0,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.75,
-      "naive_accuracy": 0.5
+      "scenario": "oreore_repeat_offender",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、健二だよ。前のメッセージ届いた？",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.03,
+            "risk_score": 0.3,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 3431
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1669
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "あの事故の件、まだ解決してないんだ。もう時間がないんだよ。",
+          "expected_signals": [
+            "PM-1",
+            "PM-10"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.473,
+            "risk_score": 4.735,
+            "detected_signals": [
+              "PM-1",
+              "PM-10",
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3689
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1700
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "頼むから、30万円だけでいい。この口座に今すぐ振り込んで。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 3459
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial demand",
+              "urgency"
+            ],
+            "latency_ms": 1759
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "oreore_repeat_offender",
+        "scam_type": "ore_ore",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 2,
+        "detection_advantage": 1,
+        "signal_precision": 0.714,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "romance_military",
-      "scam_type": "romance",
-      "message_count": 3,
-      "full_classification": "scam",
-      "full_score": 7.5,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.0
+      "scenario": "romance_basic_4msg",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "あなたのプロフィールを見ました。とても素敵で優しい方ですね。",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.025,
+            "risk_score": 0.25,
+            "detected_signals": [
+              "PM-12"
+            ],
+            "family_alert": false,
+            "latency_ms": 4222
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1724
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "海外でエンジニアをしています。日本が恋しいです。いつかお庭を見に行きたいです。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.048,
+            "risk_score": 0.48,
+            "detected_signals": [
+              "PM-15"
+            ],
+            "family_alert": false,
+            "latency_ms": 3333
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1528
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "会いに行きたいのに困っています。急に助けが必要です。iTunesカードを買って番号を教えてもらえませんか？",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 3554
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "urgency",
+              "financial request",
+              "gift card",
+              "emotional manipulation"
+            ],
+            "latency_ms": 2690
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "3万円分のカードを3枚お願いします。番号を写真で送ってください。",
+          "expected_signals": [
+            "PM-3",
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 4003
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2156
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "romance_basic_4msg",
+        "scam_type": "romance",
+        "message_count": 4,
+        "full_accuracy": 0.75,
+        "naive_accuracy": 0.5,
+        "full_detect_at_message": 2,
+        "naive_detect_at_message": 2,
+        "detection_advantage": 0,
+        "signal_precision": 0.857,
+        "signal_recall": 0.857,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "safe",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "romance_jp",
-      "scam_type": "romance",
-      "message_count": 4,
-      "full_classification": "suspicious",
-      "full_score": 3.59,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.25,
-      "naive_accuracy": 0.25
+      "scenario": "romance_slow_build",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "Hello! Your smile in your profile picture is so warm and bea",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.025,
+            "risk_score": 0.25,
+            "detected_signals": [
+              "PM-12"
+            ],
+            "family_alert": false,
+            "latency_ms": 4001
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2030
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "I'm a doctor working with Doctors Without Borders in Syria. ",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.048,
+            "risk_score": 0.48,
+            "detected_signals": [
+              "PM-15"
+            ],
+            "family_alert": false,
+            "latency_ms": 3600
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1805
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "You remind me of my late mother. She was kind like you.",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.069,
+            "risk_score": 0.692,
+            "detected_signals": [
+              "PM-15"
+            ],
+            "family_alert": false,
+            "latency_ms": 3789
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1821
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "I have a package I want to send you but customs is holding i",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.604,
+            "risk_score": 6.044,
+            "detected_signals": [
+              "PM-3",
+              "PM-14"
+            ],
+            "family_alert": true,
+            "latency_ms": 3824
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "potential_impersonation",
+              "request_for_payment",
+              "lack_of_detail"
+            ],
+            "latency_ms": 1913
+          }
+        },
+        {
+          "message_index": 4,
+          "text_preview": "Can you send $500 via Western Union to release my package? I",
+          "expected_signals": [
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 3513
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_request",
+              "urgency",
+              "unusual_payment_method"
+            ],
+            "latency_ms": 2165
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "romance_slow_build",
+        "scam_type": "romance",
+        "message_count": 5,
+        "full_accuracy": 0.8,
+        "naive_accuracy": 0.8,
+        "full_detect_at_message": 3,
+        "naive_detect_at_message": 3,
+        "detection_advantage": 0,
+        "signal_precision": 0.571,
+        "signal_recall": 0.667,
+        "family_alert_at_message": 3,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "romance_crypto",
-      "scam_type": "romance",
-      "message_count": 4,
-      "full_classification": "suspicious",
-      "full_score": 4.83,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 1,
-      "full_accuracy": 0.75,
-      "naive_accuracy": 0.5
+      "scenario": "romance_military",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "Hi, I'm Captain James. I found your profile and was drawn to",
+          "expected_signals": [
+            "PM-11",
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.025,
+            "risk_score": 0.25,
+            "detected_signals": [
+              "PM-12"
+            ],
+            "family_alert": false,
+            "latency_ms": 3566
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.8,
+            "detected_signals": [],
+            "latency_ms": 2597
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "I'm deployed overseas and can't access my bank. I need help ",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.169,
+            "risk_score": 1.686,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3601
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "urgent request for help",
+              "vague request",
+              "deployed overseas"
+            ],
+            "latency_ms": 1943
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "Could you buy some Google Play gift cards for me? I need the",
+          "expected_signals": [
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.587,
+            "risk_score": 5.874,
+            "detected_signals": [
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 3722
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.8,
+            "detected_signals": [
+              "unusual_purchase_request",
+              "vague_reason_for_purchase"
+            ],
+            "latency_ms": 2195
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "romance_military",
+        "scam_type": "romance",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 1,
+        "detection_advantage": 0,
+        "signal_precision": 0.667,
+        "signal_recall": 0.5,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "high_risk",
+        "final_naive_class": "scam",
+        "final_risk_score": 5.874
+      }
     },
     {
-      "scenario_id": "romance_blackmail",
-      "scam_type": "romance",
-      "message_count": 3,
-      "full_classification": "suspicious",
-      "full_score": 3.89,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.0,
-      "naive_accuracy": 0.33
+      "scenario": "romance_jp",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "マッチングアプリで見つけました。とても素敵な方ですね。お話しませんか？",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.025,
+            "risk_score": 0.25,
+            "detected_signals": [
+              "PM-12"
+            ],
+            "family_alert": false,
+            "latency_ms": 4999
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.8,
+            "detected_signals": [],
+            "latency_ms": 1765
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "投資の仕事をしています。最近いい案件があるんですけど、一緒にやりませんか？",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.169,
+            "risk_score": 1.686,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 5647
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.7,
+            "detected_signals": [],
+            "latency_ms": 1762
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "まず10万円から始められます。私が全部サポートするので安心してください。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.696,
+            "risk_score": 6.959,
+            "detected_signals": [
+              "PM-3",
+              "PM-14"
+            ],
+            "family_alert": true,
+            "latency_ms": 5725
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "vague financial offer",
+              "promise of support"
+            ],
+            "latency_ms": 1731
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "この口座に振り込んでください。絶対に損はさせません。今日が最終日です。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 5015
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_request",
+              "urgency",
+              "guaranteed_return"
+            ],
+            "latency_ms": 1686
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "romance_jp",
+        "scam_type": "romance",
+        "message_count": 4,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.75,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 2,
+        "detection_advantage": 1,
+        "signal_precision": 0.571,
+        "signal_recall": 0.8,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "invest_guaranteed",
-      "scam_type": "investment",
-      "message_count": 4,
-      "full_classification": "suspicious",
-      "full_score": 3.38,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.75,
-      "naive_accuracy": 0.0
+      "scenario": "romance_en_long",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "Your profile caught my eye. You seem like such a kind, wonde",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.025,
+            "risk_score": 0.25,
+            "detected_signals": [
+              "PM-12"
+            ],
+            "family_alert": false,
+            "latency_ms": 4472
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.8,
+            "detected_signals": [
+              "emotional_manipulation"
+            ],
+            "latency_ms": 1658
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "I'm an engineer working overseas. I miss Japan so much.",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.048,
+            "risk_score": 0.48,
+            "detected_signals": [
+              "PM-15"
+            ],
+            "family_alert": false,
+            "latency_ms": 3827
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.95,
+            "detected_signals": [],
+            "latency_ms": 1852
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "I feel like I've known you forever. You're so special to me.",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.069,
+            "risk_score": 0.692,
+            "detected_signals": [
+              "PM-15"
+            ],
+            "family_alert": false,
+            "latency_ms": 3885
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2816
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "I want to visit but I'm stuck. Could you buy some iTunes gif",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.891,
+            "risk_score": 8.911,
+            "detected_signals": [
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 4089
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "gift_card_scam"
+            ],
+            "latency_ms": 1859
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "romance_en_long",
+        "scam_type": "romance",
+        "message_count": 4,
+        "full_accuracy": 0.75,
+        "naive_accuracy": 0.5,
+        "full_detect_at_message": 3,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 1,
+        "signal_precision": 0.6,
+        "signal_recall": 0.6,
+        "family_alert_at_message": 3,
+        "first_full_class": "safe",
+        "first_naive_class": "suspicious",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 8.911
+      }
     },
     {
-      "scenario_id": "invest_crypto_pump",
-      "scam_type": "investment",
-      "message_count": 3,
-      "full_classification": "suspicious",
-      "full_score": 3.2,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.33,
-      "naive_accuracy": 0.33
+      "scenario": "romance_crypto",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "こんにちは！あなたのプロフィール、とても興味深いです。",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.025,
+            "risk_score": 0.25,
+            "detected_signals": [
+              "PM-12"
+            ],
+            "family_alert": false,
+            "latency_ms": 3563
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1580
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "実は暗号通貨の投資をしていて、すごい利益が出てるんです。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.169,
+            "risk_score": 1.686,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3196
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.8,
+            "detected_signals": [],
+            "latency_ms": 1886
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "一緒に投資しませんか？まず5万円だけ。絶対損しません。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.696,
+            "risk_score": 6.959,
+            "detected_signals": [
+              "PM-3",
+              "PM-14"
+            ],
+            "family_alert": true,
+            "latency_ms": 3272
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "unsolicited investment offer",
+              "guaranteed profit claim"
+            ],
+            "latency_ms": 2248
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "このウォレットアドレスに送金してください。今日中にお願いします。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 3614
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.8,
+            "detected_signals": [
+              "unsolicited_payment_request",
+              "urgency_demand"
+            ],
+            "latency_ms": 1868
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "romance_crypto",
+        "scam_type": "romance",
+        "message_count": 4,
+        "full_accuracy": 0.75,
+        "naive_accuracy": 0.75,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 2,
+        "detection_advantage": 1,
+        "signal_precision": 0.667,
+        "signal_recall": 0.8,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "suspicious",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "invest_real_estate",
-      "scam_type": "investment",
-      "message_count": 3,
-      "full_classification": "monitoring",
-      "full_score": 2.25,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.0
+      "scenario": "romance_widow",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "I read that you lost your husband. I'm so sorry. I lost my w",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.025,
+            "risk_score": 0.25,
+            "detected_signals": [
+              "PM-15"
+            ],
+            "family_alert": false,
+            "latency_ms": 3781
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1774
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "We understand each other's pain. You're the only one who get",
+          "expected_signals": [
+            "PM-12"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.048,
+            "risk_score": 0.48,
+            "detected_signals": [
+              "PM-15"
+            ],
+            "family_alert": false,
+            "latency_ms": 3680
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1620
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "I'm coming to Japan but my flight was cancelled. Can you hel",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.585,
+            "risk_score": 5.85,
+            "detected_signals": [
+              "PM-3",
+              "PM-14"
+            ],
+            "family_alert": true,
+            "latency_ms": 4045
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "urgent_money_request"
+            ],
+            "latency_ms": 1973
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "romance_widow",
+        "scam_type": "romance",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 2,
+        "naive_detect_at_message": 2,
+        "detection_advantage": 0,
+        "signal_precision": 0.25,
+        "signal_recall": 0.333,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "high_risk",
+        "final_naive_class": "suspicious",
+        "final_risk_score": 5.85
+      }
     },
     {
-      "scenario_id": "invest_seminar",
-      "scam_type": "investment",
-      "message_count": 4,
-      "full_classification": "monitoring",
-      "full_score": 2.75,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.5,
-      "naive_accuracy": 0.25
+      "scenario": "romance_blackmail",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "あなたのこと本当に好きです。特別な写真を送ってくれませんか？",
+          "expected_signals": [
+            "PM-12",
+            "PM-7"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.025,
+            "risk_score": 0.25,
+            "detected_signals": [
+              "PM-12"
+            ],
+            "family_alert": false,
+            "latency_ms": 3470
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "inappropriate request"
+            ],
+            "latency_ms": 1807
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "写真ありがとう。でも、これを他の人に見せたくないでしょう？",
+          "expected_signals": [
+            "PM-6"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.401,
+            "risk_score": 4.013,
+            "detected_signals": [
+              "PM-2",
+              "PM-12"
+            ],
+            "family_alert": true,
+            "latency_ms": 3696
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "emotional_manipulation_implied"
+            ],
+            "latency_ms": 1740
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "10万円払ってくれたら削除します。払わないと公開します。",
+          "expected_signals": [
+            "PM-3",
+            "PM-6"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-3",
+              "PM-6"
+            ],
+            "family_alert": false,
+            "latency_ms": 3623
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "extortion",
+              "threat"
+            ],
+            "latency_ms": 1766
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "romance_blackmail",
+        "scam_type": "romance",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.6,
+        "signal_recall": 0.6,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "suspicious",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "invest_gold",
-      "scam_type": "investment",
-      "message_count": 3,
-      "full_classification": "monitoring",
-      "full_score": 2.71,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.0
+      "scenario": "invest_guaranteed",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "特別な投資案件のご案内です。年利20%保証の限定プログラムです。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3513
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "guaranteed_high_returns",
+              "limited_offer"
+            ],
+            "latency_ms": 2015
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "東京のお客様も皆さん利益を出されています。今なら特別に参加できます。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.15,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3695
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "implied financial gain",
+              "urgency/exclusivity"
+            ],
+            "latency_ms": 2548
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "10万円からスタートできます。私がステップごとにサポートします。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.31,
+            "risk_score": 3.098,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3537
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [],
+            "latency_ms": 3081
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "最後のチャンスです！今日中に振り込まないと枠がなくなります。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.39,
+            "risk_score": 3.9,
+            "detected_signals": [
+              "PM-1"
+            ],
+            "family_alert": false,
+            "latency_ms": 3811
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "urgency",
+              "financial threat"
+            ],
+            "latency_ms": 1909
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "invest_guaranteed",
+        "scam_type": "investment",
+        "message_count": 4,
+        "full_accuracy": 0.75,
+        "naive_accuracy": 0.25,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 3,
+        "signal_precision": 0.25,
+        "signal_recall": 0.2,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "scam",
+        "final_full_class": "suspicious",
+        "final_naive_class": "scam",
+        "final_risk_score": 3.9
+      }
     },
     {
-      "scenario_id": "invest_nft",
-      "scam_type": "investment",
-      "message_count": 3,
-      "full_classification": "suspicious",
-      "full_score": 3.2,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.33
+      "scenario": "invest_crypto_pump",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "この仮想通貨、来週10倍になります。内部情報です。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3637
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_gain_promise",
+              "insider_information_claim"
+            ],
+            "latency_ms": 2091
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "もう100人以上が参加してます。あなただけ乗り遅れますよ。",
+          "expected_signals": [
+            "PM-1"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.15,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3901
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "fear of missing out"
+            ],
+            "latency_ms": 1993
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "今すぐこのウォレットに送金してください。最低50万円から。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.939,
+            "risk_score": 9.393,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 8736
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "financial_demand_urgency",
+              "financial_demand_amount"
+            ],
+            "latency_ms": 1728
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "invest_crypto_pump",
+        "scam_type": "investment",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.6,
+        "signal_recall": 0.6,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "scam",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 9.393
+      }
     },
     {
-      "scenario_id": "authority_bank",
-      "scam_type": "authority",
-      "message_count": 3,
-      "full_classification": "monitoring",
-      "full_score": 2.12,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.33,
-      "naive_accuracy": 0.33
+      "scenario": "invest_real_estate",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "沖縄のリゾート物件、今なら特別価格でご案内できます。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 4379
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1610
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "すでに30室中28室が売れています。残り2室です。",
+          "expected_signals": [
+            "PM-1"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.15,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3924
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1815
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "頭金100万円を本日中にお振り込みいただければ確保できます。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.607,
+            "risk_score": 6.068,
+            "detected_signals": [
+              "PM-1",
+              "PM-3"
+            ],
+            "family_alert": true,
+            "latency_ms": 4200
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1782
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "invest_real_estate",
+        "scam_type": "investment",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": null,
+        "detection_advantage": 2,
+        "signal_precision": 0.5,
+        "signal_recall": 0.5,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "high_risk",
+        "final_naive_class": "safe",
+        "final_risk_score": 6.068
+      }
     },
     {
-      "scenario_id": "authority_tax_refund",
-      "scam_type": "authority",
-      "message_count": 3,
-      "full_classification": "scam",
-      "full_score": 7.5,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.33,
-      "naive_accuracy": 0.33
+      "scenario": "invest_seminar",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "無料投資セミナーのご案内です。講師は元証券会社の専門家です。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3379
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1636
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "セミナー参加者限定で特別な投資商品をご案内しています。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.15,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3540
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "investment opportunity"
+            ],
+            "latency_ms": 1739
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "この場で申し込まないと特別価格は適用されません。今すぐ決めてください。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.303,
+            "risk_score": 3.028,
+            "detected_signals": [
+              "PM-1"
+            ],
+            "family_alert": false,
+            "latency_ms": 10287
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "urgency",
+              "pressure"
+            ],
+            "latency_ms": 1884
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "口座情報を教えていただければ、こちらで手続きします。",
+          "expected_signals": [
+            "PM-7"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.564,
+            "risk_score": 5.636,
+            "detected_signals": [
+              "PM-7"
+            ],
+            "family_alert": true,
+            "latency_ms": 3814
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.8,
+            "detected_signals": [
+              "request_for_sensitive_information"
+            ],
+            "latency_ms": 1961
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "invest_seminar",
+        "scam_type": "investment",
+        "message_count": 4,
+        "full_accuracy": 0.5,
+        "naive_accuracy": 0.75,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 1,
+        "detection_advantage": 0,
+        "signal_precision": 0.5,
+        "signal_recall": 0.4,
+        "family_alert_at_message": 3,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "high_risk",
+        "final_naive_class": "scam",
+        "final_risk_score": 5.636
+      }
     },
     {
-      "scenario_id": "authority_customs",
-      "scam_type": "authority",
-      "message_count": 3,
-      "full_classification": "suspicious",
-      "full_score": 3.64,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.33
+      "scenario": "invest_forex",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "FX自動売買システムのご案内です。月利5%の実績があります。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 4785
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2136
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "デモ口座で試してみませんか？無料で始められます。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.15,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3837
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2003
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "本口座に移行するには50万円の入金が必要です。今なら手数料無料。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.614,
+            "risk_score": 6.138,
+            "detected_signals": [
+              "PM-3",
+              "PM-14"
+            ],
+            "family_alert": true,
+            "latency_ms": 4113
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "unsolicited_financial_request"
+            ],
+            "latency_ms": 2217
+          }
+        },
+        {
+          "message_index": 3,
+          "text_preview": "出金するには追加で30万円の手数料が必要です。至急お振り込みください。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.974,
+            "risk_score": 9.737,
+            "detected_signals": [
+              "PM-1",
+              "PM-3"
+            ],
+            "family_alert": false,
+            "latency_ms": 4252
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "demand for immediate payment",
+              "unspecified reason for fee",
+              "high amount requested"
+            ],
+            "latency_ms": 1805
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "invest_forex",
+        "scam_type": "investment",
+        "message_count": 4,
+        "full_accuracy": 0.5,
+        "naive_accuracy": 0.75,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 2,
+        "detection_advantage": 1,
+        "signal_precision": 0.5,
+        "signal_recall": 0.75,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 9.737
+      }
     },
     {
-      "scenario_id": "authority_court",
-      "scam_type": "authority",
-      "message_count": 2,
-      "full_classification": "monitoring",
-      "full_score": 2.88,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.0,
-      "naive_accuracy": 0.5
+      "scenario": "invest_gold",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "金の価格が急騰しています。今が投資のチャンスです。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3898
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "financial_opportunity_claim"
+            ],
+            "latency_ms": 1923
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "当社が独自に確保した金を特別価格でお譲りします。",
+          "expected_signals": [
+            "PM-3",
+            "PM-4"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.15,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 4188
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1860
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "本日限りの特別価格です。100万円以上のご購入で送料無料。すぐにお振り込みを。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.303,
+            "risk_score": 3.028,
+            "detected_signals": [
+              "PM-1"
+            ],
+            "family_alert": false,
+            "latency_ms": 4327
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1909
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "invest_gold",
+        "scam_type": "investment",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.0,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.333,
+        "signal_recall": 0.2,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "suspicious",
+        "final_full_class": "suspicious",
+        "final_naive_class": "safe",
+        "final_risk_score": 3.028
+      }
     },
     {
-      "scenario_id": "authority_telco",
-      "scam_type": "authority",
-      "message_count": 3,
-      "full_classification": "scam",
-      "full_score": 7.5,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.33
+      "scenario": "invest_en_stocks",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "Exclusive investment tip: this biotech stock will triple nex",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 9658
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "investment tip",
+              "will triple next month"
+            ],
+            "latency_ms": 1711
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "My clients have already made 200% returns. You're missing ou",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.15,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 11770
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "unrealistic_returns",
+              "high_pressure_sales"
+            ],
+            "latency_ms": 2137
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "Transfer $10,000 to this account to get started. The window ",
+          "expected_signals": [
+            "PM-1",
+            "PM-3"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.939,
+            "risk_score": 9.393,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 4210
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "urgency",
+              "financial demand",
+              "unsolicited request"
+            ],
+            "latency_ms": 1770
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "invest_en_stocks",
+        "scam_type": "investment",
+        "message_count": 3,
+        "full_accuracy": 0.333,
+        "naive_accuracy": 0.0,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.4,
+        "signal_recall": 0.5,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "scam",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 9.393
+      }
     },
     {
-      "scenario_id": "legit_grandchild_textbook",
-      "scam_type": "legitimate",
-      "message_count": 2,
-      "full_classification": "monitoring",
-      "full_score": 1.69,
-      "naive_classification": "suspicious",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.5,
-      "naive_accuracy": 0.0
+      "scenario": "invest_nft",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "限定NFTコレクションのご案内です。著名アーティストの作品です。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 3634
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1741
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "すでに価値が3倍になっています。今なら特別価格で購入できます。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.215,
+            "risk_score": 2.15,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 4309
+          },
+          "naive": {
+            "classification": "spam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "special offer",
+              "value increase claim"
+            ],
+            "latency_ms": 1877
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "購入にはこのウォレットアドレスに暗号通貨で送金してください。本日限り。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.939,
+            "risk_score": 9.393,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 3894
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "unsolicited_payment_request",
+              "time_sensitive_offer"
+            ],
+            "latency_ms": 1880
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "invest_nft",
+        "scam_type": "investment",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 1,
+        "detection_advantage": 0,
+        "signal_precision": 0.6,
+        "signal_recall": 0.75,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 9.393
+      }
     },
     {
-      "scenario_id": "legit_family_emergency",
-      "scam_type": "legitimate",
-      "message_count": 2,
-      "full_classification": "monitoring",
-      "full_score": 2.35,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.5,
-      "naive_accuracy": 0.0
+      "scenario": "authority_police",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "警察の佐藤です。あなたの口座が犯罪に使われた疑いがあります。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 4572
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "impersonation",
+              "financial threat"
+            ],
+            "latency_ms": 1932
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "このまま放置すると逮捕される可能性があります。",
+          "expected_signals": [
+            "PM-6"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.331,
+            "risk_score": 3.307,
+            "detected_signals": [
+              "PM-6"
+            ],
+            "family_alert": true,
+            "latency_ms": 4870
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "threat_of_arrest",
+              "urgency",
+              "fear_mongering"
+            ],
+            "latency_ms": 2458
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "口座の安全を確認するため、暗証番号とカード番号を教えてください。",
+          "expected_signals": [
+            "PM-7"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.589,
+            "risk_score": 5.893,
+            "detected_signals": [
+              "PM-7"
+            ],
+            "family_alert": false,
+            "latency_ms": 5426
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "request_sensitive_info"
+            ],
+            "latency_ms": 1877
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "authority_police",
+        "scam_type": "authority",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 1.0,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "scam",
+        "final_full_class": "high_risk",
+        "final_naive_class": "scam",
+        "final_risk_score": 5.893
+      }
     },
     {
-      "scenario_id": "legit_doctor_appointment",
-      "scam_type": "legitimate",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.0,
-      "naive_classification": "safe",
-      "full_detect_at": null,
-      "naive_detect_at": null,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 1.0
+      "scenario": "authority_bank",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "みずほ銀行セキュリティセンターです。不正アクセスを検知しました。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 8471
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.8,
+            "detected_signals": [
+              "impersonation"
+            ],
+            "latency_ms": 2073
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "至急口座を凍結する必要があります。本人確認をお願いします。",
+          "expected_signals": [
+            "PM-1",
+            "PM-4"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.28,
+            "risk_score": 2.797,
+            "detected_signals": [
+              "PM-1",
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 7505
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "urgency",
+              "account freeze",
+              "identity verification"
+            ],
+            "latency_ms": 2102
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "口座番号、暗証番号、生年月日を入力してください。",
+          "expected_signals": [
+            "PM-7"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.542,
+            "risk_score": 5.423,
+            "detected_signals": [
+              "PM-7"
+            ],
+            "family_alert": true,
+            "latency_ms": 4982
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "request for sensitive personal information"
+            ],
+            "latency_ms": 1668
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "authority_bank",
+        "scam_type": "authority",
+        "message_count": 3,
+        "full_accuracy": 0.333,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 1.0,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "suspicious",
+        "final_full_class": "high_risk",
+        "final_naive_class": "scam",
+        "final_risk_score": 5.423
+      }
     },
     {
-      "scenario_id": "legit_bank_notification",
-      "scam_type": "legitimate",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.31,
-      "naive_classification": "scam",
-      "full_detect_at": null,
-      "naive_detect_at": 0,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.0
+      "scenario": "authority_tax_refund",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "市役所の年金課です。年金の過払い分の還付手続きについてご連絡しました。",
+          "expected_signals": [
+            "PM-4",
+            "PM-9"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 4768
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2116
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "還付金を受け取るにはATMで手続きが必要です。",
+          "expected_signals": [
+            "PM-9"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.384,
+            "risk_score": 3.837,
+            "detected_signals": [
+              "PM-4",
+              "PM-9"
+            ],
+            "family_alert": true,
+            "latency_ms": 20414
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "implied urgency",
+              "request for action at ATM"
+            ],
+            "latency_ms": 2044
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "ATMの前に着いたら電話してください。操作方法をお伝えします。暗証番号もご用意ください。",
+          "expected_signals": [
+            "PM-7",
+            "PM-9"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.653,
+            "risk_score": 6.53,
+            "detected_signals": [
+              "PM-4",
+              "PM-9"
+            ],
+            "family_alert": false,
+            "latency_ms": 6414
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2326
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "authority_tax_refund",
+        "scam_type": "authority",
+        "message_count": 3,
+        "full_accuracy": 0.333,
+        "naive_accuracy": 0.0,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 1,
+        "detection_advantage": 0,
+        "signal_precision": 0.6,
+        "signal_recall": 0.6,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "high_risk",
+        "final_naive_class": "safe",
+        "final_risk_score": 6.53
+      }
     },
     {
-      "scenario_id": "legit_friend_lunch",
-      "scam_type": "legitimate",
-      "message_count": 2,
-      "full_classification": "safe",
-      "full_score": 0.0,
-      "naive_classification": "safe",
-      "full_detect_at": null,
-      "naive_detect_at": null,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 1.0
+      "scenario": "authority_customs",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "税関からのお知らせ：お客様宛の国際荷物が保留中です。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 6600
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "impersonation_attempt",
+              "urgency_scam"
+            ],
+            "latency_ms": 1866
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "関税未払いのため48時間以内に処理しないと破棄されます。",
+          "expected_signals": [
+            "PM-1"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.28,
+            "risk_score": 2.797,
+            "detected_signals": [
+              "PM-1",
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 5200
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "urgency",
+              "threat"
+            ],
+            "latency_ms": 1868
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "関税5万円をコンビニ払いでお支払いください。支払い番号：XXX-XXX",
+          "expected_signals": [
+            "PM-3",
+            "PM-5"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.894,
+            "risk_score": 8.938,
+            "detected_signals": [
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 6427
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "unsolicited financial demand",
+              "payment via convenience store",
+              "vague reference to customs duty"
+            ],
+            "latency_ms": 1992
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "authority_customs",
+        "scam_type": "authority",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.0,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.8,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "suspicious",
+        "final_full_class": "scam",
+        "final_naive_class": "suspicious",
+        "final_risk_score": 8.938
+      }
     },
     {
-      "scenario_id": "legit_delivery",
-      "scam_type": "legitimate",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.0,
-      "naive_classification": "safe",
-      "full_detect_at": null,
-      "naive_detect_at": null,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 1.0
+      "scenario": "authority_court",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "東京地方裁判所からの通知です。未払い料金に関する訴訟が提起されました。",
+          "expected_signals": [
+            "PM-4",
+            "PM-6"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.338,
+            "risk_score": 3.38,
+            "detected_signals": [
+              "PM-4",
+              "PM-6"
+            ],
+            "family_alert": true,
+            "latency_ms": 4432
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "unsolicited_legal_threat"
+            ],
+            "latency_ms": 2287
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "和解金50万円を本日中にお支払いいただければ訴訟を取り下げます。",
+          "expected_signals": [
+            "PM-1",
+            "PM-3",
+            "PM-6"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.967,
+            "risk_score": 9.67,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-6"
+            ],
+            "family_alert": false,
+            "latency_ms": 4520
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.8,
+            "detected_signals": [
+              "threat_of_legal_action",
+              "demand_for_payment"
+            ],
+            "latency_ms": 1849
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "authority_court",
+        "scam_type": "authority",
+        "message_count": 2,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 0,
+        "signal_precision": 1.0,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 0,
+        "first_full_class": "suspicious",
+        "first_naive_class": "suspicious",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 9.67
+      }
     },
     {
-      "scenario_id": "spam_product",
-      "scam_type": "spam",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.35,
-      "naive_classification": "spam",
-      "full_detect_at": null,
-      "naive_detect_at": 0,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.0
+      "scenario": "authority_insurance",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "保険会社の鈴木です。保険金の支払いについてご連絡しました。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 5758
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2398
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "保険金を受け取るには手数料として3万円が必要です。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.479,
+            "risk_score": 4.787,
+            "detected_signals": [
+              "PM-3",
+              "PM-4"
+            ],
+            "family_alert": true,
+            "latency_ms": 4561
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "demand_for_payment_for_unsolicited_benefit"
+            ],
+            "latency_ms": 1873
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "至急プリペイドカードを購入して番号をお知らせください。",
+          "expected_signals": [
+            "PM-1",
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 5932
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "urgency",
+              "financial_request"
+            ],
+            "latency_ms": 2111
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "authority_insurance",
+        "scam_type": "authority",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.667,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 1,
+        "detection_advantage": 0,
+        "signal_precision": 0.667,
+        "signal_recall": 0.8,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "spam_lottery",
-      "scam_type": "spam",
-      "message_count": 2,
-      "full_classification": "monitoring",
-      "full_score": 2.13,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.0,
-      "naive_accuracy": 0.0
+      "scenario": "authority_telco",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "NTTドコモからのお知らせです。料金の未払いがあります。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 5332
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.8,
+            "detected_signals": [
+              "potential impersonation",
+              "unsolicited financial demand"
+            ],
+            "latency_ms": 2762
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "本日中にお支払いいただかないと回線を停止します。",
+          "expected_signals": [
+            "PM-1",
+            "PM-6"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.28,
+            "risk_score": 2.797,
+            "detected_signals": [
+              "PM-1",
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 4810
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "threat_of_service_interruption",
+              "demand_for_immediate_payment"
+            ],
+            "latency_ms": 2117
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "コンビニで電子マネーを購入して番号を送ってください。",
+          "expected_signals": [
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.894,
+            "risk_score": 8.938,
+            "detected_signals": [
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": true,
+            "latency_ms": 4623
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "request_for_financial_information"
+            ],
+            "latency_ms": 1654
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "authority_telco",
+        "scam_type": "authority",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.6,
+        "signal_recall": 0.6,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "suspicious",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 8.938
+      }
     },
     {
-      "scenario_id": "spam_dating",
-      "scam_type": "spam",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.43,
-      "naive_classification": "spam",
-      "full_detect_at": null,
-      "naive_detect_at": 0,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.0
+      "scenario": "authority_en_irs",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "This is the IRS. You have an outstanding tax debt of $5,000.",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 4978
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.95,
+            "detected_signals": [
+              "impersonation",
+              "financial threat"
+            ],
+            "latency_ms": 1763
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "Failure to pay within 24 hours will result in arrest and pro",
+          "expected_signals": [
+            "PM-1",
+            "PM-6"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.436,
+            "risk_score": 4.357,
+            "detected_signals": [
+              "PM-1",
+              "PM-6"
+            ],
+            "family_alert": true,
+            "latency_ms": 9337
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "threat_of_arrest_and_prosecution",
+              "unrealistic_payment_deadline"
+            ],
+            "latency_ms": 2375
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "Purchase Apple gift cards totaling $5,000 and provide the co",
+          "expected_signals": [
+            "PM-3",
+            "PM-5",
+            "PM-7"
+          ],
+          "expected_class": "scam",
+          "full": {
+            "classification": "scam",
+            "confidence": 1.0,
+            "risk_score": 10.0,
+            "detected_signals": [
+              "PM-1",
+              "PM-3",
+              "PM-5"
+            ],
+            "family_alert": false,
+            "latency_ms": 5343
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.95,
+            "detected_signals": [
+              "financial_transaction_request",
+              "unusual_payment_method",
+              "urgency_implied"
+            ],
+            "latency_ms": 2062
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "authority_en_irs",
+        "scam_type": "authority",
+        "message_count": 3,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.333,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 2,
+        "signal_precision": 0.833,
+        "signal_recall": 0.833,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "scam",
+        "final_full_class": "scam",
+        "final_naive_class": "scam",
+        "final_risk_score": 10.0
+      }
     },
     {
-      "scenario_id": "spam_en_phishing",
-      "scam_type": "spam",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 1.15,
-      "naive_classification": "scam",
-      "full_detect_at": null,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.0,
-      "naive_accuracy": 0.0
+      "scenario": "legit_grandchild_money",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、健二だよ。今駅にいるんだけど財布忘れちゃった。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.03,
+            "risk_score": 0.3,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 5307
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2066
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "タクシー代2000円だけ貸してもらえない？明日返すから。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.462,
+            "risk_score": 4.618,
+            "detected_signals": [
+              "PM-11",
+              "PM-3"
+            ],
+            "family_alert": true,
+            "latency_ms": 6161
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1737
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "legit_grandchild_money",
+        "scam_type": "legitimate",
+        "message_count": 2,
+        "full_accuracy": 0.5,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": null,
+        "detection_advantage": 1,
+        "signal_precision": 0.667,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "suspicious",
+        "final_naive_class": "safe",
+        "final_risk_score": 4.618
+      }
     },
     {
-      "scenario_id": "spam_survey",
-      "scam_type": "spam",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.67,
-      "naive_classification": "spam",
-      "full_detect_at": null,
-      "naive_detect_at": 0,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.0
+      "scenario": "legit_grandchild_textbook",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、たかしです。大学の教科書が急に必要になって。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.142,
+            "risk_score": 1.42,
+            "detected_signals": [
+              "PM-11",
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 5267
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1678
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "5000円くらいなんだけど、今月お小遣い使い切っちゃって。来週のバイト代で返すね。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.71,
+            "risk_score": 7.104,
+            "detected_signals": [
+              "PM-11",
+              "PM-3",
+              "PM-14"
+            ],
+            "family_alert": true,
+            "latency_ms": 5943
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1926
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "legit_grandchild_textbook",
+        "scam_type": "legitimate",
+        "message_count": 2,
+        "full_accuracy": 0.5,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 1,
+        "naive_detect_at_message": null,
+        "detection_advantage": 1,
+        "signal_precision": 0.4,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 1,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "high_risk",
+        "final_naive_class": "safe",
+        "final_risk_score": 7.104
+      }
     },
     {
-      "scenario_id": "safe_neighbor",
-      "scam_type": "safe",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.0,
-      "naive_classification": "safe",
-      "full_detect_at": null,
-      "naive_detect_at": null,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 1.0
+      "scenario": "legit_family_emergency",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "お母さん、たけしです。車が故障して修理代が必要なんだ。",
+          "expected_signals": [
+            "PM-11",
+            "PM-10"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.268,
+            "risk_score": 2.68,
+            "detected_signals": [
+              "PM-11",
+              "PM-10",
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 4885
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.8,
+            "detected_signals": [
+              "family impersonation",
+              "financial request"
+            ],
+            "latency_ms": 1812
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "3万円くらいかかるみたい。来月の給料で返すから。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "scam",
+            "confidence": 0.826,
+            "risk_score": 8.264,
+            "detected_signals": [
+              "PM-11",
+              "PM-3",
+              "PM-14"
+            ],
+            "family_alert": true,
+            "latency_ms": 5599
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2102
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "legit_family_emergency",
+        "scam_type": "legitimate",
+        "message_count": 2,
+        "full_accuracy": 0.0,
+        "naive_accuracy": 0.5,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 0,
+        "signal_precision": 0.5,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 1,
+        "first_full_class": "monitoring",
+        "first_naive_class": "suspicious",
+        "final_full_class": "scam",
+        "final_naive_class": "safe",
+        "final_risk_score": 8.264
+      }
     },
     {
-      "scenario_id": "safe_community",
-      "scam_type": "safe",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.0,
-      "naive_classification": "safe",
-      "full_detect_at": null,
-      "naive_detect_at": null,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 1.0
+      "scenario": "legit_doctor_appointment",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "田中様、来週火曜日の定期検診のご予約確認です。10時にお越しください。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 4969
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 1.0,
+            "detected_signals": [],
+            "latency_ms": 1884
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "legit_doctor_appointment",
+        "scam_type": "legitimate",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.0
+      }
     },
     {
-      "scenario_id": "safe_en_hello",
-      "scam_type": "safe",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.0,
-      "naive_classification": "safe",
-      "full_detect_at": null,
-      "naive_detect_at": null,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 1.0
+      "scenario": "legit_bank_notification",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "みずほ銀行です。お客様の口座からATM出金がありました。金額：10,000円。ご本人の操作でない場合はご連絡ください。",
+          "expected_signals": [
+            "PM-4"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.091,
+            "risk_score": 0.91,
+            "detected_signals": [
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 4809
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.8,
+            "detected_signals": [],
+            "latency_ms": 2785
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "legit_bank_notification",
+        "scam_type": "legitimate",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 1.0,
+        "signal_recall": 1.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.91
+      }
     },
     {
-      "scenario_id": "oreore_slow_6msg",
-      "scam_type": "ore_ore",
-      "message_count": 6,
-      "full_classification": "suspicious",
-      "full_score": 4.95,
-      "naive_classification": "scam",
-      "full_detect_at": 4,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.5,
-      "naive_accuracy": 0.5
+      "scenario": "legit_friend_lunch",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "久しぶり！来週ランチしない？新しいお店見つけたの。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 5421
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.95,
+            "detected_signals": [],
+            "latency_ms": 2128
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "火曜日の11時はどう？駅前のイタリアンのお店。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 4938
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1710
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "legit_friend_lunch",
+        "scam_type": "legitimate",
+        "message_count": 2,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.0
+      }
     },
     {
-      "scenario_id": "romance_slow_build",
-      "scam_type": "romance",
-      "message_count": 5,
-      "full_classification": "high_risk",
-      "full_score": 5.03,
-      "naive_classification": "scam",
-      "full_detect_at": 3,
-      "naive_detect_at": 1,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.4
+      "scenario": "legit_delivery",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "ヤマト運輸です。お荷物のお届け予定日は明日です。ご不在の場合は再配達いたします。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 5287
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1849
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "legit_delivery",
+        "scam_type": "legitimate",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.0
+      }
     },
     {
-      "scenario_id": "romance_en_long",
-      "scam_type": "romance",
-      "message_count": 4,
-      "full_classification": "monitoring",
-      "full_score": 2.48,
-      "naive_classification": "scam",
-      "full_detect_at": 3,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.75,
-      "naive_accuracy": 0.25
+      "scenario": "legit_grandchild_visit",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おばあちゃん、ゆうきだよ。来月の連休にそっちに遊びに行こうと思うんだけど。",
+          "expected_signals": [
+            "PM-11"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.03,
+            "risk_score": 0.3,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 6054
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.95,
+            "detected_signals": [],
+            "latency_ms": 1926
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "何か欲しいものある？お土産買っていくよ。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.058,
+            "risk_score": 0.576,
+            "detected_signals": [
+              "PM-11"
+            ],
+            "family_alert": false,
+            "latency_ms": 5157
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1802
+          }
+        },
+        {
+          "message_index": 2,
+          "text_preview": "電車代がちょっと高いんだけど、おばあちゃん少し出してくれない？新幹線で行きたいんだ。",
+          "expected_signals": [
+            "PM-3"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.633,
+            "risk_score": 6.328,
+            "detected_signals": [
+              "PM-11",
+              "PM-3",
+              "PM-14"
+            ],
+            "family_alert": true,
+            "latency_ms": 6088
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 2561
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "legit_grandchild_visit",
+        "scam_type": "legitimate",
+        "message_count": 3,
+        "full_accuracy": 0.667,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 2,
+        "naive_detect_at_message": null,
+        "detection_advantage": 1,
+        "signal_precision": 0.4,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 2,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "high_risk",
+        "final_naive_class": "safe",
+        "final_risk_score": 6.328
+      }
     },
     {
-      "scenario_id": "romance_widow",
-      "scam_type": "romance",
-      "message_count": 3,
-      "full_classification": "safe",
-      "full_score": 1.21,
-      "naive_classification": "scam",
-      "full_detect_at": null,
-      "naive_detect_at": 1,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.33
+      "scenario": "spam_product",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "【期間限定】健康サプリメント50%OFF！今だけ特別価格でお届けします。詳しくはこちら→",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.112,
+            "risk_score": 1.12,
+            "detected_signals": [
+              "PM-14"
+            ],
+            "family_alert": false,
+            "latency_ms": 5216
+          },
+          "naive": {
+            "classification": "spam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "unsolicited marketing",
+              "limited-time offer",
+              "discount"
+            ],
+            "latency_ms": 1596
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "spam_product",
+        "scam_type": "spam",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "spam",
+        "final_full_class": "safe",
+        "final_naive_class": "spam",
+        "final_risk_score": 1.12
+      }
     },
     {
-      "scenario_id": "invest_forex",
-      "scam_type": "investment",
-      "message_count": 4,
-      "full_classification": "suspicious",
-      "full_score": 3.38,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.75,
-      "naive_accuracy": 0.0
+      "scenario": "spam_lottery",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "おめでとうございます！抽選で100万円が当選しました！",
+          "expected_signals": [
+            "PM-8"
+          ],
+          "expected_class": "monitoring",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.228,
+            "risk_score": 2.28,
+            "detected_signals": [
+              "PM-8"
+            ],
+            "family_alert": true,
+            "latency_ms": 5518
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "unsolicited prize notification",
+              "large sum of money"
+            ],
+            "latency_ms": 1963
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "受け取りには手数料5000円が必要です。こちらの口座にお振り込みください。",
+          "expected_signals": [
+            "PM-3",
+            "PM-8"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "high_risk",
+            "confidence": 0.605,
+            "risk_score": 6.048,
+            "detected_signals": [
+              "PM-3",
+              "PM-4"
+            ],
+            "family_alert": false,
+            "latency_ms": 5386
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "unsolicited payment request",
+              "unspecified recipient"
+            ],
+            "latency_ms": 1961
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "spam_lottery",
+        "scam_type": "spam",
+        "message_count": 2,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.0,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 0,
+        "signal_precision": 0.667,
+        "signal_recall": 0.667,
+        "family_alert_at_message": 0,
+        "first_full_class": "monitoring",
+        "first_naive_class": "scam",
+        "final_full_class": "high_risk",
+        "final_naive_class": "scam",
+        "final_risk_score": 6.048
+      }
     },
     {
-      "scenario_id": "invest_en_stocks",
-      "scam_type": "investment",
-      "message_count": 3,
-      "full_classification": "monitoring",
-      "full_score": 2.71,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.33,
-      "naive_accuracy": 0.0
+      "scenario": "spam_dating",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "新しいマッチがあります！素敵な方があなたにメッセージを送っています。今すぐログイン→",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.253,
+            "risk_score": 2.53,
+            "detected_signals": [
+              "PM-8",
+              "PM-12"
+            ],
+            "family_alert": true,
+            "latency_ms": 4876
+          },
+          "naive": {
+            "classification": "spam",
+            "confidence": 0.8,
+            "detected_signals": [
+              "unsolicited message",
+              "call to action to login"
+            ],
+            "latency_ms": 1856
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "spam_dating",
+        "scam_type": "spam",
+        "message_count": 1,
+        "full_accuracy": 0.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": 0,
+        "first_full_class": "monitoring",
+        "first_naive_class": "spam",
+        "final_full_class": "monitoring",
+        "final_naive_class": "spam",
+        "final_risk_score": 2.53
+      }
     },
     {
-      "scenario_id": "authority_police",
-      "scam_type": "authority",
-      "message_count": 3,
-      "full_classification": "monitoring",
-      "full_score": 1.72,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.33,
-      "naive_accuracy": 0.33
+      "scenario": "spam_en_phishing",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "Your Amazon account has been suspended. Click here to verify",
+          "expected_signals": [
+            "PM-4",
+            "PM-7"
+          ],
+          "expected_class": "suspicious",
+          "full": {
+            "classification": "suspicious",
+            "confidence": 0.376,
+            "risk_score": 3.76,
+            "detected_signals": [
+              "PM-4",
+              "PM-7"
+            ],
+            "family_alert": true,
+            "latency_ms": 4909
+          },
+          "naive": {
+            "classification": "scam",
+            "confidence": 0.9,
+            "detected_signals": [
+              "impersonation",
+              "account suspension",
+              "identity verification request"
+            ],
+            "latency_ms": 1930
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "spam_en_phishing",
+        "scam_type": "spam",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 0.0,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 0,
+        "signal_precision": 1.0,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 0,
+        "first_full_class": "suspicious",
+        "first_naive_class": "scam",
+        "final_full_class": "suspicious",
+        "final_naive_class": "scam",
+        "final_risk_score": 3.76
+      }
     },
     {
-      "scenario_id": "authority_insurance",
-      "scam_type": "authority",
-      "message_count": 3,
-      "full_classification": "monitoring",
-      "full_score": 2.91,
-      "naive_classification": "scam",
-      "full_detect_at": 1,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.33
+      "scenario": "spam_survey",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "アンケートに答えて1万円分のギフトカードをもらおう！",
+          "expected_signals": [
+            "PM-8"
+          ],
+          "expected_class": "safe",
+          "full": {
+            "classification": "monitoring",
+            "confidence": 0.228,
+            "risk_score": 2.28,
+            "detected_signals": [
+              "PM-8"
+            ],
+            "family_alert": true,
+            "latency_ms": 4420
+          },
+          "naive": {
+            "classification": "suspicious",
+            "confidence": 0.7,
+            "detected_signals": [
+              "unsolicited offer"
+            ],
+            "latency_ms": 1950
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "spam_survey",
+        "scam_type": "spam",
+        "message_count": 1,
+        "full_accuracy": 0.0,
+        "naive_accuracy": 0.0,
+        "full_detect_at_message": 0,
+        "naive_detect_at_message": 0,
+        "detection_advantage": 0,
+        "signal_precision": 1.0,
+        "signal_recall": 1.0,
+        "family_alert_at_message": 0,
+        "first_full_class": "monitoring",
+        "first_naive_class": "suspicious",
+        "final_full_class": "monitoring",
+        "final_naive_class": "suspicious",
+        "final_risk_score": 2.28
+      }
     },
     {
-      "scenario_id": "authority_en_irs",
-      "scam_type": "authority",
-      "message_count": 3,
-      "full_classification": "scam",
-      "full_score": 8.14,
-      "naive_classification": "scam",
-      "full_detect_at": 2,
-      "naive_detect_at": 0,
-      "full_accuracy": 0.67,
-      "naive_accuracy": 0.33
+      "scenario": "safe_neighbor",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "田中さん、お隣の山田です。回覧板をお持ちしました。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 14484
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 1.0,
+            "detected_signals": [],
+            "latency_ms": 2111
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "safe_neighbor",
+        "scam_type": "safe",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.0
+      }
     },
     {
-      "scenario_id": "legit_grandchild_money",
-      "scam_type": "legitimate",
-      "message_count": 2,
-      "full_classification": "safe",
-      "full_score": 1.33,
-      "naive_classification": "scam",
-      "full_detect_at": null,
-      "naive_detect_at": 0,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.0
+      "scenario": "safe_old_friend",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "久しぶりね！同窓会の案内が来たの。一緒に行かない？",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 4102
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1671
+          }
+        },
+        {
+          "message_index": 1,
+          "text_preview": "来月の15日、新宿のホテルで。参加費3000円だって。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 4382
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1850
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "safe_old_friend",
+        "scam_type": "safe",
+        "message_count": 2,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.0
+      }
     },
     {
-      "scenario_id": "legit_grandchild_visit",
-      "scam_type": "legitimate",
-      "message_count": 3,
-      "full_classification": "safe",
-      "full_score": 1.42,
-      "naive_classification": "scam",
-      "full_detect_at": null,
-      "naive_detect_at": 2,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 0.67
+      "scenario": "safe_community",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "公民館からのお知らせです。来週の健康体操教室は祝日のためお休みです。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 4550
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 1.0,
+            "detected_signals": [],
+            "latency_ms": 1865
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "safe_community",
+        "scam_type": "safe",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.0
+      }
     },
     {
-      "scenario_id": "safe_pharmacy",
-      "scam_type": "safe",
-      "message_count": 1,
-      "full_classification": "safe",
-      "full_score": 0.35,
-      "naive_classification": "safe",
-      "full_detect_at": null,
-      "naive_detect_at": null,
-      "full_accuracy": 1.0,
-      "naive_accuracy": 1.0
+      "scenario": "safe_en_hello",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "Hi there! I think we met at the community center last week. ",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 7936
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1998
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "safe_en_hello",
+        "scam_type": "safe",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.0
+      }
+    },
+    {
+      "scenario": "safe_pharmacy",
+      "results": [
+        {
+          "message_index": 0,
+          "text_preview": "さくら薬局です。お薬の処方箋の有効期限が近づいています。お早めにお越しください。",
+          "expected_signals": [],
+          "expected_class": "safe",
+          "full": {
+            "classification": "safe",
+            "confidence": 0.0,
+            "risk_score": 0.0,
+            "detected_signals": [],
+            "family_alert": false,
+            "latency_ms": 5183
+          },
+          "naive": {
+            "classification": "safe",
+            "confidence": 0.9,
+            "detected_signals": [],
+            "latency_ms": 1734
+          }
+        }
+      ],
+      "metrics": {
+        "scenario_id": "safe_pharmacy",
+        "scam_type": "safe",
+        "message_count": 1,
+        "full_accuracy": 1.0,
+        "naive_accuracy": 1.0,
+        "full_detect_at_message": null,
+        "naive_detect_at_message": null,
+        "detection_advantage": 0,
+        "signal_precision": 0.0,
+        "signal_recall": 0.0,
+        "family_alert_at_message": null,
+        "first_full_class": "safe",
+        "first_naive_class": "safe",
+        "final_full_class": "safe",
+        "final_naive_class": "safe",
+        "final_risk_score": 0.0
+      }
     }
   ]
 }

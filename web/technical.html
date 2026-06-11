@@ -170,7 +170,7 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
 <!-- ============================================================ -->
 <h2>2. Benchmark: Faxi Production vs Elder Shield</h2>
 
-<p>Both systems run on the same model (<code>gemini-2.5-flash-lite</code>), same cost. Faxi's classifier is the real production code from <code>spamCheckService.ts</code>.</p>
+<p>Both systems run on the same model (<code>gemini-2.5-flash-lite</code>), same cost. The baseline is a faithful re-implementation of the prompt from Faxi's production <code>spamCheckService.ts</code> — written new for this benchmark; no Faxi code is in this repo.</p>
 
 <h3>Scam Detection (both catch everything)</h3>
 <table>
@@ -219,7 +219,7 @@ Turn 1 (sender): "Yes, it's Kenji! I'm in Osaka."
     <tr><td><strong>before_tool_callback</strong></td><td>Classifier, Analyzer, Interceptor</td><td>Native tool call tracing to session state</td></tr>
     <tr><td><strong>after_model_callback</strong></td><td>Classifier</td><td>Runtime output validation</td></tr>
     <tr><td><strong>before_model_callback</strong></td><td>Analyzer</td><td>Dynamic context injection from session state</td></tr>
-    <tr><td><strong>Session reuse</strong></td><td>app.py</td><td>Longitudinal state per user across requests</td></tr>
+    <tr><td><strong>Session per request</strong></td><td>app.py</td><td>output_key results per request; longitudinal state in the deterministic risk ledger</td></tr>
     <tr><td><strong>Conditional routing</strong></td><td>Workflow edges</td><td>Risk-based fan-out to Family Alerter</td></tr>
   </tbody>
 </table>

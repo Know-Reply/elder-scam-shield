@@ -99,31 +99,35 @@ def generate_alert(
 
     now = datetime.now(JST)
 
-    # Load family contact preferences
+    # Load family contact preferences. Firestore is best-effort: the alert
+    # must still be generated when persistence is unavailable (local dev,
+    # API not enabled). Short timeouts prevent gRPC retry hangs.
+    family_member_id = "family-demo"
+    delivery_channel = "email"
     if db is not None:
-        profile = (db.collection("users").document(user_id).get().to_dict() or {})
-        family = profile.get("family_contacts", [{}])[0]
-        family_member_id = family.get("id", "unknown")
-        delivery_channel = family.get("preferred_channel", "email")
+        try:
+            profile = (db.collection("users").document(user_id).get(timeout=5.0).to_dict() or {})
+            family = profile.get("family_contacts", [{}])[0]
+            family_member_id = family.get("id", "unknown")
+            delivery_channel = family.get("preferred_channel", "email")
 
-        # Dedup & rate-limit within sliding 24 h window
-        recent = list(
-            db.collection("notifications")
-            .where("user_id", "==", user_id)
-            .where("timestamp", ">=", now - timedelta(hours=DEDUP_WINDOW_H))
-            .stream()
-        )
-        if any(
-            (d := n.to_dict()).get("alert_type") == alert_type
-            and d.get("sender_id") == sender_id
-            for n in recent
-        ):
-            return {"status": "dedup", "message": "Duplicate alert suppressed within 24 h."}
-        if len(recent) >= RATE_LIMIT_PER_DAY:
-            return {"status": "rate_limited", "message": "Daily alert cap reached."}
-    else:
-        family_member_id = "family-demo"
-        delivery_channel = "email"
+            # Dedup & rate-limit within sliding 24 h window
+            recent = list(
+                db.collection("notifications")
+                .where("user_id", "==", user_id)
+                .where("timestamp", ">=", now - timedelta(hours=DEDUP_WINDOW_H))
+                .stream(timeout=5.0)
+            )
+            if any(
+                (d := n.to_dict()).get("alert_type") == alert_type
+                and d.get("sender_id") == sender_id
+                for n in recent
+            ):
+                return {"status": "dedup", "message": "Duplicate alert suppressed within 24 h."}
+            if len(recent) >= RATE_LIMIT_PER_DAY:
+                return {"status": "rate_limited", "message": "Daily alert cap reached."}
+        except Exception:
+            pass  # fall back to demo defaults — alert generation must not block
 
     # Evidence summary — counts and categories, never raw content
     evidence = {
@@ -167,9 +171,12 @@ def generate_alert(
         "response_action": None,
     }
 
-    # Persist notification record to Memory Bank
+    # Persist notification record to Memory Bank — best-effort
     if db is not None:
-        db.collection("notifications").document(alert_id).set(record)
+        try:
+            db.collection("notifications").document(alert_id).set(record, timeout=5.0)
+        except Exception:
+            pass  # alert is still returned to the caller
 
     # Pipeline event: alert.delivered
     pipeline_event = {

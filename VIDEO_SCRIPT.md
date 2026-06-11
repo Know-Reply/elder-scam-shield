@@ -6,8 +6,9 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 
 ## 0:00–0:15 | THE PROBLEM
 **Show:** Stats on /shield page, then a message that looks innocent
+"Hi I'm Rob, the creator of Elder Shield
 
-"Elder fraud costs Japan over 320 billion yen a year and $77 Billion globally. The problem isn't catching scam messages — any classifier can do that. Real scams unfold over extended periods. So does our detection. Because each message in the setup phase is only looks safe, but it's designed to manipulate. A per-message classifier misses it entirely."
+Online fraud targeting the elderly costs Japan over 320 billion yen a year and $77 Billion globally. The problem isn't catching scam messages — any classifier can do that. Real scams unfold over extended periods. So does our detection. Because each message in the setup phase is only looks safe, but it's designed to manipulate. A per-message classifier misses it entirely."
 
 ## 0:15–0:30 | THE INSIGHT
 **Show:** Architecture diagram (/architecture page)
@@ -32,7 +33,7 @@ Target: 300 words spoken at natural pace. Screen recordings of live demo.
 ## 1:25–1:45 | RESULTS: BEFORE AND AFTER
 **Show:** Comparison bars from any scenario — Elder Shield vs Pre-ADK Tuning
 
-"The results. The naive baseline — same model, no optimization — calls scam on 75% of first messages and falsely blocks 5 out of 12 legitimate family requests. Elder Shield: zero false positives. 63.6% accuracy versus 34.7%. And the metric that matters most: WHEN, not IF. A system that flags on day 7 documents a crime. A system that flags on day 3 prevents one."
+"The results. The naive baseline — same model, no optimization — calls scam on 75% of first messages and falsely blocks 5 out of 12 legitimate family requests. Elder Shield: zero false positives. 63.6% accuracy versus 34.7%. And the metric that matters most: WHEN, not IF. A system that flags on day 7 documents a crime. A system that flags on day 4 prevents one."
 
 ## 1:45–2:00 | CLOSE
 **Show:** /shield overview page with Faxi branding

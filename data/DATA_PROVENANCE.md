@@ -6,13 +6,13 @@ Transparency about what's real, what's synthetic, and how each was produced.
 
 ## Corpus: 22,979 entries (22,837 after deduplication)
 
-### Real data (22,568 entries -- 98.2%)
+### Published datasets (22,805 entries -- 99.2%)
 
 | Source | Entries | Language | Type | License | Method |
 |---|---|---|---|---|---|
 | [zefang-liu/phishing-email-dataset](https://huggingface.co/datasets/zefang-liu/phishing-email-dataset) | 17,514 | EN | Real phishing + safe emails | LGPL-3.0 | Downloaded from HuggingFace, deduplicated |
 | [cybersectony/PhishingEmailDetectionv2.0](https://huggingface.co/datasets/cybersectony/PhishingEmailDetectionv2.0) | 1,254 | EN | Real phishing + legitimate emails (URL rows excluded) | Unspecified | Downloaded from HuggingFace, filtered to email-only rows |
-| [antiphishing.jp](https://www.antiphishing.jp/news/database/) | 203 | JA | Real Japanese phishing messages (subject lines + message bodies) | Public educational | Scraped from case pages, tagged by impersonated brand |
+| [antiphishing.jp](https://www.antiphishing.jp/news/database/) | 793 | JA | Real Japanese phishing messages (subject lines + message bodies) | Public educational | Scraped from case pages, tagged by impersonated brand |
 | [NPA SOS47 dialogues](https://www.npa.go.jp/bureau/safetylife/sos47/case/) | 44 | JA | Real NPA-published scam dialogues and scripts | Public educational | Extracted from 8 NPA pattern pages (ore-ore, deposits, cashcard, billing, refund, romance, investment, special) |
 | [BothBosu/scam-dialogue](https://huggingface.co/datasets/BothBosu/scam-dialogue) | 1,600 | EN | Multi-turn phone call transcripts (scam + safe) | Apache 2.0 | Downloaded from HuggingFace. Synthetic (Llama 3 70B). 4 scam types + 4 safe types. |
 | [BothBosu/multi-agent-scam-conversation](https://huggingface.co/datasets/BothBosu/multi-agent-scam-conversation) | 1,600 | EN | Multi-turn conversations with 8 personality types | Apache 2.0 | Downloaded from HuggingFace. Synthetic (AutoGen). Same types + personality dimension. |
@@ -25,7 +25,7 @@ Priority-ordered patterns match specific keywords (e.g., "prince" + "inheritance
 specific pattern were tagged `generic-scam`. The regex rules are in
 `data/retag_corpus.py` and are fully reproducible.
 
-### Synthetic data (174 entries -- 0.8%)
+### Our synthetic data (174 entries -- 0.8%)
 
 | Source | Entries | Type | Method |
 |---|---|---|---|

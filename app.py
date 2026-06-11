@@ -88,9 +88,6 @@ _intercept_runner = Runner(
     session_service=_session_service,
 )
 
-# Session cache — reuse sessions per user for longitudinal state
-_session_cache: dict[str, str] = {}
-
 # Risk ledger cache — persists ConversationRiskLedger per conversation
 _risk_ledgers: dict[str, ConversationRiskLedger] = {}
 
@@ -99,26 +96,19 @@ _hold_audit_log: list[dict] = []
 
 
 async def _get_or_create_session(user_id: str, state: dict | None = None) -> object:
-    """Reuse existing session or create new one with optional initial state."""
-    if user_id in _session_cache:
-        session = await _session_service.get_session(
-            app_name="elder_scam_shield",
-            user_id=user_id,
-            session_id=_session_cache[user_id],
-        )
-        if session:
-            # Update state with new message data
-            if state:
-                for k, v in state.items():
-                    session.state[k] = v
-            return session
-    session = await _session_service.create_session(
+    """Create a fresh session carrying this request's state.
+
+    Cross-message memory lives in the deterministic per-sender stores
+    (_risk_ledgers, _analyzer_states), not in ADK session state. A fresh
+    session per request guarantees the Workflow's pre-processing sees the
+    current message: ADK's InMemorySessionService returns deep copies, so
+    mutating a cached session's state would silently never persist.
+    """
+    return await _session_service.create_session(
         app_name="elder_scam_shield",
         user_id=user_id,
         state=state or {},
     )
-    _session_cache[user_id] = session.id
-    return session
 
 # ---------------------------------------------------------------------------
 # App

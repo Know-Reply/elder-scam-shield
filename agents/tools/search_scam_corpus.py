@@ -264,10 +264,12 @@ def search_scam_corpus(
     """
     use_vertex = os.environ.get("USE_VERTEX_SEARCH", "").lower() == "true"
 
+    grounding_source = "local_jsonl"
     if use_vertex:
         try:
             matches = _search_vertex(message_text, top_k)
-        except Exception as e:
+            grounding_source = "vertex_ai_search"
+        except Exception:
             # Fall back to local on Vertex failure
             matches = _search_local(message_text, top_k, label_filter)
     else:
@@ -286,7 +288,7 @@ def search_scam_corpus(
             "scam_entries": scam_count,
             "safe_entries": safe_count,
         },
-        "grounding_source": "vertex_ai_search" if use_vertex else "local_jsonl",
+        "grounding_source": grounding_source,
     }
 
 
