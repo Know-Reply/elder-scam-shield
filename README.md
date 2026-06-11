@@ -308,7 +308,7 @@ Agent Search eliminates the 30-50 second corpus pre-warm that was blocking Cloud
 
 ## Demo
 
-Live at [shield.faxi.jp](https://shield.faxi.jp):
+Live at [elder-scam-shield-747058288298.us-central1.run.app](https://elder-scam-shield-747058288298.us-central1.run.app/shield):
 
 - **/shield** -- Overview page with architecture, benchmark results, and the provenance tracking story.
 - **/analyzer** -- **Conversation Analyzer** — 4 demo scenarios: early detection + block, outbound reply interception, longitudinal detection (6 messages), epistemic drift. Pre-captured seed data with live final exchange through real pipeline.
